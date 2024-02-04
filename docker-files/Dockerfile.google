@@ -29,4 +29,4 @@ RUN mkdir /functions-framework-cpp/examples/howto_use_legacy_code/build \
 
 WORKDIR /functions-framework-cpp/examples/howto_use_legacy_code/build
 
-ENTRYPOINT ./functions-framework-cpp/examples/howto_use_legacy_code/build/main --port 9000
+ENTRYPOINT /functions-framework-cpp/examples/howto_use_legacy_code/build/main --port 9000
