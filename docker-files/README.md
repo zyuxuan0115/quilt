@@ -11,3 +11,12 @@
 > ./docker-images.sh build 
 
 ```
+
+- to run the container locally
+```
+sudo docker run --detach --rm -p 9000:9000 
+```
+in another terminal 
+```
+curl http://localhost:9000
+```
