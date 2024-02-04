@@ -1,0 +1,30 @@
+FROM ubuntu:bionic
+
+ARG NUM_CPUS=4
+
+ARG BUILD_DEPS="ca-certificates g++ wget git automake libboost-all-dev libevent-dev libssl-dev libtool make"
+
+RUN apt-get update \
+  && apt-get install -y build-essential \
+  && apt-get install -y ${BUILD_DEPS} --no-install-recommends
+
+# install newest version of cmake
+RUN wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz \
+  && tar -vxf cmake-3.28.1.tar.gz \
+  && cd cmake-3.28.1 \
+  && ./configure \
+  && make -j${NUM_CPUS} \
+  && make install
+
+RUN git clone -q https://github.com/microsoft/vcpkg \
+  && cd vcpkg \
+  && ./bootstrap-vcpkg.sh --disableMetrics
+
+COPY . /functions-framework-cpp
+
+RUN mkdir /functions-framework-cpp/examples/howto_use_legacy_code/build \ 
+  && cd /functions-framework-cpp/examples/howto_use_legacy_code/build \
+  && cmake .. -DCMAKE_TOOLCHAIN_FILE=/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  && make
+
+WORKDIR /functions-framework-cpp/examples/howto_use_legacy_code/build
