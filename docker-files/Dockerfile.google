@@ -2,7 +2,7 @@ FROM ubuntu:bionic
 
 ARG NUM_CPUS=4
 
-ARG BUILD_DEPS="ca-certificates g++ wget git automake libboost-all-dev libevent-dev libssl-dev libtool make curl"
+ARG BUILD_DEPS="ca-certificates g++ wget git automake libboost-all-dev libevent-dev libssl-dev libtool make curl zip unzip tar"
 
 RUN apt-get update \
   && apt-get install -y build-essential \
@@ -20,7 +20,7 @@ RUN git clone -q https://github.com/microsoft/vcpkg \
   && cd vcpkg \
   && ./bootstrap-vcpkg.sh --disableMetrics
 
-COPY . /functions-framework-cpp
+RUN git clone -q https://github.com/GoogleCloudPlatform/functions-framework-cpp.git
 
 RUN mkdir /functions-framework-cpp/examples/howto_use_legacy_code/build \ 
   && cd /functions-framework-cpp/examples/howto_use_legacy_code/build \
