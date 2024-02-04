@@ -14,7 +14,7 @@
 
 - to run the container locally
 ```
-sudo docker run --detach --rm -p 9000:9000 
+sudo docker run --detach --rm -p 9000:9000 <container image ID>
 ```
 in another terminal 
 ```
