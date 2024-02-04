@@ -28,3 +28,5 @@ RUN mkdir /functions-framework-cpp/examples/howto_use_legacy_code/build \
   && make
 
 WORKDIR /functions-framework-cpp/examples/howto_use_legacy_code/build
+
+ENTRYPOINT ./functions-framework-cpp/examples/howto_use_legacy_code/build/main --port 9000
