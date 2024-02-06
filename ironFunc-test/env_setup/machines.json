@@ -1,23 +1,23 @@
 {
-    "nightcore-sn-cache": {
+    "ironfunc-worker1": {
         "dns": "zyuxuan@clnode232.clemson.cloudlab.us",
         "ip": "130.127.133.241",
         "role": "worker",
         "type": "c5.xlarge"
     },
-    "nightcore-sn-client": {
+    "ironfunc-client": {
         "dns": "zyuxuan@clnode240.clemson.cloudlab.us",
         "ip": "130.127.134.4",
         "role": "client",
         "type": "c5.xlarge"
     },
-    "nightcore-sn-front": {
+    "ironfunc-worker2": {
         "dns": "zyuxuan@clnode230.clemson.cloudlab.us",
         "ip": "130.127.133.239",
         "role": "worker",
         "type": "c5.xlarge"
     },
-    "nightcore-sn-middle": {
+    "ironfunc-gateway": {
         "dns": "zyuxuan@clnode238.clemson.cloudlab.us",
         "ip": "130.127.134.2",
         "labels": [
@@ -26,13 +26,13 @@
         "role": "manager",
         "type": "c5.xlarge"
     },
-    "nightcore-sn-mongodb": {
+    "ironfunc-mongodb": {
         "dns": "zyuxuan@clnode090.clemson.cloudlab.us",
         "ip": "130.127.133.99",
         "role": "worker",
         "type": "c5.xlarge"
     },
-    "nightcore-sn-write-home-timeline": {
+    "ironfunc-redis": {
         "dns": "zyuxuan@clnode044.clemson.cloudlab.us",
         "ip": "130.127.133.53",
         "role": "worker",
