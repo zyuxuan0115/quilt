@@ -8,15 +8,7 @@ services:
       - DOCKER_TLS_VERIFY
       - DOCKER_HOST
       - DOCKER_MACHINE_NAME
-      - DOCKER_CERT_PATH="/docker-cert"
-    entrypoint:
-      - /nightcore/gateway
-      - --listen_addr=0.0.0.0
-      - --http_port=8080
-      - --func_config_file=/tmp/nightcore/func_config.json
-      - --num_io_workers=4
-      - --lb_pick_least_load
-      - --max_running_requests=24
+#      - DOCKER_CERT_PATH="/docker-cert"
     volumes:
-      - $DOCKER_CERT_PATH:/docker-cert
-      - functions-datafiles:/app/data
+#      - $DOCKER_CERT_PATH:/docker-cert
+      - /mnt/inmem/ironfunc:/app/data

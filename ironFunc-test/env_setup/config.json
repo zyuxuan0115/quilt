@@ -8,7 +8,6 @@
         "ironfunc-client": { "type": "c5.xlarge", "role": "client" }
     },
     "services": {
-        "nightcore-gateway": { "placement": "ironfunc-gateway" },
-        "nightcore-engine": { "placement": "ironfunc-worker" }
+        "ironfunc-gateway": { "placement": "ironfunc-gateway" }
     }
 }

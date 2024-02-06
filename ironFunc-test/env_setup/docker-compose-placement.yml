@@ -1,11 +1,5 @@
 services:
-  nightcore-engine:
-    deploy:
-      placement:
-        constraints:
-        - node.hostname == ironfunc-worker
-      replicas: 1
-  nightcore-gateway:
+  ironfunc-gateway:
     deploy:
       placement:
         constraints:

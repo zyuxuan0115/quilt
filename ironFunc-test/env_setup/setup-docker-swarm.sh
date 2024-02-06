@@ -5,6 +5,8 @@ REMOTE_SERVER_HOME_DIR=/users/zyuxuan
 EXP_DIR=$BASE_DIR/results/$1
 QPS=$2
 
+echo $BASE_DIR
+
 SRC_DIR=$BASE_DIR/DeathStarBench/socialNetwork
 HELPER_SCRIPT=$BASE_DIR/helper
 WRK_BIN=/usr/local/bin/wrk
@@ -27,10 +29,12 @@ done
 python3 $HELPER_SCRIPT start-machines
 
 python3 $HELPER_SCRIPT generate-docker-compose --base-dir=$BASE_DIR
-#scp -q $BASE_DIR/docker-compose-write.yml $MANAGER_HOST:~
-#scp -q $BASE_DIR/docker-compose-placement.yml $MANAGER_HOST:~
+scp -q $BASE_DIR/docker-compose.yml $MANAGER_HOST:~
+scp -q $BASE_DIR/docker-compose-placement.yml $MANAGER_HOST:~
 
-#ssh -q $MANAGER_HOST -- sudo docker stack rm ironfunc
+ssh -q $MANAGER_HOST -- sudo docker stack rm ironfunc
+ssh -q $MANAGER_HOST -- sudo rm -rf /mnt/inmem/ironfunc
+ssh -q $MANAGER_HOST -- sudo mkdir -p /mnt/inmem/ironfunc
 
 : << 'COMMENT'
 sleep 20
@@ -56,11 +60,13 @@ rsync -arq $SRC_DIR/nginx-web-server    $ENTRY_HOST:/tmp/socialNetwork
 rsync -arq $SRC_DIR/media-frontend      $ENTRY_HOST:/tmp/socialNetwork
 rsync -arq $SRC_DIR/gen-lua             $ENTRY_HOST:/tmp/socialNetwork
 rsync -arq $SRC_DIR/docker              $ENTRY_HOST:/tmp/socialNetwork
+COMMENT
 
 ssh -q $MANAGER_HOST -- sudo docker stack deploy \
-    -c $REMOTE_SERVER_HOME_DIR/docker-compose-write.yml -c $REMOTE_SERVER_HOME_DIR/docker-compose-placement.yml socialnetwork
+    -c $REMOTE_SERVER_HOME_DIR/docker-compose.yml -c $REMOTE_SERVER_HOME_DIR/docker-compose-placement.yml ironfunc
 sleep 60
 
+: << 'COMMENT'
 ENGINE_CONTAINER_ID=`python3 $HELPER_SCRIPT get-container-id --service nightcore-engine`
 echo 4096 | ssh -q $ENGINE_HOST -- sudo tee /sys/fs/cgroup/cpu,cpuacct/docker/$ENGINE_CONTAINER_ID/cpu.shares
 
