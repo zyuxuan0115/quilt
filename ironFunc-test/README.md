@@ -26,3 +26,10 @@
 > fn routes create cfunc /test -i zyuxuan0115/ironfunc-test
 
 ```
+
+### invoke the function
+
+```bash
+> curl -X POST -d 'Yooooooo!' http://localhost:8080/r/cfunc/test
+# you will see '@@@ Yooooooo!' in your terminal
+```
