@@ -13,4 +13,4 @@ COPY . /workdir
 RUN cd /workdir \
   && make
 
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["/workdir/main"]
