@@ -27,10 +27,10 @@ done
 python3 $HELPER_SCRIPT start-machines
 
 python3 $HELPER_SCRIPT generate-docker-compose --base-dir=$BASE_DIR
-scp -q $BASE_DIR/docker-compose-write.yml $MANAGER_HOST:~
-scp -q $BASE_DIR/docker-compose-placement.yml $MANAGER_HOST:~
+#scp -q $BASE_DIR/docker-compose-write.yml $MANAGER_HOST:~
+#scp -q $BASE_DIR/docker-compose-placement.yml $MANAGER_HOST:~
 
-ssh -q $MANAGER_HOST -- sudo docker stack rm ironfunc
+#ssh -q $MANAGER_HOST -- sudo docker stack rm ironfunc
 
 : << 'COMMENT'
 sleep 20

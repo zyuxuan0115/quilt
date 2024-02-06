@@ -1,0 +1,14 @@
+services:
+  nightcore-engine:
+    deploy:
+      placement:
+        constraints:
+        - node.hostname == ironfunc-worker
+      replicas: 1
+  nightcore-gateway:
+    deploy:
+      placement:
+        constraints:
+        - node.hostname == ironfunc-gateway
+      replicas: 1
+version: '3.8'
