@@ -34,8 +34,30 @@
 # you will see '@@@ Yooooooo!' in your terminal
 ```
 
-### make ironFunctions work in docker swarm
+### create docker swarm for IronFunctions
+From another machine
+
 ```bash
 # create a docker swarm
-> 
+> cd env_setup
+> ./setup-docker-swarm.sh
 ```
+
+on the server, run 
+
+```bash
+> sudo docker node ls
+```
+
+You will be able to see things like
+
+```
+ID                            HOSTNAME           STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+l347za0qrr77bpgav5aq9n4uj *   ironfunc-gateway   Ready     Active         Leader           20.10.9
+kzoabyr9p3h30g3jut58g3ijy     ironfunc-mongodb   Ready     Active                          20.10.9
+eh9dz4g1422ebbn93ee4pnjxx     ironfunc-redis     Ready     Active                          20.10.9
+s6ashltanyv2henv05ba0ud3w     ironfunc-worker1   Ready     Active                          20.10.9
+v59wlrpf9b7cjs97yl4tcg83q     ironfunc-worker2   Ready     Active                          20.10.9
+```
+
+
