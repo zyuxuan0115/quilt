@@ -16,13 +16,13 @@
 # curl -H "Content-Type: application/json" -X POST -d '{
 #    "app": { "name":"myapp" }
 # }' http://localhost:8080/v1/apps
-> fn apps create myapp
+> fn apps create cfunc
 # curl -H "Content-Type: application/json" -X POST -d '{
 #    "route": {
 #        "path":"/hello",
-#        "image":"iron/hello"
+#        "image":"zyuxuan0115/"
 #    }
-# }' http://localhost:8080/v1/apps/myapp/routes
-> fn routes create myapp /hello -i iron/hello
+# }' http://localhost:8080/v1/apps/cfunc/routes
+> fn routes create cfunc /test -i zyuxuan0115/
 
 ```
