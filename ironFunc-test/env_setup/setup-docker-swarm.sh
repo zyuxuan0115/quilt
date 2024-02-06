@@ -32,6 +32,8 @@ scp -q $BASE_DIR/docker-compose-write.yml $MANAGER_HOST:~
 scp -q $BASE_DIR/docker-compose-placement.yml $MANAGER_HOST:~
 
 ssh -q $MANAGER_HOST -- sudo docker stack rm socialnetwork
+
+: << 'COMMENT'
 sleep 20
 ssh -q $ENTRY_HOST -- sudo rm -rf /tmp/socialNetwork
 ssh -q $ENTRY_HOST -- mkdir -p /tmp/socialNetwork
@@ -88,3 +90,5 @@ python3 $HELPER_SCRIPT collect-container-logs --base-dir=$BASE_DIR --log-path=$E
 
 mkdir $EXP_DIR/logs/func_worker
 rsync -arq $ENGINE_HOST:/mnt/inmem/nightcore/output/* $EXP_DIR/logs/func_worker
+
+COMMENT
