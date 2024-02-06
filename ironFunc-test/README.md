@@ -14,15 +14,15 @@
 > ./docker_images.sh build
 > ./docker_images.sh push
 # curl -H "Content-Type: application/json" -X POST -d '{
-#    "app": { "name":"myapp" }
+#    "app": { "name":"cfunc" }
 # }' http://localhost:8080/v1/apps
 > fn apps create cfunc
 # curl -H "Content-Type: application/json" -X POST -d '{
 #    "route": {
-#        "path":"/hello",
-#        "image":"zyuxuan0115/"
+#        "path":"/test",
+#        "image":"zyuxuan0115/ironfunc-test"
 #    }
 # }' http://localhost:8080/v1/apps/cfunc/routes
-> fn routes create cfunc /test -i zyuxuan0115/
+> fn routes create cfunc /test -i zyuxuan0115/ironfunc-test
 
 ```
