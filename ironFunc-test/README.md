@@ -33,3 +33,9 @@
 > curl -X POST -d 'Yooooooo!' http://localhost:8080/r/cfunc/test
 # you will see '@@@ Yooooooo!' in your terminal
 ```
+
+### make ironFunctions work in docker swarm
+```bash
+# create a docker swarm
+> 
+```
