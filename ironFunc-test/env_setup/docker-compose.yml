@@ -8,7 +8,12 @@ services:
       - DOCKER_TLS_VERIFY
       - DOCKER_HOST
       - DOCKER_MACHINE_NAME
-#      - DOCKER_CERT_PATH="/docker-cert"
+      - DOCKER_CERT_PATH="/docker-cert"
     volumes:
-#      - $DOCKER_CERT_PATH:/docker-cert
+      - /mnt/inmem/ironfunc/docker-cert:/docker-cert
       - /mnt/inmem/ironfunc:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      resources:
+        limits:
+          memory: 2G
