@@ -47,17 +47,16 @@ on the server, run
 
 ```bash
 > sudo docker node ls
-```
 
-You will be able to see things like
-
-```
 ID                            HOSTNAME           STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
 l347za0qrr77bpgav5aq9n4uj *   ironfunc-gateway   Ready     Active         Leader           20.10.9
 kzoabyr9p3h30g3jut58g3ijy     ironfunc-mongodb   Ready     Active                          20.10.9
 eh9dz4g1422ebbn93ee4pnjxx     ironfunc-redis     Ready     Active                          20.10.9
 s6ashltanyv2henv05ba0ud3w     ironfunc-worker1   Ready     Active                          20.10.9
 v59wlrpf9b7cjs97yl4tcg83q     ironfunc-worker2   Ready     Active                          20.10.9
+
+> sudo docker ps -a
+
+CONTAINER ID   IMAGE                   COMMAND                  CREATED          STATUS                      PORTS      NAMES
+8afa130e7e7f   iron/functions:latest   "/usr/local/bin/entr…"   7 minutes ago    Up 7 minutes                2375/tcp   ironfunc_ironfunc-gateway.1.rtbpbuu5e8tmbjz78deczz9nv
 ```
-
-
