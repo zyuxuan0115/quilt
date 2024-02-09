@@ -13,16 +13,6 @@ function push_c_test {
     sudo docker push zyuxuan0115/ironfunc-test:latest
 }
 
-
-function build_lwc_kernel {
-    sudo docker build -t zyuxuan0115/ironfunc-lwc-test:latest \
-        -f $ROOT_DIR/ironFunc-test/Dockerfile.lwc \
-        $ROOT_DIR/ironFunc-test/c
-}
-
-
-
-
 HIPSTERSHOP_SERVICES="frontend-api \
 productcatalogservice \
 shippingservice \
