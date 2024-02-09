@@ -24,7 +24,7 @@ recommendationservice \
 cartservice"
 
 function build {
-    build_lwc_kernel
+    build_c_test
 }
 
 function push {
