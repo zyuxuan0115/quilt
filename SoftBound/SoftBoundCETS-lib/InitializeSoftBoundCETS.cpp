@@ -687,10 +687,7 @@ void InitializeSoftBoundCETS:: constructCheckHandlers(Module & module){
   ArrayRef<Type*> argTypes5(argumentTypes5);
   FunctionType* FuncType5 = FunctionType::get(void_ty, argTypes5, true);
   FunctionCallee softboundcets_init_fcallee = module.getOrInsertFunction("__softboundcets_init", 
-                                              FuncType5);
-  // @@@ comment out the legacy code
-  // Function* softboundcets_init = dyn_cast<Function>(softboundcets_init_fcallee.getCallee());
- 
+                                              FuncType5); 
   // @@@ comment out the legacy code
   //  Function* softboundcets_init = (Function*) module.getOrInsertFunction("__softboundcets_init", void_ty, Type::getInt32Ty(module.getContext()), NULL);
 
