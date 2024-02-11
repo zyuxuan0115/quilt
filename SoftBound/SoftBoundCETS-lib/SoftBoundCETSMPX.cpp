@@ -668,14 +668,19 @@ void SoftBoundCETSPass::transformMain(Module& module) {
   std::vector<Type*> params;
 
   SmallVector<AttributeSet, 8> param_attrs_vec;
-  const AttributeSet& pal = main_func->getAttributes();
+  const AttributeList& pal = main_func->getAttributes();
+  //if(pal.hasAttributes(AttributeList::ReturnIndex))
+  //  param_attrs_vec.push_back( pal.getRetAttributes());
+  
+  // @@@ comment out the legacy code
+  //  const AttributeSet& pal = main_func->getAttributes();
 
   //
   // Get the attributes of the return value
   //
 
-  if(pal.hasAttributes(AttributeSet::ReturnIndex))
-    param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), pal.getRetAttributes()));
+  //if(pal.hasAttributes(AttributeSet::ReturnIndex))
+  //  param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), pal.getRetAttributes()));
 
   // Get the attributes of the arguments 
   int arg_index = 1;
@@ -686,10 +691,16 @@ void SoftBoundCETSPass::transformMain(Module& module) {
 
     AttributeSet attrs = pal.getParamAttributes(arg_index);
 
-    if(attrs.hasAttributes(arg_index)){
-      AttrBuilder B(attrs, arg_index);
-      param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), params.size(), B));
-    }
+    // comment out legacy code
+    // if(attrs.hasAttributes(arg_index)){
+    // if(attrs.hasAttributes()){
+      AttrBuilder B(attrs);
+      // comment out legacy code
+      // AttrBuilder B(attrs, arg_index);
+      param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), B));
+      // comment out legacy code
+      //param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), params.size(), B));
+    //}
   }
 
   FunctionType* nfty = FunctionType::get(ret_type, params, fty->isVarArg());
@@ -697,13 +708,15 @@ void SoftBoundCETSPass::transformMain(Module& module) {
 
   // create the new function 
   new_func = Function::Create(nfty, main_func->getLinkage(), 
-                              "softboundcets_pseudo_main");
+                              "softboundcets_pseudo_main", main_func->getParent());
 
   // set the new function attributes 
-  new_func->copyAttributesFrom(main_func);
-  new_func->setAttributes(AttributeSet::get(main_func->getContext(), param_attrs_vec));
-    
-  main_func->getParent()->getFunctionList().insert(main_func, new_func);
+  // comment out the legacy code
+  //new_func->copyAttributesFrom(main_func);
+  //new_func->setAttributes(AttributeSet::get(main_func->getContext(), param_attrs_vec));
+  ArrayRef<AttributeSet> param_attrs(param_attrs_vec);
+  new_func->setAttributes(AttributeList::get(main_func->getContext(), pal.getFnAttributes(), pal.getRetAttributes(), param_attrs));  
+  //main_func->getParent()->getFunctionList().insert(main_func, new_func);
   main_func->replaceAllUsesWith(new_func);
 
   // 
@@ -3708,8 +3721,10 @@ void SoftBoundCETSPass:: renameFunctionName(Function* func,
 
   FunctionType* nfty = FunctionType::get(ret_type, params, fty->isVarArg());
   Function* new_func = Function::Create(nfty, func->getLinkage(), transformFunctionName(func->getName().str()), func->getParent());
-  new_func->copyAttributesFrom(func);
-  new_func->setAttributes(AttributeSet::get(func->getContext(), param_attrs_vec));
+  // @@@ comment out the legacy code
+  //new_func->copyAttributesFrom(func);
+  //new_func->setAttributes(AttributeSet::get(func->getContext(), param_attrs_vec));
+  new_func->setAttributes(AttributeList::get(func->getContext(), func->getAttributes().getFnAttributes(), func->getAttributes().getRetAttributes(), param_attrs_vec));
   //func->getParent()->getFunctionList().insert(func, new_func);
     
   if(!external) {
