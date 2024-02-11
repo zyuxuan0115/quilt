@@ -1337,7 +1337,7 @@ void SoftBoundCETSPass::handlePHIPass2(PHINode* phi_node) {
           assert(tmp_bound && "bound of a global variable null?");
           
           Function * PHI_func = phi_node->getParent()->getParent();
-          Instruction* PHI_func_entry = PHI_func->begin()->begin();
+          Instruction* PHI_func_entry = dyn_cast<Instruction>(PHI_func->begin()->begin());
           
           incoming_value_base = castToVoidPtr(tmp_base, PHI_func_entry);                                               
           incoming_value_bound = castToVoidPtr(tmp_bound, PHI_func_entry);
@@ -1370,7 +1370,7 @@ void SoftBoundCETSPass::handlePHIPass2(PHINode* phi_node) {
                  "[handlePHIPass2] tmp_base tmp_bound, null?");
           
           Function* PHI_func = phi_node->getParent()->getParent();
-          Instruction* PHI_func_entry = PHI_func->begin()->begin();
+          Instruction* PHI_func_entry = dyn_cast<Instruction>(PHI_func->begin()->begin());
 
           incoming_value_base = castToVoidPtr(tmp_base, PHI_func_entry);
           incoming_value_bound = castToVoidPtr(tmp_bound, PHI_func_entry);
@@ -4354,7 +4354,7 @@ void SoftBoundCETSPass::gatherBaseBoundPass1 (Function * func) {
 
     Argument* ptr_argument = dyn_cast<Argument>(ib);
     Value* ptr_argument_value = ptr_argument;
-    Instruction* fst_inst = func->begin()->begin();
+    Instruction* fst_inst = dyn_cast<Instruction>(func->begin()->begin());
       
     /* Urgent: Need to think about what we need to do about byval attributes */
     if(ptr_argument->hasByValAttr()){
@@ -4367,7 +4367,7 @@ void SoftBoundCETSPass::gatherBaseBoundPass1 (Function * func) {
         associateBaseBound(ptr_argument_value, m_void_null_ptr, m_infinite_bound_ptr);
       }
       if(temporal_safety){
-        Value* func_temp_lock = getAssociatedFuncLock(func->begin()->begin());      
+        Value* func_temp_lock = getAssociatedFuncLock(dyn_cast<Value>(func->begin()->begin()));      
         associateKeyLock(ptr_argument_value, m_constantint64ty_one, func_temp_lock);
       }
     }
@@ -4886,7 +4886,8 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
     temporal_safety = false;
   }
 
-  if (module.getPointerSize() == llvm::Module::Pointer64) {
+  if (TD->getPointerSize() == 8){
+//  if (module.getPointerSize() == llvm::Module::Pointer64) {
     m_is_64_bit = true;
   } else {
     m_is_64_bit = false;
@@ -4929,7 +4930,7 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
 
     if (temporal_safety) {
       Value* func_global_lock = 
-        introduceGlobalLockFunction(func_ptr->begin()->begin());
+        introduceGlobalLockFunction(dyn_cast<Instruction>(func_ptr->begin()->begin()));
       m_func_global_lock[func_ptr->getName().str()] = func_global_lock;      
     }
       
