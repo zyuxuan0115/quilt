@@ -599,10 +599,10 @@ SoftBoundCETSPass::addMemoryAllocationCall(Function* func,
 
   SmallVector<Value*, 8> args;
   Instruction* first_inst_func = cast<Instruction>(func->begin()->begin());
-  AllocaInst* lock_alloca = new AllocaInst(m_void_ptr_type, 
+  AllocaInst* lock_alloca = new AllocaInst(m_void_ptr_type, 0, 
                                            "lock_alloca", 
                                            first_inst_func);
-  AllocaInst* key_alloca = new AllocaInst(Type::getInt64Ty(func->getContext()), 
+  AllocaInst* key_alloca = new AllocaInst(Type::getInt64Ty(func->getContext()), 0,
                                           "key_alloca", first_inst_func);
   args.push_back(lock_alloca);
   args.push_back(key_alloca);
@@ -617,9 +617,9 @@ SoftBoundCETSPass::addMemoryAllocationCall(Function* func,
   //
 
   Instruction* next_inst = getNextInstruction(flc_call);
-  Instruction* alloca_lock = new LoadInst(lock_alloca, 
+  Instruction* alloca_lock = new LoadInst(m_void_ptr_type, lock_alloca, 
 					  "lock.load", next_inst);
-  Instruction* alloca_key = new LoadInst(key_alloca, 
+  Instruction* alloca_key = new LoadInst(Type::getInt64Ty(func->getContext()), key_alloca, 
 					 "key.load", next_inst);
  
   ptr_key = alloca_key;
@@ -1032,7 +1032,7 @@ void SoftBoundCETSPass::identifyFuncToTrans(Module& module) {
 
     // Check if the function is defined in the module
     if (!func->isDeclaration()) {
-      if (isFuncDefSoftBound(func->getName())) 
+      if (isFuncDefSoftBound(func->getName().str())) 
         continue;
       
       m_func_softboundcets_transform[func->getName()] = true;
@@ -1553,14 +1553,14 @@ SoftBoundCETSPass::getGlobalVariableBaseBound(Value* operand,
     ConstantInt::get(Type::getInt32Ty(module->getContext()), 0);
   indices_base.push_back(index_base);
 
-  Constant* base_exp = ConstantExpr::getGetElementPtr(gv, indices_base);
+  Constant* base_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_base);
         
   std::vector<Constant*> indices_bound;
   Constant* index_bound = 
     ConstantInt::get(Type::getInt32Ty(module->getContext()), 1);
   indices_bound.push_back(index_bound);
     
-  Constant* bound_exp = ConstantExpr::getGetElementPtr(gv, indices_bound);
+  Constant* bound_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_bound);
     
   operand_base = base_exp;
   operand_bound = bound_exp;    
@@ -2107,7 +2107,7 @@ SoftBoundCETSPass::handleGlobalSequentialTypeInitializer(Module& module,
             indices_addr_ptr.push_back(index2);
 
             Constant* Indices[3] = {index0, index1, index2};              
-            Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, Indices);
+            Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, Indices);
             Type* initializer_type = initializer_opd->getType();
             Value* initializer_size = getSizeOfType(initializer_type);
             
@@ -2225,7 +2225,7 @@ handleGlobalStructTypeInitializer(Module& module,
       //      indices_addr_ptr.push_back(index1);
       indices_addr_ptr.push_back(index2);
       length++;
-      addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
+      addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       
       Type* initializer_type = initializer_opd->getType();
       Value* initializer_size = getSizeOfType(initializer_type);     
@@ -2351,9 +2351,9 @@ void SoftBoundCETSPass::getConstantExprBaseBound(Constant* given_constant,
     indices_base.push_back(index_base0);
     indices_bound.push_back(index_bound0);
 
-    Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant, 
+    Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
                                                         indices_base);    
-    Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant, 
+    Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
                                                          indices_bound);
       
     tmp_base = gep_base;
@@ -2673,7 +2673,7 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
 
     PointerType* ptr_type = PointerType::getUnqual(seq_type->getElementType());
     Constant* gep_temp = ConstantExpr::getNullValue(ptr_type);
-    Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
+    Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType(), gep_temp, gep_idx);
     
     Type* int64Ty = Type::getInt64Ty(seq_type->getContext());
     return ConstantExpr::getPtrToInt(gep, int64Ty);
@@ -2734,10 +2734,17 @@ createFaultBlock (Function * F) {
   LLVMContext & Context = F->getContext();
   Module * M = F->getParent();
 
-  M->getOrInsertFunction("__softboundcets_dummy", Type::getVoidTy(Context), NULL);
+  std::vector<Type*> argumentTypes1;
+  ArrayRef<Type*> argTypes1(argumentTypes1);
+  FunctionType* FuncType1 = FunctionType::get(Type::getVoidTy(Context), argTypes1, true);
+  M->getOrInsertFunction("__softboundcets_dummy",FuncType1); 
+  // @@@ comment out the legacy code
+  //M->getOrInsertFunction("__softboundcets_dummy", Type::getVoidTy(Context), NULL);
   CallInst::Create(M->getFunction("__softboundcets_dummy"), "", UI);
-  
-  M->getOrInsertFunction ("__softboundcets_abort", Type::getVoidTy (Context), NULL);
+
+  M->getOrInsertFunction("__softboundcets_abort",FuncType1);
+  // @@@ comment out the legacy code
+  //M->getOrInsertFunction ("__softboundcets_abort", Type::getVoidTy (Context), NULL);
   CallInst::Create (M->getFunction ("__softboundcets_abort"), "", UI);
 
   return faultBB;
@@ -3644,13 +3651,13 @@ void SoftBoundCETSPass::renameFunctions(Module& module){
         
       Function* func_ptr = dyn_cast<Function>(ff_begin);
 
-      if(m_func_transformed.count(func_ptr->getName()) || 
-         isFuncDefSoftBound(func_ptr->getName())){
+      if(m_func_transformed.count(func_ptr->getName().str()) || 
+         isFuncDefSoftBound(func_ptr->getName().str())){
         continue;
       }
         
-      m_func_transformed[func_ptr->getName()] = true;
-      m_func_transformed[transformFunctionName(func_ptr->getName())] = true;
+      m_func_transformed[func_ptr->getName().str()] = true;
+      m_func_transformed[transformFunctionName(func_ptr->getName().str())] = true;
       bool is_external = func_ptr->isDeclaration();
       renameFunctionName(func_ptr, module, is_external);
       change = true;
@@ -3700,10 +3707,10 @@ void SoftBoundCETSPass:: renameFunctionName(Function* func,
   }
 
   FunctionType* nfty = FunctionType::get(ret_type, params, fty->isVarArg());
-  Function* new_func = Function::Create(nfty, func->getLinkage(), transformFunctionName(func->getName()));
+  Function* new_func = Function::Create(nfty, func->getLinkage(), transformFunctionName(func->getName().str()), func->getParent());
   new_func->copyAttributesFrom(func);
   new_func->setAttributes(AttributeSet::get(func->getContext(), param_attrs_vec));
-  func->getParent()->getFunctionList().insert(func, new_func);
+  //func->getParent()->getFunctionList().insert(func, new_func);
     
   if(!external) {
     SmallVector<Value*, 16> call_args;      
@@ -3892,7 +3899,7 @@ void SoftBoundCETSPass::handleStore(StoreInst* store_inst) {
 // Currently just a placeholder for functions introduced by us
 bool SoftBoundCETSPass::checkIfFunctionOfInterest(Function* func) {
 
-  if(isFuncDefSoftBound(func->getName()))
+  if(isFuncDefSoftBound(func->getName().str()))
     return false;
 
   if(func->isDeclaration())
@@ -4058,7 +4065,7 @@ void SoftBoundCETSPass::handleCall(CallInst* call_inst) {
     addMemcopyMemsetCheck(call_inst, func);
   }
 
-  if(func && isFuncDefSoftBound(func->getName())){
+  if(func && isFuncDefSoftBound(func->getName().str())){
 
     if(spatial_safety){
       associateBaseBound(call_inst, m_void_null_ptr, m_void_null_ptr);
@@ -4193,7 +4200,7 @@ void SoftBoundCETSPass::gatherBaseBoundPass2(Function* func){
 void 
 SoftBoundCETSPass::introspectMetadata(Function* func, Value* ptr_value, 
                                       Instruction* insert_at, int arg_no){
-  if(func->getName() != "debug_instrument_softboundcets")
+  if(func->getName().str() != "debug_instrument_softboundcets")
     return;
 
   Value* ptr_base = getAssociatedBase(ptr_value);
@@ -4675,8 +4682,8 @@ void SoftBoundCETSPass::handleLoad(LoadInst* load_inst) {
 
   if(spatial_safety){
     
-    base_alloca = new AllocaInst(m_void_ptr_type, "base.alloca", first_inst_func);
-    bound_alloca = new AllocaInst(m_void_ptr_type, "bound.alloca", first_inst_func);
+    base_alloca = new AllocaInst(m_void_ptr_type, 0, "base.alloca", first_inst_func);
+    bound_alloca = new AllocaInst(m_void_ptr_type, 0, "bound.alloca", first_inst_func);
   
     /* base */
     args.push_back(base_alloca);
@@ -4686,8 +4693,8 @@ void SoftBoundCETSPass::handleLoad(LoadInst* load_inst) {
 
   if(temporal_safety){
     
-    key_alloca = new AllocaInst(Type::getInt64Ty(load_inst->getType()->getContext()), "key.alloca", first_inst_func);
-    lock_alloca = new AllocaInst(m_void_ptr_type, "lock.alloca", first_inst_func);
+    key_alloca = new AllocaInst(Type::getInt64Ty(load_inst->getType()->getContext()), 0,  "key.alloca", first_inst_func);
+    lock_alloca = new AllocaInst(m_void_ptr_type, 0, "lock.alloca", first_inst_func);
 
     args.push_back(key_alloca);
     args.push_back(lock_alloca);
@@ -4696,14 +4703,14 @@ void SoftBoundCETSPass::handleLoad(LoadInst* load_inst) {
   CallInst::Create(m_load_base_bound_func, args, "", insert_at);
       
   if(spatial_safety){
-    Instruction* base_load = new LoadInst(base_alloca, "base.load", insert_at);
-    Instruction* bound_load = new LoadInst(bound_alloca, "bound.load", insert_at);
+    Instruction* base_load = new LoadInst(m_void_ptr_type, base_alloca, "base.load", insert_at);
+    Instruction* bound_load = new LoadInst(m_void_ptr_type, bound_alloca, "bound.load", insert_at);
     associateBaseBound(load_inst_value, base_load, bound_load);      
   }
 
   if(temporal_safety){
-    Instruction* key_load = new LoadInst(key_alloca, "key.load", insert_at);
-    Instruction* lock_load = new LoadInst(lock_alloca, "lock.load", insert_at);    
+    Instruction* key_load = new LoadInst(Type::getInt64Ty(load_inst->getType()->getContext()), key_alloca, "key.load", insert_at);
+    Instruction* lock_load = new LoadInst(m_void_ptr_type, lock_alloca, "lock.load", insert_at);    
     associateKeyLock(load_inst_value, key_load, lock_load);
   }
 }
@@ -4801,7 +4808,7 @@ void SoftBoundCETSPass::addBaseBoundGlobals(Module& M){
       indices_addr_ptr.push_back(index1);
       indices_addr_ptr.push_back(index2);
 
-      Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
+      Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       Type* initializer_type = initializer_opd->getType();
       Value* initializer_size = getSizeOfType(initializer_type);
       
@@ -4908,7 +4915,7 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
     if (temporal_safety) {
       Value* func_global_lock = 
         introduceGlobalLockFunction(func_ptr->begin()->begin());
-      m_func_global_lock[func_ptr->getName()] = func_global_lock;      
+      m_func_global_lock[func_ptr->getName().str()] = func_global_lock;      
     }
       
     gatherBaseBoundPass1(func_ptr);
@@ -4928,10 +4935,10 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
     assert(func_ptr && "not a function??");
 
     if(func_ptr->isDeclaration()){
-      if(!isFuncDefSoftBound(func_ptr->getName()) && 
-         !(m_func_wrappers_available.count(func_ptr->getName()))){
+      if(!isFuncDefSoftBound(func_ptr->getName().str()) && 
+         !(m_func_wrappers_available.count(func_ptr->getName().str()))){
         DEBUG(errs()<<"External function not wrapped:"<<
-              func_ptr->getName()<<"\n");
+              func_ptr->getName().str()<<"\n");
       }
 
     }    

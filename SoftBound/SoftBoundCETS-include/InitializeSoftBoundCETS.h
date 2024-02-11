@@ -22,7 +22,7 @@ class InitializeSoftBoundCETS: public ModulePass {
   bool temporal_safety;
   
  public:
-  bool runOnModule(Module &);
+  bool runOnModule(Module &) override;
   static char ID;
 
   void constructCheckHandlers(Module &);
@@ -34,7 +34,7 @@ class InitializeSoftBoundCETS: public ModulePass {
     temporal_safety= true;
   }
   
-  StringRef getPassName() const { return "InitializeSoftBoundCETS";}
+  StringRef getPassName() const override{ return "InitializeSoftBoundCETS";}
 };
 
 #endif

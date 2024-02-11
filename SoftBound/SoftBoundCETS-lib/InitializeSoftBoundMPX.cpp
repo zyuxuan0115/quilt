@@ -77,21 +77,61 @@ void InitializeSoftBoundMPX:: constructShadowStackHandlers(Module & module){
   Type* SizeTy = Type::getInt64Ty(module.getContext());
   
   Type* Int32Ty = Type::getInt32Ty(module.getContext());
-  module.getOrInsertFunction("__softboundmpx_allocate_shadow_stack_space", 
-                             VoidTy, Int32Ty, NULL);
-  module.getOrInsertFunction("__softboundmpx_deallocate_shadow_stack_space", 
-                             VoidTy, NULL);
 
 
-  module.getOrInsertFunction("__softboundmpx_load_base_shadow_stack", 
-			     VoidPtrTy, Int32Ty, NULL);
-  module.getOrInsertFunction("__softboundmpx_load_bound_shadow_stack", 
-                             VoidPtrTy, Int32Ty, NULL);
-  
-  module.getOrInsertFunction("__softboundmpx_store_base_shadow_stack", 
-			     VoidTy, VoidPtrTy, Int32Ty, NULL);
-  module.getOrInsertFunction("__softboundmpx_store_bound_shadow_stack", 
-			     VoidTy, VoidPtrTy, Int32Ty, NULL);
+  std::vector<Type*> argumentTypes1;
+  argumentTypes1.push_back(Int32Ty);
+  ArrayRef<Type*> argTypes1(argumentTypes1);
+  FunctionType* FuncType1 = FunctionType::get(VoidTy, argTypes1, true);
+  module.getOrInsertFunction("__softboundmpx_allocate_shadow_stack_space",
+                             FuncType1); 
+  // @@@ comment out the legacy code
+  // module.getOrInsertFunction("__softboundmpx_allocate_shadow_stack_space", 
+  //                             VoidTy, Int32Ty, NULL);
+
+  std::vector<Type*> argumentTypes2;
+  ArrayRef<Type*> argTypes2(argumentTypes2);
+  FunctionType* FuncType2 = FunctionType::get(VoidTy, argTypes2, true);
+  module.getOrInsertFunction("__softboundmpx_deallocate_shadow_stack_space",
+                             FuncType2); 
+  // @@@ comment out the legacy code
+  // module.getOrInsertFunction("__softboundmpx_deallocate_shadow_stack_space", 
+  //                             VoidTy, NULL);
+
+
+  std::vector<Type*> argumentTypes3;
+  argumentTypes3.push_back(Int32Ty);
+  ArrayRef<Type*> argTypes3(argumentTypes3);
+  FunctionType* FuncType3 = FunctionType::get(VoidPtrTy, argTypes3, true);
+  module.getOrInsertFunction("__softboundmpx_load_base_shadow_stack",
+                             FuncType3); 
+  // @@@ comment out the legacy code
+  // module.getOrInsertFunction("__softboundmpx_load_base_shadow_stack", 
+  //			         VoidPtrTy, Int32Ty, NULL);
+
+
+  module.getOrInsertFunction("__softboundmpx_load_bound_shadow_stack",
+                             FuncType3); 
+  // @@@ comment out the legacy code
+  // module.getOrInsertFunction("__softboundmpx_load_bound_shadow_stack", 
+  //                             VoidPtrTy, Int32Ty, NULL);
+
+  std::vector<Type*> argumentTypes4;
+  argumentTypes4.push_back(VoidPtrTy);
+  argumentTypes4.push_back(Int32Ty);
+  ArrayRef<Type*> argTypes4(argumentTypes4);
+  FunctionType* FuncType4 = FunctionType::get(VoidTy, argTypes4, true);
+  module.getOrInsertFunction("__softboundmpx_store_base_shadow_stack",
+                             FuncType4); 
+  // @@@ comment out the legacy code
+  //  module.getOrInsertFunction("__softboundmpx_store_base_shadow_stack", 
+  //			          VoidTy, VoidPtrTy, Int32Ty, NULL);
+
+  module.getOrInsertFunction("__softboundmpx_store_bound_shadow_stack",
+                             FuncType4); 
+  // @@@ comment out the legacy code 
+  // module.getOrInsertFunction("__softboundmpx_store_bound_shadow_stack", 
+  //			         VoidTy, VoidPtrTy, Int32Ty, NULL);
 
 }
 
@@ -104,47 +144,152 @@ void InitializeSoftBoundMPX:: constructMetadataHandlers(Module & module){
   
   Type* Int32Ty = Type::getInt32Ty(module.getContext());
 
-  module.getOrInsertFunction("__softboundmpx_introspect_metadata", 
-                             VoidTy, VoidPtrTy, VoidPtrTy, Int32Ty, NULL);
-  module.getOrInsertFunction("__softboundmpx_copy_metadata", 
-                             VoidTy, VoidPtrTy, VoidPtrTy, SizeTy, NULL);
+  std::vector<Type*> argumentTypes1;
+  argumentTypes1.push_back(VoidPtrTy);
+  argumentTypes1.push_back(VoidPtrTy);
+  argumentTypes1.push_back(Int32Ty);
+  ArrayRef<Type*> argTypes1(argumentTypes1);
+  FunctionType* FuncType1 = FunctionType::get(VoidTy, argTypes1, true);
+  module.getOrInsertFunction("__softboundmpx_introspect_metadata",
+                             FuncType1); 
+  // @@@ comment out the legacy code
+  // module.getOrInsertFunction("__softboundmpx_introspect_metadata", 
+  //                           VoidTy, VoidPtrTy, VoidPtrTy, Int32Ty, NULL);
+
+  std::vector<Type*> argumentTypes2;
+  argumentTypes2.push_back(VoidPtrTy);
+  argumentTypes2.push_back(VoidPtrTy);
+  argumentTypes2.push_back(SizeTy);
+  ArrayRef<Type*> argTypes2(argumentTypes2);
+  FunctionType* FuncType2 = FunctionType::get(VoidTy, argTypes2, true);
+  module.getOrInsertFunction("__softboundmpx_copy_metadata",
+                             FuncType2); 
+  // @@@ comment out the legacy code
+  // module.getOrInsertFunction("__softboundmpx_copy_metadata", 
+  //                            VoidTy, VoidPtrTy, VoidPtrTy, SizeTy, NULL);
 
   Type* PtrVoidPtrTy = PointerType::getUnqual(VoidPtrTy);
   Type* PtrSizeTy = PointerType::getUnqual(SizeTy);
   
 
+  std::vector<Type*> argumentTypes3;
+  argumentTypes3.push_back(VoidPtrTy);
+  argumentTypes3.push_back(PtrVoidPtrTy);
+  argumentTypes3.push_back(PtrVoidPtrTy);
+  ArrayRef<Type*> argTypes3(argumentTypes3);
+  FunctionType* FuncType3 = FunctionType::get(VoidTy, argTypes3, true);
   module.getOrInsertFunction("__softboundmpx_metadata_load",
-			     VoidTy, VoidPtrTy, PtrVoidPtrTy, PtrVoidPtrTy,
-			     NULL);
-  
-  module.getOrInsertFunction("__softboundmpx_metadata_store", 
-			     VoidTy, VoidPtrTy, VoidPtrTy, 
-			     VoidPtrTy, VoidPtrTy, NULL);
-  
-  module.getOrInsertFunction("__softboundmpx_memcopy_check",
-			     VoidTy, VoidPtrTy, VoidPtrTy, SizeTy, 
-			     VoidPtrTy, VoidPtrTy, VoidPtrTy, VoidPtrTy, NULL);
-  
-  module.getOrInsertFunction("__softboundmpx_memset_check",
-			     VoidTy, VoidPtrTy,SizeTy, 
-			     VoidPtrTy, VoidPtrTy, NULL);
+                             FuncType3); 
+  // @@@ comment out the legacy code 
+  // module.getOrInsertFunction("__softboundmpx_metadata_load",
+  //			     VoidTy, VoidPtrTy, PtrVoidPtrTy, PtrVoidPtrTy,
+  //  			     NULL);
 
+
+ 
+  std::vector<Type*> argumentTypes4;
+  argumentTypes4.push_back(VoidPtrTy);
+  argumentTypes4.push_back(VoidPtrTy);
+  argumentTypes4.push_back(VoidPtrTy);
+  argumentTypes4.push_back(VoidPtrTy);
+  ArrayRef<Type*> argTypes4(argumentTypes4);
+  FunctionType* FuncType4 = FunctionType::get(VoidTy, argTypes4, true);
+  module.getOrInsertFunction("__softboundmpx_metadata_store",
+                             FuncType4); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_metadata_store", 
+  //			        VoidTy, VoidPtrTy, VoidPtrTy, 
+  //			        VoidPtrTy, VoidPtrTy, NULL);
+ 
+
+  std::vector<Type*> argumentTypes5;
+  argumentTypes5.push_back(VoidPtrTy);
+  argumentTypes5.push_back(VoidPtrTy);
+  argumentTypes5.push_back(SizeTy);
+  argumentTypes5.push_back(VoidPtrTy);
+  argumentTypes5.push_back(VoidPtrTy);
+  argumentTypes5.push_back(VoidPtrTy);
+  argumentTypes5.push_back(VoidPtrTy);
+  ArrayRef<Type*> argTypes5(argumentTypes5);
+  FunctionType* FuncType5 = FunctionType::get(VoidTy, argTypes5, true);
+  module.getOrInsertFunction("__softboundmpx_memcopy_check",
+                             FuncType5); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_memcopy_check",
+  //			        VoidTy, VoidPtrTy, VoidPtrTy, SizeTy, 
+  //	   		        VoidPtrTy, VoidPtrTy, VoidPtrTy, VoidPtrTy, NULL);
+  
+
+
+  std::vector<Type*> argumentTypes6;
+  argumentTypes6.push_back(VoidPtrTy);
+  argumentTypes6.push_back(SizeTy);
+  argumentTypes6.push_back(VoidPtrTy);
+  argumentTypes6.push_back(VoidPtrTy);
+  ArrayRef<Type*> argTypes6(argumentTypes6);
+  FunctionType* FuncType6 = FunctionType::get(VoidTy, argTypes6, true);
+  module.getOrInsertFunction("__softboundmpx_memset_check",
+                             FuncType6); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_memset_check",
+  //	 		     VoidTy, VoidPtrTy,SizeTy, 
+  //			     VoidPtrTy, VoidPtrTy, NULL);
+
+
+  std::vector<Type*> argumentTypes7;
+  argumentTypes7.push_back(VoidPtrTy);
+  argumentTypes7.push_back(VoidPtrTy);
+  argumentTypes7.push_back(VoidPtrTy);
+  ArrayRef<Type*> argTypes7(argumentTypes7);
+  FunctionType* FuncType7 = FunctionType::get(VoidTy, argTypes7, true);
   module.getOrInsertFunction("__softboundmpx_spatial_call_dereference_check",
-                             VoidTy, VoidPtrTy, VoidPtrTy, VoidPtrTy, NULL);
+                             FuncType7); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_spatial_call_dereference_check",
+  //                           VoidTy, VoidPtrTy, VoidPtrTy, VoidPtrTy, NULL);
 
 
   Type* size_ty = Type::getInt64Ty(module.getContext());
 
   PointerType* sizet_ptr_ty = PointerType::getUnqual(Type::getInt64Ty(module.getContext()));
 
-  module.getOrInsertFunction("__softboundmpx_print_metadata", VoidTy, VoidPtrTy, VoidPtrTy, VoidPtrTy, size_ty, sizet_ptr_ty, NULL);
 
-  
-  module.getOrInsertFunction("__softboundmpx_dummy", VoidTy, NULL);
+  std::vector<Type*> argumentTypes8;
+  argumentTypes8.push_back(VoidPtrTy);
+  argumentTypes8.push_back(VoidPtrTy);
+  argumentTypes8.push_back(VoidPtrTy);
+  argumentTypes8.push_back(size_ty);
+  argumentTypes8.push_back(sizet_ptr_ty);
+  ArrayRef<Type*> argTypes8(argumentTypes8);
+  FunctionType* FuncType8 = FunctionType::get(VoidTy, argTypes8, true);
+  module.getOrInsertFunction("__softboundmpx_print_metadata",
+                             FuncType8); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_print_metadata", VoidTy, VoidPtrTy, VoidPtrTy, VoidPtrTy, size_ty, sizet_ptr_ty, NULL);
+
+ 
+  std::vector<Type*> argumentTypes9;
+  ArrayRef<Type*> argTypes9(argumentTypes9);
+  FunctionType* FuncType9 = FunctionType::get(VoidTy, argTypes9, true);
+  module.getOrInsertFunction("__softboundmpx_dummy",
+                             FuncType9); 
+  // @@@ comment out the legacy code   
+  // module.getOrInsertFunction("__softboundmpx_dummy", VoidTy, NULL);
 
   Type* bool_ty = Type::getInt1Ty(module.getContext());
 
-  module.getOrInsertFunction("__softboundmpx_intermediate", VoidTy, bool_ty, bool_ty, bool_ty, size_ty, NULL);
+
+  std::vector<Type*> argumentTypes10;
+  argumentTypes10.push_back(bool_ty);
+  argumentTypes10.push_back(bool_ty);
+  argumentTypes10.push_back(bool_ty);
+  argumentTypes10.push_back(size_ty);
+  ArrayRef<Type*> argTypes10(argumentTypes10);
+  FunctionType* FuncType10 = FunctionType::get(VoidTy, argTypes10, true);
+  module.getOrInsertFunction("__softboundmpx_intermediate",
+                             FuncType10); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_intermediate", VoidTy, bool_ty, bool_ty, bool_ty, size_ty, NULL);
 
 }
 
@@ -155,25 +300,54 @@ void InitializeSoftBoundMPX:: constructCheckHandlers(Module & module){
   Type* void_ptr_ty = PointerType::getUnqual(Type::getInt8Ty(module.getContext()));
   Type* size_ty = Type::getInt64Ty(module.getContext());
 
+  std::vector<Type*> argumentTypes1;
+  argumentTypes1.push_back(void_ptr_ty);
+  argumentTypes1.push_back(void_ptr_ty);
+  argumentTypes1.push_back(void_ptr_ty);
+  argumentTypes1.push_back(size_ty);
+  ArrayRef<Type*> argTypes1(argumentTypes1);
+  FunctionType* FuncType1 = FunctionType::get(void_ty, argTypes1, true);
   module.getOrInsertFunction("__softboundmpx_spatial_load_dereference_check",
-                             void_ty, void_ptr_ty, void_ptr_ty, 
-                             void_ptr_ty, size_ty, NULL);
+                             FuncType1); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_spatial_load_dereference_check",
+  //                           void_ty, void_ptr_ty, void_ptr_ty, 
+  //                           void_ptr_ty, size_ty, NULL);
 
-  module.getOrInsertFunction("__softboundmpx_spatial_store_dereference_check", 
-                             void_ty, void_ptr_ty, void_ptr_ty, 
-                             void_ptr_ty, size_ty, NULL);
+  module.getOrInsertFunction("__softboundmpx_spatial_store_dereference_check",
+                             FuncType1); 
+  // @@@ comment out the legacy code  
+  // module.getOrInsertFunction("__softboundmpx_spatial_store_dereference_check", 
+  //                           void_ty, void_ptr_ty, void_ptr_ty, 
+  //                           void_ptr_ty, size_ty, NULL);
 
 
-  Function* global_init = (Function *) module.getOrInsertFunction("__softboundmpx_global_init", 
-                                                                  void_ty, NULL);
+  std::vector<Type*> argumentTypes2;
+  ArrayRef<Type*> argTypes2(argumentTypes2);
+  FunctionType* FuncType2 = FunctionType::get(void_ty, argTypes2, true);
+  FunctionCallee global_init_fcallee = module.getOrInsertFunction("__softboundmpx_global_init",
+                                                                   FuncType2); 
+  Function* global_init = dyn_cast<Function>(global_init_fcallee.getCallee());
+  // @@@ comment out the legacy code    
+  // Function* global_init = (Function *) module.getOrInsertFunction("__softboundmpx_global_init", 
+  //                                                                void_ty, NULL);
 
   global_init->setDoesNotThrow();
   global_init->setLinkage(GlobalValue::InternalLinkage);
 
   BasicBlock* BB = BasicBlock::Create(module.getContext(), 
                                       "entry", global_init);
-  
-  Function* softboundmpx_init = (Function*) module.getOrInsertFunction("__softboundmpx_init", void_ty, Type::getInt32Ty(module.getContext()), NULL);
+
+  std::vector<Type*> argumentTypes3;
+  argumentTypes3.push_back(Type::getInt32Ty(module.getContext()));
+  ArrayRef<Type*> argTypes3(argumentTypes3);
+  FunctionType* FuncType3 = FunctionType::get(void_ty, argTypes3, true);
+  FunctionCallee softboundmpx_init_fcallee = module.getOrInsertFunction("__softboundmpx_init",
+                                                                   FuncType3); 
+  Function* softboundmpx_init = dyn_cast<Function>(softboundmpx_init_fcallee.getCallee());
+  // @@@ comment out the legacy code    
+  // Function* softboundmpx_init = (Function*) module.getOrInsertFunction("__softboundmpx_init", 
+  //                                                                       void_ty, Type::getInt32Ty(module.getContext()), NULL);
 
   
   SmallVector<Value*, 8> args;

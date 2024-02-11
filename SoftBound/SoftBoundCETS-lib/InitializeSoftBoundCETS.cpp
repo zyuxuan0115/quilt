@@ -668,10 +668,8 @@ void InitializeSoftBoundCETS:: constructCheckHandlers(Module & module){
   std::vector<Type*> argumentTypes4;
   ArrayRef<Type*> argTypes4(argumentTypes4);
   FunctionType* FuncType4 = FunctionType::get(void_ty, argTypes4, true);
-  FunctionCallee global_init_fcallee = module.getOrInsertFunction("__softboundcets_global_init", 
-                             FuncType4);
+  FunctionCallee global_init_fcallee = module.getOrInsertFunction("__softboundcets_global_init", FuncType4);
   Function* global_init = dyn_cast<Function>(global_init_fcallee.getCallee());
-
   // @@@ comment out the legacy code
   //Function* global_init = (Function *) module.getOrInsertFunction("__softboundcets_global_init", 
   //                                                                void_ty, NULL);
@@ -686,8 +684,8 @@ void InitializeSoftBoundCETS:: constructCheckHandlers(Module & module){
   argumentTypes5.push_back(Type::getInt32Ty(module.getContext()));
   ArrayRef<Type*> argTypes5(argumentTypes5);
   FunctionType* FuncType5 = FunctionType::get(void_ty, argTypes5, true);
-  FunctionCallee softboundcets_init_fcallee = module.getOrInsertFunction("__softboundcets_init", 
-                                              FuncType5); 
+  FunctionCallee softboundcets_init_fcallee = module.getOrInsertFunction("__softboundcets_init", FuncType5);
+  //Function* softboundcets_init = dyn_cast<Function>(softboundcets_init_fcallee.getCallee());
   // @@@ comment out the legacy code
   //  Function* softboundcets_init = (Function*) module.getOrInsertFunction("__softboundcets_init", void_ty, Type::getInt32Ty(module.getContext()), NULL);
 

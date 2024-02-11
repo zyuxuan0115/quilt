@@ -22,7 +22,7 @@ class InitializeSoftBoundMPX: public ModulePass {
   bool temporal_safety;
   
  public:
-  bool runOnModule(Module &);
+  bool runOnModule(Module &) override;
   static char ID;
 
   void constructCheckHandlers(Module &);
@@ -34,7 +34,7 @@ class InitializeSoftBoundMPX: public ModulePass {
     temporal_safety= true;
   }
   
-  const char* getPassName() const { return "InitializeSoftBoundMPX";}
+  StringRef getPassName() const override{ return "InitializeSoftBoundMPX";}
 };
 
 #endif
