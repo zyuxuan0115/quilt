@@ -3522,7 +3522,9 @@ void SoftBoundCETSPass::addDereferenceChecks(Function* func) {
 #endif
   
   
-  m_dominator_tree = &getAnalysis<DominatorTree>(*func);
+  m_dominator_tree = &getAnalysis<DominatorTreeWrapperPass>(*func).getDomTree();
+  // @@@ comment out legacy pass
+  //m_dominator_tree = &getAnalysis<DominatorTree>(*func);
 
   /* intra-procedural load dererference check elimination map */
   std::map<Value*, int> func_deref_check_elim_map;
@@ -4871,10 +4873,14 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
   spatial_safety = true;
   temporal_safety = true;
 
-  TD = &getAnalysis<DataLayout>();
-  TLI = &getAnalysis<TargetLibraryInfo>();
+  // @@@ comment out legacy code
+  //TD = &getAnalysis<DataLayout>();
+  TD = &module.getDataLayout();
+  //TLI = &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI();
 
-  BuilderTy TheBuilder(module.getContext(), TargetFolder(TD));
+  //BuilderTy TheBuilder(module.getContext(), TargetFolder(TD));
+  BuilderTy TheBuilder(module.getContext(), TargetFolder(*TD));
+
 
   Builder = &TheBuilder;
 

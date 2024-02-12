@@ -92,8 +92,8 @@
 #include "llvm/Analysis/CallGraph.h"
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/LoopInfo.h"
+#include "llvm/IR/CallSite.h"
 //#include "llvm/Support/CallSite.h"
-#include "llvm/IR/AbstractCallSite.h"
 //#include "llvm/Support/CFG.h"
 #include "llvm/Analysis/CFG.h"
 #include "llvm/IR/CFG.h"
@@ -504,10 +504,13 @@ class SoftBoundCETSPass: public ModulePass {
 
 
   void getAnalysisUsage(AnalysisUsage& au) const override {
-    au.addRequired<DominatorTree>();
-    au.addRequired<LoopInfo>();
-    au.addRequired<DataLayout>();
-    au.addRequired<TargetLibraryInfo>();
+    //au.addRequired<DominatorTree>();
+    au.addRequired<DominatorTreeWrapperPass>();
+    //au.addRequired<LoopInfo>();
+    au.addRequired<LoopInfoWrapperPass>();
+    //au.addRequired<DataLayout>();
+    //au.addRequired<TargetLibraryInfo>();
+    au.addRequired<TargetLibraryInfoWrapperPass>();
   }
 
 
