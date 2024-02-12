@@ -3791,7 +3791,7 @@ void SoftBoundCETSPass::handleAlloca (AllocaInst* alloca_inst,
       // What can be operand of alloca instruction?
       intBound = alloca_inst->getOperand(0);
     }
-    GetElementPtrInst* gep = GetElementPtrInst::Create(ptr,
+    GetElementPtrInst* gep = GetElementPtrInst::Create(ptr_type, ptr,
                                                        intBound,
                                                        "mtmp",
                                                        next);
@@ -4941,7 +4941,9 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
 
 
   renameFunctions(module);
-  DEBUG(errs()<<"Done with SoftBoundCETSPass\n");
+  LLVM_DEBUG(errs()<<"Done with SoftBoundCETSPass\n");
+  // comment out the legacy code
+  // DEBUG(errs()<<"Done with SoftBoundCETSPass\n");
   
   /* print the external functions not wrapped */
 
@@ -4953,8 +4955,12 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
     if(func_ptr->isDeclaration()){
       if(!isFuncDefSoftBound(func_ptr->getName().str()) && 
          !(m_func_wrappers_available.count(func_ptr->getName().str()))){
-        DEBUG(errs()<<"External function not wrapped:"<<
+        
+        LLVM_DEBUG(errs()<<"External function not wrapped:"<<
               func_ptr->getName().str()<<"\n");
+        // comment out the legacy code
+        // DEBUG(errs()<<"External function not wrapped:"<<
+        //      func_ptr->getName().str()<<"\n");
       }
 
     }    
