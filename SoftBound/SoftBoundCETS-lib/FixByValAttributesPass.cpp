@@ -85,13 +85,23 @@ FixByValAttributesPass::createGEPStores(Value* result_alloca,
       createGEPStores(result_alloca, call_site_arg,  elem_struct_type,insert_at, new_indices);
     }
     else{
-      GetElementPtrInst* gep_idx_src = GetElementPtrInst::Create(call_site_arg, 
-                                                             new_indices, 
-                                                             "", insert_at);
+      GetElementPtrInst* gep_idx_src = GetElementPtrInst::Create(call_site_arg->getType(), 
+                                                                 call_site_arg, 
+                                                                 new_indices, 
+                                                                 "", insert_at);
+      // @@@ comment out legacy code
+      // GetElementPtrInst* gep_idx_src = GetElementPtrInst::Create(call_site_arg, 
+      //                                                       new_indices, 
+      //                                                       "", insert_at);
 
-      GetElementPtrInst* gep_idx_dest = GetElementPtrInst::Create(result_alloca, 
-                                                              new_indices,
-                                                              "", insert_at);
+      GetElementPtrInst* gep_idx_dest = GetElementPtrInst::Create(result_alloca->getType(),
+                                                                  result_alloca, 
+                                                                  new_indices,
+                                                                  "", insert_at);
+      // @@@ comment out legacy code
+      // GetElementPtrInst* gep_idx_dest = GetElementPtrInst::Create(result_alloca, 
+      //                                                        new_indices,
+      //                                                        "", insert_at);
 
       LoadInst* src_load = new LoadInst(gep_idx_src, "", insert_at);
       new StoreInst(src_load, gep_idx_dest, false, insert_at);
@@ -172,10 +182,11 @@ bool FixByValAttributesPass:: transformFunction(Function* func){
   
   SmallVector<AttributeSet, 8> param_attrs_vec;
 
-  const AttributeSet& pal = func->getAttributes();
-
-  if(pal.hasAttributes(AttributeSet::ReturnIndex))
-    param_attrs_vec.push_back(AttributeSet::get(func->getContext(), pal.getRetAttributes()));
+  const AttributeList& pal = func->getAttributes();
+  // @@@ comment out legacy code
+  // const AttributeSet& pal = func->getAttributes();
+  // if(pal.hasAttributes(AttributeSet::ReturnIndex))
+  //  param_attrs_vec.push_back(AttributeSet::get(func->getContext(), pal.getRetAttributes()));
 
   int arg_index = 1;
   for(Function::arg_iterator i = func->arg_begin(), e = func->arg_end();
@@ -184,16 +195,19 @@ bool FixByValAttributesPass:: transformFunction(Function* func){
  
     params.push_back(i->getType());
     AttributeSet attrs = pal.getParamAttributes(arg_index);
-    if(attrs.hasAttributes(arg_index)){
-      if(arg->hasByValAttr()){
+    //if(attrs.hasAttributes(arg_index)){
+    //  if(arg->hasByValAttr()){
 
-      }
-      else{
-	AttrBuilder B(attrs, arg_index);
-	param_attrs_vec.push_back(AttributeSet::get(func->getContext(), params.size(), B));
-      }
+    //  }
+    //  else{
+	AttrBuilder B(attrs);
+	// AttrBuilder B(attrs, arg_index);
+	//param_attrs_vec.push_back(AttributeSet::get(func->getContext(), params.size(), B));
+        param_attrs_vec.push_back(AttributeSet::get(func->getContext(), B));
+
+    //  }
       
-    }
+    //}
 
 #if 0
     if((Attributes attrs = pal.getParamAttributes(arg_index)) && !(arg->hasByValAttr())){
@@ -204,14 +218,18 @@ bool FixByValAttributesPass:: transformFunction(Function* func){
   }
   
   FunctionType* nfty = FunctionType::get(ret_type, params, fty->isVarArg());
-  Function* new_func = Function::Create(nfty, func->getLinkage(), func->getName()+ ".sb");
-  //  new_func->copyAttributesFrom(func);
-  new_func->setAttributes(AttributeSet::get(func->getContext(), param_attrs_vec));
+  // @@@ comment out legacy code
+  // Function* new_func = Function::Create(nfty, func->getLinkage(), func->getName()+ ".sb");
+  Function* new_func = Function::Create(nfty, func->getLinkage(), func->getName()+ ".sb", func->getParent());
+  // new_func->copyAttributesFrom(func);
+  // new_func->setAttributes(AttributeSet::get(func->getContext(), param_attrs_vec));
+  new_func->setAttributes(AttributeList::get(func->getContext(), pal.getFnAttributes(), pal.getRetAttributes(), param_attrs_vec));
                           
   SmallVector<Value*, 16> call_args;      
   new_func->getBasicBlockList().splice(new_func->begin(), func->getBasicBlockList());  
   
-  func->getParent()->getFunctionList().insert(func, new_func);
+  // @@@ comment out legacy code
+  // func->getParent()->getFunctionList().insert(func, new_func);
 
   Function::arg_iterator arg_i2 = new_func->arg_begin();      
   for(Function::arg_iterator arg_i = func->arg_begin(), arg_e = func->arg_end(); 
@@ -226,10 +244,13 @@ bool FixByValAttributesPass:: transformFunction(Function* func){
   bool change_call = true;
   while(change_call) {
     change_call = false;
-    
-    for(Value::use_iterator ui = func->use_begin(), ue = func->use_end(); 
-        ui != ue;) {
-      User* user_call = ui.getUse().getUser();
+   
+    for(auto U : func->users()){  
+    // @@@ comment out legacy code
+    //for(Value::use_iterator ui = func->use_begin(), ue = func->use_end(); 
+    //    ui != ue;) {
+      // User* user_call = ui.getUser().getUser();
+      User* user_call = dyn_cast<User>(U);
       assert(user_call && "user null?");
 
       CallSite cs(user_call);
@@ -264,8 +285,9 @@ bool FixByValAttributesPass:: transformFunction(Function* func){
           StructType* struct_type = dyn_cast<StructType>(seq_type->getElementType());
           assert(struct_type && "non-struct byval parameters?");
 
-          
-          AllocaInst* byval_alloca = new AllocaInst(struct_type, "", call);
+          AllocaInst* byval_alloca = new AllocaInst(struct_type, 0, "", call);
+          // comment out legacy code        
+          // AllocaInst* byval_alloca = new AllocaInst(struct_type, "", call);
           /* introduce stores, call_site_arg to byval_alloca */
           
           // introduce an alloca of the pointer type of byval
@@ -299,8 +321,10 @@ bool FixByValAttributesPass:: transformFunction(Function* func){
 
 
 bool FixByValAttributesPass::runOnModule(Module & module) {
+  auto TD = &module.getDataLayout();
   
-  if (module.getPointerSize() == llvm::Module::Pointer64) {
+  if (TD->getPointerSize() == 8) { 
+  // if (module.getPointerSize() == llvm::Module::Pointer64) {
     m_is_64bit = true;
   } else {
     m_is_64bit = false;

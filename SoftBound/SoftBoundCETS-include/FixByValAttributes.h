@@ -55,7 +55,8 @@
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/Support/MathExtras.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/GetElementPtrTypeIterator.h"
+//#include "llvm/Support/GetElementPtrTypeIterator.h"
+#include "llvm/IR/GetElementPtrTypeIterator.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/STLExtras.h"
@@ -69,18 +70,22 @@
 #include "llvm/IR/LLVMContext.h"
 
 #include "llvm/IR/Instruction.h"
-#include "llvm/Support/InstIterator.h"
+//#include "llvm/Support/InstIterator.h"
+#include "llvm/IR/InstIterator.h"
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
-#include "llvm/Analysis/Dominators.h"
+//#include "llvm/Analysis/Dominators.h"
+#include "llvm/IR/Dominators.h"
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/IR/InstrTypes.h"
 #include "llvm/Analysis/CallGraph.h"
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/LoopInfo.h"
-#include "llvm/Support/CallSite.h"
-#include "llvm/Support/CFG.h"
+//#include "llvm/Support/CallSite.h"
+#include "llvm/IR/CallSite.h"
+//#include "llvm/Support/CFG.h"
+#include "llvm/IR/CFG.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/StringMap.h"
 #include "llvm/Support/Debug.h"
@@ -95,7 +100,7 @@ class FixByValAttributesPass: public ModulePass{
 
  private:
   bool m_is_64bit;
-  bool runOnModule(Module &);
+  bool runOnModule(Module &) override;
   bool transformFunction(Function*);
   bool checkTypeHasPtrs(Argument*);
   bool checkPtrsInST(StructType*);
@@ -106,7 +111,9 @@ class FixByValAttributesPass: public ModulePass{
   static char ID;
  FixByValAttributesPass(): ModulePass(ID){
   }
-  const char* getPassName() const { return "FixByValAttributes";}
+  StringRef getPassName() const override{ return "FixByValAttributes";}
+  // @@@ comment out legacy code
+  //const char* getPassName() const{ return "FixByValAttributes";}
   
 };
 
