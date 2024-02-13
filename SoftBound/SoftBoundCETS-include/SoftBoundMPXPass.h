@@ -57,7 +57,8 @@
 #include "llvm/Support/ManagedStatic.h"
 #include "llvm/Support/MathExtras.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/Support/GetElementPtrTypeIterator.h"
+//#include "llvm/Support/GetElementPtrTypeIterator.h"
+#include "llvm/IR/GetElementPtrTypeIterator.h"
 #include "llvm/ADT/DenseMap.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/ADT/STLExtras.h"
@@ -73,19 +74,23 @@
 
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Instruction.h"
-#include "llvm/Support/InstIterator.h"
+//#include "llvm/Support/InstIterator.h"
+#include "llvm/IR/InstIterator.h"
 
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
 
-#include "llvm/Analysis/Dominators.h"
+//#include "llvm/Analysis/Dominators.h"
+#include "llvm/IR/Dominators.h"
 #include "llvm/ADT/DepthFirstIterator.h"
 #include "llvm/ADT/SmallVector.h"
 #include "llvm/Analysis/CallGraph.h"
 #include "llvm/Analysis/AliasAnalysis.h"
 #include "llvm/Analysis/LoopInfo.h"
-#include "llvm/Support/CallSite.h"
-#include "llvm/Support/CFG.h"
+//#include "llvm/Support/CallSite.h"
+#include "llvm/IR/CallSite.h"
+//#include "llvm/Support/CFG.h"
+#include "llvm/IR/CFG.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/StringMap.h"
 
@@ -96,16 +101,19 @@
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Intrinsics.h"
 #include "llvm/IR/IRBuilder.h"
-#include "llvm/Support/InstIterator.h"
-#include "llvm/Target/TargetLibraryInfo.h"
-#include "llvm/Support/TargetFolder.h"
-
+//#include "llvm/Support/InstIterator.h"
+#include "llvm/IR/InstIterator.h"
+//#include "llvm/Target/TargetLibraryInfo.h"
+#include "llvm/Analysis/TargetLibraryInfo.h"
+//#include "llvm/Support/TargetFolder.h"
+#include "llvm/Analysis/TargetFolder.h"
 
 #include<queue>
 
 using namespace llvm;
 
-typedef IRBuilder<true, TargetFolder> BuilderTy;
+//typedef IRBuilder<true, TargetFolder> BuilderTy;
+typedef IRBuilder<TargetFolder> BuilderTy;
 
 class SoftBoundMPXPass: public ModulePass {
 
@@ -236,7 +244,7 @@ class SoftBoundMPXPass: public ModulePass {
   /* Main functions implementing the structure of the Softboundcets
      pass
    */
-  bool runOnModule(Module&);
+  bool runOnModule(Module&) override;
   void initializeSoftBoundVariables(Module&);
   void identifyOriginalInst(Function*);
   bool isAllocaPresent(Function*);
@@ -382,11 +390,14 @@ class SoftBoundMPXPass: public ModulePass {
   
   Instruction* getNextInstruction(Instruction* I){
     
-    if (isa<TerminatorInst>(I)) {
+    if (I->isTerminator()) {
+    // @@@ comment out legacy code
+    //if (isa<TerminatorInst>(I)) {
       return I;
     } else {
-      BasicBlock::iterator i = I;
-      return ++i;
+    //  BasicBlock::iterator i = I;
+    //  return ++i;
+      return I->getNextNode();
     }    
   }
   
@@ -400,18 +411,20 @@ class SoftBoundMPXPass: public ModulePass {
  public:
   static char ID;
 
- SoftBoundMPXPass(): ModulePass(ID){
+  SoftBoundMPXPass(): ModulePass(ID){
     spatial_safety= true;
     temporal_safety=true;
-
   }
-  const char* getPassName() const { return " SoftBoundMPXPass";}
+  StringRef getPassName() const override { return " SoftBoundMPXPass";}
 
-  void getAnalysisUsage(AnalysisUsage& au) const {
-    au.addRequired<DominatorTree>();
-    au.addRequired<LoopInfo>();
-    au.addRequired<DataLayout>();
-    au.addRequired<TargetLibraryInfo>();
+  void getAnalysisUsage(AnalysisUsage& au) const override{
+    //au.addRequired<DominatorTree>();
+    au.addRequired<DominatorTreeWrapperPass>();
+    //au.addRequired<LoopInfo>();
+    au.addRequired<LoopInfoWrapperPass>();
+    //au.addRequired<DataLayout>();
+    //au.addRequired<TargetLibraryInfo>();
+    au.addRequired<TargetLibraryInfoWrapperPass>();
   }
 };
 

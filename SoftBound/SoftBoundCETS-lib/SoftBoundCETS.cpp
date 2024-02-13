@@ -5109,16 +5109,19 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
 
   spatial_safety = true;
   temporal_safety = true;
-
+  // @@@ comment out legacy code
   //TD = &getAnalysis<DataLayout>();
   TD = &module.getDataLayout();
   //TLI = &getAnalysis<TargetLibraryInfo>();
 
-  BuilderTy TheBuilder(module.getContext(), TargetFolder(TD));
-
+  //BuilderTy TheBuilder(module.getContext(), TargetFolder(TD));
+  BuilderTy TheBuilder(module.getContext(), TargetFolder(*TD));
   Builder = &TheBuilder;
-
-  Blacklist.reset(SpecialCaseList::createOrDie(BlacklistFile));
+ 
+  std::vector<std::string> Paths;
+  std::string BlacklistFilePath(BlacklistFile.str());
+  Paths.push_back(std::string(BlacklistFilePath));
+  Blacklist.reset(SpecialCaseList::createOrDie(Paths, *vfs::getRealFileSystem()).get());
 
 
   if(disable_spatial_safety){
