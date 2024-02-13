@@ -3397,7 +3397,13 @@ void SoftBoundCETSPass::addDereferenceChecks(Function* func) {
   if(metadata_prop_only)
     return;
 
-  if(Blacklist->isIn(F))
+  //if(Blacklist->isIn(F))
+  // this is definitely not true
+  // @@@ change the legacy code to this
+  // the regex part need to be changed
+  // please search for https://llvm.org/doxygen/classllvm_1_1SpecialCaseList.html
+  // for more info
+  if (Blacklist->inSection("","",F.getName()))
     return;
 
   std::vector<Instruction*> CheckWorkList;
