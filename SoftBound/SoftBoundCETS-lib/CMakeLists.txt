@@ -10,10 +10,7 @@ endif()
 
 add_llvm_library(LLVMSoftBoundCETS MODULE BUILDTREE_ONLY
   InitializeSoftBoundCETS.cpp
-  InitializeSoftBoundMPX.cpp
-  SoftBoundCETSMPX.cpp
   FixByValAttributesPass.cpp
-  SoftBoundMPX.cpp
   SoftBoundCETS.cpp
 
   ADDITIONAL_HEADER_DIRS
@@ -22,19 +19,16 @@ add_llvm_library(LLVMSoftBoundCETS MODULE BUILDTREE_ONLY
 
   DEPENDS
   intrinsics_gen
+  opt
+  PLUGIN_TOOL
 
   LINK_COMPONENTS
   Analysis
   Core
-  IPA
   InstCombine
-  Scalar
-  Vectorize
   Support
   Target
   TransformUtils
   IPO
   Instrumentation
-  opt
-  PLUGIN_TOOL
   )
