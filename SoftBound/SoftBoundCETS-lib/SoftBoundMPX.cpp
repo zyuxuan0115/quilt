@@ -307,16 +307,19 @@ void SoftBoundMPXPass::transformMain(Module& module) {
   std::vector<Type*> params;
 
   SmallVector<AttributeSet, 8> param_attrs_vec;
-  const AttributeSet& pal = main_func->getAttributes();
+  //const AttributeSet& pal = main_func->getAttributes();
+  const AttributeList& pal = main_func->getAttributes();
+
 
   //
   // Get the attributes of the return value
   //
 
-  if(pal.hasAttributes(AttributeSet::ReturnIndex))
-    param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), pal.getRetAttributes()));
+  //if(pal.hasAttributes(AttributeSet::ReturnIndex))
+  //  param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), pal.getRetAttributes()));
 
   // Get the attributes of the arguments 
+  // zyuxuan: need to be careful!
   int arg_index = 1;
   for(Function::arg_iterator i = main_func->arg_begin(), 
         e = main_func->arg_end();
@@ -325,24 +328,31 @@ void SoftBoundMPXPass::transformMain(Module& module) {
 
     AttributeSet attrs = pal.getParamAttributes(arg_index);
 
-    if(attrs.hasAttributes(arg_index)){
-      AttrBuilder B(attrs, arg_index);
-      param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), params.size(), B));
-    }
+    //if(attrs.hasAttributes(arg_index)){
+      //AttrBuilder B(attrs, arg_index);
+      AttrBuilder B(attrs);
+      //param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), params.size(), B));
+      param_attrs_vec.push_back(AttributeSet::get(main_func->getContext(), B));
+    //}
   }
 
   FunctionType* nfty = FunctionType::get(ret_type, params, fty->isVarArg());
   Function* new_func = NULL;
 
   // create the new function 
+  // comment out legacy code
+  // new_func = Function::Create(nfty, main_func->getLinkage(), 
+  //                            "softboundmpx_pseudo_main");
   new_func = Function::Create(nfty, main_func->getLinkage(), 
-                              "softboundmpx_pseudo_main");
+                              "softboundmpx_pseudo_main", main_func->getParent());
+
 
   // set the new function attributes 
-  new_func->copyAttributesFrom(main_func);
-  new_func->setAttributes(AttributeSet::get(main_func->getContext(), param_attrs_vec));
+  //new_func->copyAttributesFrom(main_func);
+  new_func->setAttributes(AttributeList::get(main_func->getContext(), pal.getFnAttributes(), pal.getRetAttributes(), param_attrs_vec));
+  //new_func->setAttributes(AttributeSet::get(main_func->getContext(), param_attrs_vec));
     
-  main_func->getParent()->getFunctionList().insert(main_func, new_func);
+  // main_func->getParent()->getFunctionList().insert(main_func, new_func);
   main_func->replaceAllUsesWith(new_func);
 
   // 
@@ -894,7 +904,7 @@ void SoftBoundMPXPass::handlePHIPass2(PHINode* phi_node) {
           assert(tmp_bound && "bound of a global variable null?");
           
           Function * PHI_func = phi_node->getParent()->getParent();
-          Instruction* PHI_func_entry = PHI_func->begin()->begin();
+          Instruction* PHI_func_entry = dyn_cast<Instruction>(PHI_func->begin()->begin());
           
           incoming_value_base = castToVoidPtr(tmp_base, PHI_func_entry);                                               
           incoming_value_bound = castToVoidPtr(tmp_bound, PHI_func_entry);
@@ -920,7 +930,7 @@ void SoftBoundMPXPass::handlePHIPass2(PHINode* phi_node) {
                  "[handlePHIPass2] tmp_base tmp_bound, null?");
           
           Function* PHI_func = phi_node->getParent()->getParent();
-          Instruction* PHI_func_entry = PHI_func->begin()->begin();
+          Instruction* PHI_func_entry = dyn_cast<Instruction>(PHI_func->begin()->begin());
 
           incoming_value_base = castToVoidPtr(tmp_base, PHI_func_entry);
           incoming_value_bound = castToVoidPtr(tmp_bound, PHI_func_entry);
@@ -1049,14 +1059,19 @@ SoftBoundMPXPass::getGlobalVariableBaseBound(Value* operand,
     ConstantInt::get(Type::getInt32Ty(module->getContext()), 0);
   indices_base.push_back(index_base);
 
-  Constant* base_exp = ConstantExpr::getGetElementPtr(gv, indices_base);
+  Constant* base_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_base);
+  // @@@ comment out legacy code
+  //Constant* base_exp = ConstantExpr::getGetElementPtr(gv, indices_base);
         
   std::vector<Constant*> indices_bound;
   Constant* index_bound = 
     ConstantInt::get(Type::getInt32Ty(module->getContext()), 1);
   indices_bound.push_back(index_bound);
-    
-  Constant* bound_exp = ConstantExpr::getGetElementPtr(gv, indices_bound);
+
+  // zyuxuan: be careful
+  Constant* bound_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_bound);
+  // @@@ comment out legacy code 
+  //Constant* bound_exp = ConstantExpr::getGetElementPtr(gv, indices_bound);
     
   operand_base = base_exp;
   operand_bound = bound_exp;    
@@ -1468,7 +1483,9 @@ SoftBoundMPXPass::handleGlobalSequentialTypeInitializer(Module& module,
             indices_addr_ptr.push_back(index2);
 
             Constant* Indices[3] = {index0, index1, index2};              
-            Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, Indices);
+            Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, Indices);
+            // @@@ comment out the legacy code
+            //Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, Indices);
             Type* initializer_type = initializer_opd->getType();
             Value* initializer_size = getSizeOfType(initializer_type);
             
@@ -1564,7 +1581,10 @@ handleGlobalStructTypeInitializer(Module& module,
       //      indices_addr_ptr.push_back(index1);
       indices_addr_ptr.push_back(index2);
       length++;
-      addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
+
+      addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
+      // @@@ comment out the legacy code 
+      //addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
       
       Type* initializer_type = initializer_opd->getType();
       Value* initializer_size = getSizeOfType(initializer_type);     
@@ -1690,9 +1710,14 @@ void SoftBoundMPXPass::getConstantExprBaseBound(Constant* given_constant,
     indices_base.push_back(index_base0);
     indices_bound.push_back(index_bound0);
 
-    Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant, 
+    // comment out the legacy code
+    // Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant, 
+    //                                                    indices_base);    
+    // Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant, 
+    //                                                     indices_bound);
+    Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
                                                         indices_base);    
-    Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant, 
+    Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
                                                          indices_bound);
       
     tmp_base = gep_base;
@@ -1928,8 +1953,10 @@ Value* SoftBoundMPXPass:: getSizeOfType(Type* input_type) {
 
     PointerType* ptr_type = PointerType::getUnqual(seq_type->getElementType());
     Constant* gep_temp = ConstantExpr::getNullValue(ptr_type);
-    Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
-    
+    //Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
+    // @@@ commnet out legacy code
+    Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType(), gep_temp, gep_idx);
+
     Type* int64Ty = Type::getInt64Ty(seq_type->getContext());
     return ConstantExpr::getPtrToInt(gep, int64Ty);
   }    
@@ -1988,11 +2015,18 @@ createFaultBlock (Function * F) {
   //
   LLVMContext & Context = F->getContext();
   Module * M = F->getParent();
-
-  M->getOrInsertFunction("__softboundmpx_dummy", Type::getVoidTy(Context), NULL);
+ 
+  std::vector<Type*> argumentTypes1;
+  ArrayRef<Type*> argTypes1(argumentTypes1);
+  FunctionType* FuncType1 = FunctionType::get(Type::getVoidTy(Context), argTypes1, true);
+  M->getOrInsertFunction("__softboundmpx_dummy",FuncType1); 
+  // @@@ comment out the legacy code
+  // M->getOrInsertFunction("__softboundmpx_dummy", Type::getVoidTy(Context), NULL);
   CallInst::Create(M->getFunction("__softboundmpx_dummy"), "", UI);
-  
-  M->getOrInsertFunction ("__softboundmpx_abort", Type::getVoidTy (Context), NULL);
+
+  M->getOrInsertFunction("__softboundmpx_abort",FuncType1); 
+  // @@@ comment out the legacy code 
+  // M->getOrInsertFunction ("__softboundmpx_abort", Type::getVoidTy (Context), NULL);
   CallInst::Create (M->getFunction ("__softboundmpx_abort"), "", UI);
 
   return faultBB;
@@ -2165,7 +2199,9 @@ void SoftBoundMPXPass::addDereferenceChecks(Function* func) {
   if(func->isVarArg())
     return;
 
-  m_dominator_tree = &getAnalysis<DominatorTree>(*func);
+  m_dominator_tree = &getAnalysis<DominatorTreeWrapperPass>(*func).getDomTree();
+  // @@@ comment out legacy code
+  //m_dominator_tree = &getAnalysis<DominatorTree>(*func);
 
   /* intra-procedural load dererference check elimination map */
   std::map<Value*, int> func_deref_check_elim_map;
@@ -2334,7 +2370,7 @@ void SoftBoundMPXPass:: renameFunctionName(Function* func,
     return;
 
   SmallVector<AttributeSet, 8> param_attrs_vec;
-
+  const AttributeList& pal = func->getAttributes();
 #if 0
 
   const AttrListPtr& pal = func->getAttributes();
@@ -2355,10 +2391,13 @@ void SoftBoundMPXPass:: renameFunctionName(Function* func,
   }
 
   FunctionType* nfty = FunctionType::get(ret_type, params, fty->isVarArg());
-  Function* new_func = Function::Create(nfty, func->getLinkage(), transformFunctionName(func->getName()));
-  new_func->copyAttributesFrom(func);
-  new_func->setAttributes(AttributeSet::get(func->getContext(), param_attrs_vec));
-  func->getParent()->getFunctionList().insert(func, new_func);
+  Function* new_func = Function::Create(nfty, func->getLinkage(), transformFunctionName(func->getName()), func->getParent());
+  // comment out legacy code
+  // Function* new_func = Function::Create(nfty, func->getLinkage(), transformFunctionName(func->getName()));
+  //new_func->copyAttributesFrom(func);
+  new_func->setAttributes(AttributeList::get(func->getContext(), pal.getFnAttributes(), pal.getRetAttributes(), param_attrs_vec));
+  //new_func->setAttributes(AttributeSet::get(func->getContext(), param_attrs_vec));
+  //func->getParent()->getFunctionList().insert(func, new_func);
     
   if(!external) {
     SmallVector<Value*, 16> call_args;      
@@ -2421,10 +2460,15 @@ void SoftBoundMPXPass::handleAlloca (AllocaInst* alloca_inst,
       // What can be operand of alloca instruction?
       intBound = alloca_inst->getOperand(0);
     }
-    GetElementPtrInst* gep = GetElementPtrInst::Create(ptr,
+    GetElementPtrInst* gep = GetElementPtrInst::Create(ptr->getType(), ptr,
                                                        intBound,
                                                        "mtmp",
                                                        next);
+    // @@@ comment out legacy code
+    // GetElementPtrInst* gep = GetElementPtrInst::Create(ptr,
+    //                                                   intBound,
+    //                                                   "mtmp",
+    //                                                   next);
     Value *bound_ptr = gep;
     
     Value* ptr_bound = castToVoidPtr(bound_ptr, next);
@@ -2456,7 +2500,7 @@ void SoftBoundMPXPass::handleStore(StoreInst* store_inst) {
 
     if(ST){
       if(ST->isOpaque()){
-        DEBUG(errs()<<"Opaque type found\n");        
+        LLVM_DEBUG(errs()<<"Opaque type found\n");        
       }
 
     }
@@ -2884,7 +2928,7 @@ void SoftBoundMPXPass::gatherBaseBoundPass1 (Function * func) {
 
     Argument* ptr_argument = dyn_cast<Argument>(ib);
     Value* ptr_argument_value = ptr_argument;
-    Instruction* fst_inst = func->begin()->begin();
+    Instruction* fst_inst = dyn_cast<Instruction>(func->begin()->begin());
       
     /* Urgent: Need to think about what we need to do about byval attributes */
     if(ptr_argument->hasByValAttr()){
@@ -3153,10 +3197,12 @@ void SoftBoundMPXPass::handleLoad(LoadInst* load_inst) {
   /* address of pointer being pushed */
   args.push_back(pointer_operand_bitcast);
     
-
-    
-    base_alloca = new AllocaInst(m_void_ptr_type, "base.alloca", first_inst_func);
-    bound_alloca = new AllocaInst(m_void_ptr_type, "bound.alloca", first_inst_func);
+    base_alloca = new AllocaInst(m_void_ptr_type, 0,  "base.alloca", first_inst_func);
+    bound_alloca = new AllocaInst(m_void_ptr_type, 0, "bound.alloca", first_inst_func);
+ 
+    // @@@ comment out legacy code    
+    //base_alloca = new AllocaInst(m_void_ptr_type, "base.alloca", first_inst_func);
+    //bound_alloca = new AllocaInst(m_void_ptr_type, "bound.alloca", first_inst_func);
   
     /* base */
     args.push_back(base_alloca);
@@ -3267,7 +3313,9 @@ void SoftBoundMPXPass::addBaseBoundGlobals(Module& M){
       indices_addr_ptr.push_back(index1);
       indices_addr_ptr.push_back(index2);
 
-      Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
+      Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
+      // @@@ comment out legacy code
+      //Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
       Type* initializer_type = initializer_opd->getType();
       Value* initializer_size = getSizeOfType(initializer_type);
       
@@ -3304,15 +3352,21 @@ void SoftBoundMPXPass::identifyOriginalInst (Function * func) {
 
 bool SoftBoundMPXPass::runOnModule(Module& module) {
 
+  TD = &module.getDataLayout();
+  //TLI = &getAnalysis<TargetLibraryInfoWrapperPass>().getTLI();
 
-  TD = &getAnalysis<DataLayout>();
-  TLI = &getAnalysis<TargetLibraryInfo>();
+  BuilderTy TheBuilder(module.getContext(), TargetFolder(*TD));
 
-  BuilderTy TheBuilder(module.getContext(), TargetFolder(TD));
+  // comment out legacy code
+  //TD = &getAnalysis<DataLayout>();
+  //TLI = &getAnalysis<TargetLibraryInfo>();
+
+  //BuilderTy TheBuilder(module.getContext(), TargetFolder(TD));
 
   Builder = &TheBuilder;
 
-  if (module.getPointerSize() == llvm::Module::Pointer64) {
+  if (TD->getPointerSize() == 8){
+  // if (module.getPointerSize() == llvm::Module::Pointer64) {
     m_is_64_bit = true;
   } else {
     m_is_64_bit = false;
@@ -3360,7 +3414,7 @@ bool SoftBoundMPXPass::runOnModule(Module& module) {
 
 
   renameFunctions(module);
-  DEBUG(errs()<<"Done with SoftBoundMPXPass\n");
+  LLVM_DEBUG(errs()<<"Done with SoftBoundMPXPass\n");
   
   /* print the external functions not wrapped */
 
@@ -3372,7 +3426,7 @@ bool SoftBoundMPXPass::runOnModule(Module& module) {
     if(func_ptr->isDeclaration()){
       if(!isFuncDefSoftBound(func_ptr->getName()) && 
          !(m_func_wrappers_available.count(func_ptr->getName()))){
-        DEBUG(errs()<<"External function not wrapped:"<<
+        LLVM_DEBUG(errs()<<"External function not wrapped:"<<
               func_ptr->getName()<<"\n");
       }
 
