@@ -40,29 +40,59 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/Transforms/SoftBoundCETS/InitializeSoftBoundCETS.h"
-
-extern cl::opt<bool> disable_spatial_safety;
-extern cl::opt<bool> disable_temporal_safety;
-
-// static cl::opt<bool>
-// disable_spatial_safety
-// ("softboundcets_disable_spatial_safety",
-//  cl::desc("disable transformation for spatial safety"),
-//  cl::init(false));
-
-// static cl::opt<bool>
-// disable_temporal_safety
-// ("softboundcets_disable_temporal_safety",
-//  cl::desc("disable transformation for temporal safety"),
-//  cl::init(false));
+#include "llvm/Pass.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm-c/Target.h"
+#include "llvm-c/TargetMachine.h"
 
 
 
-char InitializeSoftBoundCETS :: ID = 0;
 
-static RegisterPass<InitializeSoftBoundCETS> P 
-("InitializeSoftBoundCETS","Prototype Creator Pass for SoftBoundCETS");
+
+using namespace llvm;
+namespace {
+class InitializeSoftBoundCETS: public ModulePass {
+
+ private:
+  bool spatial_safety;
+  bool temporal_safety;
+  
+ public:
+  bool runOnModule(Module &) override;
+  static char ID;
+
+  void constructCheckHandlers(Module &);
+  void constructMetadataHandlers(Module &);
+  void constructShadowStackHandlers(Module &);
+  void constructAuxillaryFunctionHandlers(Module &);
+  InitializeSoftBoundCETS(): ModulePass(ID){        
+    spatial_safety = true;
+    temporal_safety= true;
+  }
+  
+  StringRef getPassName() const override{ return "InitializeSoftBoundCETS";}
+};
+
+// @@@ will run into linker error
+//extern cl::opt<bool> disable_spatial_safety;
+//extern cl::opt<bool> disable_temporal_safety;
+
+
+ static cl::opt<bool>
+ disable_spatial_safety
+ ("softboundcets_disable_spatial_safety",
+  cl::desc("disable transformation for spatial safety"),
+  cl::init(false));
+
+ static cl::opt<bool>
+ disable_temporal_safety
+ ("softboundcets_disable_temporal_safety",
+  cl::desc("disable transformation for temporal safety"),
+  cl::init(false));
+
 
 void InitializeSoftBoundCETS:: constructShadowStackHandlers(Module & module){
 
@@ -768,3 +798,14 @@ bool InitializeSoftBoundCETS:: runOnModule (Module& module){
   //  constructAuxillaryFunctionHandlers(module);
   return true;
 }
+
+}
+
+
+
+char InitializeSoftBoundCETS :: ID = 0;
+
+static RegisterPass<InitializeSoftBoundCETS> P 
+("InitializeSoftBoundCETS","Prototype Creator Pass for SoftBoundCETS");
+
+
