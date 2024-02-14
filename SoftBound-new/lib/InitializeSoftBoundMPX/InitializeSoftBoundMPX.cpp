@@ -45,29 +45,59 @@
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
-#include "llvm/Transforms/SoftBoundCETS/InitializeSoftBoundMPX.h"
 
-extern cl::opt<bool> disable_spatial_safety;
-extern cl::opt<bool> disable_temporal_safety;
-
-// static cl::opt<bool>
-// disable_spatial_safety
-// ("softboundmpx_disable_spatial_safety",
-//  cl::desc("disable transformation for spatial safety"),
-//  cl::init(false));
-
-// static cl::opt<bool>
-// disable_temporal_safety
-// ("softboundmpx_disable_temporal_safety",
-//  cl::desc("disable transformation for temporal safety"),
-//  cl::init(false));
+#include "llvm/Pass.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/Instruction.h"
+#include "llvm-c/Target.h"
+#include "llvm-c/TargetMachine.h"
 
 
+using namespace llvm;
 
-char InitializeSoftBoundMPX :: ID = 0;
+namespace {
+class InitializeSoftBoundMPX: public ModulePass {
 
-static RegisterPass<InitializeSoftBoundMPX> P 
-("InitializeSoftBoundMPX","Prototype Creator Pass for Softboundmpx");
+ private:
+  bool spatial_safety;
+  bool temporal_safety;
+  
+ public:
+  bool runOnModule(Module &) override;
+  static char ID;
+
+  void constructCheckHandlers(Module &);
+  void constructMetadataHandlers(Module &);
+  void constructShadowStackHandlers(Module &);
+  void constructAuxillaryFunctionHandlers(Module &);
+  InitializeSoftBoundMPX(): ModulePass(ID){        
+    spatial_safety = true;
+    temporal_safety= true;
+  }
+  
+  StringRef getPassName() const override{ return "InitializeSoftBoundMPX";}
+};
+
+
+
+
+//extern cl::opt<bool> disable_spatial_safety;
+//extern cl::opt<bool> disable_temporal_safety;
+
+ static cl::opt<bool>
+ disable_spatial_safety
+ ("softboundmpx_disable_spatial_safety",
+  cl::desc("disable transformation for spatial safety"),
+  cl::init(false));
+
+ static cl::opt<bool>
+ disable_temporal_safety
+ ("softboundmpx_disable_temporal_safety",
+  cl::desc("disable transformation for temporal safety"),
+  cl::init(false));
+
 
 void InitializeSoftBoundMPX:: constructShadowStackHandlers(Module & module){
 
@@ -426,3 +456,14 @@ bool InitializeSoftBoundMPX:: runOnModule (Module& module){
   //  constructAuxillaryFunctionHandlers(module);
   return true;
 }
+
+}
+
+
+
+char InitializeSoftBoundMPX::ID = 0;
+
+static RegisterPass<InitializeSoftBoundMPX> P 
+("InitializeSoftBoundMPX","Prototype Creator Pass for Softboundmpx");
+
+
