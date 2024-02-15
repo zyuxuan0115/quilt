@@ -3218,9 +3218,7 @@ createFaultBlock (Function * F) {
   LLVMContext & Context = F->getContext();
   Module * M = F->getParent();
 
-  std::vector<Type*> argumentTypes3;
-  ArrayRef<Type*> argTypes3(argumentTypes3);
-  FunctionType* FuncType3 = FunctionType::get(Type::getVoidTy(Context), argTypes3, true);
+  FunctionType* FuncType3 = FunctionType::get(Type::getVoidTy(Context), false);
   M->getOrInsertFunction("__softboundcets_dummy", FuncType3);
   // @@@ comment out the legacy code
   //M->getOrInsertFunction("__softboundcets_dummy", Type::getVoidTy(Context), NULL);
