@@ -3125,45 +3125,49 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
 
   const SequentialType* seq_type = dyn_cast<SequentialType>(input_type);
   Constant* int64_size = NULL;
-  assert(seq_type && "pointer dereference and it is not a sequential type\n");
-  
-  StructType* struct_type = dyn_cast<StructType>(input_type);
+  // @@@ zyuxuan: I added code to test if seq_type is a null-ptr.
+  if (seq_type==NULL) errs()<<"@@@@ not seq type\n";
+  //assert(seq_type && "pointer dereference and it is not a sequential type\n");
+  if (seq_type){ 
+    StructType* struct_type = dyn_cast<StructType>(input_type);
 
-  if(struct_type){
-    if(struct_type->isOpaque()){
-      if(m_is_64_bit) {
-        return ConstantInt::get(Type::getInt64Ty(seq_type->getContext()), 0);        
-      }
-      else {
-        return ConstantInt::get(Type::getInt32Ty(seq_type->getContext()), 0);
+    if(struct_type){
+      if(struct_type->isOpaque()){
+        if (m_is_64_bit) {
+          return ConstantInt::get(Type::getInt64Ty(seq_type->getContext()), 0);        
+        }
+        else {
+          return ConstantInt::get(Type::getInt32Ty(seq_type->getContext()), 0);
+        }
       }
     }
-  }
-  
-  if(m_is_64_bit) {
 
-    if(!seq_type->getElementType()->isSized()){
-      return ConstantInt::get(Type::getInt64Ty(seq_type->getContext()), 0);
-    }
-    int64_size = ConstantExpr::getSizeOf(seq_type->getElementType());
-    return int64_size;
-  } else {
+    if (m_is_64_bit) {
+      if(!seq_type->getElementType()->isSized()){
+        return ConstantInt::get(Type::getInt64Ty(seq_type->getContext()), 0);
+      }
+      int64_size = ConstantExpr::getSizeOf(seq_type->getElementType());
+      return int64_size;
+    } else {
+      // doing what ConstantExpr::getSizeOf() does 
+      Constant* gep_idx = 
+        ConstantInt::get(Type::getInt32Ty(seq_type->getContext()), 1);
 
-    // doing what ConstantExpr::getSizeOf() does 
-    Constant* gep_idx = 
-      ConstantInt::get(Type::getInt32Ty(seq_type->getContext()), 1);
-
-    PointerType* ptr_type = PointerType::getUnqual(seq_type->getElementType());
-    Constant* gep_temp = ConstantExpr::getNullValue(ptr_type);
-    // @@@ comment out legacy code
-    // Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
-    Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType(), gep_temp, gep_idx);
+      PointerType* ptr_type = PointerType::getUnqual(seq_type->getElementType());
+      Constant* gep_temp = ConstantExpr::getNullValue(ptr_type);
+      // @@@ comment out legacy code
+      // Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
+      Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType(), gep_temp, gep_idx);
     
-    Type* int64Ty = Type::getInt64Ty(seq_type->getContext());
-    return ConstantExpr::getPtrToInt(gep, int64Ty);
-  }    
-  assert(0 && "not handled type?");
-
+      Type* int64Ty = Type::getInt64Ty(seq_type->getContext());
+      return ConstantExpr::getPtrToInt(gep, int64Ty);
+    }    
+    assert(0 && "not handled type?");
+  }
+  else {
+    // zyuxuan: also added code here
+    return ConstantInt::get(Type::getInt64Ty(input_type->getContext()), 0);
+  }
   return NULL;
 }
 
@@ -3247,6 +3251,7 @@ void
 SoftBoundCETSPass::addLoadStoreChecks(Instruction* load_store, 
                                       std::map<Value*, int>& FDCE_map) {
 
+  errs()<<"@@@@ "<<*load_store<<"\n";
   if(!spatial_safety)
     return;
 
@@ -3339,6 +3344,7 @@ SoftBoundCETSPass::addLoadStoreChecks(Instruction* load_store,
     } // BOUNDSCHECKOPT ends 
   }
     
+
   Value* tmp_base = NULL;
   Value* tmp_bound = NULL;
     
@@ -3363,11 +3369,17 @@ SoftBoundCETSPass::addLoadStoreChecks(Instruction* load_store,
   Value* cast_pointer_operand_value = castToVoidPtr(pointer_operand, 
                                                     load_store);    
   args.push_back(cast_pointer_operand_value);
-    
+ 
+  errs()<<"33333333333333333333333333333333333333333333333\n";  
+ 
   // Pushing the size of the type 
   Type* pointer_operand_type = pointer_operand->getType();
+  errs()<<"@@@@ "<<*pointer_operand<<"\n";
+  errs()<<"@@@@ "<<*pointer_operand_type<<"\n";
   Value* size_of_type = getSizeOfType(pointer_operand_type);
   args.push_back(size_of_type);
+
+  errs()<<"44444444444444444444444444444444\n";
 
   if(isa<LoadInst>(load_store)){
             
@@ -3847,9 +3859,9 @@ void SoftBoundCETSPass::addDereferenceChecks(Function* func) {
   // the regex part need to be changed
   // please search for https://llvm.org/doxygen/classllvm_1_1SpecialCaseList.html
   // for more info
-  if (Blacklist->inSection("","",F.getName()))
+  if ((BlacklistFile.str()!="") && (Blacklist->inSection("","",F.getName()))){
     return;
-
+  }
   std::vector<Instruction*> CheckWorkList;
   std::map<Value*, bool> ElideSpatialCheck;
   std::map<Value*, bool> ElideTemporalCheck;
@@ -5567,12 +5579,16 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
   //BuilderTy TheBuilder(module.getContext(), TargetFolder(TD));
   BuilderTy TheBuilder(module.getContext(), TargetFolder(*TD));
   Builder = &TheBuilder;
- 
-  std::vector<std::string> Paths;
-  std::string BlacklistFilePath(BlacklistFile.str());
-  Paths.push_back(std::string(BlacklistFilePath));
-  Blacklist.reset(SpecialCaseList::createOrDie(Paths, *vfs::getRealFileSystem()).get());
 
+  // @@@ zyuxuan: I don't know how to update this BlacklistFile
+  // I can check its usage. But why do you need this Blacklist 
+  // in the first place? 
+  if (BlacklistFile.str()!=""){ 
+    std::vector<std::string> Paths;
+    std::string BlacklistFilePath(BlacklistFile.str());
+    Paths.push_back(std::string(BlacklistFilePath));
+    Blacklist.reset(SpecialCaseList::createOrDie(Paths, *vfs::getRealFileSystem()).get());
+  }
 
   if(disable_spatial_safety){
     spatial_safety = false;
