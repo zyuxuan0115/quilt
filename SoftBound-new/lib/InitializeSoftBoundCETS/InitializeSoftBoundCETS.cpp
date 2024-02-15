@@ -47,7 +47,7 @@
 #include "llvm/IR/Instruction.h"
 #include "llvm-c/Target.h"
 #include "llvm-c/TargetMachine.h"
-
+#include "llvm/Transforms/Utils/ModuleUtils.h"
 
 
 
@@ -222,8 +222,8 @@ void InitializeSoftBoundCETS:: constructMetadataHandlers(Module & module){
   std::vector<Type*> argumentTypes9;
   argumentTypes9.push_back(VoidPtrTy);
   argumentTypes9.push_back(VoidPtrTy);
-  ArrayRef<Type*> argTypes9(argumentTypes9);
   argumentTypes9.push_back(Int32Ty);
+  ArrayRef<Type*> argTypes9(argumentTypes9);
   FunctionType* FuncType9 = FunctionType::get(VoidTy, argTypes9, true);
   module.getOrInsertFunction("__softboundcets_introspect_metadata", 
                              FuncType9);
@@ -730,8 +730,10 @@ void InitializeSoftBoundCETS:: constructCheckHandlers(Module & module){
   // @@@ comment out the legacy code
   // CallInst::Create(softboundcets_init, args, "", ret);
 
-
-
+  // @@@ zyuxuan: I feel that this appendToGlobalCtors has done
+  // @@@ everything we need
+  appendToGlobalCtors(module, global_init, 1);
+/*
   Type * Int32Type = IntegerType::getInt32Ty(module.getContext());
   std::vector<Constant *> CtorInits;
   CtorInits.push_back(ConstantInt::get(Int32Type, 0));
@@ -760,7 +762,6 @@ void InitializeSoftBoundCETS:: constructCheckHandlers(Module & module){
   ArrayType * AT = ArrayType::get (RuntimeCtorInit-> getType(),
                                    CurrentCtors.size());
   Constant * NewInit = ConstantArray::get (AT, CurrentCtors);
-
   //
   // Create the new llvm.global_ctors global variable and remove the old one
   // if it existed.
@@ -775,8 +776,7 @@ void InitializeSoftBoundCETS:: constructCheckHandlers(Module & module){
     newGVCtor->takeName (GVCtor);
     GVCtor->eraseFromParent ();
   }
-
-
+*/
 
 }
 
@@ -791,11 +791,10 @@ bool InitializeSoftBoundCETS:: runOnModule (Module& module){
   if(disable_temporal_safety){
     temporal_safety = false;
   }
-  
   constructCheckHandlers(module);
   constructShadowStackHandlers(module);
   constructMetadataHandlers(module); 
-  //  constructAuxillaryFunctionHandlers(module);
+  //constructAuxillaryFunctionHandlers(module);
   return true;
 }
 
