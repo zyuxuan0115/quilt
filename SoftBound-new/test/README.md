@@ -1,4 +1,4 @@
-#### to build the program with SoftBound
+#### Build the program with SoftBound
 
 ```bash
 > clang -fPIC -emit-llvm -S test.c -c -o test0.ll
