@@ -114,9 +114,7 @@ void InitializeSoftBoundCETS:: constructShadowStackHandlers(Module & module){
   //                             VoidTy, Int32Ty, NULL);
 
 
-  std::vector<Type*> argumentTypes2;
-  ArrayRef<Type*> argTypes2(argumentTypes2);
-  FunctionType* FuncType2 = FunctionType::get(VoidTy, argTypes2, true);
+  FunctionType* FuncType2 = FunctionType::get(VoidTy, false);
   module.getOrInsertFunction("__softboundcets_deallocate_shadow_stack_space", 
                              FuncType2);
 
@@ -529,9 +527,7 @@ void InitializeSoftBoundCETS:: constructMetadataHandlers(Module & module){
 
   }
 
-  std::vector<Type*> argumentTypes26;
-  ArrayRef<Type*> argTypes26(argumentTypes26);
-  FunctionType* FuncType26 = FunctionType::get(VoidPtrTy, argTypes26, true);
+  FunctionType* FuncType26 = FunctionType::get(VoidPtrTy, false);
   module.getOrInsertFunction("__softboundcets_get_global_lock", 
                                FuncType26);
   // @@@ comment out the legacy code
@@ -597,9 +593,7 @@ void InitializeSoftBoundCETS:: constructMetadataHandlers(Module & module){
 
 
  
-  std::vector<Type*> argumentTypes31;
-  ArrayRef<Type*> argTypes31(argumentTypes31);
-  FunctionType* FuncType31 = FunctionType::get(VoidTy, argTypes31, true);
+  FunctionType* FuncType31 = FunctionType::get(VoidTy, false);
   module.getOrInsertFunction("__softboundcets_print_metadata", 
                                FuncType31);
   // @@@ comment out the legacy code
@@ -695,9 +689,7 @@ void InitializeSoftBoundCETS:: constructCheckHandlers(Module & module){
 
   }
 
-  std::vector<Type*> argumentTypes4;
-  ArrayRef<Type*> argTypes4(argumentTypes4);
-  FunctionType* FuncType4 = FunctionType::get(void_ty, argTypes4, true);
+  FunctionType* FuncType4 = FunctionType::get(void_ty, false);
   FunctionCallee global_init_fcallee = module.getOrInsertFunction("__softboundcets_global_init", FuncType4);
   Function* global_init = dyn_cast<Function>(global_init_fcallee.getCallee());
   // @@@ comment out the legacy code
