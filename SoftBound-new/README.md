@@ -1,3 +1,16 @@
+## How to build [SoftBound](https://acg.cis.upenn.edu/papers/pldi09_softbound.pdf) in LLVM-10.0 
+
+#### Build LLVM-10.0
+- Build LLVM 10.0 from source
+  + download LLVM 10.0 (Source code(tar.gz)) from https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.0 
+  + build LLVM (reference: https://llvm.org/docs/GettingStarted.html)
+  ```bash
+  > cd {llvm10.0 root directory}
+  > mkdir build && cd build
+  > cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm
+  > make 
+  ```
+
 #### Build the program with SoftBound
 
 ```bash
