@@ -42,7 +42,7 @@
 #include <arpa/inet.h>
 
 #if defined(__linux__)
-#include<bits/errno.h>
+#include<errno.h>
 #include<sys/wait.h>
 #include <wait.h>
 #include <obstack.h>
@@ -58,7 +58,6 @@
 #include<sys/socket.h>
 #include<fnmatch.h>
 #include <wchar.h>
-
 
 #include<netinet/in.h>
 
