@@ -16,9 +16,11 @@
 
 #### Build SoftBoundCETS pass
 
-```
+```bash
 > git clone git@github.com:zyuxuan0115/faas-cpp-test.git
-> cp -r faas-cpp-test/SoftBound-llvm10/SoftBound-include {path to llvm-project-10}/llvm-project-10/llvm/include/llvm/Transform/SoftBoundCETS
+> cp -r faas-cpp-test/SoftBound-llvm10/include/SoftBoundCETS {path to llvm-project-10}/llvm-project-10/llvm/include/llvm/Transform/SoftBoundCETS
+> cp -r faas-cpp-test/SoftBound-llvm10/lib/* {path to llvm-project-10}/llvm-project-10/llvm/lib/Transform/
+> echo "" >> {path to llvm-project-10}/llvm-project-10/llvm/lib/Transform/CMakelists.txt
 ```
 
 #### Build the program with SoftBound
