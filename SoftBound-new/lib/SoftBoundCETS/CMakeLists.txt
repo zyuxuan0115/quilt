@@ -9,13 +9,10 @@ if(WIN32 OR CYGWIN)
 endif()
 
 add_llvm_library(LLVMSoftBoundCETS MODULE BUILDTREE_ONLY
-  #InitializeSoftBoundCETS.cpp
-  #FixByValAttributesPass.cpp
   SoftBoundCETS.cpp
 
   DEPENDS
   intrinsics_gen
   opt
   PLUGIN_TOOL
-
-    )
+)

@@ -2021,7 +2021,6 @@ SoftBoundCETSPass::getGlobalVariableBaseBound(Value* operand,
     ConstantInt::get(Type::getInt32Ty(module->getContext()), 0);
   indices_base.push_back(index_base);
 
-  errs()<<"2222222222222222222222222222\n";
   Constant* base_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_base);
   // @@@ commnet out legacy code
   // Constant* base_exp = ConstantExpr::getGetElementPtr(gv, indices_base);
@@ -2582,7 +2581,6 @@ SoftBoundCETSPass::handleGlobalSequentialTypeInitializer(Module& module,
             Constant* Indices[3] = {index0, index1, index2};              
             // comment out legacy code
             // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, Indices);
-            errs()<<"333333333333333333333333333\n";
             Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, Indices);
             Type* initializer_type = initializer_opd->getType();
             Value* initializer_size = getSizeOfType(initializer_type);
@@ -2703,7 +2701,6 @@ handleGlobalStructTypeInitializer(Module& module,
       length++;
       // @@@ comment out legacy code
       // addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
-      errs()<<"444444444444444444444444444444\n";
       addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       
       Type* initializer_type = initializer_opd->getType();
@@ -2836,7 +2833,6 @@ void SoftBoundCETSPass::getConstantExprBaseBound(Constant* given_constant,
     // Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant, 
     //                                                     indices_bound);
 
-    errs()<<"55555555555555555555555555555555\n"; 
     Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
                                                         indices_base);    
     Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
@@ -3160,7 +3156,6 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
       Constant* gep_temp = ConstantExpr::getNullValue(ptr_type);
       // @@@ comment out legacy code
       // Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
-      errs()<<"66666666666666666666666666666\n";
       Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType(), gep_temp, gep_idx);
     
       Type* int64Ty = Type::getInt64Ty(seq_type->getContext());
@@ -5524,7 +5519,6 @@ void SoftBoundCETSPass::addBaseBoundGlobals(Module& M){
 
       // @@@ zyuxuan: I'm not sure if getGetElementPtr should be implemented this way
       // like why do we choose arg_idx to be 0.
-      errs()<<"1111111111111111111111111111111111\n";
       Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       // @@@ comment out legacy code
