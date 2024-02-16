@@ -19,9 +19,24 @@
 
 ```bash
 > git clone git@github.com:zyuxuan0115/faas-cpp-test.git
-> cp -r faas-cpp-test/SoftBound-llvm10/include/SoftBoundCETS llvm-project-10/llvm/include/llvm/Transform/SoftBoundCETS
-> cp -r faas-cpp-test/SoftBound-llvm10/lib/* llvm-project-10/llvm/lib/Transform/
-> echo "" >> llvm-project-10/llvm/lib/Transform/CMakelists.txt
+> cp -r faas-cpp-test/SoftBound-llvm10/include/SoftBoundCETS llvm-project-10/llvm/include/llvm/Transforms/SoftBoundCETS
+> cp -r faas-cpp-test/SoftBound-llvm10/lib/* llvm-project-10/llvm/lib/Transforms/
+> echo "add_subdirectory(InitializeSoftBoundCETS)" >> llvm-project-10/llvm/lib/Transforms/CMakelists.txt
+> echo "add_subdirectory(SoftBoundCETS)" >> llvm-project-10/llvm/lib/Transforms/CMakelists.txt
+> echo "add_subdirectory(SoftBoundCETSMPX)" >> llvm-project-10/llvm/lib/Transforms/CMakelists.txt
+> echo "add_subdirectory(SoftBoundMPX)" >> llvm-project-10/llvm/lib/Transforms/CMakelists.txt
+> echo "add_subdirectory(InitializeSoftBoundMPX)" >> llvm-project-10/llvm/lib/Transforms/CMakelists.txt
+> echo "add_subdirectory(FixByValAttributesPass)" >> llvm-project-10/llvm/lib/Transforms/CMakelists.txt
+> cd llvm-project-10/build
+> cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm
+> make
+> cd ../..
+```
+
+#### Build the libsoftboundcets_rt.a
+
+```
+
 ```
 
 #### Build the program with SoftBound
