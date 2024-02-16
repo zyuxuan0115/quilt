@@ -8,6 +8,8 @@ if(WIN32 OR CYGWIN)
   set(LLVM_LINK_COMPONENTS Core Support)
 endif()
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fpic")
+
 add_llvm_library(InitializeSoftBoundCETS MODULE BUILDTREE_ONLY
   InitializeSoftBoundCETS.cpp
 

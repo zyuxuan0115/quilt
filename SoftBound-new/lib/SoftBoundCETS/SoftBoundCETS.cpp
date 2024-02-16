@@ -2021,6 +2021,7 @@ SoftBoundCETSPass::getGlobalVariableBaseBound(Value* operand,
     ConstantInt::get(Type::getInt32Ty(module->getContext()), 0);
   indices_base.push_back(index_base);
 
+  errs()<<"2222222222222222222222222222\n";
   Constant* base_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_base);
   // @@@ commnet out legacy code
   // Constant* base_exp = ConstantExpr::getGetElementPtr(gv, indices_base);
@@ -2581,6 +2582,7 @@ SoftBoundCETSPass::handleGlobalSequentialTypeInitializer(Module& module,
             Constant* Indices[3] = {index0, index1, index2};              
             // comment out legacy code
             // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, Indices);
+            errs()<<"333333333333333333333333333\n";
             Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, Indices);
             Type* initializer_type = initializer_opd->getType();
             Value* initializer_size = getSizeOfType(initializer_type);
@@ -2701,6 +2703,7 @@ handleGlobalStructTypeInitializer(Module& module,
       length++;
       // @@@ comment out legacy code
       // addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
+      errs()<<"444444444444444444444444444444\n";
       addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       
       Type* initializer_type = initializer_opd->getType();
@@ -2832,7 +2835,8 @@ void SoftBoundCETSPass::getConstantExprBaseBound(Constant* given_constant,
     //                                                    indices_base);    
     // Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant, 
     //                                                     indices_bound);
- 
+
+    errs()<<"55555555555555555555555555555555\n"; 
     Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
                                                         indices_base);    
     Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
@@ -3126,7 +3130,6 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
   const SequentialType* seq_type = dyn_cast<SequentialType>(input_type);
   Constant* int64_size = NULL;
   // @@@ zyuxuan: I added code to test if seq_type is a null-ptr.
-  if (seq_type==NULL) errs()<<"@@@@ not seq type\n";
   //assert(seq_type && "pointer dereference and it is not a sequential type\n");
   if (seq_type){ 
     StructType* struct_type = dyn_cast<StructType>(input_type);
@@ -3157,6 +3160,7 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
       Constant* gep_temp = ConstantExpr::getNullValue(ptr_type);
       // @@@ comment out legacy code
       // Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
+      errs()<<"66666666666666666666666666666\n";
       Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType(), gep_temp, gep_idx);
     
       Type* int64Ty = Type::getInt64Ty(seq_type->getContext());
@@ -3251,7 +3255,6 @@ void
 SoftBoundCETSPass::addLoadStoreChecks(Instruction* load_store, 
                                       std::map<Value*, int>& FDCE_map) {
 
-  errs()<<"@@@@ "<<*load_store<<"\n";
   if(!spatial_safety)
     return;
 
@@ -3370,16 +3373,11 @@ SoftBoundCETSPass::addLoadStoreChecks(Instruction* load_store,
                                                     load_store);    
   args.push_back(cast_pointer_operand_value);
  
-  errs()<<"33333333333333333333333333333333333333333333333\n";  
  
   // Pushing the size of the type 
   Type* pointer_operand_type = pointer_operand->getType();
-  errs()<<"@@@@ "<<*pointer_operand<<"\n";
-  errs()<<"@@@@ "<<*pointer_operand_type<<"\n";
   Value* size_of_type = getSizeOfType(pointer_operand_type);
   args.push_back(size_of_type);
-
-  errs()<<"44444444444444444444444444444444\n";
 
   if(isa<LoadInst>(load_store)){
             
@@ -4283,7 +4281,7 @@ void SoftBoundCETSPass::handleAlloca (AllocaInst* alloca_inst,
       intBound = alloca_inst->getOperand(0);
     }
 
-    GetElementPtrInst* gep = GetElementPtrInst::Create(ptr->getType(), ptr,
+    GetElementPtrInst* gep = GetElementPtrInst::Create(alloca_inst->getAllocatedType(), ptr,
                                                        intBound,
                                                        "mtmp",
                                                        next);
@@ -4999,6 +4997,8 @@ void SoftBoundCETSPass::gatherBaseBoundPass1 (Function * func) {
    * current basic block, then push all the successors of the
    * current basic block on to the queue if it has not been visited
    */
+
+
   std::set<BasicBlock*> bb_visited;
   std::queue<BasicBlock*> bb_worklist;
   Function:: iterator bb_begin = func->begin();
@@ -5031,26 +5031,26 @@ void SoftBoundCETSPass::gatherBaseBoundPass1 (Function * func) {
       assert(next_bb && "Not a basic block and I am adding to the base and bound worklist?");
       bb_worklist.push(next_bb);
     }
-      
+
+     
     for(BasicBlock::iterator i = bb->begin(), ie = bb->end(); i != ie; ++i){
       Value* v1 = dyn_cast<Value>(i);
       Instruction* new_inst = dyn_cast<Instruction>(i);
 
 
-      /* If the instruction is not present in the original, no
-       * instrumentaion 
-       */
+      // If the instruction is not present in the original, no
+      // instrumentaion 
+      
       if(!m_present_in_original.count(v1)) {
         continue;
       }
 
-      /* All instructions have been defined here as defining it in
-       * switch causes compilation errors. Assertions have been in
-       * the inserted in the specific cases
-       */
+      // All instructions have been defined here as defining it in
+      // switch causes compilation errors. Assertions have been in
+      // the inserted in the specific cases
 
       switch(new_inst->getOpcode()) {
-        
+       
       case Instruction::Alloca:
         {
           AllocaInst* alloca_inst = dyn_cast<AllocaInst>(v1);
@@ -5090,7 +5090,7 @@ void SoftBoundCETSPass::gatherBaseBoundPass1 (Function * func) {
           //printInstructionMap(v1);
           handlePHIPass1(phi_node);
         }
-        /* PHINode ends */
+        // PHINode ends 
         break;
         
       case Instruction::Call:
@@ -5522,7 +5522,11 @@ void SoftBoundCETSPass::addBaseBoundGlobals(Module& M){
       indices_addr_ptr.push_back(index1);
       indices_addr_ptr.push_back(index2);
 
+      // @@@ zyuxuan: I'm not sure if getGetElementPtr should be implemented this way
+      // like why do we choose arg_idx to be 0.
+      errs()<<"1111111111111111111111111111111111\n";
       Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
+      // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       // @@@ comment out legacy code
       // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
       Type* initializer_type = initializer_opd->getType();
@@ -5613,7 +5617,8 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
 
   identifyInitialGlobals(module);
   addBaseBoundGlobals(module);
-  
+ 
+ 
   for(Module::iterator ff_begin = module.begin(), ff_end = module.end(); 
       ff_begin != ff_end; ++ff_begin){
     Function* func_ptr = dyn_cast<Function>(ff_begin);
@@ -5648,8 +5653,10 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
     }
       
     gatherBaseBoundPass1(func_ptr);
+
     gatherBaseBoundPass2(func_ptr);
     addDereferenceChecks(func_ptr);            
+
   }
 
 
