@@ -2,10 +2,14 @@
 
 #### Build LLVM-10.0
 - Build LLVM 10.0 from source
-  + download LLVM 10.0 (Source code(tar.gz)) from https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.0 
-  + build LLVM (reference: https://llvm.org/docs/GettingStarted.html)
+  + 
   ```bash
-  > cd {llvm10.0 root directory}
+  # download LLVM 10.0 (Source code(tar.gz)) from https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.0
+  > wget https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-10.0.0.tar.gz
+  > tar -vxf llvmorg-10.0.0.tar.gz
+  > mv llvmorg-10.0.0 llvm-project-10
+  # build LLVM (reference: https://llvm.org/docs/GettingStarted.html)
+  > cd llvm-project-10
   > mkdir build && cd build
   > cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm
   > make 
