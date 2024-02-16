@@ -11,16 +11,17 @@
 > cd llvm-project-10
 > mkdir build && cd build
 > cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm
-> make 
+> make
+> cd ../..
 ```
 
 #### Build SoftBoundCETS pass
 
 ```bash
 > git clone git@github.com:zyuxuan0115/faas-cpp-test.git
-> cp -r faas-cpp-test/SoftBound-llvm10/include/SoftBoundCETS {path to llvm-project-10}/llvm-project-10/llvm/include/llvm/Transform/SoftBoundCETS
-> cp -r faas-cpp-test/SoftBound-llvm10/lib/* {path to llvm-project-10}/llvm-project-10/llvm/lib/Transform/
-> echo "" >> {path to llvm-project-10}/llvm-project-10/llvm/lib/Transform/CMakelists.txt
+> cp -r faas-cpp-test/SoftBound-llvm10/include/SoftBoundCETS llvm-project-10/llvm/include/llvm/Transform/SoftBoundCETS
+> cp -r faas-cpp-test/SoftBound-llvm10/lib/* llvm-project-10/llvm/lib/Transform/
+> echo "" >> llvm-project-10/llvm/lib/Transform/CMakelists.txt
 ```
 
 #### Build the program with SoftBound
