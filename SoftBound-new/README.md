@@ -1,7 +1,6 @@
 ## How to build [SoftBound](https://acg.cis.upenn.edu/papers/pldi09_softbound.pdf) in LLVM-10.0 
 
 #### Build LLVM-10.0
-- Build LLVM 10.0 from source
 
 ```bash
 # download LLVM 10.0 (Source code(tar.gz)) from https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.0
@@ -13,6 +12,13 @@
 > mkdir build && cd build
 > cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm
 > make 
+```
+
+#### Build SoftBoundCETS pass
+
+```
+> git clone git@github.com:zyuxuan0115/faas-cpp-test.git
+> cp -r faas-cpp-test/SoftBound-llvm10/SoftBound-include {path to llvm-project-10}/llvm-project-10/llvm/include/llvm/Transform/SoftBoundCETS
 ```
 
 #### Build the program with SoftBound
