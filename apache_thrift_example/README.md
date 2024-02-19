@@ -11,3 +11,7 @@
 ```bash
 thrift -r --gen cpp PhoneServiceExample
 ``` 
+
+- After running this commend, you will see a new directory called `gen-cpp` is created
+ + the `gen-cpp/PhoneService_server.skeleton.cpp` is the server skeleton code. you can change it.
+ + the is an [example of client code]()
