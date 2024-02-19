@@ -2021,7 +2021,7 @@ SoftBoundCETSPass::getGlobalVariableBaseBound(Value* operand,
     ConstantInt::get(Type::getInt32Ty(module->getContext()), 0);
   indices_base.push_back(index_base);
 
-  Constant* base_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_base);
+  Constant* base_exp = ConstantExpr::getGetElementPtr(gv->getType()->getPointerElementType(), gv, indices_base);
   // @@@ commnet out legacy code
   // Constant* base_exp = ConstantExpr::getGetElementPtr(gv, indices_base);
         
@@ -2032,7 +2032,7 @@ SoftBoundCETSPass::getGlobalVariableBaseBound(Value* operand,
     
   // @@@ comment out legacy code
   // Constant* bound_exp = ConstantExpr::getGetElementPtr(gv, indices_bound);
-  Constant* bound_exp = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_bound);
+  Constant* bound_exp = ConstantExpr::getGetElementPtr(gv->getType()->getPointerElementType(), gv, indices_bound);
   
   operand_base = base_exp;
   operand_bound = bound_exp;    
@@ -2581,7 +2581,7 @@ SoftBoundCETSPass::handleGlobalSequentialTypeInitializer(Module& module,
             Constant* Indices[3] = {index0, index1, index2};              
             // comment out legacy code
             // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, Indices);
-            Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, Indices);
+            Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType()->getPointerElementType(), gv, Indices);
             Type* initializer_type = initializer_opd->getType();
             Value* initializer_size = getSizeOfType(initializer_type);
             
@@ -2652,7 +2652,10 @@ handleGlobalStructTypeInitializer(Module& module,
   
   // TODO:URGENT: Do I handle nesxted structures
   
-  // has zero initializer 
+  // has zero initializer
+  // @@@ zyuxuan: I don't know if i change the code in
+  // @@@ zyuxuan: correct way 
+  if(!initializer) return;
   if(initializer->isNullValue())
     return;
     
@@ -2701,8 +2704,9 @@ handleGlobalStructTypeInitializer(Module& module,
       length++;
       // @@@ comment out legacy code
       // addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
-      addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
-      
+
+      addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType()->getPointerElementType(), gv, indices_addr_ptr);
+     
       Type* initializer_type = initializer_opd->getType();
       Value* initializer_size = getSizeOfType(initializer_type);     
       addStoreBaseBoundFunc(addr_of_ptr, operand_base, 
@@ -2716,7 +2720,8 @@ handleGlobalStructTypeInitializer(Module& module,
         //      }
 
       continue;
-    }     
+    }    
+
     if(isa<StructType>(element_type)){
       StructType* child_element_type = 
         dyn_cast<StructType>(element_type);
@@ -2833,9 +2838,9 @@ void SoftBoundCETSPass::getConstantExprBaseBound(Constant* given_constant,
     // Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant, 
     //                                                     indices_bound);
 
-    Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
+    Constant* gep_base = ConstantExpr::getGetElementPtr(given_constant->getType()->getPointerElementType(), given_constant, 
                                                         indices_base);    
-    Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant->getType(), given_constant, 
+    Constant* gep_bound = ConstantExpr::getGetElementPtr(given_constant->getType()->getPointerElementType(), given_constant, 
                                                          indices_bound);
       
     tmp_base = gep_base;
@@ -3156,7 +3161,7 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
       Constant* gep_temp = ConstantExpr::getNullValue(ptr_type);
       // @@@ comment out legacy code
       // Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
-      Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType(), gep_temp, gep_idx);
+      Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType()->getPointerElementType(), gep_temp, gep_idx);
     
       Type* int64Ty = Type::getInt64Ty(seq_type->getContext());
       return ConstantExpr::getPtrToInt(gep, int64Ty);
@@ -5519,7 +5524,7 @@ void SoftBoundCETSPass::addBaseBoundGlobals(Module& M){
 
       // @@@ zyuxuan: I'm not sure if getGetElementPtr should be implemented this way
       // like why do we choose arg_idx to be 0.
-      Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
+      Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType()->getPointerElementType(), gv, indices_addr_ptr);
       // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv->getType(), gv, indices_addr_ptr);
       // @@@ comment out legacy code
       // Constant* addr_of_ptr = ConstantExpr::getGetElementPtr(gv, indices_addr_ptr);
@@ -5603,16 +5608,16 @@ bool SoftBoundCETSPass::runOnModule(Module& module) {
   } else {
     m_is_64_bit = false;
   }
-  
+ 
   initializeSoftBoundVariables(module);
   transformMain(module);
-
+  
   identifyFuncToTrans(module);
 
   identifyInitialGlobals(module);
+  
   addBaseBoundGlobals(module);
- 
- 
+
   for(Module::iterator ff_begin = module.begin(), ff_end = module.end(); 
       ff_begin != ff_end; ++ff_begin){
     Function* func_ptr = dyn_cast<Function>(ff_begin);
