@@ -1,4 +1,6 @@
-- before run the Thrift compiler, please first run [build.sh](build.sh) to install the corresponding packages.
+### Usage of Apache Thrift
+
+- Before run the Thrift compiler, please first run [build.sh](build.sh) to install the corresponding packages.
 
 ```bash
 ./build.sh
@@ -13,5 +15,5 @@ thrift -r --gen cpp PhoneServiceExample
 ``` 
 
 - After running this commend, you will see a new directory called `gen-cpp` is created.
- + the `gen-cpp/PhoneService_server.skeleton.cpp` is the server skeleton code. you can change it.
- + the is an [example of client code]()
+ + The `gen-cpp/PhoneService_server.skeleton.cpp` is the server skeleton code. you can change it.
+ + There is an [example of client code]()
