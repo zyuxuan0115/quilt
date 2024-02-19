@@ -11,7 +11,7 @@
 # build LLVM (reference: https://llvm.org/docs/GettingStarted.html)
 > cd llvm-project-10
 > mkdir build && cd build
-> cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm
+> cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" -DCMAKE_BUILD_TYPE=DEBUG ../llvm
 > make
 > cd ../..
 ```
