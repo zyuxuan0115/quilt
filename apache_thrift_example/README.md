@@ -1,1 +1,2 @@
 - This example is from Apache Thrift's [wikipedia webpage](https://en.wikipedia.org/wiki/Apache_Thrift)
+- to install Apache Thrift's compiler, the script is [this]() 
