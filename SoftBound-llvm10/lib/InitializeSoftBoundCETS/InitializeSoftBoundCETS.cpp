@@ -369,7 +369,7 @@ void InitializeSoftBoundCETS:: constructMetadataHandlers(Module & module){
     argumentTypes16.push_back(VoidPtrTy);
     ArrayRef<Type*> argTypes16(argumentTypes16);
     FunctionType* FuncType16 = FunctionType::get(VoidTy, argTypes16, true);
-    module.getOrInsertFunction("__softboundcets_memcopy_store", 
+    module.getOrInsertFunction("__softboundcets_memcopy_check", 
                                FuncType16);
     // @@@ comment out the legacy code       
     // module.getOrInsertFunction("__softboundcets_memcopy_check",
