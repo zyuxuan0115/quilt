@@ -2085,37 +2085,23 @@ SoftBoundCETSPass::introduceShadowStackStores(Value* ptr_value,
     ConstantInt::get(Type::getInt32Ty(ptr_value->getType()->getContext()), 
                      arg_no, false);
 
-  errs()<<"6666666666666666666666666666666\n";
-
   if(spatial_safety){
     Value* ptr_base = getAssociatedBase(ptr_value);
     Value* ptr_bound = getAssociatedBound(ptr_value);
-    
-    // @@@ zyuxuan
-    if (ptr_base==NULL) return; 
-    errs()<<"uuuuuuuuuuuuuuuuuuuuuuuuuuuuu\n";
-    errs()<<"base: "<<*ptr_base<<"\n";
-    errs()<<"bound: "<<*ptr_bound<<"\n";
- 
+   
     Value* ptr_base_cast = castToVoidPtr(ptr_base, insert_at);
     Value* ptr_bound_cast = castToVoidPtr(ptr_bound, insert_at);
-
-    errs()<<"wwwwwwwwwwwwwwwwwwwwwwwwwwwww\n";
 
     SmallVector<Value*, 8> args;
     args.push_back(ptr_base_cast);
     args.push_back(argno_value);
     CallInst::Create(m_shadow_stack_base_store, args, "", insert_at);
 
-    errs()<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiii\n";   
- 
     args.clear();
     args.push_back(ptr_bound_cast);
     args.push_back(argno_value);
     CallInst::Create(m_shadow_stack_bound_store, args, "", insert_at);    
   }
-
-  errs()<<"3333333333333333333333333333333\n";
 
   if(temporal_safety){
     Value* ptr_key = getAssociatedKey(ptr_value);    
@@ -2889,7 +2875,6 @@ SoftBoundCETSPass::getAssociatedBase(Value* pointer_operand) {
   }
 
   if(!m_pointer_base.count(pointer_operand)){
-    errs()<<"@@@@!!!!!!!!!!!!!!!!!!\n";
     //pointer_operand->dump();
   }
   assert(m_pointer_base.count(pointer_operand) && 
@@ -4698,7 +4683,6 @@ void SoftBoundCETSPass::handleCall(CallInst* call_inst) {
 
   // Function* func = call_inst->getCalledFunction();
   Value* mcall = dyn_cast<Value>(call_inst);
-  errs()<<"@@@ "<<*call_inst<<"\n";
 
 #if 0
   CallingConv::ID id = call_inst->getCallingConv();
@@ -4742,9 +4726,7 @@ void SoftBoundCETSPass::handleCall(CallInst* call_inst) {
   Instruction* insert_at = getNextInstruction(call_inst);
   //  call_inst->setCallingConv(CallingConv::C);
   introduceShadowStackAllocation(call_inst);
-  errs()<<"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\n";
   iterateCallSiteIntroduceShadowStackStores(call_inst);
-  errs()<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiii\n";    
 
   if(isa<PointerType>(mcall->getType())) {
 
@@ -4752,7 +4734,6 @@ void SoftBoundCETSPass::handleCall(CallInst* call_inst) {
       introduceShadowStackLoads(call_inst, insert_at, 0);       
   }
 
-  errs()<<"ddddddddddddddddddddddddddddddd\n";
   introduceShadowStackDeallocation(call_inst,insert_at);
 }
 
@@ -5197,7 +5178,6 @@ void SoftBoundCETSPass::gatherBaseBoundPass1 (Function * func) {
         
       default:
         {
-          errs()<<"##############just wanted to make sure\n";
           if(isa<PointerType>(v1->getType()))
             assert(!isa<PointerType>(v1->getType())&&
                  " Generating Pointer and not being handled");
