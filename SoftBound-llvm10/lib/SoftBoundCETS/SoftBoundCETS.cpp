@@ -875,7 +875,7 @@ void SoftBoundCETSPass::initializeSoftBoundVariables(Module& module) {
 
   m_memset_check = 
     module.getFunction("__softboundcets_memset_check");
-  assert(m_memcopy_check && 
+  assert(m_memset_check && 
          "__softboundcets_memset_check function null?");
 
 
@@ -2085,23 +2085,37 @@ SoftBoundCETSPass::introduceShadowStackStores(Value* ptr_value,
     ConstantInt::get(Type::getInt32Ty(ptr_value->getType()->getContext()), 
                      arg_no, false);
 
+  errs()<<"6666666666666666666666666666666\n";
+
   if(spatial_safety){
     Value* ptr_base = getAssociatedBase(ptr_value);
     Value* ptr_bound = getAssociatedBound(ptr_value);
     
+    // @@@ zyuxuan
+    if (ptr_base==NULL) return; 
+    errs()<<"uuuuuuuuuuuuuuuuuuuuuuuuuuuuu\n";
+    errs()<<"base: "<<*ptr_base<<"\n";
+    errs()<<"bound: "<<*ptr_bound<<"\n";
+ 
     Value* ptr_base_cast = castToVoidPtr(ptr_base, insert_at);
     Value* ptr_bound_cast = castToVoidPtr(ptr_bound, insert_at);
+
+    errs()<<"wwwwwwwwwwwwwwwwwwwwwwwwwwwww\n";
 
     SmallVector<Value*, 8> args;
     args.push_back(ptr_base_cast);
     args.push_back(argno_value);
     CallInst::Create(m_shadow_stack_base_store, args, "", insert_at);
-    
+
+    errs()<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiii\n";   
+ 
     args.clear();
     args.push_back(ptr_bound_cast);
     args.push_back(argno_value);
     CallInst::Create(m_shadow_stack_bound_store, args, "", insert_at);    
   }
+
+  errs()<<"3333333333333333333333333333333\n";
 
   if(temporal_safety){
     Value* ptr_key = getAssociatedKey(ptr_value);    
@@ -2875,7 +2889,8 @@ SoftBoundCETSPass::getAssociatedBase(Value* pointer_operand) {
   }
 
   if(!m_pointer_base.count(pointer_operand)){
-    pointer_operand->dump();
+    errs()<<"@@@@!!!!!!!!!!!!!!!!!!\n";
+    //pointer_operand->dump();
   }
   assert(m_pointer_base.count(pointer_operand) && 
          "Base absent. Try compiling with -simplifycfg option?");
@@ -2934,7 +2949,7 @@ SoftBoundCETSPass::getAssociatedKey(Value* pointer_operand) {
   }
 
   if(!m_pointer_key.count(pointer_operand)){
-    pointer_operand->dump();
+    //pointer_operand->dump();
   }
   assert(m_pointer_key.count(pointer_operand) && 
          "Key absent. Try compiling with -simplifycfg option?");
@@ -2964,7 +2979,7 @@ SoftBoundCETSPass::getAssociatedLock(Value* pointer_operand, Value* func_lock){
   }
 
   if(!m_pointer_lock.count(pointer_operand)){
-    pointer_operand->dump();
+    //pointer_operand->dump();
   }
   assert(m_pointer_lock.count(pointer_operand) && 
          "Lock absent. Try compiling with -simplifycfg option?");
@@ -3026,6 +3041,7 @@ void SoftBoundCETSPass::addMemcopyMemsetCheck(CallInst* call_inst,
     }
 
     args.push_back(cast_size_ptr);
+
     if(spatial_safety){
       Value* dest_base = getAssociatedBase(dest_ptr);
       Value* dest_bound =getAssociatedBound(dest_ptr);
@@ -3055,7 +3071,7 @@ void SoftBoundCETSPass::addMemcopyMemsetCheck(CallInst* call_inst,
       args.push_back(src_lock);
 
     }
-    
+   
     CallInst::Create(m_memcopy_check, args, "", call_inst);
     return;
   }
@@ -3117,7 +3133,6 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
   // Create a Constant Pointer Null of the input type.  Then get a
   // getElementPtr of it with next element access cast it to unsigned
   // int
-   
   const PointerType* ptr_type = dyn_cast<PointerType>(input_type);
 
   if (isa<FunctionType>(ptr_type->getElementType())) {
@@ -3169,8 +3184,37 @@ Value* SoftBoundCETSPass:: getSizeOfType(Type* input_type) {
     assert(0 && "not handled type?");
   }
   else {
+    // @@@ zyuxuan: don't know why but seems work correctly
+    if (ptr_type){
+      // get pointer element type
+      if (m_is_64_bit) {
+        if(!ptr_type->getElementType()->isSized()){
+          return ConstantInt::get(Type::getInt64Ty(ptr_type->getContext()), 0);
+        }
+        int64_size = ConstantExpr::getSizeOf(ptr_type->getPointerElementType());
+        return int64_size;
+      } else {
+        // doing what ConstantExpr::getSizeOf() does 
+        Constant* gep_idx = 
+          ConstantInt::get(Type::getInt32Ty(ptr_type->getContext()), 1);
+
+        PointerType* ptr_type_1 = PointerType::getUnqual(ptr_type->getElementType());
+        Constant* gep_temp = ConstantExpr::getNullValue(ptr_type_1);
+        // @@@ comment out legacy code
+        // Constant* gep = ConstantExpr::getGetElementPtr(gep_temp, gep_idx);
+        Constant* gep = ConstantExpr::getGetElementPtr(gep_temp->getType()->getPointerElementType(), gep_temp, gep_idx);
+    
+        Type* int64Ty = Type::getInt64Ty(ptr_type->getContext());
+        return ConstantExpr::getPtrToInt(gep, int64Ty);
+      } 
+
+    }
+    else{
+      return ConstantInt::get(Type::getInt64Ty(input_type->getContext()), 0);
+
+    }
+    //return ConstantExpr::getSizeOf(input_type);
     // zyuxuan: also added code here
-    return ConstantInt::get(Type::getInt64Ty(input_type->getContext()), 0);
   }
   return NULL;
 }
@@ -4580,11 +4624,11 @@ SoftBoundCETSPass:: iterateCallSiteIntroduceShadowStackStores(CallInst* call_ins
 
   if(pointer_args_return == 0)
     return;
-    
   int pointer_arg_no = 1;
 
   CallSite cs(call_inst);
   for(unsigned i = 0; i < cs.arg_size(); i++){
+    errs()<<"88888888888888888888888888888\n";
     Value* arg_value = cs.getArgument(i);
     if(isa<PointerType>(arg_value->getType())){
       introduceShadowStackStores(arg_value, call_inst, pointer_arg_no);
@@ -4653,7 +4697,8 @@ void SoftBoundCETSPass::handleExtractValue(ExtractValueInst* EVI){
 void SoftBoundCETSPass::handleCall(CallInst* call_inst) {
 
   // Function* func = call_inst->getCalledFunction();
-  Value* mcall = call_inst;
+  Value* mcall = dyn_cast<Value>(call_inst);
+  errs()<<"@@@ "<<*call_inst<<"\n";
 
 #if 0
   CallingConv::ID id = call_inst->getCallingConv();
@@ -4696,15 +4741,18 @@ void SoftBoundCETSPass::handleCall(CallInst* call_inst) {
 
   Instruction* insert_at = getNextInstruction(call_inst);
   //  call_inst->setCallingConv(CallingConv::C);
-
   introduceShadowStackAllocation(call_inst);
+  errs()<<"kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk\n";
   iterateCallSiteIntroduceShadowStackStores(call_inst);
-    
+  errs()<<"iiiiiiiiiiiiiiiiiiiiiiiiiiiiiii\n";    
+
   if(isa<PointerType>(mcall->getType())) {
 
       /* ShadowStack for the return value is 0 */
       introduceShadowStackLoads(call_inst, insert_at, 0);       
   }
+
+  errs()<<"ddddddddddddddddddddddddddddddd\n";
   introduceShadowStackDeallocation(call_inst,insert_at);
 }
 
@@ -5148,9 +5196,12 @@ void SoftBoundCETSPass::gatherBaseBoundPass1 (Function * func) {
 	break;
         
       default:
-        if(isa<PointerType>(v1->getType()))
-          assert(!isa<PointerType>(v1->getType())&&
+        {
+          errs()<<"##############just wanted to make sure\n";
+          if(isa<PointerType>(v1->getType()))
+            assert(!isa<PointerType>(v1->getType())&&
                  " Generating Pointer and not being handled");
+        }
       }
     }/* Basic Block iterator Ends */
   } /* Function iterator Ends */
