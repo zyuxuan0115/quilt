@@ -91,14 +91,23 @@ int main(){
 
   sprintf(timestamp_hex, "%lx", timestamp);
   puts(timestamp_hex);
- 
-/*
-  if (timestamp_hex.size() > 10) {
-    timestamp_hex.erase(0, timestamp_hex.size() - 10);
-  } else if (timestamp_hex.size() < 10) {
-    timestamp_hex = std::string(10 - timestamp_hex.size(), '0') + timestamp_hex;
+
+  char timestamp_hex_10[11];
+  if (strlen(timestamp_hex) > 10){
+    strcpy(timestamp_hex_10, timestamp_hex + strlen(timestamp_hex) - 10);
+  }
+  else if (strlen(timestamp_hex) < 10){
+    for (int i=0; i<10-strlen(timestamp_hex); i++){
+      timestamp_hex[i] = '0';
+    }
+    strcpy(timestamp_hex_10 + 10 - strlen(timestamp_hex), timestamp_hex);
+  }
+  else {
+    strcpy(timestamp_hex_10, timestamp_hex);
   }
 
+  printf("%s\n", timestamp_hex_10); 
+/*
   // Empty the sstream buffer.
   sstream.clear();
   sstream.str(std::string());
