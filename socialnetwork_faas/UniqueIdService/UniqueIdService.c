@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <sys/time.h>
 
-#define CUSTOM_EPOCH 1514764800000
-/*
-using namespace std::chrono;
+#define CUSTOM_EPOCH 44764800000
 
 static int64_t current_timestamp = -1;
 static int counter = 0;
@@ -23,7 +23,20 @@ static int GetCounter(int64_t timestamp) {
   }
 }
 
+u_int16_t HashMacAddressPid(char* mac){
+  u_int16_t hash = 0;
+  pid_t pid = getpid();
+  char* mac_pid = (char*) malloc(sizeof(char)*strlen(mac)+20);
+  strcpy(mac_pid, mac);
+  //strcpy(mac_pic+strlen(mac), )   
+  for (unsigned int i = 0; i < strlen(mac_pid); i++) {
+    hash += (mac_pid[i] << ((i & 1) * 8));
+  }
+  return hash;
+}
 
+
+/*
 u_int16_t HashMacAddressPid(const std::string &mac) {
   u_int16_t hash = 0;
   std::string mac_pid = mac + std::to_string(getpid());
@@ -67,20 +80,20 @@ std::string GetMachineId(std::string &netif) {
 }
 */
 
-void GetMachineId(char* netif, int netif_len, char** mac_hash, int* mac_hash_len){
-  char* mac_addr_file = (char*)malloc((24+netif_len)*sizeof(char)); 
+void GetMachineId(char* netif, char** mac_hash, int* mac_hash_len){
+  char* mac_addr_file = (char*)malloc((24+strlen(netif))*sizeof(char)); 
   strcpy(mac_addr_file, "/sys/class/net/"); 
   strcpy(mac_addr_file+15, netif);
-  strcpy(mac_addr_file+15+netif_len, "/address");
+  strcpy(mac_addr_file+15+strlen(netif), "/address");
   FILE* pFile = fopen(mac_addr_file, "r");
   char* machine_id = (char*)malloc(18*sizeof(char));
   fgets(machine_id, 17, pFile); 
   machine_id[17] = '\0'; 
   int len = strlen(machine_id);
-
   *mac_hash = machine_id;
   *mac_hash_len = len;
   free(mac_addr_file);
+  fclose(pFile);
 }
 
 
@@ -88,22 +101,25 @@ int main(){
   char netif[] = "enp24s0f0";
   char* mac_hash;
   int mac_hash_len;
-  GetMachineId(netif, strlen(netif), &mac_hash, &mac_hash_len);
+  GetMachineId(netif, &mac_hash, &mac_hash_len);
   printf("%s\n", mac_hash);
-/*
-  std::mutex thread_lock;
-  thread_lock.lock();
-  int64_t timestamp =
-      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
-          .count() -
-      CUSTOM_EPOCH;
+
+  pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER; 
+  pthread_mutex_lock(&mut);
+
+  struct timespec time_now;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &time_now); 
+  int64_t timestamp = time_now.tv_sec * 1000000 + time_now.tv_nsec /1000 - CUSTOM_EPOCH;
   int idx = GetCounter(timestamp);
-  thread_lock.unlock();
 
-  std::stringstream sstream;
-  sstream << std::hex << timestamp;
-  std::string timestamp_hex(sstream.str());
+  pthread_mutex_unlock(&mut);
 
+  char timestamp_hex[16];
+
+  sprintf(timestamp_hex, "%lx", timestamp);
+  puts(timestamp_hex);
+ 
+/*
   if (timestamp_hex.size() > 10) {
     timestamp_hex.erase(0, timestamp_hex.size() - 10);
   } else if (timestamp_hex.size() < 10) {
