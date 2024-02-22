@@ -11,7 +11,8 @@ LLVM_BUILD_PATH=/proj/zyuxuanssf-PG0/llvm-project-10/build
 THRIFT_GEN_CPP_DIR="$ROOT_DIR/socialNetwork/gen-cpp"
 CPPFLAGS="-I/usr/local/include/jaegertracing -I$ROOT_DIR/thrift/lib/cpp/src -I$ROOT_DIR/socialNetwork/build/thrift -DBOOST_LOG_DYN_LINK"
 LINKER_FLAGS="-L/usr/lib/x86_64-linux-gnu -lboost_log -lboost_log_setup -lboost_system -ljaegertracing -L$ROOT_DIR/socialNetwork/build/lib" 
-CC=$LLVM_BUILD_PATH/bin/clang++
+CXX=$LLVM_BUILD_PATH/bin/clang++
+CC=$LLVM_BUILD_PATH/bin/clang
 LLVM_LINK=$LLVM_BUILD_PATH/bin/llvm-link
 LLC=$LLVM_BUILD_PATH/bin/llc 
 OPT=$LLVM_BUILD_PATH/bin/opt
@@ -20,20 +21,21 @@ SOFTBOUND_LIB=$LLVM_BUILD_PATH/lib/LLVMSoftBoundCETS.so
 LINKER_LIB=/proj/zyuxuanssf-PG0/faas-cpp-test/SoftBound-llvm10/linker-lib
 rm -rf *.so *.ll *.o tmp
 
+$CXX UniqueIdService.cpp -o UniqueIdService_cpp
 # compile all source files into IR
-$CC -fPIC -emit-llvm -S $CPPFLAGS UniqueIdService.cpp -c -o UniqueIdService.ll
+$CC -fPIC -emit-llvm -S  UniqueIdService.c -c -o UniqueIdService.ll
 
 # get all functions in UniqueIdService
 #$OPT -load $SOFTBOUND_INIT_LIB -InitializeSoftBoundCETS merged.ll -S -o merged_init.ll
 #$OPT -load $SOFTBOUND_LIB -SoftBoundCETSPass merged_init.ll -S -o merged_softbound.ll
 
-$OPT -load $SOFTBOUND_INIT_LIB -InitializeSoftBoundCETS UniqueIdService.ll -S -o UniqueIdService_1.ll
-#$OPT -load $SOFTBOUND_LIB -SoftBoundCETSPass UniqueIdService_1.ll -S -o UniqueIdService_softbound.ll
+$OPT -load $SOFTBOUND_INIT_LIB -InitializeSoftBoundCETS UniqueIdService.ll -S -o UniqueIdService_init.ll
+$OPT -load $SOFTBOUND_LIB -SoftBoundCETSPass UniqueIdService_init.ll -S -o UniqueIdService_softbound.ll
 
 
 
-#$LLC -filetype=obj UniqueIdService_softbound.ll -o main.o
-#$CC main.o -o main -L/proj/zyuxuanssf-PG0/faas-cpp-test/SoftBound-llvm10/linker-lib  -lsoftboundcets_rt -lm
+$LLC -filetype=obj UniqueIdService_softbound.ll -o UniqueIdService.o
+$CC UniqueIdService.o -o UniqueIdService -L/proj/zyuxuanssf-PG0/faas-cpp-test/SoftBound-llvm10/linker-lib -lsoftboundcets_rt -lm -lpthread
 #$CC -shared -fPIC -O2 $CPPFLAGS merged.o -o libUniqueIdService.so $LINKER_FLAGS
 
 
