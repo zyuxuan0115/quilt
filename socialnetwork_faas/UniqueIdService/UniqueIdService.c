@@ -34,7 +34,6 @@ u_int16_t HashMacAddressPid(char* mac){
   char* mac_pid = (char*)malloc(sizeof(char)*(strlen(mac)+n));
   strcpy(mac_pid, mac);
   strcpy(mac_pid + strlen(mac), pid_str);
-
   for (unsigned int i = 0; i < strlen(mac_pid); i++) {
     hash += (mac_pid[i] << ((i & 1) * 8));
   }
@@ -44,15 +43,19 @@ u_int16_t HashMacAddressPid(char* mac){
 }
 
 
-void GetMachineId(char* netif, char** mac_hash, int* mac_hash_len){
+void GetMachineId(char* netif, char** mac_hash){
   char* mac_addr_file = (char*)malloc((24+strlen(netif))*sizeof(char)); 
   strcpy(mac_addr_file, "/sys/class/net/"); 
   strcpy(mac_addr_file+15, netif);
   strcpy(mac_addr_file+15+strlen(netif), "/address");
   FILE* pFile = fopen(mac_addr_file, "r");
-  char* mac = (char*)malloc(18*sizeof(char));
-  fgets(mac, 17, pFile); 
-  mac[17] = '\0'; 
+
+
+  char* mac = (char*)malloc(19*sizeof(char));
+  
+  fgets(mac, 18, pFile); 
+  mac[strlen(mac)] = '\0'; 
+
 
   u_int64_t mac_pid_hash = HashMacAddressPid(mac);
 
@@ -62,8 +65,22 @@ void GetMachineId(char* netif, char** mac_hash, int* mac_hash_len){
 
   sprintf(mac_pid_hash_hex_str, "%lx", mac_pid_hash);
 
-  *mac_hash = mac_pid_hash_hex_str;
-  *mac_hash_len = len;
+  char*  mac_pid_hash_hex_str_3 = (char*)malloc(4*sizeof(char));
+  if (strlen(mac_pid_hash_hex_str) > 3){
+    strcpy(mac_pid_hash_hex_str_3, mac_pid_hash_hex_str + strlen(mac_pid_hash_hex_str) - 3);
+  }
+  else if (strlen(mac_pid_hash_hex_str) < 3){
+    for (int i=0; i<3-strlen(mac_pid_hash_hex_str); i++){
+      mac_pid_hash_hex_str_3[i] = '0';
+    }
+    strcpy(mac_pid_hash_hex_str_3 + 3 - strlen(mac_pid_hash_hex_str), mac_pid_hash_hex_str);
+  }
+  else {
+    strcpy(mac_pid_hash_hex_str_3, mac_pid_hash_hex_str);
+  }
+
+
+  *mac_hash = mac_pid_hash_hex_str_3;
   free(mac_addr_file);
   free(mac);
   fclose(pFile);
@@ -73,8 +90,7 @@ void GetMachineId(char* netif, char** mac_hash, int* mac_hash_len){
 int main(){
   char netif[] = "enp24s0f0";
   char* machine_id;
-  int machine_id_len;
-  GetMachineId(netif, &machine_id, &machine_id_len);
+  GetMachineId(netif, &machine_id);
 
   pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER; 
   pthread_mutex_lock(&mut);
@@ -128,7 +144,7 @@ int main(){
   strcpy(post_id_str+strlen(machine_id)+strlen(timestamp_hex_10), counter_hex_3);
   int64_t post_id = strtol(post_id_str, 0, 16) & 0x7FFFFFFFFFFFFFFF;
   printf("%ld\n", post_id);
-
+//  printf("%s\n", post_id_str);
   free(counter_hex);
   free(counter_hex_3);
   free(post_id_str);
