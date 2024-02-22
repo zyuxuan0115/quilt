@@ -22,6 +22,7 @@ LINKER_LIB=/proj/zyuxuanssf-PG0/faas-cpp-test/SoftBound-llvm10/linker-lib
 rm -rf *.so *.ll *.o tmp
 
 $CXX UniqueIdService.cpp -o UniqueIdService_cpp
+$CC UniqueIdService.c -o UniqueIdService_c -lm
 # compile all source files into IR
 $CC -fPIC -emit-llvm -S  UniqueIdService.c -c -o UniqueIdService.ll
 
@@ -31,8 +32,6 @@ $CC -fPIC -emit-llvm -S  UniqueIdService.c -c -o UniqueIdService.ll
 
 $OPT -load $SOFTBOUND_INIT_LIB -InitializeSoftBoundCETS UniqueIdService.ll -S -o UniqueIdService_init.ll
 $OPT -load $SOFTBOUND_LIB -SoftBoundCETSPass UniqueIdService_init.ll -S -o UniqueIdService_softbound.ll
-
-
 
 $LLC -filetype=obj UniqueIdService_softbound.ll -o UniqueIdService.o
 $CC UniqueIdService.o -o UniqueIdService -L/proj/zyuxuanssf-PG0/faas-cpp-test/SoftBound-llvm10/linker-lib -lsoftboundcets_rt -lm -lpthread
