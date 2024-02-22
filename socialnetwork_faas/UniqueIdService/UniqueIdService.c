@@ -75,7 +75,6 @@ int main(){
   char* machine_id;
   int machine_id_len;
   GetMachineId(netif, &machine_id, &machine_id_len);
-  printf("%s\n", machine_id);
 
   pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER; 
   pthread_mutex_lock(&mut);
@@ -90,7 +89,6 @@ int main(){
   char timestamp_hex[16];
 
   sprintf(timestamp_hex, "%lx", timestamp);
-  puts(timestamp_hex);
 
   char timestamp_hex_10[11];
   if (strlen(timestamp_hex) > 10){
@@ -105,8 +103,6 @@ int main(){
   else {
     strcpy(timestamp_hex_10, timestamp_hex);
   }
-
-  printf("%s\n", timestamp_hex_10);
 
   int n = (idx==0)? 2: log(idx) / log(16) + 2;
   char* counter_hex = (char*)malloc(n*sizeof(char));
@@ -126,12 +122,16 @@ int main(){
     strcpy(counter_hex_3, counter_hex);
   }
 
- 
-  
-/*
-  std::string post_id_str = machine_id + timestamp_hex + counter_hex;
-  int64_t post_id = stoul(post_id_str, nullptr, 16) & 0x7FFFFFFFFFFFFFFF;
+  char* post_id_str = (char*)malloc((strlen(machine_id) + strlen(timestamp_hex_10) + strlen(counter_hex_3)+1)*sizeof(char)); 
+  strcpy(post_id_str, machine_id);
+  strcpy(post_id_str+strlen(machine_id), timestamp_hex_10);
+  strcpy(post_id_str+strlen(machine_id)+strlen(timestamp_hex_10), counter_hex_3);
+  int64_t post_id = strtol(post_id_str, 0, 16) & 0x7FFFFFFFFFFFFFFF;
   printf("%ld\n", post_id);
-*/
+
+  free(counter_hex);
+  free(counter_hex_3);
+  free(post_id_str);
+
   return 0;
 }
