@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <sys/time.h>
+#include <math.h>
 
 #define CUSTOM_EPOCH 44764800000
 
@@ -26,59 +27,22 @@ static int GetCounter(int64_t timestamp) {
 u_int16_t HashMacAddressPid(char* mac){
   u_int16_t hash = 0;
   pid_t pid = getpid();
-  char* mac_pid = (char*) malloc(sizeof(char)*strlen(mac)+20);
+  int n = log10(pid) + 2;
+  char* pid_str = (char*)malloc(sizeof(char)*n);
+  sprintf(pid_str,"%d",pid);
+
+  char* mac_pid = (char*)malloc(sizeof(char)*(strlen(mac)+n));
   strcpy(mac_pid, mac);
-  //strcpy(mac_pic+strlen(mac), )   
+  strcpy(mac_pid + strlen(mac), pid_str);
+
   for (unsigned int i = 0; i < strlen(mac_pid); i++) {
     hash += (mac_pid[i] << ((i & 1) * 8));
   }
+  free(pid_str);
+  free(mac_pid);
   return hash;
 }
 
-
-/*
-u_int16_t HashMacAddressPid(const std::string &mac) {
-  u_int16_t hash = 0;
-  std::string mac_pid = mac + std::to_string(getpid());
-  for (unsigned int i = 0; i < mac_pid.size(); i++) {
-    hash += (mac[i] << ((i & 1) * 8));
-  }
-  return hash;
-}
-
-
-std::string GetMachineId(std::string &netif) {
-  std::string mac_hash;
-
-  std::string mac_addr_filename = "/sys/class/net/" + netif + "/address";
-  std::ifstream mac_addr_file;
-  mac_addr_file.open(mac_addr_filename);
-  if (!mac_addr_file) {
-    //LOG(fatal) << "Cannot read MAC address from net interface " << netif;
-    return "";
-  }
-  std::string mac;
-  mac_addr_file >> mac;
-  if (mac == "") {
-    //LOG(fatal) << "Cannot read MAC address from net interface " << netif;
-    return "";
-  }
-  mac_addr_file.close();
-
-  //LOG(info) << "MAC address = " << mac;
-
-  std::stringstream stream;
-  stream << std::hex << HashMacAddressPid(mac);
-  mac_hash = stream.str();
-
-  if (mac_hash.size() > 3) {
-    mac_hash.erase(0, mac_hash.size() - 3);
-  } else if (mac_hash.size() < 3) {
-    mac_hash = std::string(3 - mac_hash.size(), '0') + mac_hash;
-  }
-  return mac_hash;
-}
-*/
 
 void GetMachineId(char* netif, char** mac_hash, int* mac_hash_len){
   char* mac_addr_file = (char*)malloc((24+strlen(netif))*sizeof(char)); 
@@ -86,13 +50,22 @@ void GetMachineId(char* netif, char** mac_hash, int* mac_hash_len){
   strcpy(mac_addr_file+15, netif);
   strcpy(mac_addr_file+15+strlen(netif), "/address");
   FILE* pFile = fopen(mac_addr_file, "r");
-  char* machine_id = (char*)malloc(18*sizeof(char));
-  fgets(machine_id, 17, pFile); 
-  machine_id[17] = '\0'; 
-  int len = strlen(machine_id);
-  *mac_hash = machine_id;
+  char* mac = (char*)malloc(18*sizeof(char));
+  fgets(mac, 17, pFile); 
+  mac[17] = '\0'; 
+
+  u_int64_t mac_pid_hash = HashMacAddressPid(mac);
+
+  int len = 17;
+
+  char* mac_pid_hash_hex_str = (char*)malloc(sizeof(char)*len);
+
+  sprintf(mac_pid_hash_hex_str, "%lx", mac_pid_hash);
+
+  *mac_hash = mac_pid_hash_hex_str;
   *mac_hash_len = len;
   free(mac_addr_file);
+  free(mac);
   fclose(pFile);
 }
 
