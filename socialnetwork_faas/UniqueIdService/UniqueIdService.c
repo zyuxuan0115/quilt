@@ -72,10 +72,10 @@ void GetMachineId(char* netif, char** mac_hash, int* mac_hash_len){
 
 int main(){
   char netif[] = "enp24s0f0";
-  char* mac_hash;
-  int mac_hash_len;
-  GetMachineId(netif, &mac_hash, &mac_hash_len);
-  printf("%s\n", mac_hash);
+  char* machine_id;
+  int machine_id_len;
+  GetMachineId(netif, &machine_id, &machine_id_len);
+  printf("%s\n", machine_id);
 
   pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER; 
   pthread_mutex_lock(&mut);
@@ -98,7 +98,7 @@ int main(){
   }
   else if (strlen(timestamp_hex) < 10){
     for (int i=0; i<10-strlen(timestamp_hex); i++){
-      timestamp_hex[i] = '0';
+      timestamp_hex_10[i] = '0';
     }
     strcpy(timestamp_hex_10 + 10 - strlen(timestamp_hex), timestamp_hex);
   }
@@ -106,20 +106,29 @@ int main(){
     strcpy(timestamp_hex_10, timestamp_hex);
   }
 
-  printf("%s\n", timestamp_hex_10); 
-/*
-  // Empty the sstream buffer.
-  sstream.clear();
-  sstream.str(std::string());
+  printf("%s\n", timestamp_hex_10);
 
-  sstream << std::hex << idx;
-  std::string counter_hex(sstream.str());
+  int n = (idx==0)? 2: log(idx) / log(16) + 2;
+  char* counter_hex = (char*)malloc(n*sizeof(char));
+  sprintf(counter_hex, "%x", idx);
 
-  if (counter_hex.size() > 3) {
-    counter_hex.erase(0, counter_hex.size() - 3);
-  } else if (counter_hex.size() < 3) {
-    counter_hex = std::string(3 - counter_hex.size(), '0') + counter_hex;
+  char* counter_hex_3 = (char*)malloc(4*sizeof(char));
+  if (strlen(counter_hex) > 3){
+    strcpy(counter_hex_3, counter_hex + strlen(counter_hex) - 3);
   }
+  else if (strlen(counter_hex) < 3){
+    for (int i=0; i<3-strlen(counter_hex); i++){
+      counter_hex_3[i] = '0';
+    }
+    strcpy(counter_hex_3 + 3 - strlen(counter_hex), counter_hex);
+  }
+  else {
+    strcpy(counter_hex_3, counter_hex);
+  }
+
+ 
+  
+/*
   std::string post_id_str = machine_id + timestamp_hex + counter_hex;
   int64_t post_id = stoul(post_id_str, nullptr, 16) & 0x7FFFFFFFFFFFFFFF;
   printf("%ld\n", post_id);
