@@ -88,6 +88,13 @@ void GetMachineId(char* netif, char** mac_hash){
 
 
 int main(){
+  // get input from stdin
+  char buf[1000];
+  memset(buf, 0, 1000);
+  ssize_t read_len = read(STDIN_FILENO, (void*)buf, 1000*sizeof(char));
+
+  // the real UniqueIdService
+
   char netif[] = "enp24s0f0";
   char* machine_id;
   GetMachineId(netif, &machine_id);
