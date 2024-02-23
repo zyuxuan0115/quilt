@@ -32,7 +32,7 @@ u_int16_t HashMacAddressPid(const std::string &mac) {
   u_int16_t hash = 0;
   std::string mac_pid = mac + std::to_string(getpid());
   for (unsigned int i = 0; i < mac_pid.size(); i++) {
-    hash += (mac[i] << ((i & 1) * 8));
+    hash += (mac_pid[i] << ((i & 1) * 8));
   }
   return hash;
 }
@@ -71,7 +71,8 @@ std::string GetMachineId(std::string &netif) {
 }
 
 int main(){
-  std::string netif="eth0";
+//  std::string netif="eth0";
+  std::string netif="enp24s0f0";
   std::string machine_id = GetMachineId(netif);
 
   std::mutex thread_lock;
@@ -106,6 +107,8 @@ int main(){
     counter_hex = std::string(3 - counter_hex.size(), '0') + counter_hex;
   }
   std::string post_id_str = machine_id + timestamp_hex + counter_hex;
+
+
   int64_t post_id = stoul(post_id_str, nullptr, 16) & 0x7FFFFFFFFFFFFFFF;
   printf("%ld\n", post_id);
 
