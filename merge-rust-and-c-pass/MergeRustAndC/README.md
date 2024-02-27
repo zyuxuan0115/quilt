@@ -20,26 +20,15 @@
   + `NIGHTCORE_TEST_PATH=/proj/zyuxuanssf-PG0` & `LLVM_PATH=/proj/zyuxuanssf-PG0` in the following script need to be changed. 
 
 ```bash
-> git clone https://github.com/zyuxuan0115/nightcore-test.git
+> git clone https://github.com/zyuxuan0115/faas-cpp-test.git
 > NIGHTCORE_TEST_PATH=/proj/zyuxuanssf-PG0
 > LLVM_PATH=/proj/zyuxuanssf-PG0
 > cp -r $NIGHTCORE_TEST_PATH/nightcore-test/MergeFunc $LLVM_PATH/llvm-project/llvm/lib/Transforms/
-> echo 'add_subdirectory(MergeFunc)' >> $LLVM_PATH/llvm-project/llvm/lib/Transforms/CMakeList.txt
+> echo 'add_subdirectory(MergeRustAndC)' >> $LLVM_PATH/llvm-project/llvm/lib/Transforms/CMakeList.txt
 > cd $LLVM_PATH/llvm-project/build && make -j
 ```
 
-- run the pass to merge C and Rust functions
-  + build nightcore by following the instructions in this [webpage](https://github.com/ut-osa/nightcore)
-  + the path of `LLVM_PATH` and `NIGHTCORE_PATH` in [build.sh](https://github.com/zyuxuan0115/nightcore-test/blob/main/MergeFunc/build.sh) need to be changed
-
-```bash
-> git clone --recurse-submodules https://github.com/zyuxuan0115/nightcore.git
-> NIGHTCORE_PATH=/proj/zyuxuanssf-PG0 
-> cd $NIGHTCORE_PATH/nightcore/examples/c_merge/
-> cp $NIGHTCORE_TEST_PATH/nightcore-test/MergeFunc/build.sh .
-> sudo chmod +x build.sh
-> ./build.sh
-```
+[Manually linking Rust binaries to support out-of-tree LLVM passes](https://medium.com/@squanderingtime/manually-linking-rust-binaries-to-support-out-of-tree-llvm-passes-8776b1d037a4)
 
 
 
