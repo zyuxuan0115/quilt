@@ -15,6 +15,14 @@
 > source ~/.bashrc
 ```
 
+- install rustc
+
+```bash
+> curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# need to roll back to version 1.46 in order to use LLVM10.0
+> rustup default 1.46
+```
+
 - build the `MergeRustAndC.so` pass
   
 ```bash
@@ -34,7 +42,7 @@
 ```
 
 - normally when linking the rust code from IR, we need to link Rust libraries.
-  + according to [Manually linking Rust binaries to support out-of-tree LLVM passes](https://medium.com/@squanderingtime/manually-linking-rust-binaries-to-support-out-of-tree-llvm-passes-8776b1d037a4), the 
+  + according to [Manually linking Rust binaries to support out-of-tree LLVM passes](https://medium.com/@squanderingtime/manually-linking-rust-binaries-to-support-out-of-tree-llvm-passes-8776b1d037a4), the library is at `~/.rustup/toolchains/1.46-x86_64-unknown-linux-gnu/lib`
 
 
 
