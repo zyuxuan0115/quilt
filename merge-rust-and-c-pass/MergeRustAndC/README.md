@@ -15,7 +15,7 @@
 > source ~/.bashrc
 ```
 
-- install rustc
+- install `rustc` (the Rust compiler)
 
 ```bash
 > curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
