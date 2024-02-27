@@ -3,7 +3,6 @@
 #### Build MergeFunc pass
 
 - setup LLVM ([llvm-10.0.0 source code (tar.gz)](https://github.com/llvm/llvm-project/releases/tag/llvmorg-10.0.0))
-  + `echo 'export PATH=/proj/zyuxuanssf-PG0/llvm-project/build/bin:$PATH' >> ~/.bashrc` in the following script needs to be changed.
 
 ```bash
 > wget https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-10.0.0.tar.gz
@@ -17,13 +16,12 @@
 ```
 
 - build the `MergeRustAndC.so` pass
-  + `NIGHTCORE_TEST_PATH=/proj/zyuxuanssf-PG0` & `LLVM_PATH=/proj/zyuxuanssf-PG0` in the following script need to be changed. 
-
+  
 ```bash
 > git clone https://github.com/zyuxuan0115/faas-cpp-test.git
-> NIGHTCORE_TEST_PATH=/proj/zyuxuanssf-PG0
+> FAAS_CPP_TEST_PATH=/proj/zyuxuanssf-PG0
 > LLVM_PATH=/proj/zyuxuanssf-PG0
-> cp -r $NIGHTCORE_TEST_PATH/faas-cpp-test/merge-rust-and-c-pass/MergeRustAndC $LLVM_PATH/llvm-project/llvm/lib/Transforms/
+> cp -r $FAAS_CPP_TEST_PATH/faas-cpp-test/merge-rust-and-c-pass/MergeRustAndC $LLVM_PATH/llvm-project/llvm/lib/Transforms/
 > echo 'add_subdirectory(MergeRustAndC)' >> $LLVM_PATH/llvm-project/llvm/lib/Transforms/CMakeList.txt
 > cd $LLVM_PATH/llvm-project/build && make -j
 ```
