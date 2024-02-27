@@ -33,9 +33,8 @@
 > ./build.sh
 ```
 
-- normally when link the rust code from IR, we need to link Rust libraries.
-
-[Manually linking Rust binaries to support out-of-tree LLVM passes](https://medium.com/@squanderingtime/manually-linking-rust-binaries-to-support-out-of-tree-llvm-passes-8776b1d037a4)
+- normally when linking the rust code from IR, we need to link Rust libraries.
+  + according to [Manually linking Rust binaries to support out-of-tree LLVM passes](https://medium.com/@squanderingtime/manually-linking-rust-binaries-to-support-out-of-tree-llvm-passes-8776b1d037a4), the 
 
 
 
