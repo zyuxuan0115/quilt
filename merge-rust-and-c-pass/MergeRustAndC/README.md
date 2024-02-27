@@ -23,7 +23,7 @@
 > git clone https://github.com/zyuxuan0115/faas-cpp-test.git
 > NIGHTCORE_TEST_PATH=/proj/zyuxuanssf-PG0
 > LLVM_PATH=/proj/zyuxuanssf-PG0
-> cp -r $NIGHTCORE_TEST_PATH/nightcore-test/MergeFunc $LLVM_PATH/llvm-project/llvm/lib/Transforms/
+> cp -r $NIGHTCORE_TEST_PATH/faas-cpp-test/merge-rust-and-c-pass/MergeRustAndC $LLVM_PATH/llvm-project/llvm/lib/Transforms/
 > echo 'add_subdirectory(MergeRustAndC)' >> $LLVM_PATH/llvm-project/llvm/lib/Transforms/CMakeList.txt
 > cd $LLVM_PATH/llvm-project/build && make -j
 ```
