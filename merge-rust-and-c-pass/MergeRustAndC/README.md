@@ -26,6 +26,15 @@
 > cd $LLVM_PATH/llvm-project/build && make -j
 ```
 
+- run the merging of the rust and c code
+
+```bash
+> cd $FAAS_CPP_TEST_PATH/faas-cpp-test/merge-rust-and-c-pass/test
+> ./build.sh
+```
+
+- normally when link the rust code from IR, we need to link Rust libraries.
+
 [Manually linking Rust binaries to support out-of-tree LLVM passes](https://medium.com/@squanderingtime/manually-linking-rust-binaries-to-support-out-of-tree-llvm-passes-8776b1d037a4)
 
 
