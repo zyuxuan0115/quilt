@@ -27,17 +27,17 @@
   
 ```bash
 > git clone https://github.com/zyuxuan0115/faas-cpp-test.git
-> FAAS_CPP_TEST_PATH=/proj/zyuxuanssf-PG0
-> LLVM_PATH=/proj/zyuxuanssf-PG0
-> cp -r $FAAS_CPP_TEST_PATH/faas-cpp-test/merge-rust-and-c-pass/MergeRustAndC $LLVM_PATH/llvm-project/llvm/lib/Transforms/
+> FAAS_CPP_TEST_PATH=/proj/zyuxuanssf-PG0/faas-cpp-test
+> LLVM_PATH=/proj/zyuxuanssf-PG0/llvm-project
+> cp -r $FAAS_CPP_TEST_PATH/merge-rust-and-c-pass/MergeRustAndC $LLVM_PATH/llvm-project/llvm/lib/Transforms/
 > echo 'add_subdirectory(MergeRustAndC)' >> $LLVM_PATH/llvm-project/llvm/lib/Transforms/CMakeList.txt
-> cd $LLVM_PATH/llvm-project/build && make -j
+> cd $LLVM_PATH/build && make -j
 ```
 
 - run the merging of the rust and c code
 
 ```bash
-> cd $FAAS_CPP_TEST_PATH/faas-cpp-test/merge-rust-and-c-pass/test
+> cd $FAAS_CPP_TEST_PATH/merge-rust-and-c-pass/test
 > ./build.sh
 ```
 
