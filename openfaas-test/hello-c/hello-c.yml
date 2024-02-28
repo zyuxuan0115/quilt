@@ -3,8 +3,8 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  hello-c:
+  hello-c-new:
     lang: c
-    handler: ./hello-c
+    handler: ./hello-c-new
     image: zyuxuan0115/hello-c:latest
 
