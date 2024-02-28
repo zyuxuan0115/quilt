@@ -5,7 +5,7 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
 # Allows you to add additional packages via build-arg
-ARG ADDITIONAL_PACKAGE
+ARG ADDITIONAL_PACKAGE="g++ wget git make curl"
 
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 RUN chmod +x /usr/bin/fwatchdog
@@ -14,9 +14,14 @@ RUN apk --no-cache add ca-certificates ${ADDITIONAL_PACKAGE}
 # Add non root user
 RUN addgroup -S app && adduser app -S -G app
 
+#ARG BUILD_DEPS="ca-certificates g++ wget git libboost-all-dev libevent-dev libssl-dev libtool make curl"
+#RUN apt-get update \
+#  && apt-get install -y build-essential \
+#  && apt-get install -y ${BUILD_DEPS} --no-install-recommends
+
 WORKDIR /home/app/
 
-COPY main.cpp   .
+COPY main.c     .
 COPY Makefile   .
 
 RUN make
