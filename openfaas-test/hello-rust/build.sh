@@ -7,7 +7,7 @@ echo $ROOT_DIR
 function build_rust_test {
     sudo docker build -t zyuxuan0115/hello-rust:latest \
         -f Dockerfile --no-cache \
-        $ROOT_DIR
+        $ROOT_DIR/template/rust
 }
 
 function push_rust_test {

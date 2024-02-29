@@ -3,8 +3,8 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  hello-rust:
-    lang: c
-    handler: ./hello-rust
+  hello-rust-new:
+    lang: rust
+    handler: ./hello-rust-new
     image: zyuxuan0115/hello-rust:latest
 
