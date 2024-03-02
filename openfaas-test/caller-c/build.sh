@@ -4,22 +4,28 @@
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
 
-function build_c_test {
+function build_caller {
     sudo docker build -t zyuxuan0115/caller-c:latest \
-        -f Dockerfile --no-cache \
+        -f Dockerfile.caller --no-cache \
         $ROOT_DIR
 }
 
-function push_c_test {
-    sudo docker push zyuxuan0115/hello-c:latest
+function build_caller {
+    sudo docker build -t zyuxuan0115/callee-c:latest \
+        -f Dockerfile.callee --no-cache \
+        $ROOT_DIR
+}
+
+
+
+function push {
+    sudo docker push zyuxuan0115/caller-c:latest
+    sudo docker push zyuxuan0115/callee-c:latest
 }
 
 function build {
-    build_c_test
-}
-
-function push {
-    push_c_test
+    build_caller
+    build_callee
 }
 
 case "$1" in

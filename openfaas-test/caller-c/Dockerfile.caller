@@ -21,7 +21,8 @@ RUN addgroup -S app && adduser app -S -G app
 
 WORKDIR /home/app/
 
-COPY main.c     .
+COPY caller.c   .
+COPY callee.c   .
 COPY Makefile   .
 
 RUN make
@@ -44,7 +45,7 @@ RUN chown -R app:app ./ && \
 
 USER app
 
-ENV fprocess="main"
+ENV fprocess="caller"
 EXPOSE 8080
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
