@@ -28,25 +28,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct FtpFile {
-  const char *filename;
-  FILE *stream;
-};
-
 struct Output {
   char* buf;
 };
- 
-static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
-  struct FtpFile *out = (struct FtpFile *)stream;
-  if (!out->stream) {
-    /* open file for writing */
-    out->stream = fopen(out->filename, "wb");
-    if (!out->stream)
-      return 0; /* failure, cannot open file to write */
-  }
-  return fwrite(buffer, size, nmemb, out->stream);
-}
 
 static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct Output *out = (struct Output *)stream;
@@ -57,9 +41,6 @@ static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) 
   return nmemb;
 }
 
-
-
-
 int call_another_func(char* func_name, char* input, char** output){
   CURL *curl;
   CURLcode res;
@@ -67,11 +48,6 @@ int call_another_func(char* func_name, char* input, char** output){
   curl_global_init(CURL_GLOBAL_ALL);
   /* get a curl handle */ 
   curl = curl_easy_init();
-
-  struct FtpFile ftpfile = {
-    "output.txt", /* name to store the file as if successful */
-    NULL
-  };
 
   char* buf;
   struct Output out = {
@@ -114,7 +90,7 @@ int main(void){
   char* output;	
   // so this is the RPC interface LLVM is going to change
   call_another_func("hello-c", "I sent a message", &output);
-  printf("I received: %s\n", output);
+  printf("I received: %s", output);
   return 0;
 }
 
