@@ -32,6 +32,10 @@ struct FtpFile {
   const char *filename;
   FILE *stream;
 };
+
+struct Output {
+  char* buf;
+};
  
 static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct FtpFile *out = (struct FtpFile *)stream;
@@ -43,6 +47,17 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
   }
   return fwrite(buffer, size, nmemb, out->stream);
 }
+
+static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) {
+  struct Output *out = (struct Output *)stream;
+  void* buf = malloc(nmemb);
+  memcpy(buf, buffer, nmemb);
+  char* buf_char = (char*) buf;
+  out->buf = buf_char;
+  return nmemb;
+}
+
+
 
 
 int call_another_func(char* func_name, char* input, char** output){
@@ -58,6 +73,11 @@ int call_another_func(char* func_name, char* input, char** output){
     NULL
   };
 
+  char* buf;
+  struct Output out = {
+    buf
+  };
+
   if(curl) {
     // First set the URL that is about to receive our POST. This URL can
     // char* prefix = "http://gateway.openfaas.svc.cluster.local.:8080/function/";
@@ -69,9 +89,9 @@ int call_another_func(char* func_name, char* input, char** output){
     /* Now specify the POST data */ 
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, input);
     /* Define our callback to get called when there is data to be written */
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, get_output);
     /* Set a pointer to our struct to pass to the callback */
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
     /* Perform the request, res will get the return code */ 
     res = curl_easy_perform(curl);
     /* Check for errors */ 
@@ -81,6 +101,9 @@ int call_another_func(char* func_name, char* input, char** output){
     /* always cleanup */ 
     curl_easy_cleanup(curl);
     free(url);
+    char* output_buf = (char*)malloc(sizeof(char)*strlen(out.buf));
+    strcpy(output_buf, out.buf);
+    *output = output_buf;
   }
   curl_global_cleanup();
 
@@ -91,6 +114,7 @@ int main(void){
   char* output;	
   // so this is the RPC interface LLVM is going to change
   call_another_func("hello-c", "I sent a message", &output);
+  printf("I received: %s\n", output);
   return 0;
 }
 
