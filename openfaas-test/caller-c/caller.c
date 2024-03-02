@@ -98,7 +98,7 @@ int main(void){
 
   char* output;	
   // so this is the RPC interface LLVM is going to change
-  call_another_func("hello-c", message, &output);
+  call_another_func("callee-c", message, &output);
   printf("%s", output);
   return 0;
 }
