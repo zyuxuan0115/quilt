@@ -25,21 +25,53 @@
  **/ 
 #include <stdio.h>
 #include <curl/curl.h>
+#include <stdlib.h>
+#include <string.h>
 
-int main(void){
+struct FtpFile {
+  const char *filename;
+  FILE *stream;
+};
+ 
+static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
+  struct FtpFile *out = (struct FtpFile *)stream;
+  if (!out->stream) {
+    /* open file for writing */
+    out->stream = fopen(out->filename, "wb");
+    if (!out->stream)
+      return 0; /* failure, cannot open file to write */
+  }
+  return fwrite(buffer, size, nmemb, out->stream);
+}
+
+
+int call_another_func(char* func_name, char* input, char** output){
   CURL *curl;
   CURLcode res;
   /* In windows, this will init the winsock stuff */ 
   curl_global_init(CURL_GLOBAL_ALL);
   /* get a curl handle */ 
   curl = curl_easy_init();
+
+  struct FtpFile ftpfile = {
+    "output.txt", /* name to store the file as if successful */
+    NULL
+  };
+
   if(curl) {
-  /* First set the URL that is about to receive our POST. This URL can
-   *        just as well be a https:// URL if that is what should receive the
-   *               data. */ 
-    curl_easy_setopt(curl, CURLOPT_URL, "http://postit.example.com/moo.cgi");
+    // First set the URL that is about to receive our POST. This URL can
+    // char* prefix = "http://gateway.openfaas.svc.cluster.local.:8080/function/";
+    char* prefix = "http://localhost:8080/function/";
+    char* url = (char*)malloc(sizeof(char)*(strlen(prefix)+strlen(func_name)));
+    strcpy(url, prefix);
+    strcpy(url+strlen(prefix), func_name);
+    curl_easy_setopt(curl, CURLOPT_URL, url);
     /* Now specify the POST data */ 
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "name=daniel&project=curl");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, input);
+    /* Define our callback to get called when there is data to be written */
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, my_fwrite);
+    /* Set a pointer to our struct to pass to the callback */
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &ftpfile);
     /* Perform the request, res will get the return code */ 
     res = curl_easy_perform(curl);
     /* Check for errors */ 
@@ -48,8 +80,17 @@ int main(void){
     curl_easy_strerror(res));
     /* always cleanup */ 
     curl_easy_cleanup(curl);
+    free(url);
   }
   curl_global_cleanup();
+
+}
+
+
+int main(void){
+  char* output;	
+  // so this is the RPC interface LLVM is going to change
+  call_another_func("hello-c", "I sent a message", &output);
   return 0;
 }
 
