@@ -1,5 +1,6 @@
 all:
-	gcc main.c -o main -lcurl
+	gcc caller.c -o caller -lcurl
+	gcc callee.c -o callee
 
 clean:
-	rm main
+	rm caller callee

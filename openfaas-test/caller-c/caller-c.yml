@@ -7,4 +7,8 @@ functions:
     lang: c
     handler: ./caller-c
     image: zyuxuan0115/caller-c:latest
+  callee-c:
+    lang: c
+    handler: ./callee-c
+    image: zyuxuan0115/callee-c:latest
 
