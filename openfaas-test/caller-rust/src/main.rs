@@ -28,7 +28,7 @@ fn main() {
     Err(error) => panic!("Error in post_fields_size: {:?}", error),
   }
 
-  easy.url("https://localhost:8080/callee-rust").unwrap();
+  easy.url("http://localhost:8080/hello-rust").unwrap();
   easy.perform().unwrap();
 
   assert_eq!(easy.response_code().unwrap(), 200);
