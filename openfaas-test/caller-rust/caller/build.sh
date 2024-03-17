@@ -5,13 +5,13 @@ ROOT_DIR=$(pwd)
 echo $ROOT_DIR
 
 function build_rust_test {
-    sudo docker build -t zyuxuan0115/caller-rust-2:latest \
+    sudo docker build -t zyuxuan0115/caller-rust:latest \
         -f Dockerfile --no-cache \
         $ROOT_DIR/template/rust
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/caller-rust-2:latest
+    sudo docker push zyuxuan0115/caller-rust:latest
 }
 
 function build {
