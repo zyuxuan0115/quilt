@@ -1,4 +1,4 @@
-use curl::easy::{Easy, WriteError};
+use curl::easy::{Easy};
 use std::io::{stdin, Read, stdout, Write};
 
 fn make_RPC(func_name: &str, mut input: &[u8]) -> String {
