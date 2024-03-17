@@ -1,5 +1,5 @@
 [package]
-name = "caller-rust"
+name = "function"
 version = "0.1.0"
 authors = ["Yuxuan Zhang <zyuxuan@seas.upenn.edu>"]
 edition = "2021"
