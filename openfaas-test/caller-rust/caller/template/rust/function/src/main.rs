@@ -4,6 +4,7 @@ use std::io::{self, stdin, Read, stdout, Write};
 fn make_rpc(func_name: &str, mut input: &[u8]) -> String {
   let mut easy = Easy::new();
   let mut url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
+//  let mut url = String::from("http://127.0.0.1:8080/function/");
   url.push_str(func_name);
   easy.url(&url).unwrap();
   easy.post(true).unwrap();
