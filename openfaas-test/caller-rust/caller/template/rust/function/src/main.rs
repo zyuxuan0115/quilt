@@ -1,9 +1,9 @@
 use curl::easy::{Easy};
-use std::io::{stdin, Read, stdout, Write};
+use std::io::{self, stdin, Read, stdout, Write};
 
-fn make_RPC(func_name: &str, mut input: &[u8]) -> String {
+fn make_rpc(func_name: &str, mut input: &[u8]) -> String {
   let mut easy = Easy::new();
-  let mut url = String::from("http://127.0.0.1:8080/function/");
+  let mut url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
   url.push_str(func_name);
   easy.url(&url).unwrap();
   easy.post(true).unwrap();
@@ -28,9 +28,12 @@ fn make_RPC(func_name: &str, mut input: &[u8]) -> String {
 
 fn main() {
 
-  let mut data = "this is the body".as_bytes();
-
-  let result = make_RPC("callee-rust", data);
+  let mut buffer = String::new();
+  io::stdin().read_line(&mut buffer);
+  let mut prefix: String = "From Rust Caller: ".to_owned();
+  prefix.push_str(&buffer);
+  let mut data = (&prefix).as_bytes();
+  let result = make_rpc("callee-rust", data);
 
   println!("{}", result);
 }
