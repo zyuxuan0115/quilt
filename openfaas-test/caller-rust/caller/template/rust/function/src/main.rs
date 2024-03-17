@@ -30,7 +30,7 @@ fn main() {
 
   let mut data = "this is the body".as_bytes();
 
-  let result = make_RPC("hello-rust", data);
+  let result = make_RPC("callee-rust", data);
 
   println!("{}", result);
 }
