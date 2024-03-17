@@ -1,37 +1,30 @@
-use curl::easy::{Easy2, Handler, WriteError};
-
-struct Collector(Vec<u8>);
-
-impl Handler for Collector {
-  // callback function
-  fn write(&mut self, data: &[u8]) -> Result<usize, WriteError> {
-    self.0.extend_from_slice(data);
-    Ok(data.len())
-  }
-}
+use curl::easy::{Easy, WriteError};
+use std::io::{stdin, Read, stdout, Write};
 
 fn main() {
-  let mut easy = Easy2::new(Collector(Vec::new()));
-  let prefix = "caller-rust: ".as_bytes();
-  let len = prefix.len();
-  let len64 = len as u64;
+
+  let mut data = "this is the body".as_bytes();
+
+  let mut easy = Easy::new();
+  easy.url("http://127.0.0.1:8080/function/hello-rust").unwrap();
   easy.post(true).unwrap();
-  let ret = easy.post_fields_copy(prefix);
-  match ret {
-    Ok(_) => (),
-    Err(error) => panic!("Error in post_fields_copy: {:?}", error),
-  }
+  easy.post_field_size(data.len() as u64).unwrap();
 
-  let ret = easy.post_field_size(len64);
-  match ret {
-    Ok(_) => (),
-    Err(error) => panic!("Error in post_fields_size: {:?}", error),
-  }
+  let mut transfer = easy.transfer();
+  transfer.read_function(|buf| {
+    Ok(data.read(buf).unwrap_or(0))
+  }).unwrap();
 
-  easy.url("http://localhost:8080/function/hello-rust").unwrap();
-  easy.perform().unwrap();
+  transfer.write_function(|data| {
+    //html_data = String::from_utf8(Vec::from(data)).unwrap();
+    //println!("{}", html_data);
+    stdout().write_all(data).unwrap();
+    Ok(data.len())
+  }).unwrap();
 
-  assert_eq!(easy.response_code().unwrap(), 200);
-  let contents = easy.get_ref();
-  println!("{}", String::from_utf8_lossy(&contents.0));
+  transfer.perform().unwrap();
+
+//  assert_eq!(easy.response_code().unwrap(), 200);
+//  let contents = easy.get_ref();
+//  println!("{}", String::from_utf8_lossy(&contents.0));
 }
