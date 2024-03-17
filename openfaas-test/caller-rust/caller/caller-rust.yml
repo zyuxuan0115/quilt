@@ -3,8 +3,8 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  caller-rust:
+  caller-rust-2:
     lang: rust
-    handler: ./caller-rust
-    image: zyuxuan0115/caller-rust:latest
+    handler: ./caller-rust-2
+    image: zyuxuan0115/caller-rust-2:latest
 
