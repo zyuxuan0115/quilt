@@ -27,14 +27,21 @@ fn make_rpc(func_name: &str, mut input: &[u8]) -> String {
   html_data
 }
 
-fn main() {
-
+fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
   io::stdin().read_line(&mut buffer);
+  buffer
+}
+
+fn send_return_value_to_caller(output: String) -> (){
+  println!("{}", output);
+}
+
+fn main() {
+  let buffer = get_arg_from_caller();
   let mut prefix: String = "From Rust Caller: ".to_owned();
   prefix.push_str(&buffer);
-  let mut data = (&prefix).as_bytes();
+  let data = (&prefix).as_bytes();
   let result = make_rpc("callee-rust", data);
-
-  println!("{}", result);
+  send_return_value_to_caller(result);
 }
