@@ -1,8 +1,0 @@
-services:
-  ironfunc-gateway:
-    deploy:
-      placement:
-        constraints:
-        - node.hostname == ironfunc-gateway
-      replicas: 1
-version: '3.8'
