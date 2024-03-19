@@ -13,3 +13,6 @@
 > cp MergeRustFunc.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeRustFunc.h
 > cp MergeRustFunc.cpp llvm-project-17/llvm/lib/Transforms/Utils/MergeRustFunc.cpp
 ```
+
+In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeRustFunc.cp`
+In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-rust-func", MergeRustFuncPass())`
