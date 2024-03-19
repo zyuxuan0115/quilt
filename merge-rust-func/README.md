@@ -20,5 +20,5 @@ In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms
 
 ### to run the optimization pass
 ```bash
-/proj/zyuxuanssf-PG0/llvm-project-17/build/bin/opt -disable-output main_c.ll -passes=merge-rust-func
+> llvm-project/build/bin/opt -disable-output main.ll -passes=merge-rust-func
 ```
