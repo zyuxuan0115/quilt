@@ -19,3 +19,6 @@ In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-rust-
 In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeRustFunc.h"`
 
 ### to run the optimization pass
+```bash
+/proj/zyuxuanssf-PG0/llvm-project-17/build/bin/opt -disable-output main_c.ll -passes=merge-rust-func
+```
