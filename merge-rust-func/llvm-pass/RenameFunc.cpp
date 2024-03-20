@@ -23,8 +23,10 @@ PreservedAnalyses RenameFuncPass::run(Module &M,
       }
     }
   }
-  mainFunc->eraseFromParent();
-  rustRTFunc->eraseFromParent();
+  mainFunc->setName("main_callee");
+  rustRTFunc->setName("_ZN3std2rt10lang_start17hff3e7fe326af4ccfE_callee");
+  //mainFunc->eraseFromParent();
+  //rustRTFunc->eraseFromParent();
 
   return PreservedAnalyses::all();
 }
