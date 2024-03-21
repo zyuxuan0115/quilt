@@ -27,6 +27,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Mangler.h"
 #include "llvm/Transforms/Utils/Cloning.h"
+#include "llvm/IR/IRBuilder.h"
 
 namespace llvm {
 
