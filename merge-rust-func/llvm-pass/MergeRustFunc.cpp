@@ -36,10 +36,8 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
     }
   }
 
-  ArrayRef<Type*> argTypes(argumentTypes);
-  ArrayRef<Value*> args(arguments);
-
-  FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M.getContext()), argTypes, true);
+  FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M.getContext()), argumentTypes, false);
+  errs()<<"@@@@@ FuncType: "<<*FuncType<<"\n";
   Function * NewCalleeFunc = Function::Create(FuncType, CallerFunc->getLinkage(), "NewCallee", &M);
   ValueToValueMapTy VMap;
   SmallVector<ReturnInst*, 8> Returns;
@@ -83,9 +81,6 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
         if (func->getName()=="_ZN8function27send_return_value_to_caller17he485a2205fda8dadE"){
           findOutput = true;      
           OutputFuncCall = ii;
-          for (unsigned i=0; i<ii->getNumOperands(); i++){
-            errs()<<"### i="<<i<<", "<<*ii->getOperand(i)<<"\n";
-	  }
 	  break;
 	}
       }
@@ -95,7 +90,11 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
   if (!findOutput) return PreservedAnalyses::all();
 
-  //call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, ptr align 8 %buffer, i64 24, i1 false),
+  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+  //                                         ptr align 8 %buffer, 
+  //                                         i64 24, i1 false)
+  // the is the LLVM Intrinsc. The way to create such a call 
+  // is different from normal CallInst create 
   std::vector<Type*> IntrinsicTypes;
   IntrinsicTypes.push_back(NewCalleeFunc->getArg(0)->getType());
   IntrinsicTypes.push_back(OutputFuncCall->getOperand(0)->getType());
@@ -117,12 +116,17 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(OutputFuncCall);
 
+  // delete the send_return_value_to_caller() function call
+  // this function call is a invoke function, so we have to
+  // first create a branch instruction as the terminator and 
+  // then delete this call 
   BasicBlock* nextBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(1));
   if (nextBB)
     BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
 
   OutputFuncCall->eraseFromParent();
 
+  // convert the RPC into normal function call 
   std::vector<Value*> localCallArgs;
   std::vector<Type*> localCallArgTypes;
   for (unsigned i=0; i<RPCInst->getNumOperands(); i++){
@@ -130,15 +134,18 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
       localCallArgs.push_back(RPCInst->getOperand(i));
       localCallArgTypes.push_back(RPCInst->getOperand(i)->getType());
     }
-  //  errs()<<"@@@@"<< *RPCInst->getOperand(i) <<"\n";
+    //errs()<<"### i="<<i<<", "<<*RPCInst->getOperand(i) <<"\n";
   }
   ArrayRef<Value*> localCallArguments(localCallArgs);
   ArrayRef<Type*> localCallArgumentTypes(localCallArgTypes);
 
-  FunctionType* funcT = FunctionType::get(Type::getVoidTy(M.getContext()), localCallArgumentTypes, true); 
+  FunctionType* funcT = FunctionType::get(Type::getVoidTy(M.getContext()), localCallArgTypes, false); 
 
-  CallInst* newCall = CallInst::Create(funcT, NewCalleeFunc, localCallArguments ,"", RPCInst);
- // RPCInst->eraseFromParent();
+  CallInst* newCall = CallInst::Create(funcT, NewCalleeFunc, localCallArgs ,"", RPCInst);
+  BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst->getOperand(4));
+  if (nextBBofRPC)
+    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, RPCInst);
+  RPCInst->eraseFromParent();
 
   return PreservedAnalyses::all();
 }
@@ -148,6 +155,9 @@ bool MergeRustFuncPass::isRPC(Instruction* Inst){
     InvokeInst* invoke = dyn_cast<InvokeInst>(Inst);
     StringRef funcName = invoke->getCalledFunction()->getName();
     if (funcName == "_ZN8function8make_rpc17hddefcf8b3e66dcc8E"){
+      AttributeList attrList = invoke->getCalledFunction()->getAttributes();
+      AttributeSet attrSet = attrList.getParamAttrs(0);
+      //Attribute ab = invoke->getCalledFunction()->getParamAttribute(0); 
       return true;
     }
   }
