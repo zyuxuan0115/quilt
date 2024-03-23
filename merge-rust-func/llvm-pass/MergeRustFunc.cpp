@@ -12,10 +12,7 @@ using namespace llvm;
 
 PreservedAnalyses MergeRustFuncPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
-  for (auto fit = M.begin(); fit != M.end(); fit++){
-    Function* f = dyn_cast<Function>(fit);
-  }
-  Function *CallerFunc = M.getFunction("_ZN8function4main17h14327743facd0d4cE");
+  Function *CallerFunc = M.getFunction("_ZN8function4main17h880bd5b9047bc73bE");
   Function *CalleeFunc = M.getFunction("callee");
   InvokeInst* RPCInst;
   for (Function::iterator BBB = CallerFunc->begin(), BBE = CallerFunc->end(); BBB != BBE; ++BBB){
@@ -31,7 +28,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   // function 
   std::vector<Value*> arguments;
   std::vector<Type*> argumentTypes;
-  for (int i=0; i<RPCInst->getNumOperands(); i++){
+  for (unsigned i=0; i<RPCInst->getNumOperands(); i++){
     Value* arg = RPCInst->getOperand(i);
     if ((i==0) || (i==3) ){
       arguments.push_back(arg);
@@ -58,7 +55,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
       if (isa<CallInst>(IB)){
         CallInst* ci = dyn_cast<CallInst>(IB); 
 	Function* func = ci->getCalledFunction();
-	if (func->getName()=="_ZN8function19get_arg_from_caller17hb6bff148ea45c814E"){
+	if (func->getName()=="_ZN8function19get_arg_from_caller17hb183d2c20e1ec3e3E"){
 	  findInput = true;
 	  allocValue = ci->getOperand(0);
 	  InputFuncCall = ci; 
@@ -83,11 +80,14 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
       if (isa<InvokeInst>(IB)){
         InvokeInst* ii = dyn_cast<InvokeInst>(IB);
 	Function* func = ii->getCalledFunction();
-        if (func->getName()=="_ZN8function27send_return_value_to_caller17hfe9e11536fb4d0e9E"){
+        if (func->getName()=="_ZN8function27send_return_value_to_caller17he485a2205fda8dadE"){
           findOutput = true;      
           OutputFuncCall = ii;
-          break;
-        }
+          for (unsigned i=0; i<ii->getNumOperands(); i++){
+            errs()<<"### i="<<i<<", "<<*ii->getOperand(i)<<"\n";
+	  }
+	  break;
+	}
       }
     }
     if (findOutput) break;
@@ -101,7 +101,6 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   IntrinsicTypes.push_back(OutputFuncCall->getOperand(0)->getType());
   IntrinsicTypes.push_back(Type::getInt64Ty(M.getContext()));
   ArrayRef<Type*> IntrinsicTys(IntrinsicTypes);
-  FunctionType* ft = FunctionType::get(Type::getVoidTy(M.getContext()), IntrinsicTys, true);
 
   Function* llvmMemcpyFunc = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinsicTys);
 
@@ -118,16 +117,20 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(OutputFuncCall);
 
- // TODO: OutputFuncCall->eraseFromParent();
+  BasicBlock* nextBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(1));
+  if (nextBB)
+    BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
+
+  OutputFuncCall->eraseFromParent();
 
   std::vector<Value*> localCallArgs;
   std::vector<Type*> localCallArgTypes;
-  for (int i=0; i<RPCInst->getNumOperands(); i++){
+  for (unsigned i=0; i<RPCInst->getNumOperands(); i++){
     if ((i==0) || (i==3)) {
       localCallArgs.push_back(RPCInst->getOperand(i));
       localCallArgTypes.push_back(RPCInst->getOperand(i)->getType());
     }
-    errs()<<"@@@@"<< *RPCInst->getOperand(i) <<"\n";
+  //  errs()<<"@@@@"<< *RPCInst->getOperand(i) <<"\n";
   }
   ArrayRef<Value*> localCallArguments(localCallArgs);
   ArrayRef<Type*> localCallArgumentTypes(localCallArgTypes);
@@ -135,13 +138,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   FunctionType* funcT = FunctionType::get(Type::getVoidTy(M.getContext()), localCallArgumentTypes, true); 
 
   CallInst* newCall = CallInst::Create(funcT, NewCalleeFunc, localCallArguments ,"", RPCInst);
-
-
-
-  for(Function::arg_iterator arg = NewCalleeFunc->arg_begin(); arg != NewCalleeFunc->arg_end(); arg++){
-//    errs()<<"@@@@ "<<*arg<<"\n";
-  }
-
+ // RPCInst->eraseFromParent();
 
   return PreservedAnalyses::all();
 }
@@ -150,7 +147,7 @@ bool MergeRustFuncPass::isRPC(Instruction* Inst){
   if ( isa<InvokeInst>(Inst) ){
     InvokeInst* invoke = dyn_cast<InvokeInst>(Inst);
     StringRef funcName = invoke->getCalledFunction()->getName();
-    if (funcName == "_ZN8function8make_rpc17hc7b774b3bac4b175E"){
+    if (funcName == "_ZN8function8make_rpc17hddefcf8b3e66dcc8E"){
       return true;
     }
   }
