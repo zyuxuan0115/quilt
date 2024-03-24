@@ -41,6 +41,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   SmallVector<ReturnInst*, 8> Returns;
   CloneFunctionInto(NewCalleeFunc, CalleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
 
+  // set attributes for the new callee function's arguments
   std::vector<AttributeSet> argumentAttrs;
   Function* RPCFunction = RPCInst->getCalledFunction();
   AttributeList AttrList = RPCFunction->getAttributes();
@@ -52,6 +53,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   AttributeSet funcAttr = NewCalleeAttrList.getFnAttrs();
 
   NewCalleeFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+
   // In the new callee function, change the way to get input 
   bool findInput = false;
   Value* allocValue;
@@ -74,6 +76,12 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   }
 
   if (!findInput) return PreservedAnalyses::all();
+
+  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+  //                                         ptr align 8 %buffer, 
+  //                                         i64 24, i1 false)
+  // the is the LLVM Intrinsc. The way to create such a call 
+  // is different from normal CallInst create 
 
   std::vector<Type*> IntrinTypes;
   IntrinTypes.push_back(allocValue->getType());
@@ -133,7 +141,6 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
   ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
 
-  //IRBuilder<> Builder(M.getContext());
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(OutputFuncCall);
 
