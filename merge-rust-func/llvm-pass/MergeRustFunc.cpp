@@ -43,6 +43,20 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   SmallVector<ReturnInst*, 8> Returns;
   CloneFunctionInto(NewCalleeFunc, CalleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
 
+  std::vector<AttributeSet> argumentAttrs;
+  Function* RPCFunction = RPCInst->getCalledFunction();
+  AttributeList AttrList = RPCFunction->getAttributes();
+  argumentAttrs.push_back(AttrList.getParamAttrs(0));
+  argumentAttrs.push_back(AttrList.getParamAttrs(3));
+
+  AttributeList NewCalleeAttrList  = NewCalleeFunc->getAttributes();
+  AttributeSet returnAttr = NewCalleeAttrList.getRetAttrs();
+  AttributeSet funcAttr = NewCalleeAttrList.getFnAttrs();
+
+  for(Function::arg_iterator J = RPCFunction->arg_begin(); J != RPCFunction->arg_end(); ++J){
+    errs()<<"### args: "<<*J<<"\n";
+  }
+  NewCalleeFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
   // In the new callee function, change the way to get input 
   bool findInput = false;
   Value* allocValue;
@@ -66,8 +80,34 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
   if (!findInput) return PreservedAnalyses::all();
 
-  StoreInst *storeInst1 = new StoreInst(NewCalleeFunc->getArg(1), allocValue, InputFuncCall);
+  for (auto user = allocValue->user_begin(); user != allocValue->user_end(); user++){
+    errs()<<"#### "<<*(*user)<<"\n";
+  }
+
+  std::vector<Type*> IntrinTypes;
+  IntrinTypes.push_back(allocValue->getType());
+  IntrinTypes.push_back(NewCalleeFunc->getArg(1)->getType());
+  IntrinTypes.push_back(Type::getInt64Ty(M.getContext()));
+  //ArrayRef<Type*> IntrinTys(IntrinsicTypes);
+
+  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes);
+
+  std::vector<Value*> IntrinArguments;
+  IntrinArguments.push_back(allocValue);
+  IntrinArguments.push_back(NewCalleeFunc->getArg(1));
+  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24/*value*/, true);
+  IntrinArguments.push_back(dyn_cast<Value>(i64_24));
+  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0/*value*/, true);
+  IntrinArguments.push_back(dyn_cast<Value>(i1_false));
+
+  IRBuilder<> Builder(M.getContext());
+  CallInst* llvmMemcpyCall0 = Builder.CreateCall(llvmMemcpyFunc, IntrinArguments);
+  llvmMemcpyCall0->insertBefore(InputFuncCall);
+
   InputFuncCall->eraseFromParent();
+
+
+
 
   // In the new callee function, change the way to send output back to caller
   bool findOutput = false;
@@ -95,24 +135,15 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   //                                         i64 24, i1 false)
   // the is the LLVM Intrinsc. The way to create such a call 
   // is different from normal CallInst create 
-  std::vector<Type*> IntrinsicTypes;
-  IntrinsicTypes.push_back(NewCalleeFunc->getArg(0)->getType());
-  IntrinsicTypes.push_back(OutputFuncCall->getOperand(0)->getType());
-  IntrinsicTypes.push_back(Type::getInt64Ty(M.getContext()));
-  ArrayRef<Type*> IntrinsicTys(IntrinsicTypes);
-
-  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinsicTys);
 
   std::vector<Value*> IntrinsicArguments;
   IntrinsicArguments.push_back(NewCalleeFunc->getArg(0));
   IntrinsicArguments.push_back(OutputFuncCall->getOperand(0));
-  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24/*value*/, true);
   IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
-  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0/*value*/, true);
   IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
   ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
 
-  IRBuilder<> Builder(M.getContext());
+  //IRBuilder<> Builder(M.getContext());
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(OutputFuncCall);
 
@@ -127,21 +158,9 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   OutputFuncCall->eraseFromParent();
 
   // convert the RPC into normal function call 
-  std::vector<Value*> localCallArgs;
-  std::vector<Type*> localCallArgTypes;
-  for (unsigned i=0; i<RPCInst->getNumOperands(); i++){
-    if ((i==0) || (i==3)) {
-      localCallArgs.push_back(RPCInst->getOperand(i));
-      localCallArgTypes.push_back(RPCInst->getOperand(i)->getType());
-    }
-    //errs()<<"### i="<<i<<", "<<*RPCInst->getOperand(i) <<"\n";
-  }
-  ArrayRef<Value*> localCallArguments(localCallArgs);
-  ArrayRef<Type*> localCallArgumentTypes(localCallArgTypes);
-
-  FunctionType* funcT = FunctionType::get(Type::getVoidTy(M.getContext()), localCallArgTypes, false); 
-
-  CallInst* newCall = CallInst::Create(funcT, NewCalleeFunc, localCallArgs ,"", RPCInst);
+  CallInst* newCall = CallInst::Create(FuncType, NewCalleeFunc, arguments ,"", RPCInst);
+  AttributeList callInstAttr = RPCInst->getAttributes();
+  newCall->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
   BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst->getOperand(4));
   if (nextBBofRPC)
     BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, RPCInst);
