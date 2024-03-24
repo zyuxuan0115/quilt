@@ -1,5 +1,5 @@
 use curl::easy::{Easy};
-use std::io::{self, stdin, Read, stdout, Write};
+use std::io::{self, Read};
 
 fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
@@ -30,7 +30,7 @@ fn make_rpc(func_name: &str, input: String) -> String {
 
 fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
-  io::stdin().read_line(&mut buffer);
+  let _ = io::stdin().read_line(&mut buffer);
   buffer
 }
 
