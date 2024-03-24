@@ -22,7 +22,6 @@ RUN addgroup -S app && adduser app -S -G app
 WORKDIR /home/app/
 
 COPY callee.c   .
-COPY caller.c   .
 COPY Makefile   .
 
 RUN make

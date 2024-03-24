@@ -4,27 +4,17 @@
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
 
-function build_caller {
-    sudo docker build -t zyuxuan0115/caller-c:latest \
-        -f Dockerfile.caller \
-        $ROOT_DIR
-}
-
 function build_callee {
     sudo docker build -t zyuxuan0115/callee-c:latest \
         -f Dockerfile.callee --no-cache \
         $ROOT_DIR
 }
 
-
-
 function push {
-    sudo docker push zyuxuan0115/caller-c:latest
     sudo docker push zyuxuan0115/callee-c:latest
 }
 
 function build {
-    build_caller
     build_callee
 }
 
