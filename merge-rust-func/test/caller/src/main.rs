@@ -1,20 +1,21 @@
 use curl::easy::{Easy};
-use std::io::{self, stdin, Read, stdout, Write};
+use std::io::{self, Read};
 
-fn make_rpc(func_name: &str, mut input: &[u8]) -> String {
+fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
+  let mut input_to_be_sent = (&input).as_bytes();
 //  let mut url = String::from("http://127.0.0.1:8080/function/");
   url.push_str(func_name);
   easy.url(&url).unwrap();
   easy.post(true).unwrap();
-  easy.post_field_size(input.len() as u64).unwrap();
+  easy.post_field_size(input_to_be_sent.len() as u64).unwrap();
 
   let mut html_data = String::new();
   {
     let mut transfer = easy.transfer();
     transfer.read_function(|buf| {
-      Ok(input.read(buf).unwrap_or(0))
+      Ok(input_to_be_sent.read(buf).unwrap_or(0))
     }).unwrap();
 
     transfer.write_function(|data| {
@@ -29,7 +30,7 @@ fn make_rpc(func_name: &str, mut input: &[u8]) -> String {
 
 fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
-  io::stdin().read_line(&mut buffer);
+  let _ = io::stdin().read_line(&mut buffer);
   buffer
 }
 
@@ -41,7 +42,6 @@ fn main() {
   let buffer = get_arg_from_caller();
   let mut prefix: String = "From Rust Caller: ".to_owned();
   prefix.push_str(&buffer);
-  let data = (&prefix).as_bytes();
-  let result = make_rpc("callee-rust", data);
+  let result = make_rpc("callee-rust", prefix);
   send_return_value_to_caller(result);
 }
