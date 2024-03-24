@@ -1,16 +1,36 @@
+#!/bin/bash
+LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-17/build/bin
+RUST_LIB=/users/zyuxuan/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
+LINKER_FLAGS='-lstd-320ebc7037fb8f95 -lcurl -lcrypto -lm -lssl'
 
-LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-17/build/bin/
+function merge {
+  cd caller\
+  && RUSTFLAGS="--emit=llvm-ir" cargo build \
+  && cd ../callee \
+  && RUSTFLAGS="--emit=llvm-ir" cargo build \
+  && cd ../
 
-rm -rf *.ll
+  $LLVM_DIR/opt -S callee/target/debug/deps/function-8c52697b3d6c08a7.ll -passes=rename-func -o callee_rename.ll
+  cp callee_rename.ll caller/target/debug/deps/
+  $LLVM_DIR/llvm-link caller/target/debug/deps/*.ll -S -o merge.ll
+  $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
+  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
+  $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
+  $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
+}
 
-cd caller && cargo clean \
-&& RUSTFLAGS="--emit=llvm-ir" cargo build \
-&& cd ../callee && cargo clean \
-&& RUSTFLAGS="--emit=llvm-ir" cargo build \
-&& cd ../
+function clean {
+  cd caller && cargo clean \
+  && cd ../callee && cargo clean \
+  && cd ../
+  rm -rf *.ll *.o function
+}
 
-$LLVM_DIR/opt -S callee/target/debug/deps/function-62ae499746779c3b.ll -passes=rename-func -o callee_rename.ll
-cp callee_rename.ll caller/target/debug/deps/
-$LLVM_DIR/llvm-link caller/target/debug/deps/*.ll -S -o merge.ll
-$LLVM_DIR/llc -filetype=obj merge.ll -o main.o
-$LLVM_DIR/clang -no-pie -L/users/zyuxuan/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib  main.o -o main -lstd-66d8041607d2929b -lcurl -lcrypto -lm -lssl
+case "$1" in
+merge)
+    merge
+    ;;
+clean)
+    clean
+    ;;
+esac
