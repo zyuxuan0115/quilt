@@ -22,7 +22,6 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
       }
     }
   }
-  errs()<<"@@@ "<<*RPCInst<<"\n";
 
   // based on the RPC and callee function, create a new callee
   // function 
@@ -37,7 +36,6 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   }
 
   FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M.getContext()), argumentTypes, false);
-  errs()<<"@@@@@ FuncType: "<<*FuncType<<"\n";
   Function * NewCalleeFunc = Function::Create(FuncType, CallerFunc->getLinkage(), "NewCallee", &M);
   ValueToValueMapTy VMap;
   SmallVector<ReturnInst*, 8> Returns;
@@ -53,9 +51,6 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   AttributeSet returnAttr = NewCalleeAttrList.getRetAttrs();
   AttributeSet funcAttr = NewCalleeAttrList.getFnAttrs();
 
-  for(Function::arg_iterator J = RPCFunction->arg_begin(); J != RPCFunction->arg_end(); ++J){
-    errs()<<"### args: "<<*J<<"\n";
-  }
   NewCalleeFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
   // In the new callee function, change the way to get input 
   bool findInput = false;
@@ -80,15 +75,10 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
   if (!findInput) return PreservedAnalyses::all();
 
-  for (auto user = allocValue->user_begin(); user != allocValue->user_end(); user++){
-    errs()<<"#### "<<*(*user)<<"\n";
-  }
-
   std::vector<Type*> IntrinTypes;
   IntrinTypes.push_back(allocValue->getType());
   IntrinTypes.push_back(NewCalleeFunc->getArg(1)->getType());
   IntrinTypes.push_back(Type::getInt64Ty(M.getContext()));
-  //ArrayRef<Type*> IntrinTys(IntrinsicTypes);
 
   Function* llvmMemcpyFunc = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes);
 
