@@ -3,10 +3,24 @@
 #include <unistd.h>
 #include <string.h>
 
-int main(void){
-  char buf[1000];
+void send_return_value_to_caller(char* output){
+  printf("%s\n", output);
+}
+
+char* get_arg_from_caller(){
+  char* buf;
+  buf = (char*)malloc(sizeof(char)*1000);
   memset(buf, 0, 1000);
   ssize_t read_len = read(STDIN_FILENO, (void*)buf, 1000*sizeof(char));
-  printf("From the C callee function: %s\n", buf);
+  return buf; 
+}
+
+int main(void){
+  char* input = get_arg_from_caller();
+  char* buf;
+  buf = (char*)malloc(sizeof(char)*2000);
+  strcpy(buf, "From the C callee function: ");
+  strcpy(buf+28, input);
+  send_return_value_to_caller(buf);
   return 0;
 }
