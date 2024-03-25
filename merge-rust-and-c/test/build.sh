@@ -7,16 +7,16 @@ function merge {
   cd caller\
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../callee \
-  && $LLVM_DIR/clang -fPIC -emit-llvm -S callee/callee.c -c -o callee.ll \
+  && $LLVM_DIR/clang -fPIC -emit-llvm -S callee.c -c -o callee.ll \
   && cd ../
 
   $LLVM_DIR/opt -S callee/callee.ll -passes=rename-func-c -o callee_rename.ll
   cp callee_rename.ll caller/target/debug/deps/
   $LLVM_DIR/llvm-link caller/target/debug/deps/*.ll -S -o merge.ll
   $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
-  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-c-func -o merge_new.ll
-  $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
-  $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
+#  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-c-func -o merge_new.ll
+#  $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
+#  $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
 }
 
 function clean {
