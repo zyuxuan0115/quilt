@@ -12,7 +12,20 @@ using namespace llvm;
 
 PreservedAnalyses MergeRustFuncPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
-  Function *CallerFunc = M.getFunction("_ZN8function4main17h880bd5b9047bc73bE");
+  Function *CallerFunc;
+  Function *mainFunc = M.getFunction("main");
+  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if(isa<CallInst>(IB)){
+        CallInst *ci = dyn_cast<CallInst>(IB);
+        CallerFunc = dyn_cast<Function>(ci->getArgOperand(0));
+        break;
+      }
+    }
+  }
+  if (!CallerFunc) return PreservedAnalyses::all();
+
+
   Function *CalleeFunc = M.getFunction("callee");
   InvokeInst* RPCInst;
   for (Function::iterator BBB = CallerFunc->begin(), BBE = CallerFunc->end(); BBB != BBE; ++BBB){
@@ -64,7 +77,8 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
       if (isa<CallInst>(IB)){
         CallInst* ci = dyn_cast<CallInst>(IB); 
 	Function* func = ci->getCalledFunction();
-	if (func->getName()=="_ZN8function19get_arg_from_caller17hb183d2c20e1ec3e3E"){
+        std::string realname = demangle(func->getName());
+        if ((realname.size() >=29) && (realname.substr(0,29)=="function::get_arg_from_caller")){
 	  findInput = true;
 	  allocValue = ci->getOperand(0);
 	  InputFuncCall = ci; 
@@ -116,7 +130,8 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
       if (isa<InvokeInst>(IB)){
         InvokeInst* ii = dyn_cast<InvokeInst>(IB);
 	Function* func = ii->getCalledFunction();
-        if (func->getName()=="_ZN8function27send_return_value_to_caller17he485a2205fda8dadE"){
+        std::string realname = demangle(func->getName());
+        if ((realname.size()>=37) && (realname.substr(0, 37)=="function::send_return_value_to_caller")){
           findOutput = true;      
           OutputFuncCall = ii;
 	  break;
@@ -170,10 +185,8 @@ bool MergeRustFuncPass::isRPC(Instruction* Inst){
   if ( isa<InvokeInst>(Inst) ){
     InvokeInst* invoke = dyn_cast<InvokeInst>(Inst);
     StringRef funcName = invoke->getCalledFunction()->getName();
-    if (funcName == "_ZN8function8make_rpc17hddefcf8b3e66dcc8E"){
-      AttributeList attrList = invoke->getCalledFunction()->getAttributes();
-      AttributeSet attrSet = attrList.getParamAttrs(0);
-      //Attribute ab = invoke->getCalledFunction()->getParamAttribute(0); 
+    std::string realname = demangle(funcName);
+    if ((realname.size()>=18) && (realname.substr(0, 18)=="function::make_rpc")){
       return true;
     }
   }

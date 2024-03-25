@@ -28,6 +28,7 @@
 #include "llvm/IR/Mangler.h"
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/IR/IRBuilder.h"
+#include "llvm/Demangle/Demangle.h"
 
 namespace llvm {
 
