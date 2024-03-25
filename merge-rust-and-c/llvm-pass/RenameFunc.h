@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_TRANSFORMS_UTILS_MERGERUSTCFUNC_H
-#define LLVM_TRANSFORMS_UTILS_MERGERUSTCFUNC_H
+#ifndef LLVM_TRANSFORMS_UTILS_RENAMEFUNC_H
+#define LLVM_TRANSFORMS_UTILS_RENAMEFUNC_H
 
 #include "llvm/IR/PassManager.h"
 #include "llvm/ADT/Statistic.h"
@@ -27,14 +27,12 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Mangler.h"
 #include "llvm/Transforms/Utils/Cloning.h"
-#include "llvm/IR/IRBuilder.h"
-
+#include "llvm/Support/CommandLine.h"
 namespace llvm {
 
-class MergeRustCFuncPass : public PassInfoMixin<MergeRustCFuncPass> {
+class RenameFuncPass : public PassInfoMixin<RenameFuncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
-  bool isRPC(Instruction* Inst);
 };
 
 } // namespace llvm

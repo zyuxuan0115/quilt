@@ -27,7 +27,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Mangler.h"
 #include "llvm/Transforms/Utils/Cloning.h"
-
+#include "llvm/Support/CommandLine.h"
 namespace llvm {
 
 class RenameFuncPass : public PassInfoMixin<RenameFuncPass> {
