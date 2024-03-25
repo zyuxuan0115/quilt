@@ -10,7 +10,7 @@ function merge {
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../
 
-  $LLVM_DIR/opt -S callee/target/debug/deps/function-8c52697b3d6c08a7.ll -passes=rename-func -o callee_rename.ll
+  $LLVM_DIR/opt -S callee/target/debug/deps/function-8c52697b3d6c08a7.ll -passes=rename-func --callee-lang=rust -o callee_rename.ll
   cp callee_rename.ll caller/target/debug/deps/
   $LLVM_DIR/llvm-link caller/target/debug/deps/*.ll -S -o merge.ll
   $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S

@@ -8,10 +8,15 @@ function merge {
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../callee \
   && $LLVM_DIR/clang -fPIC -emit-llvm -S callee.c -c -o callee.ll \
-  && cd ../
+  && cd ../wrapper && RUSTFLAGS="--emit=llvm-ir" cargo build \
+  && cd ..
 
-  $LLVM_DIR/opt -S callee/callee.ll -passes=rename-func-c -o callee_rename.ll
+  $LLVM_DIR/opt -S callee/callee.ll -passes=rename-func --callee-lang=c -o callee_rename.ll
   cp callee_rename.ll caller/target/debug/deps/
+  $LLVM_DIR/opt -S wrapper/target/debug/deps/wrapper-c0f1fa4e8eb016c4.ll -passes=rename-func-c --callee-lang=rust -o wrapper_rename.ll
+  cp wrapper_rename.ll caller/target/debug/deps/
+  cp wrapper/target/debug/deps/*.ll caller/target/debug/deps/
+  rm caller/target/debug/deps/wrapper-c0f1fa4e8eb016c4.ll
   $LLVM_DIR/llvm-link caller/target/debug/deps/*.ll -S -o merge.ll
   $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
 #  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-c-func -o merge_new.ll
@@ -22,7 +27,8 @@ function merge {
 function clean {
   cd caller && cargo clean \
   && cd ../callee && rm *.ll \
-  && cd ../
+  && cd ../wrapper && cargo clean \
+  && cd ..
   rm -rf *.ll *.o function
 }
 
