@@ -3,7 +3,9 @@ extern crate libc;
 use libc::{c_char};
 use std::ffi::{CStr,CString};
 
-fn dummy_func(){}
+fn dummy_func(){
+  println!("I'm the dummy function!");
+}
 
 fn callee_rust_to_c (input: String) -> String {
   let input_cstring: CString = CString::new(&input[..]).unwrap();
