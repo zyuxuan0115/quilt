@@ -35,8 +35,8 @@ struct Output {
 
 static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct Output *out = (struct Output *)stream;
-  void* buf = malloc(nmemb);
-  memset(buf, 0, nmemb);
+  void* buf = malloc(nmemb+1);
+  memset(buf, 0, nmemb+1);
   memcpy(buf, buffer, nmemb);
   char* buf_char = (char*) buf;
   out->buf = buf_char;
@@ -58,8 +58,8 @@ int make_rpc(char* func_name, char* input, char** output){
 
   if(curl) {
     // First set the URL that is about to receive our POST. This URL can
-    char* prefix = "http://gateway.openfaas.svc.cluster.local.:8080/function/";
-//    char* prefix = "http://localhost:8080/function/";
+//    char* prefix = "http://gateway.openfaas.svc.cluster.local.:8080/function/";
+    char* prefix = "http://localhost:8080/function/";
     char* url = (char*)malloc(sizeof(char)*(strlen(prefix)+strlen(func_name)));
     strcpy(url, prefix);
     strcpy(url+strlen(prefix), func_name);
