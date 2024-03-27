@@ -36,13 +36,14 @@ struct Output {
 static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct Output *out = (struct Output *)stream;
   void* buf = malloc(nmemb);
+  memset(buf, 0, nmemb);
   memcpy(buf, buffer, nmemb);
   char* buf_char = (char*) buf;
   out->buf = buf_char;
   return nmemb;
 }
 
-int call_another_func(char* func_name, char* input, char** output){
+int make_rpc(char* func_name, char* input, char** output){
   CURL *curl;
   CURLcode res;
   /* In windows, this will init the winsock stuff */ 
@@ -58,7 +59,7 @@ int call_another_func(char* func_name, char* input, char** output){
   if(curl) {
     // First set the URL that is about to receive our POST. This URL can
     char* prefix = "http://gateway.openfaas.svc.cluster.local.:8080/function/";
-    //char* prefix = "http://localhost:8080/function/";
+//    char* prefix = "http://localhost:8080/function/";
     char* url = (char*)malloc(sizeof(char)*(strlen(prefix)+strlen(func_name)));
     strcpy(url, prefix);
     strcpy(url+strlen(prefix), func_name);
@@ -83,23 +84,31 @@ int call_another_func(char* func_name, char* input, char** output){
     *output = output_buf;
   }
   curl_global_cleanup();
-
 }
 
+void send_return_value_to_caller(char* output){
+  printf("%s\n", output);
+}
 
-int main(void){
-  char buf[1000];
+char* get_arg_from_caller(){
+  char* buf;
+  buf = (char*)malloc(sizeof(char)*1000);
   memset(buf, 0, 1000);
   ssize_t read_len = read(STDIN_FILENO, (void*)buf, 1000*sizeof(char));
+  return buf;
+}
+
+int main(void){
+  char* input = get_arg_from_caller();
   char* message = (char*) malloc(sizeof(char)*1200);
   memset(message, 0, 1200);
-  strcpy(message, "I'm C caller: ");
-  strcpy(message+14, buf);
+  strcpy(message, "From C caller: ");
+  strcpy(message+15, input);
 
   char* output;	
   // so this is the RPC interface LLVM is going to change
-  call_another_func("callee-rust", message, &output);
-  printf("%s", output);
+  make_rpc("callee-rust", message, &output);
+  send_return_value_to_caller(output);
   return 0;
 }
 
