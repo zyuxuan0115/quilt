@@ -93,8 +93,8 @@ int main(void){
   ssize_t read_len = read(STDIN_FILENO, (void*)buf, 1000*sizeof(char));
   char* message = (char*) malloc(sizeof(char)*1200);
   memset(message, 0, 1200);
-  strcpy(message, "I'm caller-c function: ");
-  strcpy(message+23, buf);
+  strcpy(message, "I'm C caller: ");
+  strcpy(message+14, buf);
 
   char* output;	
   // so this is the RPC interface LLVM is going to change
