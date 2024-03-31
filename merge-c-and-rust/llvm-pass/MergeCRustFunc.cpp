@@ -22,6 +22,11 @@ static cl::opt<bool> DropRustDropTrait(
         "drop-rust-drop", cl::init(false),
         cl::desc("in the c-call-rust wrapper, drop the drop trait of CString"));
 
+static cl::opt<bool> RenameCallee_cr(
+        "rename-callee-cr", cl::init(false),
+        cl::desc("rename the rust callee functions"));
+
+
 PreservedAnalyses MergeCRustFuncPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
   if (MergeWrapperRust) {
@@ -66,6 +71,24 @@ PreservedAnalyses MergeCRustFuncPass::run(Module &M,
     for (auto ii: iiSet)
       ii->eraseFromParent();
   }
+
+  else if (RenameCallee_cr) {
+    Function *mainFunc = M.getFunction("main");
+    Function *rustRTFunc;
+    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if(isa<CallInst>(IB)){
+          CallInst *ci = dyn_cast<CallInst>(IB);
+          Function* realMainFunc = dyn_cast<Function>(ci->getArgOperand(0));
+          rustRTFunc = ci->getCalledFunction();
+	  realMainFunc->setName("callee");
+        }
+      }
+    }    
+    mainFunc->setName("main_callee_rust");
+    rustRTFunc->setName("_std_rt_lang_start_callee");
+  }
+
 
   return PreservedAnalyses::all();
 }
