@@ -31,15 +31,7 @@ function merge {
   $LLVM_DIR/opt -S wrapper_new.ll -passes=rename-func --callee-lang=rust -o caller_ll/wrapper_rename.ll
   $LLVM_DIR/llvm-link caller_ll/*.ll -S -o merge_new.ll
   $LLVM_DIR/opt -S merge_new.ll -passes=merge-c-rust-func -merge-c-wrapper -o final.ll
-#  cp callee_rename.ll caller/target/debug/deps/
-#  $LLVM_DIR/opt -S wrapper/target/debug/deps/wrapper-c0f1fa4e8eb016c4.ll -passes=rename-func --callee-lang=rust -o wrapper_rename.ll
-#  cp wrapper_rename.ll caller/target/debug/deps/
-#  cp wrapper/target/debug/deps/*.ll caller/target/debug/deps/
-#  rm caller/target/debug/deps/wrapper-c0f1fa4e8eb016c4.ll
-#  $LLVM_DIR/llvm-link caller/target/debug/deps/*.ll -S -o merge.ll
-#  $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
-#  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-c-func -o merge_new.ll
-  $LLVM_DIR/llc -filetype=obj wrapper_new.ll -o function.o
+  $LLVM_DIR/llc -filetype=obj final.ll -o function.o
   $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
 }
 
