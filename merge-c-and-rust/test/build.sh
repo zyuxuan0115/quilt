@@ -21,16 +21,21 @@ function merge {
   echo "rename callee function names"
   rm -rf callee_ll && mkdir callee_ll
   cp callee/target/debug/deps/*.ll callee_ll
-  $LLVM_DIR/opt -S callee_ll/function-8c52697b3d6c08a7.ll -passes=rename-func --callee-lang=rust -o callee_ll/callee_rename.ll
-  mv callee_ll/callee_rename.ll wrapper_ll/
-  $LLVM_DIR/llvm-link wrapper_ll/*.ll -S -o merge.ll
-  $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
-  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-c-rust-func -merge-wrapper-rust -o wrapper_new.ll
+  CALLEE_IR=$(ls callee_ll/function-*.ll)
+  $LLVM_DIR/opt -S $CALLEE_IR -passes=rename-func --callee-lang=rust -o callee_ll/callee_rename.ll
+
+  echo "merge wrapper and callee rust function"
+  rm $CALLEE_IR && mv callee_ll/*.ll wrapper_ll/
+  $LLVM_DIR/llvm-link wrapper_ll/*.ll -S -o wrapper_callee.ll
+  $LLVM_DIR/opt wrapper_callee.ll -strip-debug -o wrapper_callee_nodebug.ll -S
+  $LLVM_DIR/opt -S wrapper_callee_nodebug.ll -passes=merge-c-rust-func -merge-wrapper-rust -o wrapper_callee_new.ll
+
+  echo "merge caller and wrapper+callee function"
   rm -rf caller_ll && mkdir caller_ll
   cp caller/caller.ll caller_ll
-  $LLVM_DIR/opt -S wrapper_new.ll -passes=rename-func --callee-lang=rust -o caller_ll/wrapper_rename.ll
-  $LLVM_DIR/llvm-link caller_ll/*.ll -S -o merge_new.ll
-  $LLVM_DIR/opt -S merge_new.ll -passes=merge-c-rust-func -merge-c-wrapper -o final.ll
+  $LLVM_DIR/opt -S wrapper_callee_new.ll -passes=rename-func --callee-lang=rust -o caller_ll/wrapper_callee_rename.ll
+  $LLVM_DIR/llvm-link caller_ll/*.ll -S -o caller_wrapper_callee.ll
+  $LLVM_DIR/opt -S caller_wrapper_callee.ll -passes=merge-c-rust-func -merge-c-wrapper -o final.ll
   $LLVM_DIR/llc -filetype=obj final.ll -o function.o
   $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
 }
