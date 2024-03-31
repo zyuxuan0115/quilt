@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_TRANSFORMS_UTILS_MERGECRUSTFUNC_H
-#define LLVM_TRANSFORMS_UTILS_MERGECRUSTFUNC_H
+#ifndef LLVM_TRANSFORMS_UTILS_DROPRUSTDROP_H
+#define LLVM_TRANSFORMS_UTILS_DROPRUSTDROP_H
 
 #include "llvm/IR/PassManager.h"
 #include "llvm/ADT/Statistic.h"
@@ -30,13 +30,13 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Demangle/Demangle.h"
 #include "llvm/Support/CommandLine.h"
+#include <unordered_set>
 
 namespace llvm {
 
-class MergeCRustFuncPass : public PassInfoMixin<MergeCRustFuncPass> {
+class dropRustDropPass : public PassInfoMixin<dropRustDropPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
-  bool isRPC(Instruction* Inst);
 };
 
 } // namespace llvm
