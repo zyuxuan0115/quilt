@@ -223,7 +223,25 @@ PreservedAnalyses MergeCRustFuncPass::run(Module &M,
       }
     }
     if (!wrapperFunc) return PreservedAnalyses::all();
-
+    for (unsigned i=0; i<rpcInst->getNumOperands(); i++){
+      errs()<<"@@@ "<<*(rpcInst->getOperand(i))<<"\n";
+    }
+    std::vector<Value*> arguments = {rpcInst -> getOperand(1)};
+    std::vector<Type*> argumentTypes = {rpcInst -> getOperand(1) -> getType() };
+    CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"", rpcInst);
+    StoreInst *storeInst1 = new StoreInst(newCall, rpcInst->getOperand(2), rpcInst);
+    rpcInst->eraseFromParent();
+        /*
+    for (auto U : rpcInst -> users()) { 
+      for (auto op = U->op_begin(); op != U->op_end(); op++) {
+        Value* op_value = dyn_cast<Value>(op);
+        if (op_value == dyn_cast<Value>(callRecvInput)) {
+          *op = dyn_cast<Value>(newCall);
+        }
+      }
+    } 
+	*/
+//    LoadInst *loadInst1 = new LoadInst (argTypes[0], allocFuncArg, "", callRecvInput);
   }
 
   return PreservedAnalyses::all();
