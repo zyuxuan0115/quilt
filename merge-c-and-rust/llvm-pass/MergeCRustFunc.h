@@ -36,7 +36,10 @@ namespace llvm {
 class MergeCRustFuncPass : public PassInfoMixin<MergeCRustFuncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
-  bool isRPC(Instruction* Inst);
+  Function* createRustNewCallee(Function* CalleeFunc, CallInst* call);
+  void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
+  Function* findFuncByPrefix(Module& M, std::string prefix);
+  CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
 };
 
 } // namespace llvm
