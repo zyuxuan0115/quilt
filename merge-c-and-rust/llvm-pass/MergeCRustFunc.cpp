@@ -18,6 +18,9 @@ static cl::opt<bool> MergeCWrapper(
         "merge-c-wrapper", cl::init(false),
         cl::desc("merge caller function in C and the  wrapper function"));
 
+static cl::opt<bool> DropRustDropTrait(
+        "drop-rust-drop", cl::init(false),
+        cl::desc("in the c-call-rust wrapper, drop the drop trait of CString"));
 
 PreservedAnalyses MergeCRustFuncPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
@@ -40,8 +43,7 @@ PreservedAnalyses MergeCRustFuncPass::run(Module &M,
     CalleeFunc->eraseFromParent();
     
   }
-
-  if (MergeCWrapper) {
+  else if (MergeCWrapper) {
     Function* mainFunc = M.getFunction("main");
     CallInst* rpcInst = findCallByCalleePrefix(mainFunc, "make_rpc");
     if (!rpcInst) return PreservedAnalyses::all();
@@ -54,6 +56,15 @@ PreservedAnalyses MergeCRustFuncPass::run(Module &M,
     CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"", rpcInst);
     StoreInst *newStore = new StoreInst(newCall, rpcInst->getOperand(2), rpcInst);
     rpcInst->eraseFromParent();
+  }
+  else if (DropRustDropTrait) {
+    Function* targetFunc = findFuncByPrefix(M, "wrapper::callee_c_to_rust");
+    if (targetFunc==NULL) return PreservedAnalyses::all();
+  
+    std::unordered_set<InvokeInst*> iiSet = findInvokesByCalleePrefix (targetFunc, "core::ptr::drop_in_place$LT$alloc..ffi..c_str..CString$GT$");
+  
+    for (auto ii: iiSet)
+      ii->eraseFromParent();
   }
 
   return PreservedAnalyses::all();
@@ -221,4 +232,26 @@ CallInst* MergeCRustFuncPass::findCallByCalleePrefix(Function* f, std::string pr
     }
   }
   return NULL;
+}
+
+
+std::unordered_set<InvokeInst*> MergeCRustFuncPass::findInvokesByCalleePrefix(Function* func, std::string prefix){
+  std::unordered_set<InvokeInst*> iiSet;
+  for (Function::iterator BBB = func->begin(), BBE = func->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      Instruction* inst = dyn_cast<Instruction>(IB);
+      if (isa<InvokeInst>(inst)){
+        InvokeInst* ii = dyn_cast<InvokeInst>(inst);
+        Function* f = ii->getCalledFunction();
+        std::string funcName = demangle(f->getName());
+        if ((funcName.size() >= prefix.size())
+          &&(funcName.substr(0, prefix.size())==prefix)){
+          BasicBlock* targetBB = dyn_cast<BasicBlock>(ii->getOperand(1));
+          BranchInst * jumpInst = BranchInst::Create(targetBB, ii);
+          iiSet.insert(ii);
+        } 
+      } 
+    } 
+  }
+  return iiSet;
 }

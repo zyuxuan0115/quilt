@@ -30,6 +30,7 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Demangle/Demangle.h"
 #include "llvm/Support/CommandLine.h"
+#include <unordered_set>
 
 namespace llvm {
 
@@ -40,6 +41,7 @@ public:
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
   Function* findFuncByPrefix(Module& M, std::string prefix);
   CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
+  std::unordered_set<InvokeInst*> findInvokesByCalleePrefix(Function* func, std::string prefix);
 };
 
 } // namespace llvm
