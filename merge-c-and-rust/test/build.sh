@@ -14,9 +14,9 @@ function merge {
   echo "delete drop function in the wrapper"  
   rm -rf wrapper_ll && mkdir wrapper_ll
   cp wrapper/target/debug/deps/*.ll wrapper_ll
-  rm wrapper_ll/wrapper-c0f1fa4e8eb016c4.ll
-  $LLVM_DIR/opt -S wrapper/target/debug/deps/wrapper-c0f1fa4e8eb016c4.ll -passes=drop-rust-drop -o wrapper.ll
-  mv wrapper.ll wrapper_ll
+  WRAPPER_IR=$(ls wrapper_ll/wrapper-*.ll)
+  $LLVM_DIR/opt -S $WRAPPER_IR -passes=merge-c-rust-func -drop-rust-drop -o wrapper_ll/wrapper.ll
+  rm $WRAPPER_IR
 
   echo "rename callee function names"
   rm -rf callee_ll && mkdir callee_ll
