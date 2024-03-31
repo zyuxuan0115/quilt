@@ -14,6 +14,11 @@ static cl::opt<bool> MergeWrapperRust(
         "merge-wrapper-rust", cl::init(false),
         cl::desc("merge wrapper function and callee function written in rust"));
 
+static cl::opt<bool> MergeCWrapper(
+        "merge-c-wrapper", cl::init(false),
+        cl::desc("merge caller function in C and the  wrapper function"));
+
+
 
 PreservedAnalyses MergeCRustFuncPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
@@ -58,7 +63,6 @@ PreservedAnalyses MergeCRustFuncPass::run(Module &M,
         argumentTypes.push_back(arg->getType());
       }
     }
-
 
     FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M.getContext()), argumentTypes, false);
     Function * NewCalleeFunc = Function::Create(FuncType, CalleeFunc->getLinkage(), "NewCallee", &M);
@@ -178,16 +182,50 @@ PreservedAnalyses MergeCRustFuncPass::run(Module &M,
 
     OutputFuncCall->eraseFromParent();
   
-    // convert the RPC into normal function call 
-    for (unsigned i =0; i<dummyFuncCall->getNumOperands(); i++){
-      errs()<<"### i="<<i<<", "<<*(dummyFuncCall->getOperand(i))<<"\n";
-    }
-
     CallInst* newCall = CallInst::Create(FuncType, NewCalleeFunc, arguments ,"", dummyFuncCall);
     AttributeList callInstAttr = dummyFuncCall->getAttributes();
     newCall->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
     dummyFuncCall->eraseFromParent();
+
+    Function* f1 = M.getFunction("main_callee_rust");
+    Function* f2 = M.getFunction("_std_rt_lang_start_callee");
+    f1->eraseFromParent();
+    f2->eraseFromParent();
+    CalleeFunc->eraseFromParent();
+    
   }
+
+  if (MergeCWrapper) {
+    Function* mainFunc = M.getFunction("main");
+    CallInst* rpcInst;
+    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if (isa<CallInst>(IB)) {
+          CallInst* ci = dyn_cast<CallInst>(IB);
+          Function* f = ci->getCalledFunction();
+          if (f->getName()=="make_rpc") {
+            rpcInst = ci;
+            break;
+          }
+        }
+      }
+      if (rpcInst) break;
+    } 
+    if (!rpcInst) return PreservedAnalyses::all();
+
+    Function* wrapperFunc;
+    for (auto f = M.begin(); f != M.end(); f++) {
+      std::string funcName = demangle(f->getName());
+      std::string prefix = "wrapper::callee_c_to_rust";
+      if ((funcName.size()>=prefix.size()) && (funcName.substr(0, prefix.size())=="wrapper::callee_c_to_rust")){
+        wrapperFunc = dyn_cast<Function>(f);
+        break;
+      }
+    }
+    if (!wrapperFunc) return PreservedAnalyses::all();
+
+  }
+
   return PreservedAnalyses::all();
 }
 
