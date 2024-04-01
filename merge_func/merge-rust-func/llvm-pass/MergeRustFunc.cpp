@@ -27,36 +27,38 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
 
   Function *CalleeFunc = M.getFunction("callee");
-  InvokeInst* RPCInst;
-  for (Function::iterator BBB = CallerFunc->begin(), BBE = CallerFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isRPC(dyn_cast<Instruction>(IB))){
-        RPCInst = dyn_cast<InvokeInst>(IB);
-      }
-    }
-  }
+  InvokeInst* RPCInst = findInvokeByCalleePrefix(CallerFunc, "function::make_rpc");
+  if (!RPCInst) return PreservedAnalyses::all();
 
+  Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst);
+  deleteCalleeInputOutputFunc(NewCalleeFunc);
+  return PreservedAnalyses::all();
+}
+
+
+Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeInst* call){
   // based on the RPC and callee function, create a new callee
   // function 
+  Module* M = CalleeFunc->getParent();
   std::vector<Value*> arguments;
   std::vector<Type*> argumentTypes;
-  for (unsigned i=0; i<RPCInst->getNumOperands(); i++){
-    Value* arg = RPCInst->getOperand(i);
+  for (unsigned i=0; i<call->getNumOperands(); i++){
+    Value* arg = call->getOperand(i);
     if ((i==0) || (i==3) ){
       arguments.push_back(arg);
       argumentTypes.push_back(arg->getType());
     }
   }
 
-  FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M.getContext()), argumentTypes, false);
-  Function * NewCalleeFunc = Function::Create(FuncType, CallerFunc->getLinkage(), "NewCallee", &M);
+  FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), argumentTypes, false);
+  Function * NewCalleeFunc = Function::Create(FuncType, CalleeFunc->getLinkage(), "NewCallee", M);
   ValueToValueMapTy VMap;
   SmallVector<ReturnInst*, 8> Returns;
   CloneFunctionInto(NewCalleeFunc, CalleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
 
   // set attributes for the new callee function's arguments
   std::vector<AttributeSet> argumentAttrs;
-  Function* RPCFunction = RPCInst->getCalledFunction();
+  Function* RPCFunction = call->getCalledFunction();
   AttributeList AttrList = RPCFunction->getAttributes();
   argumentAttrs.push_back(AttrList.getParamAttrs(0));
   argumentAttrs.push_back(AttrList.getParamAttrs(3));
@@ -65,31 +67,27 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   AttributeSet returnAttr = NewCalleeAttrList.getRetAttrs();
   AttributeSet funcAttr = NewCalleeAttrList.getFnAttrs();
 
-  NewCalleeFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+  NewCalleeFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
 
-  // In the new callee function, change the way to get input 
-  bool findInput = false;
-  Value* allocValue;
-  CallInst* InputFuncCall;
-  
-  for (Function::iterator BBB = NewCalleeFunc->begin(), BBE = NewCalleeFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<CallInst>(IB)){
-        CallInst* ci = dyn_cast<CallInst>(IB); 
-	Function* func = ci->getCalledFunction();
-        std::string realname = demangle(func->getName());
-        if ((realname.size() >=29) && (realname.substr(0,29)=="function::get_arg_from_caller")){
-	  findInput = true;
-	  allocValue = ci->getOperand(0);
-	  InputFuncCall = ci; 
-	  break;
-	}
-      } 
-    }
-    if (findInput) break;
-  }
+  // convert the RPC into normal function call 
+  CallInst* newCall = CallInst::Create(FuncType, NewCalleeFunc, arguments ,"", call);
+  AttributeList callInstAttr = call->getAttributes();
+  newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+  BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(call->getOperand(4));
+  if (nextBBofRPC)
+    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, call);
+  call->eraseFromParent();
 
-  if (!findInput) return PreservedAnalyses::all();
+  return NewCalleeFunc;
+}
+
+
+void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
+  Module* M = NewCalleeFunc->getParent();
+   // In the new callee function, change the way to get input 
+  CallInst* InputFuncCall = findCallByCalleePrefix(NewCalleeFunc, "function::get_arg_from_caller");
+  Value* allocValue = InputFuncCall->getOperand(0);
+  if (!InputFuncCall) return;
 
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
@@ -100,48 +98,29 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
   std::vector<Type*> IntrinTypes;
   IntrinTypes.push_back(allocValue->getType());
   IntrinTypes.push_back(NewCalleeFunc->getArg(1)->getType());
-  IntrinTypes.push_back(Type::getInt64Ty(M.getContext()));
+  IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
 
-  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes);
+  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
 
   std::vector<Value*> IntrinArguments;
   IntrinArguments.push_back(allocValue);
   IntrinArguments.push_back(NewCalleeFunc->getArg(1));
-  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24/*value*/, true);
+  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24/*value*/, true);
   IntrinArguments.push_back(dyn_cast<Value>(i64_24));
-  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0/*value*/, true);
+  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0/*value*/, true);
   IntrinArguments.push_back(dyn_cast<Value>(i1_false));
 
-  IRBuilder<> Builder(M.getContext());
+  IRBuilder<> Builder(M->getContext());
   CallInst* llvmMemcpyCall0 = Builder.CreateCall(llvmMemcpyFunc, IntrinArguments);
   llvmMemcpyCall0->insertBefore(InputFuncCall);
 
   InputFuncCall->eraseFromParent();
 
 
-
-
   // In the new callee function, change the way to send output back to caller
-  bool findOutput = false;
-  Value* outputBuf; 
-  InvokeInst* OutputFuncCall;
-  for (Function::iterator BBB = NewCalleeFunc->begin(), BBE = NewCalleeFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<InvokeInst>(IB)){
-        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
-	Function* func = ii->getCalledFunction();
-        std::string realname = demangle(func->getName());
-        if ((realname.size()>=37) && (realname.substr(0, 37)=="function::send_return_value_to_caller")){
-          findOutput = true;      
-          OutputFuncCall = ii;
-	  break;
-	}
-      }
-    }
-    if (findOutput) break;
-  }
+  InvokeInst* OutputFuncCall = findInvokeByCalleePrefix(NewCalleeFunc, "function::send_return_value_to_caller");
 
-  if (!findOutput) return PreservedAnalyses::all();
+  if (!OutputFuncCall) return;
 
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
@@ -168,27 +147,33 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
     BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
 
   OutputFuncCall->eraseFromParent();
-
-  // convert the RPC into normal function call 
-  CallInst* newCall = CallInst::Create(FuncType, NewCalleeFunc, arguments ,"", RPCInst);
-  AttributeList callInstAttr = RPCInst->getAttributes();
-  newCall->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
-  BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst->getOperand(4));
-  if (nextBBofRPC)
-    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, RPCInst);
-  RPCInst->eraseFromParent();
-
-  return PreservedAnalyses::all();
 }
 
-bool MergeRustFuncPass::isRPC(Instruction* Inst){
-  if ( isa<InvokeInst>(Inst) ){
-    InvokeInst* invoke = dyn_cast<InvokeInst>(Inst);
-    StringRef funcName = invoke->getCalledFunction()->getName();
-    std::string realname = demangle(funcName);
-    if ((realname.size()>=18) && (realname.substr(0, 18)=="function::make_rpc")){
-      return true;
+
+InvokeInst* MergeRustFuncPass::findInvokeByCalleePrefix(Function* f, std::string prefix){
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if ( isa<InvokeInst>(IB) ){
+        InvokeInst* invoke = dyn_cast<InvokeInst>(IB);
+        std::string realname = demangle(invoke->getCalledFunction()->getName());
+        if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix))
+          return invoke;
+      }
     }
   }
-  return false;
+  return NULL;
+}
+
+CallInst* MergeRustFuncPass::findCallByCalleePrefix(Function* f, std::string prefix){
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if ( isa<CallInst>(IB) ){
+        CallInst* call = dyn_cast<CallInst>(IB);
+        std::string realname = demangle(call->getCalledFunction()->getName());
+        if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix))
+          return call;
+      }
+    }
+  }
+  return NULL;
 }
