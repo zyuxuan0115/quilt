@@ -10,28 +10,49 @@
 
 using namespace llvm;
 
+static cl::opt<bool> RenameCallee_rr(
+                                     "rename-callee-rr", cl::init(false),
+                                     cl::desc("rename the rust callee functions"));
+
 PreservedAnalyses MergeRustFuncPass::run(Module &M,
-                                      ModuleAnalysisManager &AM) {
-  Function *CallerFunc;
-  Function *mainFunc = M.getFunction("main");
-  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if(isa<CallInst>(IB)){
-        CallInst *ci = dyn_cast<CallInst>(IB);
-        CallerFunc = dyn_cast<Function>(ci->getArgOperand(0));
-        break;
+                                         ModuleAnalysisManager &AM) {
+  if (!RenameCallee_rr){
+    Function *CallerFunc;
+    Function *mainFunc = M.getFunction("main");
+    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if(isa<CallInst>(IB)){
+          CallInst *ci = dyn_cast<CallInst>(IB);
+          CallerFunc = dyn_cast<Function>(ci->getArgOperand(0));
+          break;
+        }
       }
     }
+    if (!CallerFunc) return PreservedAnalyses::all();
+
+    Function *CalleeFunc = M.getFunction("callee");
+    InvokeInst* RPCInst = findInvokeByCalleePrefix(CallerFunc, "function::make_rpc");
+    if (!RPCInst) return PreservedAnalyses::all();
+
+    Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst);
+    deleteCalleeInputOutputFunc(NewCalleeFunc);
   }
-  if (!CallerFunc) return PreservedAnalyses::all();
-
-
-  Function *CalleeFunc = M.getFunction("callee");
-  InvokeInst* RPCInst = findInvokeByCalleePrefix(CallerFunc, "function::make_rpc");
-  if (!RPCInst) return PreservedAnalyses::all();
-
-  Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst);
-  deleteCalleeInputOutputFunc(NewCalleeFunc);
+  else {
+    Function *mainFunc = M.getFunction("main");
+    Function *rustRTFunc;
+    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if(isa<CallInst>(IB)){
+          CallInst *ci = dyn_cast<CallInst>(IB);
+          Function* realMainFunc = dyn_cast<Function>(ci->getArgOperand(0));
+          rustRTFunc = ci->getCalledFunction();
+	  realMainFunc->setName("callee");
+        }
+      }
+    }    
+    mainFunc->setName("main_callee_rust");
+    rustRTFunc->setName("_std_rt_lang_start_callee");
+  }
   return PreservedAnalyses::all();
 }
 

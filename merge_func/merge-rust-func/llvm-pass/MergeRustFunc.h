@@ -29,6 +29,7 @@
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Demangle/Demangle.h"
+#include "llvm/Support/CommandLine.h"
 
 namespace llvm {
 
