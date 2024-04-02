@@ -29,13 +29,18 @@
 #include "llvm/Transforms/Utils/Cloning.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Demangle/Demangle.h"
+#include "llvm/Support/CommandLine.h"
 
 namespace llvm {
 
 class MergeRustCFuncPass : public PassInfoMixin<MergeRustCFuncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
-  bool isRPC(Instruction* Inst);
+  CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
+  InvokeInst* findInvokeByCalleePrefix(Function* f, std::string prefix);
+  void createNewCallToReplaceRPC(Function* CallerFunc, Function* realCalleeFunc);
+  Function* createCNewCallee(Function* CalleeFunc, InvokeInst* invoke);
+  void createNewCallReplaceDummy(InvokeInst* dummyCall, Function* NewCalleeFunc);
 };
 
 } // namespace llvm
