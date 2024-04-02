@@ -36,6 +36,12 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
     Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst);
     deleteCalleeInputOutputFunc(NewCalleeFunc);
+    
+    Function* f1 = M.getFunction("main_callee_rust");
+    Function* f2 = M.getFunction("_std_rt_lang_start_callee");
+    f1->eraseFromParent();
+    f2->eraseFromParent();
+    CalleeFunc->eraseFromParent();
   }
   else {
     Function *mainFunc = M.getFunction("main");
