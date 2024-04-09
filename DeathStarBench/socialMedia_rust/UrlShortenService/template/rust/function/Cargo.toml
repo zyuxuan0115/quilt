@@ -9,4 +9,5 @@ edition = "2021"
 rand = "0.8.5"
 random-string = "1.0"
 mongodb = { version = "2.8.2", default-features = false, features = ["sync"] }
+serde = "1.0.197"
 OpenFaaSRPC = { path = "../OpenFaaSRPC" }
