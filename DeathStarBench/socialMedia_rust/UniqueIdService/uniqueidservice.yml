@@ -6,5 +6,5 @@ functions:
   unique-id-service:
     lang: rust
     handler: ./unique-id-service
-    image: zyuxuan0115/deachstarbench-uniqueidservice:latest
+    image: zyuxuan0115/deathstarbench-uniqueidservice:latest
 
