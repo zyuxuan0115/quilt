@@ -1,12 +1,17 @@
 extern crate rand;
 use rand::{distributions::Alphanumeric, Rng}; // 0.8
 
-fn main() {
-    let s: String = rand::thread_rng()
+fn gen_rand_str()->String{
+  let s: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(10)
         .map(char::from)
         .collect();
-    println!("{}", s);
+   s
+}
+
+fn main() {
+  let s = gen_rand_str();
+  println!("{}", s);
 }
 
