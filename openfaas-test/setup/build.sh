@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SERVER_IP="130.127.133.93"
 USER="zyuxuan"
 AGENT_IP="130.127.133.76"
