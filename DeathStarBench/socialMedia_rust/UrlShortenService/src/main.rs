@@ -1,5 +1,6 @@
 extern crate rand;
 use rand::{distributions::Alphanumeric, Rng}; // 0.8
+use mongodb::{Client, options::ClientOptions};
 
 fn gen_rand_str()->String{
   let s: String = rand::thread_rng()
@@ -12,6 +13,7 @@ fn gen_rand_str()->String{
 
 fn main() {
   let s = gen_rand_str();
+  let mut client_options = Client::with_uri_str("mongodb://mongodb.default.svc.cluster.local:27017");
   println!("{}", s);
 }
 
