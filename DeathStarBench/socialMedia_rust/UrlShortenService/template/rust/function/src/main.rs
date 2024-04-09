@@ -30,8 +30,11 @@ fn read_lines(filename: &str) -> Vec<String> {
 fn get_uri() -> String{
   let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
   if passwords.len() == 0 {
-    panic!("no password found!");
+    println!("no password found!");
   } 
+  if passwords.len() > 1 {
+    println!("more than 1 passwords found!");
+  }
   let password = passwords[0].to_owned();
   let mut uri: String = String::from("mongodb://root:");
   uri.push_str(&password[..]);
