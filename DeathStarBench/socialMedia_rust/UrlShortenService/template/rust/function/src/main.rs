@@ -1,7 +1,7 @@
-extern crate rand;
 use rand::{distributions::Alphanumeric, Rng}; // 0.8
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
+use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct url{
@@ -19,6 +19,8 @@ fn gen_rand_str()->String{
 }
 
 fn main() {
+  let input: String = get_arg_from_caller();
+
   let s = gen_rand_str();
   let client = Client::with_uri_str("mongodb://mongodb.default.svc.cluster.local:27017").unwrap();
   let database = client.database("url-shorten");
@@ -40,6 +42,6 @@ fn main() {
   ];
   collection.insert_many(docs, None).unwrap();
 
-  println!("{}", s);
+  send_return_value_to_caller(s);
 }
 
