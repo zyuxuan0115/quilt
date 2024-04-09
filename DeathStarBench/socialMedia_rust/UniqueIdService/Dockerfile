@@ -16,7 +16,8 @@ WORKDIR /home/rust
 
 # Copy all the sources
 COPY function ./function
-
+COPY OpenFaaSRPC ./OpenFaaSRPC
+ 
 #ENV CARGO_TARGET_DIR=/home/rust/target
 WORKDIR /home/rust/function
 RUN cargo build 
