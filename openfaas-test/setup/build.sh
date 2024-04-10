@@ -18,6 +18,10 @@ function setup {
   kubectl get svc -o wide gateway-external -n openfaas
   PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
   echo -n $PASSWORD | faas-cli login --username admin --password-stdin
+  arkade install mongodb
+  MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace default mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
+  faas-cli secret create mongo-db-password --from-literal $MONGODB_ROOT_PASSWORD
+  helm install socialnetwork-memcached bitnami/memcached --set architecture="high-availability" --set autoscaling.enabled="true"
 }
 
 function killa {
