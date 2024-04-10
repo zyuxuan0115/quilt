@@ -73,17 +73,17 @@ fn main() {
   let mut user_mentions: Vec<user_mention> = Vec::new();
   for (key, value) in &result {
     let username: String = remove_suffix(&key[..], ":user_id").to_string();
+    usernames_not_cached.remove(&username);
     let new_user_mention = user_mention {
       user_id: value.to_owned(),
       user_name: username,
     };
     user_mentions.push(new_user_mention);
   }
-  println!("{:?}", user_mentions);  
-//  for username in usernames {
-//    let user_mention : String  = memcache_client.get(&username[..]).unwrap().unwrap();
-//    println!("{:?}", user_mention);
-//  }
-  //send_return_value_to_caller(serialized);
+
+
+
+  let serialized = serde_json::to_string(&user_mentions).unwrap();
+  send_return_value_to_caller(serialized);
 }
 
