@@ -11,7 +11,7 @@ struct url_pair{
 } 
 
 fn gen_short_url()->String{
-  let mut short_url: String = String::from("http://short.com/");
+  let mut short_url: String = String::from("http://short-url.com/");
   let s: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(10)
