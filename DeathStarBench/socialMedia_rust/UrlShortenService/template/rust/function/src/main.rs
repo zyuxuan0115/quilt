@@ -5,17 +5,20 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
 use std::fs::read_to_string;
 
 #[derive(Debug, Serialize, Deserialize)]
-struct url{
+struct url_pair{
   shortened_url: String,
   expanded_url: String,
 } 
 
-fn gen_rand_str()->String{
-  rand::thread_rng()
+fn gen_short_url()->String{
+  let mut short_url: String = String::from("http://short.com/");
+  let s: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(10)
         .map(char::from)
-        .collect()
+        .collect();
+  short_url.push_str(&s);
+  short_url
 }
 
 fn read_lines(filename: &str) -> Vec<String> {
@@ -44,29 +47,26 @@ fn get_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
+  let urls: Vec<String> = serde_json::from_str(&input).unwrap();
+  println!("deserialized = {:?}", urls);
 
-  let s = gen_rand_str();
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("url-shorten");
-  let collection = database.collection::<url>("url-shorten");
+  let collection = database.collection::<url_pair>("url-shorten");
 
-  let docs = vec![
-    url {
-        shortened_url: "1984".to_string(),
-        expanded_url: "George Orwell".to_string(),
-    },
-    url {
-        shortened_url: "Animal Farm".to_string(),
-        expanded_url: "George Orwell".to_string(),
-    },
-    url {
-        shortened_url: "The Great Gatsby".to_string(),
-        expanded_url: "F. Scott Fitzgerald".to_string(),
-    },
-  ];
+  let mut docs: Vec<url_pair> = Vec::new();
+  for url in urls {
+    let s = gen_short_url();
+    let new_pair = url_pair{
+      shortened_url: s.clone(), 
+      expanded_url: url.clone(),
+    };
+    docs.push(new_pair);
+  }
+
+  let serialized = serde_json::to_string(&docs).unwrap();
   collection.insert_many(docs, None).unwrap();
-
-  send_return_value_to_caller(s);
+  send_return_value_to_caller(serialized);
 }
 
