@@ -1,25 +1,15 @@
-use rand::{distributions::Alphanumeric, Rng}; // 0.8
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
-use std::fs::read_to_string;
+use std::{fs::read_to_string, collections::HashMap};
+use memcache::Client as memcached_client;
 
 #[derive(Debug, Serialize, Deserialize)]
-struct url_pair{
-  shortened_url: String,
-  expanded_url: String,
-} 
-
-fn gen_short_url()->String{
-  let mut short_url: String = String::from("http://short-url.com/");
-  let s: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(10)
-        .map(char::from)
-        .collect();
-  short_url.push_str(&s);
-  short_url
+struct user_mention {
+  user_id: i64,
+  user_name: String,
 }
+
 
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
@@ -30,7 +20,7 @@ fn read_lines(filename: &str) -> Vec<String> {
 }
  
 
-fn get_uri() -> String{
+fn get_mongodb_uri() -> String{
   let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
   if passwords.len() == 0 {
     println!("no password found!");
@@ -45,26 +35,55 @@ fn get_uri() -> String{
   uri
 }
 
+fn get_memcached_uri() -> String {
+  "memcache://sn-memcache-memcached.default.svc.cluster.local:11211??timeout=10&tcp_nodelay=true".to_string()
+}
+
+fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
+    match s.strip_suffix(suffix) {
+        Some(s) => s,
+        None => s
+    }
+}
+
 fn main() {
   let input: String = get_arg_from_caller();
-  let urls: Vec<String> = serde_json::from_str(&input).unwrap();
+  let usernames: Vec<String> = serde_json::from_str(&input).unwrap();
 
-  let uri = get_uri();
+  let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("url-shorten");
-  let collection = database.collection::<url_pair>("url-shorten");
+  let database = client.database("user");
+  let collection = database.collection::<user_mention>("user");
 
-  let mut docs: Vec<url_pair> = Vec::new();
-  for url in urls {
-    let s = gen_short_url();
-    let new_pair = url_pair{
-      shortened_url: s.clone(), 
-      expanded_url: url.clone(),
-    };
-    docs.push(new_pair);
+  let memcache_uri = get_memcached_uri();
+  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();  
+  
+  let mut usernames_not_cached: HashMap<String, bool> = HashMap::new();
+  for username in &usernames {
+    let mut usern: String = (&username[..]).to_string();
+    usern.push_str(":user_id");
+    memcache_client.set(&usern[..], 16, 0).unwrap();
+    usernames_not_cached.insert((&username[..]).to_string(), false);
   }
-  let serialized = serde_json::to_string(&docs).unwrap();
-  collection.insert_many(docs, None).unwrap();
-  send_return_value_to_caller(serialized);
+
+  let usernames_suffix: Vec<String> = usernames.iter().map(|x|{let mut y = x.to_string(); y.push_str(":user_id"); y}).collect();
+  let usernames_str: Vec<&str> = usernames_suffix.iter().map(|x|&x[..]).collect();
+  let usernames_array: &[&str] = &usernames_str;
+  let result: HashMap<String, i64> = memcache_client.gets(&usernames_array).unwrap();
+  let mut user_mentions: Vec<user_mention> = Vec::new();
+  for (key, value) in &result {
+    let username: String = remove_suffix(&key[..], ":user_id").to_string();
+    let new_user_mention = user_mention {
+      user_id: value.to_owned(),
+      user_name: username,
+    };
+    user_mentions.push(new_user_mention);
+  }
+  println!("{:?}", user_mentions);  
+//  for username in usernames {
+//    let user_mention : String  = memcache_client.get(&username[..]).unwrap().unwrap();
+//    println!("{:?}", user_mention);
+//  }
+  //send_return_value_to_caller(serialized);
 }
 
