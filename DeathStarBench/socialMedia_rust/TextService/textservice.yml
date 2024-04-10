@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  url-shorten-service:
+  text-service:
     lang: rust
-    handler: ./url-shorten-service
-    image: zyuxuan0115/deathstarbench-urlshortenservice:latest
+    handler: ./text-service
+    image: zyuxuan0115/deathstarbench-textservice:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
