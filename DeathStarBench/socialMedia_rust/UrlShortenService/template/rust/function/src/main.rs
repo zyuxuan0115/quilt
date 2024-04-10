@@ -48,7 +48,6 @@ fn get_uri() -> String{
 fn main() {
   let input: String = get_arg_from_caller();
   let urls: Vec<String> = serde_json::from_str(&input).unwrap();
-  println!("deserialized = {:?}", urls);
 
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
@@ -64,7 +63,6 @@ fn main() {
     };
     docs.push(new_pair);
   }
-
   let serialized = serde_json::to_string(&docs).unwrap();
   collection.insert_many(docs, None).unwrap();
   send_return_value_to_caller(serialized);
