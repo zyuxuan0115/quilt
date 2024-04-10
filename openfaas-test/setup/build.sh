@@ -21,7 +21,7 @@ function setup {
   arkade install mongodb
   MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace default mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
   faas-cli secret create mongo-db-password --from-literal $MONGODB_ROOT_PASSWORD
-  helm install socialnetwork-memcached bitnami/memcached --set architecture="high-availability" --set autoscaling.enabled="true"
+  helm install sn-memcache bitnami/memcached --set architecture="high-availability" --set autoscaling.enabled="true"
 }
 
 function killa {
