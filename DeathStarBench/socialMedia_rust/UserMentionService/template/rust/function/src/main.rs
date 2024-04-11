@@ -60,9 +60,6 @@ fn main() {
   
   let mut usernames_not_cached: HashMap<String, bool> = HashMap::new();
   for username in &usernames {
-    let mut usern: String = (&username[..]).to_string();
-    usern.push_str(":user_id");
-    memcache_client.set(&usern[..], 16, 0).unwrap();
     usernames_not_cached.insert((&username[..]).to_string(), false);
   }
 
@@ -87,7 +84,7 @@ fn main() {
   }
   let uname_not_cached_array: &[&str] = &uname_not_cached;
 
-  let query = doc!{"username": doc!{"$in": uname_not_cached_array}};
+  let query = doc!{"user_name": doc!{"$in": uname_not_cached_array}};
   let mut cursor = collection.find(query, None).unwrap();
 
   for doc in cursor { 
