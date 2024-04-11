@@ -81,7 +81,23 @@ fn main() {
     user_mentions.push(new_user_mention);
   }
 
+  let mut uname_not_cached: Vec<&str> = Vec::new();
+  for (uname, _) in &usernames_not_cached {
+     uname_not_cached.push(&uname[..]);
+  }
+  let uname_not_cached_array: &[&str] = &uname_not_cached;
 
+  let query = doc!{"username": doc!{"$in": uname_not_cached_array}};
+  let mut cursor = collection.find(query, None).unwrap();
+
+  for doc in cursor { 
+    let doc_ = doc.unwrap();
+    let new_user_mention = user_mention {
+      user_id: doc_.user_id,
+      user_name: doc_.user_name,
+    };
+    user_mentions.push(new_user_mention);
+  }
 
   let serialized = serde_json::to_string(&user_mentions).unwrap();
   send_return_value_to_caller(serialized);
