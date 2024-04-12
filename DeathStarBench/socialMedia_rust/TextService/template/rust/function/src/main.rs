@@ -4,6 +4,18 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
 use std::fs::read_to_string;
 use regex::Regex;
 
+#[derive(Debug, Serialize, Deserialize)]
+struct url_pair{
+  shortened_url: String,
+  expanded_url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct user_mention {
+  user_id: i64,
+  user_name: String,
+}
+
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
         .unwrap()  // panic on possible file-reading errors
@@ -35,12 +47,21 @@ fn main() {
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
 
   let mut mentioned_usernames: Vec<String> = Vec::new();
+  let mut urls : Vec<String> = Vec::new();
   for username in re.captures_iter(&text[..]).map(|m| m.get(0).unwrap().as_str()) {
-    //println!("{:?}", username);
     mentioned_usernames.push(username.to_string());
   }
 
+  let re2 = Regex::new(r"(http://|https://)([a-zA-Z0-9_!~*'().&=+$%-]+)").unwrap();
+  for url in re2.captures_iter(&text[..]).map(|m| m.get(0).unwrap().as_str()) {
+    urls.push(url.to_string());
+  }
+
   println!("{:?}",  mentioned_usernames);
+  println!("{:?}",  urls);
+  let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
+  let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
+  let user_mentions: Vec<user_mention> = serde_json::from_str(&user_mentions_str).unwrap();
 //  let urls: Vec<String> = serde_json::from_str(&input).unwrap();
 
 //  let uri = get_uri();
