@@ -1,25 +1,8 @@
-use rand::{distributions::Alphanumeric, Rng}; // 0.8
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
 use std::fs::read_to_string;
-
-#[derive(Debug, Serialize, Deserialize)]
-struct url_pair{
-  shortened_url: String,
-  expanded_url: String,
-} 
-
-fn gen_short_url()->String{
-  let mut short_url: String = String::from("http://short.com/");
-  let s: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(10)
-        .map(char::from)
-        .collect();
-  short_url.push_str(&s);
-  short_url
-}
+use regex::Regex;
 
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
@@ -47,24 +30,35 @@ fn get_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let urls: Vec<String> = serde_json::from_str(&input).unwrap();
+  let text = input;
 
-  let uri = get_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("url-shorten");
-  let collection = database.collection::<url_pair>("url-shorten");
+  let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
 
-  let mut docs: Vec<url_pair> = Vec::new();
-  for url in urls {
-    let s = gen_short_url();
-    let new_pair = url_pair{
-      shortened_url: s.clone(), 
-      expanded_url: url.clone(),
-    };
-    docs.push(new_pair);
+  let mut mentioned_usernames: Vec<String> = Vec::new();
+  for username in re.captures_iter(&text[..]).map(|m| m.get(0).unwrap().as_str()) {
+    //println!("{:?}", username);
+    mentioned_usernames.push(username.to_string());
   }
-  let serialized = serde_json::to_string(&docs).unwrap();
-  collection.insert_many(docs, None).unwrap();
-  send_return_value_to_caller(serialized);
+
+  println!("{:?}",  mentioned_usernames);
+//  let urls: Vec<String> = serde_json::from_str(&input).unwrap();
+
+//  let uri = get_uri();
+//  let client = Client::with_uri_str(&uri[..]).unwrap();
+//  let database = client.database("url-shorten");
+//  let collection = database.collection::<url_pair>("url-shorten");
+
+//  let mut docs: Vec<url_pair> = Vec::new();
+//  for url in urls {
+//    let s = gen_short_url();
+//    let new_pair = url_pair{
+//      shortened_url: s.clone(), 
+//      expanded_url: url.clone(),
+//    };
+ //   docs.push(new_pair);
+ // }
+ // let serialized = serde_json::to_string(&docs).unwrap();
+ // collection.insert_many(docs, None).unwrap();
+ // send_return_value_to_caller(serialized);
 }
 
