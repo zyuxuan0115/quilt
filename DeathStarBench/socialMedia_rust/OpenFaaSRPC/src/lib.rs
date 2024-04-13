@@ -12,32 +12,32 @@ pub struct register_user_with_id_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct url_pair{
+pub struct url_pair{
   shortened_url: String,
   expanded_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct user_mention {
+pub struct user_mention {
   user_id: i64,
   user_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct text_service_return{
+pub struct text_service_return{
   user_mentions: Vec<user_mention>,
   urls: Vec<url_pair>,
   text: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct media{
+pub struct media{
   media_type: String,
   media_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct media_service_get {
+pub struct media_service_get {
   media_id: Vec<i64>,
   media_type: Vec<String>,
 }
