@@ -1,19 +1,7 @@
-use rand::{distributions::Alphanumeric, Rng}; // 0.8
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::fs::read_to_string;
-
-fn gen_short_url()->String{
-  let mut short_url: String = String::from("http://short-url.com/");
-  let s: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(10)
-        .map(char::from)
-        .collect();
-  short_url.push_str(&s);
-  short_url
-}
 
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
@@ -23,7 +11,6 @@ fn read_lines(filename: &str) -> Vec<String> {
         .collect()  // gather them together into a vector
 }
  
-
 fn get_uri() -> String{
   let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
   if passwords.len() == 0 {
@@ -41,13 +28,26 @@ fn get_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let urls: register_user_with_id_get = serde_json::from_str(&input).unwrap();
-
+  let new_user_info: register_user_with_id_get = serde_json::from_str(&input).unwrap();
+  println!("{:?}", new_user_info);
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
-//  let collection = database.collection::<url_pair>("user");
+  let collection = database.collection::<register_user_with_id_get>("user");
 
+  let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
+
+  match result {
+    Some(_) => {
+      println!("User {} already existed", new_user_info.username);
+      panic!("User {} already existed", new_user_info.username);
+    },
+    None => (),
+  }
+ 
+  collection.insert_one(new_user_info, None).unwrap();
+
+//  println!("{:?}", result);
 //  let mut docs: Vec<url_pair> = Vec::new();
 //  for url in urls {
 //    let s = gen_short_url();
@@ -59,6 +59,6 @@ fn main() {
 //  }
 //  let serialized = serde_json::to_string(&docs).unwrap();
 //  collection.insert_many(docs, None).unwrap();
-  send_return_value_to_caller(input);
+  send_return_value_to_caller("".to_string());
 }
 
