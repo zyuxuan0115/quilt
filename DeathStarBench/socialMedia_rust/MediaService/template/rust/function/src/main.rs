@@ -15,19 +15,7 @@ struct media_service_get {
 
 fn main() {
   let input: String = get_arg_from_caller();
-
-//  let mtype: Vec<String> = vec!["png".to_string(), "jpg".to_string()];
-//  let mid: Vec<i64> = vec![111,222];
-//  let aaa = media_service_get {
-//    media_type: mtype,
-//    media_id: mid,
-//  };
-
-//  let serialized = serde_json::to_string(&aaa).unwrap();
-//  println!("{}", serialized);
-
   let media_get: media_service_get = serde_json::from_str(&input).unwrap();
-  println!("{:?}", media_get);
   let media_ids = media_get.media_id;
   let media_types = media_get.media_type;
 
