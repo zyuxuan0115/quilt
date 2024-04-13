@@ -15,7 +15,19 @@ struct media_service_get {
 
 fn main() {
   let input: String = get_arg_from_caller();
+
+//  let mtype: Vec<String> = vec!["png".to_string(), "jpg".to_string()];
+//  let mid: Vec<i64> = vec![111,222];
+//  let aaa = media_service_get {
+//    media_type: mtype,
+//    media_id: mid,
+//  };
+
+//  let serialized = serde_json::to_string(&aaa).unwrap();
+//  println!("{}", serialized);
+
   let media_get: media_service_get = serde_json::from_str(&input).unwrap();
+  println!("{:?}", media_get);
   let media_ids = media_get.media_id;
   let media_types = media_get.media_type;
 
@@ -24,7 +36,7 @@ fn main() {
     panic!("the length of media_id and media_type are not equal");
   }
 
-  let i: usize = 0;
+  let mut i: usize = 0;
   let mut return_val: Vec<media> = Vec::new();
   while i < media_ids.len() {
     let new_media = media {
@@ -32,6 +44,7 @@ fn main() {
       media_type: media_types[i].clone(),
     };
     return_val.push(new_media);
+    i+=1;
   }
 
   let serialized = serde_json::to_string(&return_val).unwrap();
