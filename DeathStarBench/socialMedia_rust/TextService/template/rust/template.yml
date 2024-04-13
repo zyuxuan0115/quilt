@@ -1,5 +1,5 @@
 language: rust
-fprocess: UrlShortenService
+fprocess: TextService
 welcome_message: |
   Welcome to the rust template.
 
