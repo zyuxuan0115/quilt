@@ -14,11 +14,16 @@ struct user_mention {
   user_name: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct text_service_return{
+  user_mentions: Vec<user_mention>,
+  urls: Vec<url_pair>,
+  text: String,
+}
+
 fn main() {
   let input: String = get_arg_from_caller();
   let mut text = input;
-
-  println!("{}", text);
 
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
 
@@ -41,13 +46,18 @@ fn main() {
   let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
   let url_pairs: Vec<url_pair> = serde_json::from_str(&urls_str).unwrap();
 
-  println!("{:?}", user_mentions);
-  println!("{:?}", urls);
-
-  for item in url_pairs {
+  for item in &url_pairs {
     let text_str: &str = &text[..];
     text = text_str.replace(&item.expanded_url[..], &item.shortened_url[..]).to_string();
   }
-  send_return_value_to_caller(text);
+
+  let return_value = text_service_return {
+    user_mentions: user_mentions,
+    urls: url_pairs,
+    text: text,
+  };
+
+  let serialized = serde_json::to_string(&return_value).unwrap();
+  send_return_value_to_caller(serialized);
 }
 
