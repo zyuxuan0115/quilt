@@ -11,6 +11,27 @@ pub struct register_user_with_id_get {
   user_id: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct url_pair{
+      shortened_url: String,
+        expanded_url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct user_mention {
+      user_id: i64,
+        user_name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct text_service_return{
+      user_mentions: Vec<user_mention>,
+        urls: Vec<url_pair>,
+          text: String,
+}
+
+
+
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");

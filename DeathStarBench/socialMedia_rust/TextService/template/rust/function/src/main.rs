@@ -2,25 +2,6 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
 use regex::Regex;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct url_pair{
-  shortened_url: String,
-  expanded_url: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct user_mention {
-  user_id: i64,
-  user_name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct text_service_return{
-  user_mentions: Vec<user_mention>,
-  urls: Vec<url_pair>,
-  text: String,
-}
-
 fn main() {
   let input: String = get_arg_from_caller();
   let mut text = input;

@@ -4,12 +4,6 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
 use std::fs::read_to_string;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct url_pair{
-  shortened_url: String,
-  expanded_url: String,
-} 
-
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");
   let s: String = rand::thread_rng()
