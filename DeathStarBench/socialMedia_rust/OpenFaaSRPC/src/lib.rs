@@ -30,7 +30,17 @@ struct text_service_return{
   text: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct media{
+  media_type: String,
+  media_id: i64,
+}
 
+#[derive(Debug, Serialize, Deserialize)]
+struct media_service_get {
+  media_id: Vec<i64>,
+  media_type: Vec<String>,
+}
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();

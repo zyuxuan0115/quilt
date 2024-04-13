@@ -1,17 +1,5 @@
 use serde::{Deserialize, Serialize};
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
-
-#[derive(Debug, Serialize, Deserialize)]
-struct media{
-  media_type: String,
-  media_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct media_service_get {
-  media_id: Vec<i64>,
-  media_type: Vec<String>,
-}
+use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 
 fn main() {
   let input: String = get_arg_from_caller();

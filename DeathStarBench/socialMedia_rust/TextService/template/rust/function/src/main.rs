@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
+use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use regex::Regex;
 
 fn main() {
