@@ -1,63 +1,41 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
-use regex::Regex;
 
 #[derive(Debug, Serialize, Deserialize)]
-struct url_pair{
-  shortened_url: String,
-  expanded_url: String,
+struct media{
+  media_type: String,
+  media_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct user_mention {
-  user_id: i64,
-  user_name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct text_service_return{
-  user_mentions: Vec<user_mention>,
-  urls: Vec<url_pair>,
-  text: String,
+struct media_service_get {
+  media_id: Vec<i64>,
+  media_type: Vec<String>,
 }
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let mut text = input;
+  let media_get: media_service_get = serde_json::from_str(&input).unwrap();
+  let media_ids = media_get.media_id;
+  let media_types = media_get.media_type;
 
-  let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
-
-  let mut mentioned_usernames: Vec<String> = Vec::new();
-  let mut urls : Vec<String> = Vec::new();
-  for username in re.captures_iter(&text[..]).map(|m| m.get(0).unwrap().as_str()) {
-    mentioned_usernames.push(username.strip_prefix("@").unwrap().to_string());
+  if media_ids.len() != media_types.len() {
+    println!("the length of media_id and media_type are not equal");
+    panic!("the length of media_id and media_type are not equal");
   }
 
-  let re2 = Regex::new(r"(http://|https://)([a-zA-Z0-9_!~*'().&=+$%-]+)").unwrap();
-  for url in re2.captures_iter(&text[..]).map(|m| m.get(0).unwrap().as_str()) {
-    urls.push(url.to_string());
+  let i: usize = 0;
+  let mut return_val: Vec<media> = Vec::new();
+  while i < media_ids.len() {
+    let new_media = media {
+      media_id: media_ids[i],
+      media_type: media_types[i].clone(),
+    };
+    return_val.push(new_media);
   }
 
-  let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
-  let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
-  let user_mentions: Vec<user_mention> = serde_json::from_str(&user_mentions_str).unwrap();
+  let serialized = serde_json::to_string(&return_val).unwrap();
 
-  let urls_serialized = serde_json::to_string(&urls).unwrap();
-  let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
-  let url_pairs: Vec<url_pair> = serde_json::from_str(&urls_str).unwrap();
-
-  for item in &url_pairs {
-    let text_str: &str = &text[..];
-    text = text_str.replace(&item.expanded_url[..], &item.shortened_url[..]).to_string();
-  }
-
-  let return_value = text_service_return {
-    user_mentions: user_mentions,
-    urls: url_pairs,
-    text: text,
-  };
-
-  let serialized = serde_json::to_string(&return_value).unwrap();
   send_return_value_to_caller(serialized);
 }
 
