@@ -29,7 +29,6 @@ fn get_uri() -> String{
 fn main() {
   let input: String = get_arg_from_caller();
   let new_user_info: register_user_with_id_get = serde_json::from_str(&input).unwrap();
-  println!("{:?}", new_user_info);
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
@@ -43,22 +42,7 @@ fn main() {
       panic!("User {} already existed", new_user_info.username);
     },
     None => (),
-  }
- 
+  } 
   collection.insert_one(new_user_info, None).unwrap();
-
-//  println!("{:?}", result);
-//  let mut docs: Vec<url_pair> = Vec::new();
-//  for url in urls {
-//    let s = gen_short_url();
-//    let new_pair = url_pair{
-//      shortened_url: s.clone(), 
-//      expanded_url: url.clone(),
-//    };
-//    docs.push(new_pair);
-//  }
-//  let serialized = serde_json::to_string(&docs).unwrap();
-//  collection.insert_many(docs, None).unwrap();
   send_return_value_to_caller("".to_string());
 }
-
