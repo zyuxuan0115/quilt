@@ -1,17 +1,17 @@
 use rand::{distributions::Alphanumeric, Rng}; // 0.8
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
+use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::fs::read_to_string;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct register_user_with_id_get {
-  first_name: String,
-  last_name: String,
-  username: String,
-  password: String, 
-  user_id: i64,
-}
+//#[derive(Debug, Serialize, Deserialize)]
+//struct register_user_with_id_get {
+//  first_name: String,
+//  last_name: String,
+//  username: String,
+//  password: String, 
+//  user_id: i64,
+//}
 
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");
@@ -55,7 +55,7 @@ fn main() {
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
-  let collection = database.collection::<url_pair>("user");
+//  let collection = database.collection::<url_pair>("user");
 
 //  let mut docs: Vec<url_pair> = Vec::new();
 //  for url in urls {

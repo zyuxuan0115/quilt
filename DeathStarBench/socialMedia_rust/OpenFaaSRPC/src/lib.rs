@@ -1,5 +1,15 @@
 use curl::easy::{Easy};
 use std::io::{self, Read};
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct register_user_with_id_get {
+  first_name: String,
+  last_name: String,
+  username: String,
+  password: String, 
+  user_id: i64,
+}
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
