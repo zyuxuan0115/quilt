@@ -4,13 +4,6 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
 use std::{fs::read_to_string, collections::HashMap};
 use memcache::Client as memcached_client;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct user_mention {
-  user_id: i64,
-  user_name: String,
-}
-
-
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
         .unwrap()  // panic on possible file-reading errors
