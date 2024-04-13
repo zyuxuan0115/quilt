@@ -4,15 +4,6 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::fs::read_to_string;
 
-//#[derive(Debug, Serialize, Deserialize)]
-//struct register_user_with_id_get {
-//  first_name: String,
-//  last_name: String,
-//  username: String,
-//  password: String, 
-//  user_id: i64,
-//}
-
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");
   let s: String = rand::thread_rng()
