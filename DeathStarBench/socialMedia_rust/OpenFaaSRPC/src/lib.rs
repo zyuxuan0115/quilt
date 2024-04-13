@@ -4,42 +4,42 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct register_user_with_id_get {
-  first_name: String,
-  last_name: String,
-  username: String,
-  password: String, 
-  user_id: i64,
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub password: String, 
+  pub user_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
-  shortened_url: String,
-  expanded_url: String,
+  pub shortened_url: String,
+  pub expanded_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct user_mention {
-  user_id: i64,
-  user_name: String,
+  pub user_id: i64,
+  pub user_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct text_service_return{
-  user_mentions: Vec<user_mention>,
-  urls: Vec<url_pair>,
-  text: String,
+  pub user_mentions: Vec<user_mention>,
+  pub urls: Vec<url_pair>,
+  pub text: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct media{
-  media_type: String,
-  media_id: i64,
+  pub media_type: String,
+  pub media_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct media_service_get {
-  media_id: Vec<i64>,
-  media_type: Vec<String>,
+  pub media_id: Vec<i64>,
+  pub media_type: Vec<String>,
 }
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
