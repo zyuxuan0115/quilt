@@ -43,6 +43,8 @@ fn main() {
     },
     None => (),
   } 
+  let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
   collection.insert_one(new_user_info, None).unwrap();
+  make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
 }
