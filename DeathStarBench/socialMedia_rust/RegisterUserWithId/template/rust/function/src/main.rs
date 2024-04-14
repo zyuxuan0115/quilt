@@ -40,6 +40,7 @@ fn get_uri() -> String{
 fn main() {
   let input: String = get_arg_from_caller();
   let new_user_info: register_user_with_id_get = serde_json::from_str(&input).unwrap();
+
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
