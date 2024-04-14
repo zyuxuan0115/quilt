@@ -1,5 +1,5 @@
 language: rust
-fprocess: GetUserId
+fprocess: UserLogin
 welcome_message: |
   Welcome to the rust template.
 
