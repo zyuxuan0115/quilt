@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::fs::read_to_string;
 use rand::{distributions::Alphanumeric, Rng};
+use sha256::digest;
 
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
@@ -29,13 +30,11 @@ fn get_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let new_user_info: register_user_with_id_get = serde_json::from_str(&input).unwrap();
+  let new_user_info: register_user_get = serde_json::from_str(&input).unwrap();
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
-  let collection = database.collection::<register_user_with_id_get>("user");
-
-  let num: i64 = rand::thread_rng().gen();
+  let collection = database.collection::<user_info>("user");
 
   let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
 
@@ -46,8 +45,23 @@ fn main() {
     },
     None => (),
   } 
+
+  let mut pw_sha: String = String::from(&new_user_info.password[..]);
+  let salt: String = gen_random_string();
+  pw_sha.push_str(&salt[..]);
+  pw_sha = digest(pw_sha);
+  let user_info_entry = user_info {
+    user_id: rand::thread_rng().gen(),
+    first_name: new_user_info.first_name,
+    last_name: new_user_info.last_name,
+    username: new_user_info.username,
+    salt: salt,
+    password: pw_sha, 
+  };
+
+  collection.insert_one(user_info_entry, None).unwrap();
+
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
-  collection.insert_one(new_user_info, None).unwrap();
   make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
 }
