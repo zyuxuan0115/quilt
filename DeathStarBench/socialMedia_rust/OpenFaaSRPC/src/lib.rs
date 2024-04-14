@@ -3,12 +3,39 @@ use std::io::{self, Read};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct user_info {
+  pub user_id: i64,
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub salt: String,
+  pub password: String, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct register_user_with_id_get {
   pub first_name: String,
   pub last_name: String,
   pub username: String,
   pub password: String, 
   pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct register_user_with_id_get {
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub password: String, 
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct register_user_get {
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub password: String, 
 }
 
 #[derive(Debug, Serialize, Deserialize)]
