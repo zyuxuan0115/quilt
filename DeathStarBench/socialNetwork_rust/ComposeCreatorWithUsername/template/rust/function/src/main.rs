@@ -12,7 +12,6 @@ fn read_lines(filename: &str) -> Vec<String> {
         .collect()  // gather them together into a vector
 }
  
-
 fn get_mongodb_uri() -> String{
   let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
   if passwords.len() == 0 {
@@ -89,7 +88,6 @@ fn main() {
     username.push_str(":user_id");
     memcache_client.set(&username[..], new_creator.user_id, 0).unwrap();
   }
-  println!("{:?}", user_id);
   let serialized = serde_json::to_string(&new_creator).unwrap();
   send_return_value_to_caller(serialized);
 }
