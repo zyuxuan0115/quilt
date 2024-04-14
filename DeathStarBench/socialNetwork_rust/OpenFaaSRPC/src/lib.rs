@@ -9,6 +9,13 @@ pub struct Creator {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct memcached_userlogin_info {
+  pub user_id: i64,
+  pub salt: String,
+  pub password: String, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct user_info {
   pub user_id: i64,
   pub first_name: String,
@@ -42,6 +49,19 @@ pub struct compose_creator_with_userid_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct user_login_get {
+  pub username: String,
+  pub password: String,
+  pub secret: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct media_service_get {
+  pub media_id: Vec<i64>,
+  pub media_type: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
   pub shortened_url: String,
   pub expanded_url: String,
@@ -61,15 +81,24 @@ pub struct text_service_return{
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct media{
-  pub media_type: String,
-  pub media_id: i64,
+pub struct user_login_return_sub {
+  pub user_id: i64,
+  pub username: String,
+  pub timestamp: String,
+  pub ttl: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct media_service_get {
-  pub media_id: Vec<i64>,
-  pub media_type: Vec<String>,
+pub struct user_login_return {
+  pub algorithm: String,
+  pub secret: String, 
+  pub payload: user_login_return_sub,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct media{
+  pub media_type: String,
+  pub media_id: i64,
 }
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
