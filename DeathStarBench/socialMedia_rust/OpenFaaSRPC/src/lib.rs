@@ -3,6 +3,12 @@ use std::io::{self, Read};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Creator {
+  pub user_id: i64,
+  pub username: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct user_info {
   pub user_id: i64,
   pub first_name: String,
