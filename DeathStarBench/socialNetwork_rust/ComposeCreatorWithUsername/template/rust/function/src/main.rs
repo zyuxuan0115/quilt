@@ -71,49 +71,26 @@ fn main() {
 
     match result {
       Some(x) => {
+        user_id = x.user_id;
       },
       None => {
         println!("User: {} doesn't exist in MongoDB", username);
+        panic!("User: {} doesn't exist in MongoDB", username);
       },
     } 
-   
   }
+  let new_creator = Creator {
+      user_id: user_id,
+      username: username,
+  };
 
+  if memcache_has_username == false {
+    let mut username = String::from(&new_creator.username[..]);
+    username.push_str(":user_id");
+    memcache_client.set(&username[..], new_creator.user_id, 0).unwrap();
+  }
   println!("{:?}", user_id);
-//  let usernames_suffix: Vec<String> = usernames.iter().map(|x|{let mut y = x.to_string(); y.push_str(":user_id"); y}).collect();
-//  let usernames_str: Vec<&str> = usernames_suffix.iter().map(|x|&x[..]).collect();
-//  let usernames_array: &[&str] = &usernames_str;
-//  let result: HashMap<String, i64> = memcache_client.gets(&usernames_array).unwrap();
-//  let mut user_mentions: Vec<user_mention> = Vec::new();
-//  for (key, value) in &result {
-//    let username: String = remove_suffix(&key[..], ":user_id").to_string();
-//    usernames_not_cached.remove(&username);
-//    let new_user_mention = user_mention {
-//      user_id: value.to_owned(),
-//      user_name: username,
-//    };
-//    user_mentions.push(new_user_mention);
-//  }
-
-//  let mut uname_not_cached: Vec<&str> = Vec::new();
-//  for (uname, _) in &usernames_not_cached {
-//     uname_not_cached.push(&uname[..]);
-//  }
-//  let uname_not_cached_array: &[&str] = &uname_not_cached;
-
-//  let query = doc!{"user_name": doc!{"$in": uname_not_cached_array}};
-//  let mut cursor = collection.find(query, None).unwrap();
-
-//  for doc in cursor { 
-//    let doc_ = doc.unwrap();
-//    let new_user_mention = user_mention {
-//      user_id: doc_.user_id,
-//      user_name: doc_.user_name,
-//    };
-//    user_mentions.push(new_user_mention);
-//  }
-
-//  let serialized = serde_json::to_string(&user_mentions).unwrap();
-//  send_return_value_to_caller(serialized);
+  let serialized = serde_json::to_string(&new_creator).unwrap();
+  send_return_value_to_caller(serialized);
 }
 
