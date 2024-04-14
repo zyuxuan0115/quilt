@@ -22,15 +22,6 @@ pub struct register_user_with_id_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct register_user_with_id_get {
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
-  pub password: String, 
-  pub user_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct register_user_get {
   pub first_name: String,
   pub last_name: String,
