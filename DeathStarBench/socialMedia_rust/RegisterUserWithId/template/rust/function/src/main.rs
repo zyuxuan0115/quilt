@@ -11,6 +11,15 @@ fn read_lines(filename: &str) -> Vec<String> {
         .collect()  // gather them together into a vector
 }
  
+fn gen_random_string()->String{
+  let salt: String = rand::thread_rng()
+                        .sample_iter(&Alphanumeric)
+                        .take(32)
+                        .map(char::from)
+                        .collect();
+  salt
+}
+
 fn get_uri() -> String{
   let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
   if passwords.len() == 0 {
@@ -32,7 +41,7 @@ fn main() {
   let uri = get_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
-  let collection = database.collection::<register_user_with_id_get>("user");
+  let collection = database.collection::<user_info>("user");
 
   let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
 
@@ -43,8 +52,20 @@ fn main() {
     },
     None => (),
   } 
+
+  let user_info_entry = user_info {
+    user_id: new_user_info.user_id,
+    first_name: new_user_info.first_name,
+    last_name: new_user_info.last_name,
+    username: new_user_info.username,
+    salt: gen_random_string(),
+    password: 
+  }
+
+  collection.insert_one(user_info_entry, None).unwrap();
+
+
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
-  collection.insert_one(new_user_info, None).unwrap();
   make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
 }
