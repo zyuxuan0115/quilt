@@ -2,6 +2,8 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::fs::read_to_string;
+use sha256::digest;
+use rand::{distributions::Alphanumeric, Rng};
 
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
@@ -53,17 +55,20 @@ fn main() {
     None => (),
   } 
 
+  let mut pw_sha: String = String::from(&new_user_info.password[..]);
+  let salt: String = gen_random_string();
+  pw_sha.push_str(&salt[..]);
+  pw_sha = digest(pw_sha);
   let user_info_entry = user_info {
     user_id: new_user_info.user_id,
     first_name: new_user_info.first_name,
     last_name: new_user_info.last_name,
     username: new_user_info.username,
-    salt: gen_random_string(),
-    password: 
-  }
+    salt: salt,
+    password: pw_sha, 
+  };
 
   collection.insert_one(user_info_entry, None).unwrap();
-
 
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
   make_rpc("social-graph-insert-user", user_id_str);
