@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  compose-creator-with-username:
+  compose-creator-with-userid:
     lang: rust
-    handler: ./compose-creator-with-username
-    image: zyuxuan0115/deathstarbench-composecreatorwithusername:latest
+    handler: ./compose-creator-with-userid
+    image: zyuxuan0115/deathstarbench-composecreatorwithuserid:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
