@@ -36,6 +36,9 @@ pub struct register_user_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct compose_creator_with_userid_get (i64,String);
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
   pub shortened_url: String,
   pub expanded_url: String,
