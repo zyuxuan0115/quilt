@@ -1,5 +1,5 @@
 [package]
-name = "RegisterUserWithId"
+name = "RegisterUser"
 version = "0.1.0"
 edition = "2021"
 

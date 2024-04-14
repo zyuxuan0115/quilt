@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  register-user-with-id:
+  register-user:
     lang: rust
-    handler: ./register-user-with-id
-    image: zyuxuan0115/deathstarbench-registeruserwithid:latest
+    handler: ./register-user
+    image: zyuxuan0115/deathstarbench-registeruser:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:

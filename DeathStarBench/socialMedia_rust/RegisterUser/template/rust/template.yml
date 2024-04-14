@@ -1,5 +1,5 @@
 language: rust
-fprocess: RegisterUserWithId
+fprocess: RegisterUser
 welcome_message: |
   Welcome to the rust template.
 
