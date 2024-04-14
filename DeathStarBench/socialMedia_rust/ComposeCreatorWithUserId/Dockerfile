@@ -29,7 +29,7 @@ COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 
 WORKDIR /home/app
 
-ENV fprocess="ComposeCreatorWithUsername"
+ENV fprocess="ComposeCreatorWithUserId"
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
 
