@@ -68,6 +68,8 @@ fn main() {
   let result_str: Option<String> = memcache_client.get(&username[..]).unwrap();
 
   let mut memcache_has_username: bool = false;
+
+  let mut jwt_encode_msg: String = String::new();
   match result_str {
     Some(x) => {
       let result: memcached_userlogin_info = serde_json::from_str(&x).unwrap();
@@ -83,24 +85,24 @@ fn main() {
           username: username[..].strip_suffix(":login").unwrap().to_string(),
           timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
           ttl: 3600,
-        } ;
+        };
+        let payload = serde_json::to_string(&payload_struct).unwrap();
+        jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
       }
       else {
-
+        println!("");
+        panic!("");
       }
     },
     None => (),
   } 
 
-  if memcache_has_username == true {
-  }
-
-//  if memcache_has_username == false {
-//    let uri = get_mongodb_uri();
-//    let client = Client::with_uri_str(&uri[..]).unwrap();
-//    let database = client.database("user");
-//    let collection = database.collection::<user_info>("user");
-    
+  if memcache_has_username == false {
+    let uri = get_mongodb_uri();
+    let client = Client::with_uri_str(&uri[..]).unwrap();
+    let database = client.database("user");
+    let collection = database.collection::<user_info>("user");
+  }    
 //    username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
 
 //    let result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
@@ -121,6 +123,6 @@ fn main() {
 //    memcache_client.set(&username[..], user_id, 0).unwrap();
 //  }
 //  let serialized = serde_json::to_string(&user_id).unwrap();
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller(jwt_encode_msg);
 }
 
