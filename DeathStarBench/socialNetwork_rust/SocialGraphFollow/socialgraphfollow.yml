@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  social-graph-insert-user:
+  social-graph-follow:
     lang: rust
-    handler: ./social-graph-insert-user
-    image: zyuxuan0115/deathstarbench-socialgraphinsertuser:latest
+    handler: ./social-graph-follow
+    image: zyuxuan0115/deathstarbench-socialgraphfollow:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
