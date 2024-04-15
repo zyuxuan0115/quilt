@@ -86,8 +86,8 @@ fn main() {
         jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
       }
       else {
-        println!("");
-        panic!("");
+        println!("Incorrect username or password");
+        panic!("Incorrect username or password");
       }
     },
     None => {
@@ -115,8 +115,8 @@ fn main() {
             jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
           }
           else {
-            println!("");
-            panic!("");
+            println!("Incorrect username or password");
+            panic!("Incorrect username or password");
           }
         },
         None => {
