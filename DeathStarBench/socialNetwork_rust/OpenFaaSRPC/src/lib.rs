@@ -62,6 +62,12 @@ pub struct media_service_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct social_graph_follow_get {
+  pub user_id: i64,
+  pub followee_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
   pub shortened_url: String,
   pub expanded_url: String,
@@ -72,6 +78,14 @@ pub struct user_mention {
   pub user_id: i64,
   pub user_name: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct social_graph_entry {
+  pub user_id: i64,
+  pub follower: Vec<i64>,
+  pub followee: Vec<i64>,
+}
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct text_service_return{
