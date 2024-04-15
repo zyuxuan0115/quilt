@@ -64,9 +64,9 @@ fn main() {
  
   username.push_str(":login");
   let result_str: Option<String> = memcache_client.get(&username[..]).unwrap();
+  username = username[..].strip_suffix(":login").unwrap().to_string();
 
   let mut memcache_has_username: bool = false;
-
   let mut jwt_encode_msg: String = String::new();
   match result_str {
     Some(x) => {
@@ -76,11 +76,11 @@ fn main() {
       let salt_stored: String = result.salt;
       password.push_str(&salt_stored[..]);
       let user_id_stored: i64 = result.user_id;
-      let auth: bool = (digest(password) == password_stored);
+      let auth: bool = digest(&password) == password_stored;
       if auth == true {
         let payload_struct = user_login_return {
           user_id: user_id_stored,
-          username: username[..].strip_suffix(":login").unwrap().to_string(),
+          username: username.clone(),
           timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
           ttl: 3600,
         };
@@ -100,27 +100,36 @@ fn main() {
     let client = Client::with_uri_str(&uri[..]).unwrap();
     let database = client.database("user");
     let collection = database.collection::<user_info>("user");
+    let mongodb_result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
+
+    match mongodb_result {
+      Some(x) => {
+        let password_stored: String = x.password;
+        let salt_stored: String = x.salt;
+        password.push_str(&salt_stored[..]);
+        let user_id_stored: i64 = x.user_id;
+        let auth: bool = digest(&password) == password_stored;
+        if auth == true {
+          let payload_struct = user_login_return {
+            user_id: user_id_stored,
+            username: username,
+            timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
+            ttl: 3600,
+          };
+          let payload = serde_json::to_string(&payload_struct).unwrap();
+          jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
+        }
+        else {
+          println!("");
+          panic!("");
+        }
+      },
+      None => {
+        println!("User: {} doesn't exist in MongoDB", username);
+        panic!("User: {} doesn't exist in MongoDB", username);
+      },
+    } 
   }    
-//    username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
-
-//    let result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
-
-//    match result {
-//      Some(x) => {
-//        user_id = x.user_id;
-//      },
-//      None => {
-//        println!("User: {} doesn't exist in MongoDB", username);
-//        panic!("User: {} doesn't exist in MongoDB", username);
-//      },
-//    } 
-//  }
-
-//  if memcache_has_username == false {
-//    username.push_str(":user_id");
-//    memcache_client.set(&username[..], user_id, 0).unwrap();
-//  }
-//  let serialized = serde_json::to_string(&user_id).unwrap();
   send_return_value_to_caller(jwt_encode_msg);
 }
 
