@@ -81,18 +81,11 @@ pub struct text_service_return{
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct user_login_return_sub {
+pub struct user_login_return {
   pub user_id: i64,
   pub username: String,
-  pub timestamp: String,
+  pub timestamp: u64,
   pub ttl: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct user_login_return {
-  pub algorithm: String,
-  pub secret: String, 
-  pub payload: user_login_return_sub,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

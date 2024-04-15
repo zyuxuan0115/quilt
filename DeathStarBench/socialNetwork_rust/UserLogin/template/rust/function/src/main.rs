@@ -1,8 +1,13 @@
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use std::{fs::read_to_string, collections::HashMap};
+use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
 use memcache::Client as memcached_client;
+use sha256::digest;
+use jws::{JsonObject, JsonValue};
+use jws::compact::{decode_verify, encode_sign};
+use jws::hmac::{Hs512Signer, HmacVerifier};
+
 
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
@@ -38,52 +43,84 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     }
 }
 
+fn jwt_encode(secret: &str, payload: &str) -> String {
+  // Add custom header parameters.
+  let mut header = JsonObject::new();
+  header.insert(String::from("typ"), JsonValue::from("text/plain"));
+
+  // Encode and sign the message.
+  let encoded = encode_sign(header, payload.as_bytes(), &Hs512Signer::new(secret.as_bytes())).unwrap();
+  encoded.into_data()
+}
+
 fn main() {
   let input: String = get_arg_from_caller();
-  let mut username = String::from(&input[..]);
-  username.push_str(":user_id");
+  let user_info: user_login_get = serde_json::from_str(&input).unwrap();
+
+  let mut username = user_info.username;
+  let mut password = user_info.password;
+  let secret = user_info.secret;
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();  
  
-  let result:Option<i64> = memcache_client.get(&username[..]).unwrap();
+  username.push_str(":login");
+  let result_str: Option<String> = memcache_client.get(&username[..]).unwrap();
 
-  let mut user_id: i64 = -1;
   let mut memcache_has_username: bool = false;
-  match result {
+  match result_str {
     Some(x) => {
-      user_id = x;
+      let result: memcached_userlogin_info = serde_json::from_str(&x).unwrap();
       memcache_has_username = true;
+      let password_stored: String = result.password;
+      let salt_stored: String = result.salt;
+      password.push_str(&salt_stored[..]);
+      let user_id_stored: i64 = result.user_id;
+      let auth: bool = (digest(password) == password_stored);
+      if auth == true {
+        let payload_struct = user_login_return {
+          user_id: user_id_stored,
+          username: username[..].strip_suffix(":login").unwrap().to_string(),
+          timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
+          ttl: 3600,
+        } ;
+      }
+      else {
+
+      }
     },
     None => (),
   } 
 
-  if memcache_has_username == false {
-    let uri = get_mongodb_uri();
-    let client = Client::with_uri_str(&uri[..]).unwrap();
-    let database = client.database("user");
-    let collection = database.collection::<user_info>("user");
+  if memcache_has_username == true {
+  }
+
+//  if memcache_has_username == false {
+//    let uri = get_mongodb_uri();
+//    let client = Client::with_uri_str(&uri[..]).unwrap();
+//    let database = client.database("user");
+//    let collection = database.collection::<user_info>("user");
     
-    username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
+//    username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
 
-    let result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
+//    let result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
 
-    match result {
-      Some(x) => {
-        user_id = x.user_id;
-      },
-      None => {
-        println!("User: {} doesn't exist in MongoDB", username);
-        panic!("User: {} doesn't exist in MongoDB", username);
-      },
-    } 
-  }
+//    match result {
+//      Some(x) => {
+//        user_id = x.user_id;
+//      },
+//      None => {
+//        println!("User: {} doesn't exist in MongoDB", username);
+//        panic!("User: {} doesn't exist in MongoDB", username);
+//      },
+//    } 
+//  }
 
-  if memcache_has_username == false {
-    username.push_str(":user_id");
-    memcache_client.set(&username[..], user_id, 0).unwrap();
-  }
-  let serialized = serde_json::to_string(&user_id).unwrap();
-  send_return_value_to_caller(serialized);
+//  if memcache_has_username == false {
+//    username.push_str(":user_id");
+//    memcache_client.set(&username[..], user_id, 0).unwrap();
+//  }
+//  let serialized = serde_json::to_string(&user_id).unwrap();
+  send_return_value_to_caller("".to_string());
 }
 
