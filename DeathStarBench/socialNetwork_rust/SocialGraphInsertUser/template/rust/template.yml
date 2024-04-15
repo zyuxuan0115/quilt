@@ -1,5 +1,5 @@
 language: rust
-fprocess: UserLogin
+fprocess: SocialGraphInsertUser
 welcome_message: |
   Welcome to the rust template.
 
