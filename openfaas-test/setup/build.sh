@@ -1,10 +1,10 @@
 #!/bin/bash
 
-SERVER_IP="130.127.133.93"
 USER="zyuxuan"
-AGENT_IP="130.127.133.76"
-SERVER_HOST="zyuxuan@clnode084.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode067.clemson.cloudlab.us"
+SERVER_IP="130.127.133.246"
+AGENT_IP="130.127.133.233"
+SERVER_HOST="zyuxuan@clnode237.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode224.clemson.cloudlab.us"
 
 function setup {
   k3sup install --ip $SERVER_IP --user $USER
@@ -22,6 +22,7 @@ function setup {
   MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace default mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
   faas-cli secret create mongo-db-password --from-literal $MONGODB_ROOT_PASSWORD
   helm install sn-memcache bitnami/memcached --set architecture="high-availability" --set autoscaling.enabled="true"
+  helm install stable/redis --name sn-redis --namespace openfaas-fn --set usePassword=false --set master.persistence.enabled=false
 }
 
 function killa {
