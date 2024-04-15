@@ -8,7 +8,6 @@ use jws::{JsonObject, JsonValue};
 use jws::compact::{decode_verify, encode_sign};
 use jws::hmac::{Hs512Signer, HmacVerifier};
 
-
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
         .unwrap()  // panic on possible file-reading errors
@@ -47,7 +46,6 @@ fn jwt_encode(secret: &str, payload: &str) -> String {
   // Add custom header parameters.
   let mut header = JsonObject::new();
   header.insert(String::from("typ"), JsonValue::from("text/plain"));
-
   // Encode and sign the message.
   let encoded = encode_sign(header, payload.as_bytes(), &Hs512Signer::new(secret.as_bytes())).unwrap();
   encoded.into_data()
