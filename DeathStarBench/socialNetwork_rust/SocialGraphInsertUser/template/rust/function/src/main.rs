@@ -38,8 +38,8 @@ fn main() {
   
   let docs = social_graph_entry {
     user_id: user_id,
-    follower: Vec::new(),
-    followee: Vec::new(),
+    followers: Vec::new(),
+    followees: Vec::new(),
   };
 
   collection.insert_one(docs, None).unwrap();

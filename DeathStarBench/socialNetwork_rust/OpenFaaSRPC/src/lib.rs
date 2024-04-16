@@ -82,10 +82,21 @@ pub struct user_mention {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct social_graph_entry {
   pub user_id: i64,
-  pub follower: Vec<i64>,
-  pub followee: Vec<i64>,
+  pub followers: Vec<follower_entry>,
+  pub followees: Vec<followee_entry>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct followee_entry {
+  followee_id: i64,
+  timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct follower_entry {
+  follower_id: i64,
+  timestamp: i64,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct text_service_return{
