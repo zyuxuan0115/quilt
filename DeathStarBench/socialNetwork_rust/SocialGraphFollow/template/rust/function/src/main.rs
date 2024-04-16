@@ -100,32 +100,6 @@ fn main() {
 
   println!("@@@");
 
-//  let mut cursor = collection.find(query, None).unwrap();
-//  let mut new_doc_vec: Vec::<social_graph_entry> = Vec::new();
-//  for doc in cursor { 
-//    let mut doc_ = doc.unwrap();
-//    println!("{:?}", doc_);
-//    let new_followee = followee_entry {
-//      followee_id: follow_info.followee_id,
-//      timestamp: time_stamp,
-//    };
-//    doc_.followees.push(new_followee);
-//    new_doc_vec
-//    let new_user_mention = user_mention {
-//      user_id: doc_.user_id,
-//      user_name: doc_.user_name,
-//    };
-//	    user_mentions.push(new_user_mention);
-//  }
-
-//  let mongodb_result = collection.find_one(doc! { "user_id": follow_info.user_id }, None).unwrap();
-//  println!("{:?}", mongodb_result);
-//  let docs = social_graph_entry {
-//    user_id: user_id,
-//    follower: Vec::new(),
-//    followee: Vec::new(),
-//  };
-
 //  collection.insert_one(docs, None).unwrap();
 
   send_return_value_to_caller("".to_string());
