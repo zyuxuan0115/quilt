@@ -1,7 +1,7 @@
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use std::{fs::read_to_string, collections::HashMap};
+use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
 use redis::Commands;
 
 fn read_lines(filename: &str) -> Vec<String> {
@@ -60,20 +60,37 @@ fn get_redis_ro_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let user_id: i64 = serde_json::from_str(&input).unwrap();
+  println!("{}", input);
+  let follow_info: social_graph_follow_get = serde_json::from_str(&input).unwrap();
+
+  let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
 
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("social-graph");
   let collection = database.collection::<social_graph_entry>("social-graph");
-  
-  let docs = social_graph_entry {
-    user_id: user_id,
-    follower: Vec::new(),
-    followee: Vec::new(),
-  };
 
-  collection.insert_one(docs, None).unwrap();
+  let query = doc!{"$and": [doc!{"user_id":follow_info.user_id},doc!{"followees": doc!{"$not":doc!{"$elemMatch":doc!{"user_id":follow_info.followee_id}}}}]};  
+
+  let mut cursor = collection.find(query, None).unwrap();
+
+  for doc in cursor { 
+    let doc_ = doc.unwrap();
+    println!("{:?}", doc_);
+//    let new_user_mention = user_mention {
+//      user_id: doc_.user_id,
+//      user_name: doc_.user_name,
+//    };
+//	    user_mentions.push(new_user_mention);
+  }
+
+//  let docs = social_graph_entry {
+//    user_id: user_id,
+//    follower: Vec::new(),
+//    followee: Vec::new(),
+//  };
+
+//  collection.insert_one(docs, None).unwrap();
 
   send_return_value_to_caller("".to_string());
 }
