@@ -79,7 +79,7 @@ fn main() {
         let payload_struct = user_login_return {
           user_id: user_id_stored,
           username: username.clone(),
-          timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
+          timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64,
           ttl: 3600,
         };
         let payload = serde_json::to_string(&payload_struct).unwrap();
@@ -108,7 +108,7 @@ fn main() {
             let payload_struct = user_login_return {
               user_id: user_id_stored,
               username: username,
-              timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs(),
+              timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64,
               ttl: 3600,
             };
             let payload = serde_json::to_string(&payload_struct).unwrap();

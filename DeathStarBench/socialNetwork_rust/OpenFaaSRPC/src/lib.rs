@@ -88,14 +88,14 @@ pub struct social_graph_entry {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct followee_entry {
-  followee_id: i64,
-  timestamp: i64,
+  pub followee_id: i64,
+  pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct follower_entry {
-  follower_id: i64,
-  timestamp: i64,
+  pub follower_id: i64,
+  pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -109,7 +109,7 @@ pub struct text_service_return{
 pub struct user_login_return {
   pub user_id: i64,
   pub username: String,
-  pub timestamp: u64,
+  pub timestamp: i64,
   pub ttl: i64,
 }
 
