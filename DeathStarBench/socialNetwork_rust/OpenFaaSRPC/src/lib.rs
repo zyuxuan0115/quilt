@@ -68,6 +68,12 @@ pub struct social_graph_follow_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct social_graph_follow_with_username_get {
+  pub user_name: String,
+  pub followee_name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
   pub shortened_url: String,
   pub expanded_url: String,
