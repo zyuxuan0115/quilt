@@ -60,7 +60,6 @@ fn get_redis_ro_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  println!("{}", input);
   let follow_info: social_graph_follow_get = serde_json::from_str(&input).unwrap();
 
   let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
