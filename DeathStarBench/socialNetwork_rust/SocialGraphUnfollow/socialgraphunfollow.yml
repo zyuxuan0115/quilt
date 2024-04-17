@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  social-graph-follow:
+  social-graph-unfollow:
     lang: rust
-    handler: ./social-graph-follow
-    image: zyuxuan0115/deathstarbench-socialgraphfollow:latest
+    handler: ./social-graph-unfollow
+    image: zyuxuan0115/deathstarbench-socialgraphunfollow:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:

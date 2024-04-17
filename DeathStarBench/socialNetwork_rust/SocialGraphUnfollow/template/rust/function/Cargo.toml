@@ -1,5 +1,5 @@
 [package]
-name = "SocialGraphFollow"
+name = "SocialGraphUnfollow"
 version = "0.1.0"
 edition = "2021"
 

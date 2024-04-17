@@ -1,5 +1,5 @@
 language: rust
-fprocess: SocialGraphFollow
+fprocess: SocialGraphUnfollow
 welcome_message: |
   Welcome to the rust template.
 
