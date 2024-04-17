@@ -71,29 +71,32 @@ fn main() {
   let collection = database.collection::<social_graph_entry>("social-graph");
 
   // Update follower->followee edges
-  let search_query = doc!{"user_id": follow_info.user_id};
-  let update_query = doc!{"$pull": doc!{"followees":doc!{"user_id":follow_info.followee_id}}};
+  let search_query = doc!{"$and": [doc!{"user_id":follow_info.user_id},doc!{"followees": doc!{"$not":doc!{"$elemMatch":doc!{"user_id":follow_info.followee_id}}}}]};  
+
+  let update_query = doc!{"$push": doc!{"followees":doc!{"user_id":follow_info.followee_id, "timestamp":(time_stamp as i64)} }};
+
   let res = collection.update_many(search_query, update_query, None).unwrap();
 
   // Update followee->follower edges
-  let search_query = doc!{"user_id": follow_info.followee_id};
-  let update_query = doc!{"$pull": doc!{"followers":doc!{"user_id":follow_info.user_id}}};
+  let search_query =  doc!{"$and": [doc!{"user_id":follow_info.followee_id},doc!{"followers": doc!{"$not":doc!{"$elemMatch":doc!{"user_id":follow_info.user_id}}}}]};  
+
+  let update_query = doc!{"$push": doc!{"followers":doc!{"user_id":follow_info.user_id, "timestamp":(time_stamp as i64)} }};
+
   let res = collection.update_many(search_query, update_query, None).unwrap();
 
   // update redis
   let mut user_id_str: String = follow_info.user_id.to_string();
   user_id_str.push_str(":followees");
   let mut followee_id_str: String = follow_info.followee_id.to_string();
-  followee_id_str.push_str(":followers");
-
   let redis_uri = get_redis_rw_uri();
-  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
-  let mut con = redis_client.get_connection().unwrap();
 
-  let (k1, k2) : (isize, isize) = redis::pipe()
-                                     .cmd("ZREM").arg(&user_id_str[..]).arg(follow_info.followee_id)
-                                     .cmd("ZREM").arg(&followee_id_str[..]).arg(follow_info.user_id)
-                                     .query(&mut con).unwrap();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+
+  let mut con = redis_client.get_connection().unwrap();
+  let res: isize = con.zadd(&user_id_str[..], &followee_id_str[..], (time_stamp as i64)).unwrap();
+  user_id_str = (&user_id_str[..]).strip_suffix(":followees").unwrap().to_string();
+  followee_id_str.push_str(":followers");
+  let res: isize = con.zadd(&followee_id_str[..], &user_id_str[..], (time_stamp as i64)).unwrap();
 
   send_return_value_to_caller("".to_string());
 }
