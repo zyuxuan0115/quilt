@@ -1,5 +1,5 @@
 use curl::easy::{Easy};
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -159,5 +159,5 @@ pub fn get_arg_from_caller() -> String{
 }
 
 pub fn send_return_value_to_caller(output: String) -> (){
-  println!("{}", output);
+  io::stdout().write(&output[..].as_bytes());
 }
