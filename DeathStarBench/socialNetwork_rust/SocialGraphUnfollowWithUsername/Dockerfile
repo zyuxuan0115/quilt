@@ -29,7 +29,7 @@ COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 
 WORKDIR /home/app
 
-ENV fprocess="SocialGraphFollowWithUsername"
+ENV fprocess="SocialGraphUnfollowWithUsername"
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
 
