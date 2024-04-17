@@ -2,7 +2,7 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
-use redis::{Commands};
+use redis::{Commands, RedisResult};
 
 fn read_lines(filename: &str) -> Vec<String> {
     read_to_string(filename) 
@@ -69,12 +69,38 @@ fn main() {
 
   let mut user_id_str: String = user_id.to_string();
   user_id_str.push_str(":followers"); 
-  let res: isize = con.zrange(&user_id_str[..], 0, -1).unwrap();
+  println!("@@@");
+  let res: RedisResult<Vec<String>> = con.zrange(&user_id_str[..], 0, -1);
 
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("social-graph");
-  let collection = database.collection::<social_graph_entry>("social-graph");
+  let mut follower_ids: Vec<i64> = Vec::new();
+
+  match res {
+    Ok (followers_list) => {
+      if followers_list.len() > 0 {
+        for follower in &followers_list {
+          let follower_id = follower[..].parse::<i64>().unwrap();
+          follower_ids.push(follower_id);
+        }
+      }
+      else {
+        let uri = get_mongodb_uri();
+        let client = Client::with_uri_str(&uri[..]).unwrap();
+        let database = client.database("social-graph");
+        let collection = database.collection::<social_graph_entry>("social-graph");
+        let query = doc!{"user_id": user_id };
+        let mut cursor = collection.find(query, None).unwrap();
+
+        for doc in cursor { 
+          let doc_ = doc.unwrap();
+          println!("{:?}",doc_);
+        }        
+      }
+    }
+    Err(e) => {
+      println!("cannnot connect with Redis");
+      panic!("cannnot connect with Redis");
+    }
+  }
 
   send_return_value_to_caller("".to_string());
 }
