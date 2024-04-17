@@ -28,7 +28,7 @@ fn get_mongodb_uri() -> String{
 }
 
 fn get_redis_rw_uri() -> String{
-  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/redis-wassword");
+  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/redis-password");
   if passwords.len() == 0 {
     println!("no password found!");
   } 
@@ -36,7 +36,7 @@ fn get_redis_rw_uri() -> String{
     println!("more than 1 passwords found!");
   }
   let password = passwords[0].to_owned();
-  let mut uri: String = String::from("redis://root:");
+  let mut uri: String = String::from("redis://default:");
   uri.push_str(&password[..]);
   uri.push_str("@sn-redis-master.openfaas-fn.svc.cluster.local:6379");
   uri
@@ -44,7 +44,7 @@ fn get_redis_rw_uri() -> String{
 
 
 fn get_redis_ro_uri() -> String{
-  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/redis-wassword");
+  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/redis-password");
   if passwords.len() == 0 {
     println!("no password found!");
   } 
@@ -52,7 +52,7 @@ fn get_redis_ro_uri() -> String{
     println!("more than 1 passwords found!");
   }
   let password = passwords[0].to_owned();
-  let mut uri: String = String::from("redis://root:");
+  let mut uri: String = String::from("redis://default:");
   uri.push_str(&password[..]);
   uri.push_str("@sn-redis-replicas.openfaas-fn.svc.cluster.local:6379");
   uri
@@ -76,7 +76,6 @@ fn main() {
   let update_query = doc!{"$push": doc!{"followees":doc!{"user_id":follow_info.followee_id, "timestamp":(time_stamp as i64)} }};
 
   let res = collection.update_many(search_query, update_query, None).unwrap();
-  println!("Modified documents: {}", res.modified_count);
 
   // Update followee->follower edges
   let search_query =  doc!{"$and": [doc!{"user_id":follow_info.followee_id},doc!{"followers": doc!{"$not":doc!{"$elemMatch":doc!{"user_id":follow_info.user_id}}}}]};  
@@ -84,23 +83,20 @@ fn main() {
   let update_query = doc!{"$push": doc!{"followers":doc!{"user_id":follow_info.user_id, "timestamp":(time_stamp as i64)} }};
 
   let res = collection.update_many(search_query, update_query, None).unwrap();
-  println!("Modified documents: {}", res.modified_count);
 
   // update redis
   let mut user_id_str: String = follow_info.user_id.to_string();
   user_id_str.push_str(":followees");
   let mut followee_id_str: String = follow_info.followee_id.to_string();
   let redis_uri = get_redis_rw_uri();
+
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+
   let mut con = redis_client.get_connection().unwrap();
   let res: isize = con.zadd(&user_id_str[..], &followee_id_str[..], (time_stamp as i64)).unwrap();
   user_id_str = (&user_id_str[..]).strip_suffix(":followees").unwrap().to_string();
   followee_id_str.push_str(":followers");
   let res: isize = con.zadd(&followee_id_str[..], &user_id_str[..], (time_stamp as i64)).unwrap();
-
-  println!("@@@");
-
-//  collection.insert_one(docs, None).unwrap();
 
   send_return_value_to_caller("".to_string());
 }
