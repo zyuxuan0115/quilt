@@ -105,6 +105,27 @@ pub struct follower_entry {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub enum PostType {
+  POST,
+  REPOST,
+  REPLY,
+  DM,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Post {
+  pub post_id: i64,
+  pub creator: Creator,
+  pub req_id: i64,
+  pub text: String,
+  pub user_mentions: Vec<user_mention>,
+  pub media: Vec<Media>,
+  pub urls: Vec<url_pair>,
+  pub timestamp: i64,
+  pub post_type: PostType, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct text_service_return{
   pub user_mentions: Vec<user_mention>,
   pub urls: Vec<url_pair>,
@@ -120,7 +141,7 @@ pub struct user_login_return {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct media{
+pub struct Media{
   pub media_type: String,
   pub media_id: i64,
 }

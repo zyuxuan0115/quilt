@@ -13,9 +13,9 @@ fn main() {
   }
 
   let mut i: usize = 0;
-  let mut return_val: Vec<media> = Vec::new();
+  let mut return_val: Vec<Media> = Vec::new();
   while i < media_ids.len() {
-    let new_media = media {
+    let new_media = Media {
       media_id: media_ids[i],
       media_type: media_types[i].clone(),
     };
