@@ -75,7 +75,6 @@ fn main() {
   match res {
     Ok (followees_list) => {
       if followees_list.len() > 0 {
-        println!("{:?}", followees_list);
         for followee in &followees_list {
           let followee_id = followee[..].parse::<i64>().unwrap();
           followee_ids.push(followee_id);

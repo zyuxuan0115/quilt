@@ -68,21 +68,18 @@ fn main() {
   let mut con = redis_client.get_connection().unwrap();
 
   let mut user_id_str: String = user_id.to_string();
-  user_id_str.push_str(":followers"); 
   let res: RedisResult<Vec<String>> = con.zrange(&user_id_str[..], 0, -1);
   
   let mut follower_ids: Vec<i64> = Vec::new();
   match res {
     Ok (followers_list) => {
       if followers_list.len() > 0 {
-        println!("{:?}", followers_list);
         for follower in &followers_list {
           let follower_id = follower[..].parse::<i64>().unwrap();
           follower_ids.push(follower_id);
         }
       }
       else {
-        println!("use mongodb");
         let uri = get_mongodb_uri();
         let client = Client::with_uri_str(&uri[..]).unwrap();
         let database = client.database("social-graph");
@@ -92,10 +89,13 @@ fn main() {
 
         for doc in cursor { 
           let doc_ = doc.unwrap();
-          println!("{:?}",doc_);
           let mut followers: Vec<i64> = doc_.followers.iter().map(|x| x.follower_id).collect();
           follower_ids.append(&mut followers);
-        }        
+          // insert to redis
+          let mut new_compound: Vec<(i64, String)> = doc_.followers.iter().map(|x| (x.timestamp, x.follower_id.to_string())).collect();
+          let mut new_compound_slice: Vec<(i64, &str)> = new_compound.iter().map(|x| (x.0, &x.1[..]) ).collect();
+          let res: isize = con.zadd_multiple(&user_id_str[..], &new_compound_slice).unwrap();
+        }
       }
     }
     Err(e) => {
