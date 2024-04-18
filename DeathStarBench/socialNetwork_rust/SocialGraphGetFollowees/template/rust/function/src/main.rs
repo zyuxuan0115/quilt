@@ -68,17 +68,17 @@ fn main() {
   let mut con = redis_client.get_connection().unwrap();
 
   let mut user_id_str: String = user_id.to_string();
-  user_id_str.push_str(":followers"); 
+  user_id_str.push_str(":followees"); 
   let res: RedisResult<Vec<String>> = con.zrange(&user_id_str[..], 0, -1);
   
-  let mut follower_ids: Vec<i64> = Vec::new();
+  let mut followee_ids: Vec<i64> = Vec::new();
   match res {
-    Ok (followers_list) => {
-      if followers_list.len() > 0 {
-        println!("{:?}", followers_list);
-        for follower in &followers_list {
-          let follower_id = follower[..].parse::<i64>().unwrap();
-          follower_ids.push(follower_id);
+    Ok (followees_list) => {
+      if followees_list.len() > 0 {
+        println!("{:?}", followees_list);
+        for followee in &followees_list {
+          let followee_id = followee[..].parse::<i64>().unwrap();
+          followee_ids.push(followee_id);
         }
       }
       else {
@@ -91,10 +91,10 @@ fn main() {
 
         for doc in cursor { 
           let doc_ = doc.unwrap();
-          let mut followers: Vec<i64> = doc_.followers.iter().map(|x| x.follower_id).collect();
-          follower_ids.append(&mut followers);
+          let mut followees: Vec<i64> = doc_.followees.iter().map(|x| x.followee_id).collect();
+          followee_ids.append(&mut followees);
           // insert to redis
-          let mut new_compound: Vec<(i64, String)> = doc_.followers.iter().map(|x| (x.timestamp, x.follower_id.to_string())).collect();
+          let mut new_compound: Vec<(i64, String)> = doc_.followees.iter().map(|x| (x.timestamp, x.followee_id.to_string())).collect();
           let mut new_compound_slice: Vec<(i64, &str)> = new_compound.iter().map(|x| (x.0, &x.1[..]) ).collect();
           let res: isize = con.zadd_multiple(&user_id_str[..], &new_compound_slice).unwrap();
         }
@@ -106,7 +106,7 @@ fn main() {
     }
   }
   
-  let serialized = serde_json::to_string(&follower_ids).unwrap();
+  let serialized = serde_json::to_string(&followee_ids).unwrap();
   send_return_value_to_caller(serialized);
 }
 
