@@ -74,6 +74,14 @@ pub struct social_graph_follow_with_username_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct write_home_timeline_get {
+  pub post_id: i64,
+  pub user_id: i64,
+  pub timestamp: i64,
+  pub user_mentions_id: Vec<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
   pub shortened_url: String,
   pub expanded_url: String,

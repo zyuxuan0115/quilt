@@ -37,30 +37,28 @@ fn main() {
   let post_ids_str: Vec<String> = post_ids.iter().map(|x| x.to_string()).collect();
   let post_ids_strslice: Vec<&str> = post_ids_str.iter().map(|x| &x[..]).collect();
 
-  let memcache_uri = get_memcached_uri();
-  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
-
-  let result: std::collections::HashMap<String, String> = memcache_client.gets(&post_ids_strslice).unwrap();
-
   let mut post_not_cached: HashMap<String, bool> = HashMap::new();
   for post_id in &post_ids {
     let post_id_str = post_id.to_string();
     post_not_cached.insert(post_id_str, false);
   }
 
-  println!("{:?}", result);
+  let memcache_uri = get_memcached_uri();
+  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
+
+  let result: std::collections::HashMap<String, String> = memcache_client.gets(&post_ids_strslice).unwrap();
+
+  let mut posts: Vec<Post> = Vec::new();
+  for (key, value) in &result {
+    post_not_cached.remove(key); 
+    let post: Post = serde_json::from_str(&value).unwrap();
+    posts.push(post);
+  }
 
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("post");
   let collection = database.collection::<Post>("post");
-
-  let mut posts: Vec<Post> = Vec::new();
-  for (key, value) in &result {
-    post_not_cached.remove(key); 
-    let post: Post = serde_json::from_str(&input).unwrap();
-    posts.push(post);
-  }
 
   let mut pid_not_cached: Vec<&str> = Vec::new();
   for (key, _) in &post_not_cached {
