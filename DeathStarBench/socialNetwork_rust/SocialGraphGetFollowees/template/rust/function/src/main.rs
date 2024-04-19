@@ -86,7 +86,7 @@ fn main() {
         let database = client.database("social-graph");
         let collection = database.collection::<social_graph_entry>("social-graph");
         let query = doc!{"user_id": user_id };
-        let mut result = collection.find(query, None).unwrap();
+        let mut result = collection.find_one(query, None).unwrap();
 
         match result {
           Some(doc_) => { 
