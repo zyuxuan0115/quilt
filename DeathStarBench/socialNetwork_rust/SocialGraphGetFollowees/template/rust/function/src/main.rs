@@ -86,16 +86,20 @@ fn main() {
         let database = client.database("social-graph");
         let collection = database.collection::<social_graph_entry>("social-graph");
         let query = doc!{"user_id": user_id };
-        let mut cursor = collection.find(query, None).unwrap();
+        let mut result = collection.find(query, None).unwrap();
 
-        for doc in cursor { 
-          let doc_ = doc.unwrap();
-          let mut followees: Vec<i64> = doc_.followees.iter().map(|x| x.followee_id).collect();
-          followee_ids.append(&mut followees);
-          // insert to redis
-          let mut new_compound: Vec<(i64, String)> = doc_.followees.iter().map(|x| (x.timestamp, x.followee_id.to_string())).collect();
-          let mut new_compound_slice: Vec<(i64, &str)> = new_compound.iter().map(|x| (x.0, &x.1[..]) ).collect();
-          let res: isize = con.zadd_multiple(&user_id_str[..], &new_compound_slice).unwrap();
+        match result {
+          Some(doc_) => { 
+            followee_ids = doc_.followees.iter().map(|x| x.followee_id).collect();
+            // insert to redis
+            let mut new_compound: Vec<(i64, String)> = doc_.followees.iter().map(|x| (x.timestamp, x.followee_id.to_string())).collect();
+            let mut new_compound_slice: Vec<(i64, &str)> = new_compound.iter().map(|x| (x.0, &x.1[..]) ).collect();
+            let res: isize = con.zadd_multiple(&user_id_str[..], &new_compound_slice).unwrap();
+          }
+          None => {
+            println!("user_id: {} not found", user_id);
+            panic!("user_id: {} not found", user_id);
+          }
         }
       }
     }
