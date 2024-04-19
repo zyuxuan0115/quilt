@@ -68,6 +68,7 @@ fn main() {
   let mut con = redis_client.get_connection().unwrap();
 
   let mut user_id_str: String = user_id.to_string();
+  user_id_str.push_str(":followers");
   let res: RedisResult<Vec<String>> = con.zrange(&user_id_str[..], 0, -1);
   
   let mut follower_ids: Vec<i64> = Vec::new();
@@ -86,7 +87,6 @@ fn main() {
         let collection = database.collection::<social_graph_entry>("social-graph");
         let query = doc!{"user_id": user_id };
         let mut result = collection.find_one(query, None).unwrap();
-
         match result {
           Some(doc_) => { 
             follower_ids = doc_.followers.iter().map(|x| x.follower_id).collect();
