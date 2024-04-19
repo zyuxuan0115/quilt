@@ -36,11 +36,29 @@ function deploy {
   done
 }
 
+function clean {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
+      continue
+    else
+      cd $entry/template/rust/function
+      cargo clean
+    fi
+  done
+}
+
+
+
 case "$1" in
 build)
     build_and_deploy
     ;;
 deploy)
     deploy
+    ;;
+clean)
+    clean
     ;;
 esac
