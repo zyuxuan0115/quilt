@@ -50,11 +50,11 @@ fn main() {
       let memcache_uri = get_memcached_uri();
       let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
       let post_id_str: String = post_id.to_string();
-      memcache_client.set(&username[..], &return_result[..], 0).unwrap(); 
+      memcache_client.set(&post_id_str[..], &return_result[..], 0).unwrap(); 
     }
     None => {
-      println!("");
-      panic!("");
+      println!("Post_id:{} doesn't exist in MongoDB", post_id);
+      panic!("Post_id:{} doesn't exist in MongoDB", post_id);
     }
   }
  
