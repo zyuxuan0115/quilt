@@ -56,15 +56,21 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let mut pipeline: redis::Pipeline = redis::Pipeline::new();  
+//  let mut pipeline: redis::Pipeline = redis::Pipeline::new(); 
+//  let mut i: usize = 1; 
   for follower_id in &followers {
     let follower_id_str:String = follower_id.to_string();
     let post_id_str: String = timeline_info.post_id.to_string();
-    pipeline.cmd("ZADD").arg(&follower_id_str[..]).arg(timeline_info.timestamp).arg(&post_id_str[..]).ignore();
-
-    //let res: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
+//    if i<followers.len() {
+//      pipeline.cmd("ZADD").arg(&follower_id_str[..]).arg(timeline_info.timestamp).arg(&post_id_str[..]).ignore();
+//    }
+//    else {
+//      pipeline.cmd("ZADD").arg(&follower_id_str[..]).arg(timeline_info.timestamp).arg(&post_id_str[..]);
+//    }
+//    i+=1;
+    let res: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   }
-  let res: isize =  pipeline.query(&mut con).unwrap();
-  send_return_value_to_caller("@@@".to_string());
+  //let res: usize = pipeline.query(&mut con).unwrap();
+  send_return_value_to_caller("".to_string());
 }
 
