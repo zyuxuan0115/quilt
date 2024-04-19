@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  read-post:
+  read-posts:
     lang: rust
-    handler: ./read-post
-    image: zyuxuan0115/deathstarbench-readpost:latest
+    handler: ./read-posts
+    image: zyuxuan0115/deathstarbench-readposts:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:

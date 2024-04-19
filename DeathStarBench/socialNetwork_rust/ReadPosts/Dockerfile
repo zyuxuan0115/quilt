@@ -29,7 +29,7 @@ COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 
 WORKDIR /home/app
 
-ENV fprocess="ReadPost"
+ENV fprocess="ReadPosts"
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
 

@@ -1,5 +1,5 @@
 [package]
-name = "ReadPost"
+name = "ReadPosts"
 version = "0.1.0"
 edition = "2021"
 
