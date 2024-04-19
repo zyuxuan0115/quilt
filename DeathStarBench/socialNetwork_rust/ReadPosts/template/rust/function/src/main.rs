@@ -33,30 +33,19 @@ fn get_memcached_uri() -> String {
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let post_id: i64 = serde_json::from_str(&input).unwrap();
+  let post_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
+
+  let memcache_uri = get_memcached_uri();
+  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
+
+  let result: std::collections::HashMap<i64, String> = memcache_client.gets(&post_ids, 0).unwrap();
+
+  println!("{}", result);
 
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("post");
   let collection = database.collection::<Post>("post");
 
-  let query = doc!{"post_id": post_id };
-  let mut result = collection.find_one(query, None).unwrap();
-  let mut return_result: String = String::new();
-  match result {
-    Some(post) => {
-      return_result = serde_json::to_string(&post).unwrap(); 
-      // insert to memcached
-      let memcache_uri = get_memcached_uri();
-      let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
-      let post_id_str: String = post_id.to_string();
-      memcache_client.set(&post_id_str[..], &return_result[..], 0).unwrap(); 
-    }
-    None => {
-      println!("Post_id:{} doesn't exist in MongoDB", post_id);
-      panic!("Post_id:{} doesn't exist in MongoDB", post_id);
-    }
-  }
- 
-  send_return_value_to_caller(return_result);
+  send_return_value_to_caller("".to_string());
 }
