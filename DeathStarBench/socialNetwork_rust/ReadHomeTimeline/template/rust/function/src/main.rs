@@ -56,11 +56,10 @@ fn main() {
 
   let res: Vec<String> = con.zrevrange(&user_id_str[..], timeline_info.start as isize, (timeline_info.stop-1) as isize).unwrap();
   
-  println!("{:?}", res);
-  let post_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap());
-  let post_ids_str = serde_json::to_string(&return_value).unwrap(); 
+  let post_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
+  let post_ids_str = serde_json::to_string(&post_ids).unwrap(); 
 
-  let result = make_rpc("read-posts", post_ids_str)
+  let result = make_rpc("read-posts", post_ids_str);
 
   send_return_value_to_caller(result);
 }
