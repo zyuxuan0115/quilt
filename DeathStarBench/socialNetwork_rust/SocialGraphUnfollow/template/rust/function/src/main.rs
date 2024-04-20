@@ -74,11 +74,13 @@ fn main() {
   let search_query = doc!{"user_id": follow_info.user_id};
   let update_query = doc!{"$pull": doc!{"followees":doc!{"user_id":follow_info.followee_id}}};
   let res = collection.update_many(search_query, update_query, None).unwrap();
+  // TODO: check if the update is successful
 
   // Update followee->follower edges
   let search_query = doc!{"user_id": follow_info.followee_id};
   let update_query = doc!{"$pull": doc!{"followers":doc!{"user_id":follow_info.user_id}}};
   let res = collection.update_many(search_query, update_query, None).unwrap();
+  // TODO: check if the update is successful
 
   // update redis
   let mut user_id_str: String = follow_info.user_id.to_string();

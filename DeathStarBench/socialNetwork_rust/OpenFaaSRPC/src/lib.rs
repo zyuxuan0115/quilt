@@ -82,10 +82,17 @@ pub struct write_home_timeline_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct read_home_timeline_get {
+pub struct read_timeline_get {
   pub user_id: i64,
   pub start: i64,
   pub stop: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct write_user_timeline_get {
+  pub post_id: i64,
+  pub user_id: i64,
+  pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -98,6 +105,13 @@ pub struct url_pair{
 pub struct user_mention {
   pub user_id: i64,
   pub user_name: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct user_timeline_entry {
+  pub user_id: i64,
+  pub followers: Vec<follower_entry>,
+  pub followees: Vec<followee_entry>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -44,8 +44,7 @@ fn get_redis_ro_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let mut timeline_info: read_home_timeline_get = serde_json::from_str(&input).unwrap();
-
+  let mut timeline_info: read_timeline_get = serde_json::from_str(&input).unwrap();
 
   let user_id_str: String = timeline_info.user_id.to_string();
 
@@ -54,7 +53,7 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let res: Vec<String> = con.zrevrange(&user_id_str[..], timeline_info.start as isize, (timeline_info.stop-1) as isize).unwrap();
+  let res: Vec<String> = con.zrevrange(&user_id_str[..], timeline_info.start as isize, (timeline_info.stop) as isize).unwrap();
   
   let post_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
   let post_ids_str = serde_json::to_string(&post_ids).unwrap(); 
