@@ -82,6 +82,13 @@ pub struct write_home_timeline_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct read_home_timeline_get {
+  pub user_id: i64,
+  pub start: i64,
+  pub stop: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
   pub shortened_url: String,
   pub expanded_url: String,
