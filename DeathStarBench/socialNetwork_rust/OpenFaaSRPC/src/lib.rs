@@ -108,10 +108,15 @@ pub struct user_mention {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct post_entry {
+  pub post_id: i64,
+  pub timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct user_timeline_entry {
   pub user_id: i64,
-  pub followers: Vec<follower_entry>,
-  pub followees: Vec<followee_entry>,
+  pub posts: Vec<post_entry>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
