@@ -1,5 +1,5 @@
 [package]
-name = "ReadUserTimeline"
+name = "WriteUserTimeline"
 version = "0.1.0"
 edition = "2021"
 
