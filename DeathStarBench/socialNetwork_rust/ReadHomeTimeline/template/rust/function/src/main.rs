@@ -44,33 +44,24 @@ fn get_redis_ro_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let mut timeline_info: write_home_timeline_get = serde_json::from_str(&input).unwrap();
+  let mut timeline_info: read_home_timeline_get = serde_json::from_str(&input).unwrap();
+
 
   let user_id_str: String = timeline_info.user_id.to_string();
-  let followers_str: String = make_rpc("social-graph-get-followers", user_id_str);
-  let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
-  followers.append(&mut timeline_info.user_mentions_id);   
 
   // update redis
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-//  let mut pipeline: redis::Pipeline = redis::Pipeline::new(); 
-//  let mut i: usize = 1; 
-  for follower_id in &followers {
-    let follower_id_str:String = follower_id.to_string();
-    let post_id_str: String = timeline_info.post_id.to_string();
-//    if i<followers.len() {
-//      pipeline.cmd("ZADD").arg(&follower_id_str[..]).arg(timeline_info.timestamp).arg(&post_id_str[..]).ignore();
-//    }
-//    else {
-//      pipeline.cmd("ZADD").arg(&follower_id_str[..]).arg(timeline_info.timestamp).arg(&post_id_str[..]);
-//    }
-//    i+=1;
-    let res: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
-  }
-  //let res: usize = pipeline.query(&mut con).unwrap();
-  send_return_value_to_caller("".to_string());
+  let res: Vec<String> = con.zrevrange(&user_id_str[..], timeline_info.start as isize, (timeline_info.stop-1) as isize).unwrap();
+  
+  println!("{:?}", res);
+  let post_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap());
+  let post_ids_str = serde_json::to_string(&return_value).unwrap(); 
+
+  let result = make_rpc("read-posts", post_ids_str)
+
+  send_return_value_to_caller(result);
 }
 
