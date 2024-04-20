@@ -34,8 +34,6 @@ fn get_memcached_uri() -> String {
 fn main() {
   let input: String = get_arg_from_caller();
   let post_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
-  let post_ids_str: Vec<String> = post_ids.iter().map(|x| x.to_string()).collect();
-  let post_ids_strslice: Vec<&str> = post_ids_str.iter().map(|x| &x[..]).collect();
 
   let mut post_not_cached: HashMap<String, bool> = HashMap::new();
   for post_id in &post_ids {
@@ -46,11 +44,14 @@ fn main() {
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
-  let result: std::collections::HashMap<String, String> = memcache_client.gets(&post_ids_strslice).unwrap();
+  let post_ids_str: Vec<String> = post_ids.iter().map(|x| x.to_string()).collect();
+  let post_ids_strslice: Vec<&str> = post_ids_str.iter().map(|x| &**x).collect();
+  let keys: &[&str] = &post_ids_strslice;
+  let result: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
   let mut posts: Vec<Post> = Vec::new();
-  for (key, value) in &result {
-    post_not_cached.remove(key); 
+  for (key, value) in result {
+    post_not_cached.remove(&key); 
     let post: Post = serde_json::from_str(&value).unwrap();
     posts.push(post);
   }
@@ -60,19 +61,22 @@ fn main() {
   let database = client.database("post");
   let collection = database.collection::<Post>("post");
 
-  let mut pid_not_cached: Vec<&str> = Vec::new();
+  let mut pid_not_cached: Vec<String> = Vec::new();
   for (key, _) in &post_not_cached {
-    pid_not_cached.push(&key[..]);
+    pid_not_cached.push(key[..].to_string());
   }
 
-  let query = doc!{"post_id": doc!{"$in": &pid_not_cached}};
-  let mut cursor = collection.find(query, None).unwrap();
+  let pid_not_cached_str: Vec<&str> = pid_not_cached.iter().map(|x| &x[..]).collect();
+
+  if pid_not_cached.len() != 0 {
+    let query = doc!{"post_id": doc!{"$in": &pid_not_cached_str}};
+    let mut cursor = collection.find(query, None).unwrap();
   
-  for doc in cursor {
-    let doc_ = doc.unwrap();
-    posts.push(doc_);    
+    for doc in cursor {
+      let doc_ = doc.unwrap();
+      posts.push(doc_);    
+    }
   }
-
   let serialized = serde_json::to_string(&posts).unwrap();
   send_return_value_to_caller(serialized);
 }

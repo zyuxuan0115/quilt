@@ -57,7 +57,7 @@ fn main() {
   }
 
   let usernames_suffix: Vec<String> = usernames.iter().map(|x|{let mut y = x.to_string(); y.push_str(":user_id"); y}).collect();
-  let usernames_str: Vec<&str> = usernames_suffix.iter().map(|x|&x[..]).collect();
+  let usernames_str: Vec<&str> = usernames_suffix.iter().map(|x| &**x).collect();
   let usernames_array: &[&str] = &usernames_str;
   let result: HashMap<String, i64> = memcache_client.gets(&usernames_array).unwrap();
   let mut user_mentions: Vec<user_mention> = Vec::new();
