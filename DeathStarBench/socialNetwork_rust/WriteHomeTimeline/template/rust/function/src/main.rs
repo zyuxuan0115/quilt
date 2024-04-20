@@ -49,13 +49,16 @@ fn main() {
   let user_id_str: String = timeline_info.user_id.to_string();
   let followers_str: String = make_rpc("social-graph-get-followers", user_id_str);
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
-  followers.append(&mut timeline_info.user_mentions_id);   
+  let mut followers_set: HashMap<i64,bool> = followers.iter().map(|x| (*x, false) ).collect::<HashMap<_, _>>();
+  for follower in timeline_info.user_mentions_id {
+    followers_set.entry(follower).or_insert_with(||false);
+  }
+  followers = followers_set.into_iter().map(|(k, _)| k).collect();
 
   // update redis
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
-
 //  let mut pipeline: redis::Pipeline = redis::Pipeline::new(); 
 //  let mut i: usize = 1; 
   for follower_id in &followers {
