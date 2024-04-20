@@ -78,8 +78,6 @@ fn main() {
 
   let res = collection.update_many(query, update, options).unwrap();
 
-  println!("{:?}",res);
-
   // update redis
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
