@@ -61,15 +61,13 @@ fn main() {
   let database = client.database("post");
   let collection = database.collection::<Post>("post");
 
-  let mut pid_not_cached: Vec<String> = Vec::new();
+  let mut pid_not_cached: Vec<i64> = Vec::new();
   for (key, _) in &post_not_cached {
-    pid_not_cached.push(key[..].to_string());
+    pid_not_cached.push(key[..].parse::<i64>().unwrap());
   }
 
-  let pid_not_cached_str: Vec<&str> = pid_not_cached.iter().map(|x| &x[..]).collect();
-
   if pid_not_cached.len() != 0 {
-    let query = doc!{"post_id": doc!{"$in": &pid_not_cached_str}};
+    let query = doc!{"post_id": doc!{"$in": &pid_not_cached}};
     let mut cursor = collection.find(query, None).unwrap();
   
     for doc in cursor {
