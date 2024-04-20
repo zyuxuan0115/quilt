@@ -1,7 +1,7 @@
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
+use std::{fs::read_to_string, collections::HashMap};
 use redis::{Commands};
 
 fn read_lines(filename: &str) -> Vec<String> {
@@ -60,38 +60,30 @@ fn get_redis_ro_uri() -> String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let follow_info: social_graph_follow_get = serde_json::from_str(&input).unwrap();
+  let timeline_info: write_user_timeline_get = serde_json::from_str(&input).unwrap();
 
-  let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
-
+  // connect to mongodb
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("social-graph");
-  let collection = database.collection::<social_graph_entry>("social-graph");
+  let database = client.database("user-timeline");
+  let collection = database.collection::<social_graph_entry>("user-timeline");
 
-  // Update follower->followee edges
-  let search_query = doc!{"$and": [doc!{"user_id":follow_info.user_id},doc!{"followees": doc!{"$not":doc!{"$elemMatch":doc!{"user_id":follow_info.followee_id}}}}]};  
-  let update_query = doc!{"$push": doc!{"followees":doc!{"user_id":follow_info.followee_id, "timestamp":(time_stamp as i64)} }};
-  let res = collection.update_many(search_query, update_query, None).unwrap();
+  // update mongodb
+  let query = doc!{"user_id":timeline_info.user_id};
+  let update = doc!{"$push":doc!{"posts":doc!{"$each":[doc!{"post_id":timeline_info.post_id,"timestamp":timeline_info.timestamp}], "$position":0}}};
 
-  // Update followee->follower edges
-  let search_query =  doc!{"$and": [doc!{"user_id":follow_info.followee_id},doc!{"followers": doc!{"$not":doc!{"$elemMatch":doc!{"user_id":follow_info.user_id}}}}]};  
-  let update_query = doc!{"$push": doc!{"followers":doc!{"user_id":follow_info.user_id, "timestamp":(time_stamp as i64)} }};
-  let res = collection.update_many(search_query, update_query, None).unwrap();
+  let res = collection.update_many(query, update, None).unwrap();
+
+  println!("{:?}",res);
 
   // update redis
-  let mut user_id_str: String = follow_info.user_id.to_string();
-  user_id_str.push_str(":followees");
-  let mut followee_id_str: String = follow_info.followee_id.to_string();
-
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
-    
-  let res: isize = con.zadd(&user_id_str[..], &followee_id_str[..], (time_stamp as i64)).unwrap();
-  user_id_str = (&user_id_str[..]).strip_suffix(":followees").unwrap().to_string();
-  followee_id_str.push_str(":followers");
-  let res: isize = con.zadd(&followee_id_str[..], &user_id_str[..], (time_stamp as i64)).unwrap();
+   
+  let user_id_str = timeline_info.user_id.to_string(); 
+  let post_id_str = timeline_info.post_id.to_string();
+  let res: isize = con.zadd(&user_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
 
   send_return_value_to_caller("".to_string());
 }
