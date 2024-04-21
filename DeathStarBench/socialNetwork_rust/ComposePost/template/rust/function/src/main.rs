@@ -52,18 +52,18 @@ fn main() {
     user_id: input_info.user_id,
     timestamp: post.timestamp,
   };
-  let write_u_tl_art_str: String = serde_json::to_string(&write_u_tl_arg).unwrap();
-  make_rpc("write-user-timeline", write_u_tl_art_str);
+  let write_u_tl_arg_str: String = serde_json::to_string(&write_u_tl_arg).unwrap();
+  make_rpc("write-user-timeline", write_u_tl_arg_str);
 
   // call WriteHomeTimeline
   let write_h_tl_arg = write_home_timeline_get {
     post_id: post.post_id,
     user_id: input_info.user_id,
     timestamp: post.timestamp,
-    user_mentions_id: post.user_mentions.clone(),
+    user_mentions_id: post.user_mentions.iter().map(|x| x.user_id).collect(),
   };
-  let write_h_tl_art_str: String = serde_json::to_string(&write_h_tl_arg).unwrap();
-  make_rpc("write-home-timeline", write_h_tl_art_str); 
+  let write_h_tl_arg_str: String = serde_json::to_string(&write_h_tl_arg).unwrap();
+  make_rpc("write-home-timeline", write_h_tl_arg_str); 
 
   send_return_value_to_caller("".to_string());
 }
