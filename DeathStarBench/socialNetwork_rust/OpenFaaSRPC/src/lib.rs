@@ -96,6 +96,16 @@ pub struct write_user_timeline_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct compose_post_get {
+  pub username: String,
+  pub user_id: i64,
+  pub text: String,
+  pub media_ids: Vec<i64>,
+  pub media_types: Vec<String>,
+  pub post_type: PostType,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct url_pair{
   pub shortened_url: String,
   pub expanded_url: String,
@@ -150,7 +160,6 @@ pub enum PostType {
 pub struct Post {
   pub post_id: i64,
   pub creator: Creator,
-  pub req_id: i64,
   pub text: String,
   pub user_mentions: Vec<user_mention>,
   pub media: Vec<Media>,
