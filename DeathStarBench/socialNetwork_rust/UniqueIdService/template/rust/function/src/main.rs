@@ -1,8 +1,11 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
-use short_uuid::ShortUuid;
+use rand::{distributions::Alphanumeric, Rng};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let uuid = ShortUuid::generate().to_string();
+  let mut uuid:i64 = rand::thread_rng().gen();
+  if uuid < 0 {
+    uuid = 0-uuid;
+  }
   send_return_value_to_caller(uuid);
 }
