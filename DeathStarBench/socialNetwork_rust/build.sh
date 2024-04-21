@@ -2,7 +2,7 @@
   
 search_dir=$(pwd)
 
-function build_and_deploy {
+function build {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
@@ -10,12 +10,12 @@ function build_and_deploy {
       continue
     elif [[ "$BASE_NAME" = "build.sh" ]] ; then 
       continue
+    elif [[ "$BASE_NAME" = "README.md" ]] ; then 
+      continue
     else
       cd $entry
       ./build.sh build
       ./build.sh push
-      YAML_FILE=$(ls *.yml)
-      faas-cli deploy -f $YAML_FILE
     fi
   done
 }
@@ -27,6 +27,8 @@ function deploy {
     if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "build.sh" ]] ; then 
+      continue
+    elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
     else
       cd $entry
@@ -42,6 +44,8 @@ function clean {
     BASE_NAME=$(basename $entry)
     if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
       continue
+    elif [[ "$BASE_NAME" = "README.md" ]] ; then 
+      continue
     else
       cd $entry/template/rust/function
       cargo clean
@@ -53,7 +57,7 @@ function clean {
 
 case "$1" in
 build)
-    build_and_deploy
+    build
     ;;
 deploy)
     deploy
