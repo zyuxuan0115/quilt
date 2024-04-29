@@ -25,6 +25,8 @@ function setup {
   helm install sn-redis bitnami/redis --namespace openfaas-fn --set usePassword=false --set master.persistence.enabled=false
   REDIS_PASSWORD=$(kubectl get secret --namespace openfaas-fn sn-redis -o jsonpath="{.data.redis-password}" | base64 -d)
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
+  kubectl rollout status deployment/mongodb
+  kubectl port-forward service/mongodb 27017:27017 &
 }
 
 function killa {
