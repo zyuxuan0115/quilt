@@ -27,9 +27,7 @@ function setup {
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
   kubectl rollout status deployment/mongodb
   kubectl port-forward service/mongodb 27017:27017 &
-  kubectl rollout status deploy/memcache
   kubectl port-forward svc/sn-memcache-memcached 11211:11211 &
-  kubectl rollout status deployment/redis-deploy
   kubectl port-forward --namespace openfaas-fn svc/sn-redis-master 6379:6379 &
 }
 
