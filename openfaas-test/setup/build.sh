@@ -19,8 +19,11 @@ function setup {
   PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
   echo -n $PASSWORD | faas-cli login --username admin --password-stdin
   arkade install mongodb
+  kubectl expose deployment mongodb --port=27017 --target-port=27017 \
+        --name=mongodb-service --type=LoadBalancer
   MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace default mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
   faas-cli secret create mongo-db-password --from-literal $MONGODB_ROOT_PASSWORD
+  echo "$MONGODB_ROOT_PASSWORD" > mongopass.txt
   helm install sn-memcache bitnami/memcached --set architecture="high-availability" --set autoscaling.enabled="true"
   helm install sn-redis bitnami/redis --namespace openfaas-fn --set usePassword=false --set master.persistence.enabled=false
   REDIS_PASSWORD=$(kubectl get secret --namespace openfaas-fn sn-redis -o jsonpath="{.data.redis-password}" | base64 -d)
