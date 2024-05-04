@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::collections::HashMap;
+use mongodb::{bson::doc,sync::Client};
+use memcache::Client as memcached_client;
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {
