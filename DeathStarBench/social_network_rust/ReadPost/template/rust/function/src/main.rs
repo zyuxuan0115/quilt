@@ -1,7 +1,7 @@
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-ues DbInterface::*;
+use DbInterface::*;
 use std::fs::read_to_string;
 use memcache::Client as memcached_client;
 
