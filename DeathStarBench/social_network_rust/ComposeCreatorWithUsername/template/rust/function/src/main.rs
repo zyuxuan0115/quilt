@@ -5,13 +5,6 @@ use DbInterface::*;
 use std::collections::HashMap;
 use memcache::Client as memcached_client;
 
-fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
-    match s.strip_suffix(suffix) {
-        Some(s) => s,
-        None => s
-    }
-}
-
 fn main() {
   let input: String = get_arg_from_caller();
   let mut username = String::from(&input[..]);
