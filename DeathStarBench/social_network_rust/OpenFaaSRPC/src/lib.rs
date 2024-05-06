@@ -19,7 +19,7 @@ pub struct register_user_with_id_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct register_user_get {
+pub struct RegisterUserArgs {
   pub first_name: String,
   pub last_name: String,
   pub username: String,
@@ -52,7 +52,7 @@ pub struct SocialGraphFollowArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct social_graph_follow_with_username_get {
+pub struct SocialGraphFollowWithUsernameArgs {
   pub user_name: String,
   pub followee_name: String,
 }

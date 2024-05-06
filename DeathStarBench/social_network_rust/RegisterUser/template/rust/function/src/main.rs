@@ -16,7 +16,7 @@ fn gen_random_string()->String{
  
 fn main() {
   let input: String = get_arg_from_caller();
-  let new_user_info: register_user_get = serde_json::from_str(&input).unwrap();
+  let new_user_info: RegisterUserArgs = serde_json::from_str(&input).unwrap();
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
