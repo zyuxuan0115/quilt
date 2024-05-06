@@ -58,7 +58,7 @@ pub struct social_graph_follow_with_username_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct write_home_timeline_get {
+pub struct WriteHomeTimelineArgs {
   pub post_id: i64,
   pub user_id: i64,
   pub timestamp: i64,
@@ -102,7 +102,7 @@ pub struct UserTimelineEntry {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct social_graph_entry {
+pub struct SocialGraphEntry {
   pub user_id: i64,
   pub followers: Vec<Follower>,
   pub followees: Vec<Followee>,

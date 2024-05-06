@@ -47,7 +47,7 @@ fn main() {
   make_rpc("store-post", post_str);
 
   // call WriteUserTimeline
-  let write_u_tl_arg =  write_user_timeline_get {
+  let write_u_tl_arg =  WriteUserTimelineArgs {
     post_id: post.post_id,
     user_id: input_info.user_id,
     timestamp: post.timestamp,
@@ -56,7 +56,7 @@ fn main() {
   make_rpc("write-user-timeline", write_u_tl_arg_str);
 
   // call WriteHomeTimeline
-  let write_h_tl_arg = write_home_timeline_get {
+  let write_h_tl_arg = WriteHomeTimelineArgs {
     post_id: post.post_id,
     user_id: input_info.user_id,
     timestamp: post.timestamp,
