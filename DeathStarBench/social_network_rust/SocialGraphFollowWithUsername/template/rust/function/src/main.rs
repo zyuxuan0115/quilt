@@ -8,7 +8,7 @@ fn main() {
   let user_id: i64 = user_id_str.parse::<i64>().unwrap();  
   let followee_id_str:String = make_rpc("get-user-id", follow_info.followee_name);
   let followee_id: i64 = followee_id_str.parse::<i64>().unwrap();  
-  let social_graph_follow_args = social_graph_follow_get {
+  let social_graph_follow_args = SocialGraphFollowArgs {
     user_id: user_id,
     followee_id: followee_id,
   };

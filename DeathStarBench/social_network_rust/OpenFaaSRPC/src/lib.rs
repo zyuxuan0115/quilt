@@ -46,7 +46,7 @@ pub struct MediaServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct social_graph_follow_get {
+pub struct SocialGraphFollowArgs {
   pub user_id: i64,
   pub followee_id: i64,
 }

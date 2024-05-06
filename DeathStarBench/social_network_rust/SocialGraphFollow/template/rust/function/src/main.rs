@@ -7,7 +7,7 @@ use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let follow_info: social_graph_follow_get = serde_json::from_str(&input).unwrap();
+  let follow_info: SocialGraphFollowArgs = serde_json::from_str(&input).unwrap();
 
   let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
 
