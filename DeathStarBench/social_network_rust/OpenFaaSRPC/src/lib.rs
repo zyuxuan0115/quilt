@@ -16,7 +16,7 @@ pub struct memcached_userlogin_info {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct user_info {
+pub struct UserInfo {
   pub user_id: i64,
   pub first_name: String,
   pub last_name: String,
@@ -171,7 +171,7 @@ pub struct Post {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct text_service_return{
   pub user_mentions: Vec<UserMention>,
-  pub urls: Vec<url_pair>,
+  pub urls: Vec<UrlPair>,
   pub text: String,
 }
 
