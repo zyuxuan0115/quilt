@@ -3,7 +3,7 @@ use std::io::{self, Read, Write};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct memcached_userlogin_info {
+pub struct MemcachedUserLoginInfo {
   pub user_id: i64,
   pub salt: String,
   pub password: String, 

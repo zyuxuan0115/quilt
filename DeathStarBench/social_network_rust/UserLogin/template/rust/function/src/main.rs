@@ -36,7 +36,7 @@ fn main() {
   let mut jwt_encode_msg: String = String::new();
   match result_str {
     Some(x) => {
-      let result: memcached_userlogin_info = serde_json::from_str(&x).unwrap();
+      let result: MemcachedUserLoginInfo = serde_json::from_str(&x).unwrap();
       let password_stored: String = result.password;
       let salt_stored: String = result.salt;
       password.push_str(&salt_stored[..]);
