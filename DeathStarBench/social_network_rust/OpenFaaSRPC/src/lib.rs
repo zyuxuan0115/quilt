@@ -3,24 +3,8 @@ use std::io::{self, Read, Write};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Creator {
-  pub user_id: i64,
-  pub username: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct memcached_userlogin_info {
   pub user_id: i64,
-  pub salt: String,
-  pub password: String, 
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserInfo {
-  pub user_id: i64,
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
   pub salt: String,
   pub password: String, 
 }
@@ -49,7 +33,7 @@ pub struct compose_creator_with_userid_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct user_login_get {
+pub struct UserLoginArgs {
   pub username: String,
   pub password: String,
   pub secret: String,
@@ -106,27 +90,15 @@ pub struct compose_post_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UrlPair {
-  pub shortened_url: String,
-  pub expanded_url: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserMention {
-  pub user_id: i64,
-  pub user_name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct post_entry {
+pub struct PostEntry {
   pub post_id: i64,
   pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct user_timeline_entry {
+pub struct UserTimelineEntry {
   pub user_id: i64,
-  pub posts: Vec<post_entry>,
+  pub posts: Vec<PostEntry>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -157,6 +129,22 @@ pub enum PostType {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct Creator {
+  pub user_id: i64,
+  pub username: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserInfo {
+  pub user_id: i64,
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub salt: String,
+  pub password: String, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Post {
   pub post_id: i64,
   pub creator: Creator,
@@ -166,6 +154,24 @@ pub struct Post {
   pub urls: Vec<UrlPair>,
   pub timestamp: i64,
   pub post_type: PostType, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Media{
+  pub media_type: String,
+  pub media_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UrlPair {
+  pub shortened_url: String,
+  pub expanded_url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserMention {
+  pub user_id: i64,
+  pub user_name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -183,11 +189,6 @@ pub struct user_login_return {
   pub ttl: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Media{
-  pub media_type: String,
-  pub media_id: i64,
-}
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
