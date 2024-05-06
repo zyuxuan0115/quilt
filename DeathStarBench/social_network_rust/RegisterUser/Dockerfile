@@ -17,6 +17,7 @@ WORKDIR /home/rust
 # Copy all the sources
 COPY function ./function
 COPY OpenFaaSRPC ./OpenFaaSRPC
+COPY DbInterface ./DbInterface
  
 #ENV CARGO_TARGET_DIR=/home/rust/target
 WORKDIR /home/rust/function
