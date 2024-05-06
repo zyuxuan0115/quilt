@@ -23,12 +23,12 @@ fn main() {
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("url-shorten");
-  let collection = database.collection::<url_pair>("url-shorten");
+  let collection = database.collection::<UrlPair>("url-shorten");
 
-  let mut docs: Vec<url_pair> = Vec::new();
+  let mut docs: Vec<UrlPair> = Vec::new();
   for url in urls {
     let s = gen_short_url();
-    let new_pair = url_pair{
+    let new_pair = UrlPair{
       shortened_url: s.clone(), 
       expanded_url: url.clone(),
     };

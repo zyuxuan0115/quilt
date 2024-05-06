@@ -106,7 +106,7 @@ pub struct compose_post_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct url_pair{
+pub struct UrlPair {
   pub shortened_url: String,
   pub expanded_url: String,
 }
@@ -132,18 +132,18 @@ pub struct user_timeline_entry {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct social_graph_entry {
   pub user_id: i64,
-  pub followers: Vec<follower_entry>,
-  pub followees: Vec<followee_entry>,
+  pub followers: Vec<Follower>,
+  pub followees: Vec<Followee>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct followee_entry {
+pub struct Followee {
   pub followee_id: i64,
   pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct follower_entry {
+pub struct Follower {
   pub follower_id: i64,
   pub timestamp: i64,
 }
@@ -163,7 +163,7 @@ pub struct Post {
   pub text: String,
   pub user_mentions: Vec<UserMention>,
   pub media: Vec<Media>,
-  pub urls: Vec<url_pair>,
+  pub urls: Vec<UrlPair>,
   pub timestamp: i64,
   pub post_type: PostType, 
 }

@@ -25,7 +25,7 @@ fn main() {
 
   let urls_serialized = serde_json::to_string(&urls).unwrap();
   let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
-  let url_pairs: Vec<url_pair> = serde_json::from_str(&urls_str).unwrap();
+  let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
 
   for item in &url_pairs {
     let text_str: &str = &text[..];
