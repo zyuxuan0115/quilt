@@ -1,46 +1,13 @@
 use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use DbInterface::*;
 use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
 use memcache::Client as memcached_client;
 use sha256::digest;
 use jws::{JsonObject, JsonValue};
 use jws::compact::{decode_verify, encode_sign};
 use jws::hmac::{Hs512Signer, HmacVerifier};
-
-fn read_lines(filename: &str) -> Vec<String> {
-    read_to_string(filename) 
-        .unwrap()  // panic on possible file-reading errors
-        .lines()  // split the string into an iterator of string slices
-        .map(String::from)  // make each slice into a string
-        .collect()  // gather them together into a vector
-}
- 
-fn get_mongodb_uri() -> String{
-  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
-  if passwords.len() == 0 {
-    println!("no password found!");
-  } 
-  if passwords.len() > 1 {
-    println!("more than 1 passwords found!");
-  }
-  let password = passwords[0].to_owned();
-  let mut uri: String = String::from("mongodb://root:");
-  uri.push_str(&password[..]);
-  uri.push_str("@mongodb.default.svc.cluster.local:27017");
-  uri
-}
-
-fn get_memcached_uri() -> String {
-  "memcache://sn-memcache-memcached.default.svc.cluster.local:11211??timeout=10&tcp_nodelay=true".to_string()
-}
-
-fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
-    match s.strip_suffix(suffix) {
-        Some(s) => s,
-        None => s
-    }
-}
 
 fn jwt_encode(secret: &str, payload: &str) -> String {
   // Add custom header parameters.
