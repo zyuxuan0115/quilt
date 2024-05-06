@@ -3,7 +3,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let media_get: media_service_get = serde_json::from_str(&input).unwrap();
+  let media_get: MediaServiceArgs = serde_json::from_str(&input).unwrap();
   let media_ids = media_get.media_id;
   let media_types = media_get.media_type;
 

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
+use std::time::SystemTime;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -23,7 +23,7 @@ fn main() {
   let text_return_info: text_service_return = serde_json::from_str(&text_str).unwrap();
 
   // call MediaService
-  let media_arg = media_service_get {
+  let media_arg = MediaServiceArgs {
     media_id: input_info.media_ids,
     media_type: input_info.media_types,
   };

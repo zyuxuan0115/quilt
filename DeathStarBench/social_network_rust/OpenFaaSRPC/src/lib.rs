@@ -40,7 +40,7 @@ pub struct UserLoginArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct media_service_get {
+pub struct MediaServiceArgs {
   pub media_id: Vec<i64>,
   pub media_type: Vec<String>,
 }
