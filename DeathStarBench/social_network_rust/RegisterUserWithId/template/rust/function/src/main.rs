@@ -16,12 +16,12 @@ fn gen_random_string()->String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let new_user_info: register_user_with_id_get = serde_json::from_str(&input).unwrap();
+  let new_user_info: RegisterUserWithIdArgs = serde_json::from_str(&input).unwrap();
 
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
-  let collection = database.collection::<user_info>("user");
+  let collection = database.collection::<UserInfo>("user");
 
   let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
 
@@ -37,7 +37,7 @@ fn main() {
   let salt: String = gen_random_string();
   pw_sha.push_str(&salt[..]);
   pw_sha = digest(pw_sha);
-  let user_info_entry = user_info {
+  let user_info_entry = UserInfo {
     user_id: new_user_info.user_id,
     first_name: new_user_info.first_name,
     last_name: new_user_info.last_name,

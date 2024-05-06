@@ -10,7 +10,7 @@ pub struct memcached_userlogin_info {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct register_user_with_id_get {
+pub struct RegisterUserWithIdArgs {
   pub first_name: String,
   pub last_name: String,
   pub username: String,
