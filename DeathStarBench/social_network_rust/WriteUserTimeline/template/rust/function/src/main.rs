@@ -13,7 +13,7 @@ fn main() {
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user-timeline");
-  let collection = database.collection::<user_timeline_entry>("user-timeline");
+  let collection = database.collection::<UserTimelineEntry>("user-timeline");
 
   // update mongodb
   let query = doc!{"user_id":timeline_info.user_id};
