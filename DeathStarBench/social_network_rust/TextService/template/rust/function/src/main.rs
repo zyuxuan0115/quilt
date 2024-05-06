@@ -32,7 +32,7 @@ fn main() {
     text = text_str.replace(&item.expanded_url[..], &item.shortened_url[..]).to_string();
   }
 
-  let return_value = text_service_return {
+  let return_value = TextServiceReturn {
     user_mentions: user_mentions,
     urls: url_pairs,
     text: text,

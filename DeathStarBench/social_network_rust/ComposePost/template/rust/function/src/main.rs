@@ -20,7 +20,7 @@ fn main() {
 
   // call TextService
   let text_str: String = make_rpc("text-service", input_info.text);
-  let text_return_info: text_service_return = serde_json::from_str(&text_str).unwrap();
+  let text_return_info: TextServiceReturn = serde_json::from_str(&text_str).unwrap();
 
   // call MediaService
   let media_arg = MediaServiceArgs {

@@ -175,7 +175,7 @@ pub struct UserMention {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct text_service_return{
+pub struct TextServiceReturn{
   pub user_mentions: Vec<UserMention>,
   pub urls: Vec<UrlPair>,
   pub text: String,
