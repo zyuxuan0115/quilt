@@ -43,7 +43,7 @@ fn main() {
       let user_id_stored: i64 = result.user_id;
       let auth: bool = digest(&password) == password_stored;
       if auth == true {
-        let payload_struct = user_login_return {
+        let payload_struct = UserLoginReturn {
           user_id: user_id_stored,
           username: username.clone(),
           timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64,
@@ -72,7 +72,7 @@ fn main() {
           let user_id_stored: i64 = y.user_id;
           let auth: bool = digest(&password) == password_stored;
           if auth == true {
-            let payload_struct = user_login_return {
+            let payload_struct = UserLoginReturn {
               user_id: user_id_stored,
               username: username,
               timestamp: SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64,

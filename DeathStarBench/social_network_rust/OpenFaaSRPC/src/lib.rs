@@ -182,7 +182,7 @@ pub struct TextServiceReturn{
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct user_login_return {
+pub struct UserLoginReturn {
   pub user_id: i64,
   pub username: String,
   pub timestamp: i64,
