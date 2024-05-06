@@ -19,7 +19,7 @@ fn main() {
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user");
-  let collection = database.collection::<user_mention>("user");
+  let collection = database.collection::<UserMention>("user");
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();  
@@ -33,11 +33,11 @@ fn main() {
   let usernames_str: Vec<&str> = usernames_suffix.iter().map(|x| &**x).collect();
   let usernames_array: &[&str] = &usernames_str;
   let result: HashMap<String, i64> = memcache_client.gets(&usernames_array).unwrap();
-  let mut user_mentions: Vec<user_mention> = Vec::new();
+  let mut user_mentions: Vec<UserMention> = Vec::new();
   for (key, value) in &result {
     let username: String = remove_suffix(&key[..], ":user_id").to_string();
     usernames_not_cached.remove(&username);
-    let new_user_mention = user_mention {
+    let new_user_mention = UserMention {
       user_id: value.to_owned(),
       user_name: username,
     };
@@ -55,7 +55,7 @@ fn main() {
 
   for doc in cursor { 
     let doc_ = doc.unwrap();
-    let new_user_mention = user_mention {
+    let new_user_mention = UserMention {
       user_id: doc_.user_id,
       user_name: doc_.user_name,
     };

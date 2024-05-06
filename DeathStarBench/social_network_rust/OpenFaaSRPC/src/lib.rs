@@ -112,7 +112,7 @@ pub struct url_pair{
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct user_mention {
+pub struct UserMention {
   pub user_id: i64,
   pub user_name: String,
 }
@@ -161,7 +161,7 @@ pub struct Post {
   pub post_id: i64,
   pub creator: Creator,
   pub text: String,
-  pub user_mentions: Vec<user_mention>,
+  pub user_mentions: Vec<UserMention>,
   pub media: Vec<Media>,
   pub urls: Vec<url_pair>,
   pub timestamp: i64,
@@ -170,7 +170,7 @@ pub struct Post {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct text_service_return{
-  pub user_mentions: Vec<user_mention>,
+  pub user_mentions: Vec<UserMention>,
   pub urls: Vec<url_pair>,
   pub text: String,
 }

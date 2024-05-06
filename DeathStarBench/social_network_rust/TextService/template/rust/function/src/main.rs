@@ -21,7 +21,7 @@ fn main() {
 
   let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
   let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
-  let user_mentions: Vec<user_mention> = serde_json::from_str(&user_mentions_str).unwrap();
+  let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
 
   let urls_serialized = serde_json::to_string(&urls).unwrap();
   let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
