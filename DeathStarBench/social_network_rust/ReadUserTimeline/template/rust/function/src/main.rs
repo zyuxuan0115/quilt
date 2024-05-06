@@ -7,7 +7,7 @@ use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let timeline_info: read_timeline_get = serde_json::from_str(&input).unwrap();
+  let timeline_info: ReadTimelineArgs = serde_json::from_str(&input).unwrap();
 
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();

@@ -4,7 +4,7 @@ use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let input_info: compose_post_get = serde_json::from_str(&input).unwrap();
+  let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
   
   // call UniqueIdService
   let uuid: String = make_rpc("unique-id-service", "".to_string());

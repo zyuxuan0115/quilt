@@ -6,7 +6,7 @@ use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let mut timeline_info: read_timeline_get = serde_json::from_str(&input).unwrap();
+  let mut timeline_info: ReadTimelineArgs = serde_json::from_str(&input).unwrap();
 
   let user_id_str: String = timeline_info.user_id.to_string();
 

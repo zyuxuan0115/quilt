@@ -7,7 +7,7 @@ use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let timeline_info: write_user_timeline_get = serde_json::from_str(&input).unwrap();
+  let timeline_info: WriteUserTimelineArgs = serde_json::from_str(&input).unwrap();
 
   // connect to mongodb
   let uri = get_mongodb_uri();

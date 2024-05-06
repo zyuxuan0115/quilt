@@ -66,21 +66,21 @@ pub struct write_home_timeline_get {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct read_timeline_get {
+pub struct ReadTimelineArgs {
   pub user_id: i64,
   pub start: i64,
   pub stop: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct write_user_timeline_get {
+pub struct WriteUserTimelineArgs {
   pub post_id: i64,
   pub user_id: i64,
   pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct compose_post_get {
+pub struct ComposePostArgs {
   pub username: String,
   pub user_id: i64,
   pub text: String,
