@@ -20,7 +20,7 @@ fn jwt_encode(secret: &str, payload: &str) -> String {
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let user_info: user_login_get = serde_json::from_str(&input).unwrap();
+  let user_info: UserLoginArgs = serde_json::from_str(&input).unwrap();
 
   let mut username = user_info.username;
   let mut password = user_info.password;
