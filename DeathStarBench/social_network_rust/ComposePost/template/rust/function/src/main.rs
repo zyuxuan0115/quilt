@@ -11,7 +11,7 @@ fn main() {
   let pid: i64 = uuid[..].parse::<i64>().unwrap();
   
   // call ComposerCreatorWithUserId
-  let compose_creator_with_userid_arg = compose_creator_with_userid_get {
+  let compose_creator_with_userid_arg = ComposeCreatorWithUseridArgs {
     user_id: input_info.user_id,
     username: input_info.username, 
   };

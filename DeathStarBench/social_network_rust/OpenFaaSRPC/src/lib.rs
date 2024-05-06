@@ -27,7 +27,7 @@ pub struct RegisterUserArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct compose_creator_with_userid_get {
+pub struct ComposeCreatorWithUseridArgs {
   pub user_id: i64,
   pub username: String,
 }
