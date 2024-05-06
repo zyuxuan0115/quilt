@@ -224,5 +224,5 @@ pub fn get_arg_from_caller() -> String{
 }
 
 pub fn send_return_value_to_caller(output: String) -> (){
-  io::stdout().write(&output[..].as_bytes());
+  let _ = io::stdout().write(&output[..].as_bytes());
 }
