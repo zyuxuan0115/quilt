@@ -14,7 +14,7 @@ fn main() {
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("social-graph");
-  let collection = database.collection::<social_graph_entry>("social-graph");
+  let collection = database.collection::<SocialGraphEntry>("social-graph");
 
   // Update follower->followee edges
   let search_query = doc!{"$and": [doc!{"user_id":follow_info.user_id},doc!{"followees": doc!{"$not":doc!{"$elemMatch":doc!{"user_id":follow_info.followee_id}}}}]};  

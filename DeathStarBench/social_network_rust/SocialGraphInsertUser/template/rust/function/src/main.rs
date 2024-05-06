@@ -13,7 +13,7 @@ fn main() {
   let database = client.database("social-graph");
   let collection = database.collection::<social_graph_entry>("social-graph");
   
-  let docs = social_graph_entry {
+  let docs = SocialGraphEntry {
     user_id: user_id,
     followers: Vec::new(),
     followees: Vec::new(),

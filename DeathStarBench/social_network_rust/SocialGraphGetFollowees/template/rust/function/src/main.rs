@@ -31,7 +31,7 @@ fn main() {
         let uri = get_mongodb_uri();
         let client = Client::with_uri_str(&uri[..]).unwrap();
         let database = client.database("social-graph");
-        let collection = database.collection::<social_graph_entry>("social-graph");
+        let collection = database.collection::<SocialGraphEntry>("social-graph");
         let query = doc!{"user_id": user_id };
         let mut result = collection.find_one(query, None).unwrap();
 
