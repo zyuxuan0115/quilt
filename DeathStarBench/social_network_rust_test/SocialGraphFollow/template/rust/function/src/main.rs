@@ -7,7 +7,7 @@ use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let now = Instant::now();
+//  let now = Instant::now();
   let follow_info: SocialGraphFollowArgs = serde_json::from_str(&input).unwrap();
 
   let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
@@ -45,8 +45,8 @@ fn main() {
   followee_id_str.push_str(":followers");
   let res: isize = con.zadd(&followee_id_str[..], &user_id_str[..], time_stamp as i64).unwrap();
 
-  let new_now =  Instant::now();
-  println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+//  let new_now =  Instant::now();
+//  println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
 }
 
