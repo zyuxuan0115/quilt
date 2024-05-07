@@ -7,5 +7,5 @@ fn main() {
   if uuid < 0 {
     uuid = 0-uuid;
   }
-  send_return_value_to_caller(uuid);
+  send_return_value_to_caller(uuid.to_string());
 }
