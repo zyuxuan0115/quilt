@@ -12,7 +12,7 @@ use jws::hmac::{Hs512Signer, HmacVerifier};
 fn jwt_encode(secret: &str, payload: &str) -> String {
   // Add custom header parameters.
   let mut header = JsonObject::new();
-  header.insert(String::from("typ"), JsonValue::from("text/plain"));
+  header.insert(String::from("type"), JsonValue::from("text/plain"));
   // Encode and sign the message.
   let encoded = encode_sign(header, payload.as_bytes(), &Hs512Signer::new(secret.as_bytes())).unwrap();
   encoded.into_data()
