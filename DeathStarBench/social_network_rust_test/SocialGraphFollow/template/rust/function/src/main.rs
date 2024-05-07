@@ -46,7 +46,7 @@ fn main() {
   let res: isize = con.zadd(&followee_id_str[..], &user_id_str[..], time_stamp as i64).unwrap();
 
   let new_now =  Instant::now();
-  println!("{:?}", new_now.duration_since(now));
+  println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
 }
 
