@@ -61,7 +61,7 @@ fn main() {
       let uri = get_mongodb_uri();
       let client = Client::with_uri_str(&uri[..]).unwrap();
       let database = client.database("user");
-      let collection = database.collection::<user_info>("user");
+      let collection = database.collection::<UserInfo>("user");
       let mongodb_result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
 
       match mongodb_result {
