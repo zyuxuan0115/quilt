@@ -36,7 +36,7 @@ fn main() {
     let uri = get_mongodb_uri();
     let client = Client::with_uri_str(&uri[..]).unwrap();
     let database = client.database("user");
-    let collection = database.collection::<user_info>("user");
+    let collection = database.collection::<UserInfo>("user");
     
     username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
 

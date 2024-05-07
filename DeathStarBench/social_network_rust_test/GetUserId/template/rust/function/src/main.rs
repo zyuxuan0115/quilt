@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::collections::HashMap;
+use std::{collections::HashMap, time::{Duration, Instant}};
 use mongodb::{bson::doc,sync::Client};
 use memcache::Client as memcached_client;
 
@@ -14,6 +14,7 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 
 fn main() {
   let input: String = get_arg_from_caller();
+  let now = Instant::now();
   let mut username = String::from(&input[..]);
   username.push_str(":user_id");
 
@@ -36,7 +37,7 @@ fn main() {
     let uri = get_mongodb_uri();
     let client = Client::with_uri_str(&uri[..]).unwrap();
     let database = client.database("user");
-    let collection = database.collection::<user_info>("user");
+    let collection = database.collection::<UserInfo>("user");
     
     username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
 
@@ -58,6 +59,8 @@ fn main() {
     memcache_client.set(&username[..], user_id, 0).unwrap();
   }
   let serialized = serde_json::to_string(&user_id).unwrap();
+  let new_now =  Instant::now();
+  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
