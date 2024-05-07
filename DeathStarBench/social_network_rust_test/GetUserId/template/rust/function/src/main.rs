@@ -14,7 +14,7 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let now = Instant::now();
+//  let now = Instant::now();
   let mut username = String::from(&input[..]);
   username.push_str(":user_id");
 
@@ -59,8 +59,8 @@ fn main() {
     memcache_client.set(&username[..], user_id, 0).unwrap();
   }
   let serialized = serde_json::to_string(&user_id).unwrap();
-  let new_now =  Instant::now();
-  println!("{:?}", new_now.duration_since(now));
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
