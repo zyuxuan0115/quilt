@@ -1,8 +1,10 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use std::time::{Duration, Instant};
 
 fn main() {
-  let input: String = get_arg_from_caller();
+//  let input: String = get_arg_from_caller();
+  let now = Instant::now();
   let media_get: MediaServiceArgs = serde_json::from_str(&input).unwrap();
   let media_ids = media_get.media_id;
   let media_types = media_get.media_type;
@@ -24,7 +26,8 @@ fn main() {
   }
 
   let serialized = serde_json::to_string(&return_val).unwrap();
-
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
