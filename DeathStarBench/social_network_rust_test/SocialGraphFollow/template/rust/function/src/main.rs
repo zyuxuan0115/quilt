@@ -2,11 +2,12 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{collections::HashMap, time::SystemTime};
+use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
+  let now = Instant::now();
   let follow_info: SocialGraphFollowArgs = serde_json::from_str(&input).unwrap();
 
   let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
@@ -39,11 +40,13 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
     
-  let res: isize = con.zadd(&user_id_str[..], &followee_id_str[..], (time_stamp as i64)).unwrap();
+  let res: isize = con.zadd(&user_id_str[..], &followee_id_str[..], time_stamp as i64).unwrap();
   user_id_str = (&user_id_str[..]).strip_suffix(":followees").unwrap().to_string();
   followee_id_str.push_str(":followers");
-  let res: isize = con.zadd(&followee_id_str[..], &user_id_str[..], (time_stamp as i64)).unwrap();
+  let res: isize = con.zadd(&followee_id_str[..], &user_id_str[..], time_stamp as i64).unwrap();
 
+  let new_now =  Instant::now();
+  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
 }
 
