@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.246"
-AGENT_IP="130.127.133.233"
-SERVER_HOST="zyuxuan@clnode237.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode224.clemson.cloudlab.us"
+SERVER_IP="130.127.133.50"
+AGENT_IP="130.127.133.93"
+SERVER_HOST="zyuxuan@clnode041.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode084.clemson.cloudlab.us"
 
 function setup {
   k3sup install --ip $SERVER_IP --user $USER
