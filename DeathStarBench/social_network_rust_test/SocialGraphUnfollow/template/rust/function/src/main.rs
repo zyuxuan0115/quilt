@@ -2,12 +2,12 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
+use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  println!("{}", input);
+//  let now = Instant::now();
   let follow_info: SocialGraphFollowArgs = serde_json::from_str(&input).unwrap();
 
   let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
@@ -44,6 +44,8 @@ fn main() {
                                      .cmd("ZREM").arg(&followee_id_str[..]).arg(follow_info.user_id)
                                      .query(&mut con).unwrap();
 
+//  let new_now =  Instant::now();
+//  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
 }
 
