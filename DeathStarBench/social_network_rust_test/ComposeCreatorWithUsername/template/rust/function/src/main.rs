@@ -2,11 +2,12 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::collections::HashMap;
+use std::{collections::HashMap, time::{Duration, Instant}};
 use memcache::Client as memcached_client;
 
 fn main() {
   let input: String = get_arg_from_caller();
+//  let now = Instant::now();
   let mut username = String::from(&input[..]);
   username.push_str(":user_id");
 
@@ -56,6 +57,8 @@ fn main() {
     memcache_client.set(&username[..], new_creator.user_id, 0).unwrap();
   }
   let serialized = serde_json::to_string(&new_creator).unwrap();
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
