@@ -2,11 +2,12 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
+use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}};
 use redis::{Commands, RedisResult};
 
 fn main() {
   let input: String = get_arg_from_caller();
+//  let now = Instant::now();
   let user_id: i64 = serde_json::from_str(&input).unwrap();
 
   // get redis connection
@@ -57,6 +58,8 @@ fn main() {
   }
   
   let serialized = serde_json::to_string(&followee_ids).unwrap();
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
