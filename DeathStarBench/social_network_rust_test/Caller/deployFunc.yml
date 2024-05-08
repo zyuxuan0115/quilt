@@ -1,0 +1,13 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  caller-rust:
+    lang: rust
+    handler: ./caller-rust
+    image: zyuxuan0115/deathstarbench-caller-rust:latest
+    environment:
+      mongo_host: mongodb.default.svc.cluster.local:27017
+    secrets:
+    - mongo-db-password
