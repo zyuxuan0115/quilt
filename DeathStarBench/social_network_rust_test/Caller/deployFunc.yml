@@ -7,7 +7,3 @@ functions:
     lang: rust
     handler: ./caller-rust
     image: zyuxuan0115/deathstarbench-caller-rust:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
-    secrets:
-    - mongo-db-password
