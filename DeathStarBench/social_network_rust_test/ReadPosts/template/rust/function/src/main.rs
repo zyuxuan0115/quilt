@@ -2,11 +2,12 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap};
+use std::{fs::read_to_string, collections::HashMap, time::{Duration, Instant}};
 use memcache::Client as memcached_client;
 
 fn main() {
   let input: String = get_arg_from_caller();
+//  let time_0 = Instant::now();
   let post_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
 
   let mut post_not_cached: HashMap<String, bool> = HashMap::new();
@@ -50,5 +51,7 @@ fn main() {
     }
   }
   let serialized = serde_json::to_string(&posts).unwrap();
+//  let time_1 = Instant::now();
+//  println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller(serialized);
 }
