@@ -4,6 +4,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use rand::{distributions::Alphanumeric, Rng};
 use sha256::digest;
+use std::time::{Duration, Instant};
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
@@ -16,6 +17,7 @@ fn gen_random_string()->String{
  
 fn main() {
   let input: String = get_arg_from_caller();
+//  let now = Instant::now();
   let new_user_info: RegisterUserArgs = serde_json::from_str(&input).unwrap();
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
@@ -49,6 +51,8 @@ fn main() {
   collection.insert_one(user_info_entry, None).unwrap();
 
   let user_id_str = serde_json::to_string(&uid).unwrap();
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
 }
