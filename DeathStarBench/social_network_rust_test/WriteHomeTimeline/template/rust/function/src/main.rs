@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
+use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}};
 use redis::{Commands};
 use DbInterface::*;
 
@@ -10,6 +10,7 @@ fn main() {
 
   let user_id_str: String = timeline_info.user_id.to_string();
   let followers_str: String = make_rpc("social-graph-get-followers", user_id_str);
+//  let time_0 = Instant::now();
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
   let mut followers_set: HashMap<i64,bool> = followers.iter().map(|x| (*x, false) ).collect::<HashMap<_, _>>();
   for follower in timeline_info.user_mentions_id {
@@ -36,6 +37,8 @@ fn main() {
     let res: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   }
   //let res: usize = pipeline.query(&mut con).unwrap();
+//  let time_1 = Instant::now();
+//  println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller("".to_string());
 }
 
