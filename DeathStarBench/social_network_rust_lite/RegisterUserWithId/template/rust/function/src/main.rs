@@ -5,6 +5,7 @@ use DbInterface::*;
 use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 use std::time::{Duration, Instant};
+use redis::{Commands, RedisResult};
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
@@ -20,35 +21,61 @@ fn main() {
 //  let now = Instant::now();
   let new_user_info: RegisterUserWithIdArgs = serde_json::from_str(&input).unwrap();
 
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("user");
-  let collection = database.collection::<UserInfo>("user");
+  // update redis
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
-  let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
-
-  match result {
-    Some(_) => {
+  let mut real_username = format!("user:{}",new_user_info.username);
+  let res: RedisResult<i64> = con.hget(&real_username[..],"user_id");
+  
+  match res {
+    Ok(_) => {
       println!("User {} already existed", new_user_info.username);
       panic!("User {} already existed", new_user_info.username);
     },
-    None => (),
-  } 
+    RedisError => (),
+  }
+
+  
+
+  //let uri = get_mongodb_uri();
+  //let client = Client::with_uri_str(&uri[..]).unwrap();
+  //let database = client.database("user");
+  //let collection = database.collection::<UserInfo>("user");
+
+  //let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
+
+  //match result {
+  //  Some(_) => {
+  //    println!("User {} already existed", new_user_info.username);
+  //    panic!("User {} already existed", new_user_info.username);
+  //  },
+  //  None => (),
+  //} 
 
   let mut pw_sha: String = String::from(&new_user_info.password[..]);
   let salt: String = gen_random_string();
   pw_sha.push_str(&salt[..]);
   pw_sha = digest(pw_sha);
-  let user_info_entry = UserInfo {
-    user_id: new_user_info.user_id,
-    first_name: new_user_info.first_name,
-    last_name: new_user_info.last_name,
-    username: new_user_info.username,
-    salt: salt,
-    password: pw_sha, 
-  };
 
-  collection.insert_one(user_info_entry, None).unwrap();
+  let mut ret: isize = con.hset(&real_username[..],"user_id",new_user_info.user_id).unwrap();
+  ret = con.hset(&real_username[..],"first_name",new_user_info.first_name).unwrap();
+  ret = con.hset(&real_username[..],"last_name",new_user_info.last_name).unwrap();
+  ret = con.hset(&real_username[..],"username",new_user_info.username).unwrap();
+  ret = con.hset(&real_username[..],"salt",salt).unwrap();
+  ret = con.hset(&real_username[..],"password",pw_sha).unwrap();
+
+//  let user_info_entry = UserInfo {
+//    user_id: new_user_info.user_id,
+//    first_name: new_user_info.first_name,
+//    last_name: new_user_info.last_name,
+//    username: new_user_info.username,
+//    salt: salt,
+//    password: pw_sha, 
+//  };
+
+//  collection.insert_one(user_info_entry, None).unwrap();
 
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
 //  let new_now =  Instant::now();
