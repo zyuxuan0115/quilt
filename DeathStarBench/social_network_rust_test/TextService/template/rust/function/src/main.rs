@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use regex::Regex;
+use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();
+//  let time_0 = Instant::now();
   let mut text = input;
 
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
@@ -20,11 +22,14 @@ fn main() {
   }
 
   let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
-  let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
-  let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
-
   let urls_serialized = serde_json::to_string(&urls).unwrap();
+
+//  let time_1 = Instant::now();
+  let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
   let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
+//  let time_2 = Instant::now();
+
+  let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
   let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
 
   for item in &url_pairs {
@@ -39,6 +44,9 @@ fn main() {
   };
 
   let serialized = serde_json::to_string(&return_value).unwrap();
+//  let time_3 = Instant::now();
+//  println!("{:?}", time_1.duration_since(time_0));
+//  println!("{:?}", time_3.duration_since(time_2));
   send_return_value_to_caller(serialized);
 }
 
