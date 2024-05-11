@@ -2,11 +2,12 @@ use mongodb::{bson::doc,sync::Client,options::FindOptions};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{collections::HashMap, time::SystemTime};
+use std::{collections::HashMap, time::{SystemTime,Duration,Instant}};
 use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
+  //let now = Instant::now();
   let timeline_info: ReadTimelineArgs = serde_json::from_str(&input).unwrap();
 
   let redis_uri = get_redis_rw_uri();
@@ -45,6 +46,8 @@ fn main() {
     post_ids = post_id_set.into_iter().map(|(k, _)| k).collect();
   } 
   let serialized = serde_json::to_string(&post_ids).unwrap(); 
+  //let new_now = Instant::now();
+  //println!("{:?}", new_now.duration_since(now));
   let posts = make_rpc("read-posts", serialized); 
  
   send_return_value_to_caller(posts);
