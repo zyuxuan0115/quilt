@@ -4,6 +4,7 @@ use DbInterface::*;
 use std::{collections::HashMap, time::{Duration, Instant}};
 use mongodb::{bson::doc,sync::Client};
 use memcache::Client as memcached_client;
+use redis::{Commands, RedisResult};
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {
@@ -14,7 +15,7 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 
 fn main() {
   let input: String = get_arg_from_caller();
-//  let now = Instant::now();
+  //let now = Instant::now();
   let mut username = String::from(&input[..]);
   username.push_str(":user_id");
 
@@ -34,20 +35,20 @@ fn main() {
   } 
 
   if memcache_has_username == false {
-    let uri = get_mongodb_uri();
-    let client = Client::with_uri_str(&uri[..]).unwrap();
-    let database = client.database("user");
-    let collection = database.collection::<UserInfo>("user");
-    
+    let redis_uri = get_redis_rw_uri();
+    let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+    let mut con = redis_client.get_connection().unwrap();
+
     username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
 
-    let result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
+    let mut real_username = format!("user:{}",username);
+    let redis_result: RedisResult<i64> = con.hget(&real_username[..],"user_id");
 
-    match result {
-      Some(x) => {
-        user_id = x.user_id;
+    match redis_result {
+      Ok(x) => {
+        user_id = x;
       },
-      None => {
+      RedisError => {
         println!("User: {} doesn't exist in MongoDB", username);
         panic!("User: {} doesn't exist in MongoDB", username);
       },
@@ -59,8 +60,8 @@ fn main() {
     memcache_client.set(&username[..], user_id, 0).unwrap();
   }
   let serialized = serde_json::to_string(&user_id).unwrap();
-//  let new_now =  Instant::now();
-//  println!("{:?}", new_now.duration_since(now));
+  //let new_now =  Instant::now();
+  //println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
