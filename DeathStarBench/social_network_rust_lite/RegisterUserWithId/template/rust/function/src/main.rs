@@ -18,7 +18,7 @@ fn gen_random_string()->String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-//  let now = Instant::now();
+  let now = Instant::now();
   let new_user_info: RegisterUserWithIdArgs = serde_json::from_str(&input).unwrap();
 
   // update redis
@@ -37,22 +37,6 @@ fn main() {
     RedisError => (),
   }
 
-  
-
-  //let uri = get_mongodb_uri();
-  //let client = Client::with_uri_str(&uri[..]).unwrap();
-  //let database = client.database("user");
-  //let collection = database.collection::<UserInfo>("user");
-
-  //let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
-
-  //match result {
-  //  Some(_) => {
-  //    println!("User {} already existed", new_user_info.username);
-  //    panic!("User {} already existed", new_user_info.username);
-  //  },
-  //  None => (),
-  //} 
 
   let mut pw_sha: String = String::from(&new_user_info.password[..]);
   let salt: String = gen_random_string();
@@ -66,20 +50,9 @@ fn main() {
   ret = con.hset(&real_username[..],"salt",salt).unwrap();
   ret = con.hset(&real_username[..],"password",pw_sha).unwrap();
 
-//  let user_info_entry = UserInfo {
-//    user_id: new_user_info.user_id,
-//    first_name: new_user_info.first_name,
-//    last_name: new_user_info.last_name,
-//    username: new_user_info.username,
-//    salt: salt,
-//    password: pw_sha, 
-//  };
-
-//  collection.insert_one(user_info_entry, None).unwrap();
-
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
-//  let new_now =  Instant::now();
-//  println!("{:?}", new_now.duration_since(now));
+  let new_now =  Instant::now();
+  println!("{:?}", new_now.duration_since(now));
   make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
 }
