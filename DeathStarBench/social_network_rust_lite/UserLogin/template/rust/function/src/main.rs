@@ -2,12 +2,13 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
+use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}};
 use memcache::Client as memcached_client;
 use sha256::digest;
 use jws::{JsonObject, JsonValue};
 use jws::compact::{decode_verify, encode_sign};
 use jws::hmac::{Hs512Signer, HmacVerifier};
+use redis::{Commands, RedisResult};
 
 fn jwt_encode(secret: &str, payload: &str) -> String {
   // Add custom header parameters.
@@ -20,6 +21,7 @@ fn jwt_encode(secret: &str, payload: &str) -> String {
 
 fn main() {
   let input: String = get_arg_from_caller();
+  //let now = Instant::now();
   let user_info: UserLoginArgs = serde_json::from_str(&input).unwrap();
 
   let mut username = user_info.username;
@@ -58,18 +60,19 @@ fn main() {
       }
     },
     None => {
-      let uri = get_mongodb_uri();
-      let client = Client::with_uri_str(&uri[..]).unwrap();
-      let database = client.database("user");
-      let collection = database.collection::<user_info>("user");
-      let mongodb_result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
+      let redis_uri = get_redis_rw_uri();
+      let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+      let mut con = redis_client.get_connection().unwrap();
+  
+      let mut real_username = format!("user:{}",username);
+      let redis_result: RedisResult<i64> = con.hget(&real_username[..],"user_id");
 
-      match mongodb_result {
-        Some(y) => {
-          let password_stored: String = y.password;
-          let salt_stored: String = y.salt;
+      match redis_result {
+        Ok(y) => {
+          let password_stored: String = con.hget(&real_username[..],"password").unwrap();
+          let salt_stored: String = con.hget(&real_username[..],"salt").unwrap();
           password.push_str(&salt_stored[..]);
-          let user_id_stored: i64 = y.user_id;
+          let user_id_stored: i64 = y;
           let auth: bool = digest(&password) == password_stored;
           if auth == true {
             let payload_struct = UserLoginReturn {
@@ -86,13 +89,15 @@ fn main() {
             panic!("Incorrect username or password");
           }
         },
-        None => {
+        RedisError => {
           println!("User: {} doesn't exist in MongoDB", username);
           panic!("User: {} doesn't exist in MongoDB", username);
         },
       } 
     },
   } 
+  //let new_now =  Instant::now();
+  //println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(jwt_encode_msg);
 }
 
