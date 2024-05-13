@@ -18,7 +18,7 @@ fn gen_short_url()->String{
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let now = Instant::now();
+//  let now = Instant::now();
   let urls: Vec<String> = serde_json::from_str(&input).unwrap();
 
   let redis_uri = get_redis_rw_uri();
@@ -37,8 +37,8 @@ fn main() {
     docs.push(new_pair);
   }
   let serialized = serde_json::to_string(&docs).unwrap();
-  let new_now =  Instant::now();
-  println!("{:?}", new_now.duration_since(now));
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
