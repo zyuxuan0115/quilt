@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::{fs::read_to_string, collections::HashMap, time::{Duration, Instant}};
 use DbInterface::*;
+use redis::{Commands, RedisResult};
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -13,18 +14,19 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("social-graph");
-  let collection = database.collection::<SocialGraphEntry>("social-graph");
-  
   let docs = SocialGraphEntry {
     user_id: user_id,
     followers: Vec::new(),
     followees: Vec::new(),
   };
 
-  collection.insert_one(docs, None).unwrap();
+  let mut real_name = "social-graph:".to_string();
+  real_name.push_str(&(user_id.to_string()));
+  let followers = serde_json::to_string(&docs.followers).unwrap();
+  let followees = serde_json::to_string(&docs.followees).unwrap();
+  let mut ret: isize = con.hset(&real_name[..], "user_id", docs.user_id).unwrap();
+  ret = con.hset(&real_name[..], "followers", &followers[..]).unwrap();
+  ret = con.hset(&real_name[..], "followees", &followees[..]).unwrap();
 
 //  let new_now =  Instant::now();
 //  println!("SocialGraphInsertUser: {:?}", new_now.duration_since(now));
