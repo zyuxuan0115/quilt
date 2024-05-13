@@ -9,6 +9,10 @@ fn main() {
 //  let now = Instant::now();
   let user_id: i64 = serde_json::from_str(&input).unwrap();
 
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
+
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("social-graph");
