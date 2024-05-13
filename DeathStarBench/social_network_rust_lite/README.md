@@ -65,13 +65,13 @@ curl 127.0.0.1:8080/function/get-user-id -d "zyuxuan"
 curl 127.0.0.1:8080/function/user-login -d "{\"username\":\"zyuxuan\",\"password\":\"umichandupenn\",\"secret\":\"idon'tknowwhatshouldbesecret\"}"
 ```
 
-- <strong>SocialGraphInsertUser<strong>
+- <strong>SocialGraphInsertUser</strong>
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-insert-user -d "11028"
 ```
 
-- <strong>SocialGraphFollow<strong>
+- <strong>SocialGraphFollow</strong>
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
 ```bash
