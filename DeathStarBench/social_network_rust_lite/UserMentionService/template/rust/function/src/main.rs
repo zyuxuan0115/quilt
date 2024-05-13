@@ -3,7 +3,7 @@ use redis::{Commands, RedisResult};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
+use std::{fs::read_to_string, collections::{HashMap,BTreeMap}, time::{SystemTime,Duration, Instant}};
 use memcache::Client as memcached_client;
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
@@ -15,13 +15,12 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 
 fn main() {
   let input: String = get_arg_from_caller();
-//  let now = Instant::now();
+  //let now = Instant::now();
   let usernames: Vec<String> = serde_json::from_str(&input).unwrap();
 
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("user");
-  let collection = database.collection::<UserMention>("user");
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();  
@@ -46,27 +45,26 @@ fn main() {
     user_mentions.push(new_user_mention);
   }
 
+  let unames_not_cached:Vec<String> = usernames_not_cached.into_iter().map(|(k, _v)| {let mut new_k = "user:".to_string(); new_k.push_str(&k); new_k}).collect();
+
   let mut uname_not_cached: Vec<&str> = Vec::new();
-  for (uname, _) in &usernames_not_cached {
+  for uname in &unames_not_cached {
      uname_not_cached.push(&**uname);
   }
   let uname_not_cached_array: &[&str] = &uname_not_cached;
-
-  let query = doc!{"user_name": doc!{"$in": uname_not_cached_array}};
-  let mut cursor = collection.find(query, None).unwrap();
-
-  for doc in cursor { 
-    let doc_ = doc.unwrap();
+  for uname in unames_not_cached {
+//    let ret: (String, i64) = con.hmget(uname, "username", "user_id").unwrap();
+    let (name, id): (String, i64) = redis::cmd("HMGET").arg(&uname[..]).arg("username").arg("user_id").query(&mut con).unwrap(); 
     let new_user_mention = UserMention {
-      user_id: doc_.user_id,
-      user_name: doc_.user_name,
+        user_id: id,
+        user_name: name,
     };
     user_mentions.push(new_user_mention);
   }
 
   let serialized = serde_json::to_string(&user_mentions).unwrap();
-  let new_now =  Instant::now();
-//  println!("{:?}", new_now.duration_since(now));
+  //let new_now =  Instant::now();
+  //println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
