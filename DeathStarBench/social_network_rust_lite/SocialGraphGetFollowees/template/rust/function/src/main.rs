@@ -41,9 +41,11 @@ fn main() {
       }
     },
   }
-
+  let followees_timestamp: Vec<Followee> = serde_json::from_str(&return_value).unwrap();
+  let followees: Vec<i64> = followees_timestamp.into_iter().map(|x| x.followee_id).collect();
+  let serialized = serde_json::to_string(&followees).unwrap();
   let new_now =  Instant::now();
   println!("{:?}", new_now.duration_since(now));
-  send_return_value_to_caller(return_value);
+  send_return_value_to_caller(serialized);
 }
 
