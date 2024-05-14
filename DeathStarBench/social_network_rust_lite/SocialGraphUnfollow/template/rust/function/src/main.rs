@@ -30,9 +30,9 @@ fn main() {
     Ok(followees_str) => {
       let followees: Vec<Followee> = serde_json::from_str(&followees_str).unwrap();
 
-      let followees_hash: HashMap<i64, i64> = followees.into_iter().map(|x| (x.followee_id, x.timestamp)).collect();
-      followees_hash.remove(follow_info.followee_id);
-      let followees: Vec<Followee> = followees_hash.into_iter().map(|k, v|{Follwee{followee_id: k, timestamp: v}}).collect();
+      let mut followees_hash: HashMap<i64, i64> = followees.into_iter().map(|x| (x.followee_id, x.timestamp)).collect();
+      followees_hash.remove(&follow_info.followee_id);
+      let followees: Vec<Followee> = followees_hash.into_iter().map(|(k, v)|{let x = Followee{followee_id: k, timestamp: v,}; x}).collect();
       let followees_str: String = serde_json::to_string(&followees).unwrap();
       let _: isize = con.hset(&real_name[..], "followees", &followees_str[..]).unwrap();
 
@@ -54,9 +54,9 @@ fn main() {
   match followers_str_redis_result {
     Ok(followers_str) => {
       let followers: Vec<Follower> = serde_json::from_str(&followers_str).unwrap();
-      let followers_hash: HashMap<i64, i64> = followers.into_iter().map(|x| (x.follower_id, x.timestamp)).collect();
-      followers_hash.remove(follow_info.user_id);
-      let followers: Vec<Follower> = followers_hash.into_iter().map(|k, v|{Follwer{follower_id: k, timestamp: v}}).collect();
+      let mut followers_hash: HashMap<i64, i64> = followers.into_iter().map(|x| (x.follower_id, x.timestamp)).collect();
+      followers_hash.remove(&follow_info.user_id);
+      let followers: Vec<Follower> = followers_hash.into_iter().map(|(k, v)|{let x = Follower{follower_id: k, timestamp: v,}; x}).collect();
 
       let followers_str: String = serde_json::to_string(&followers).unwrap();
       let _: isize = con.hset(&real_followee_name[..], "followers", &followers_str[..]).unwrap();
