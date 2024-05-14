@@ -3,6 +3,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::{Commands};
+use memcache::Client as memcached_client;
 
 fn main() {
   let input: String = get_arg_from_caller();
