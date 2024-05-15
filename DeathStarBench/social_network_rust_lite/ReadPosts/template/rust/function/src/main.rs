@@ -8,7 +8,7 @@ use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let time_0 = Instant::now();
+//  let time_0 = Instant::now();
   let post_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
 
   let mut post_not_cached: HashMap<String, bool> = HashMap::new();
@@ -66,7 +66,7 @@ fn main() {
   }
 
   let serialized = serde_json::to_string(&posts).unwrap();
-  let time_1 = Instant::now();
-  println!("{:?}", time_1.duration_since(time_0));
+//  let time_1 = Instant::now();
+//  println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller(serialized);
 }
