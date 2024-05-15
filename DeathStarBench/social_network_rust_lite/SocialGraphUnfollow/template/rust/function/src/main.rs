@@ -7,7 +7,7 @@ use memcache::Client as memcached_client;
 
 fn main() {
   let input: String = get_arg_from_caller();
-//  let now = Instant::now();
+  //let now = Instant::now();
   let follow_info: SocialGraphFollowArgs = serde_json::from_str(&input).unwrap();
 
   let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
@@ -25,7 +25,7 @@ fn main() {
 
   // Update follower->followee edges
   let followees_str_redis_result: redis::RedisResult<String> = con.hget(&real_name[..],"followees");
-
+  
   match followees_str_redis_result {
     Ok(followees_str) => {
       let followees: Vec<Followee> = serde_json::from_str(&followees_str).unwrap();
@@ -72,8 +72,8 @@ fn main() {
     },
   }
 
-//  let new_now =  Instant::now();
-//  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));
+  //let new_now =  Instant::now();
+  //println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
 }
 
