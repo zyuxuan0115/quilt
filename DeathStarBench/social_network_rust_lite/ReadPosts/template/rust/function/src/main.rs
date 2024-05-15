@@ -4,10 +4,11 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{fs::read_to_string, collections::HashMap, time::{Duration, Instant}};
 use memcache::Client as memcached_client;
+use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-//  let time_0 = Instant::now();
+  let time_0 = Instant::now();
   let post_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
 
   let mut post_not_cached: HashMap<String, bool> = HashMap::new();
@@ -31,27 +32,41 @@ fn main() {
     posts.push(post);
   }
 
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("post");
-  let collection = database.collection::<Post>("post");
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
-  let mut pid_not_cached: Vec<i64> = Vec::new();
-  for (key, _) in &post_not_cached {
-    pid_not_cached.push(key[..].parse::<i64>().unwrap());
+  for (pid, _) in post_not_cached.into_iter() {
+    let mut real_post_name = "post:".to_string();
+    real_post_name.push_str(&(pid.to_string()));
+    let result: redis::RedisResult<(i64, String, String, String, String, String, i64, String)> 
+          = redis::cmd("HMGET").arg(&real_post_name[..]).arg("post_id").arg("creator")
+                               .arg("text").arg("user_mentions").arg("media").arg("urls")
+                               .arg("timestamp").arg("post_type").query(&mut con);
+    let mut result_str: String = String::new();
+    match result {
+      Ok((post_id, creator, text, user_mentions, media, urls, timestamp, post_type)) => {
+        let post = Post {
+          post_id: post_id,
+          creator: serde_json::from_str(&creator).unwrap(),
+          text: text,
+          user_mentions: serde_json::from_str(&user_mentions).unwrap(),
+          media: serde_json::from_str(&media).unwrap(),
+          urls: serde_json::from_str(&urls).unwrap(),
+          timestamp: timestamp,
+          post_type: serde_json::from_str(&post_type).unwrap(),
+        };
+        posts.push(post);
+      },
+      Err(_) => {
+        println!("Post_id:{} doesn't exist in redis", pid);
+        panic!("Post_id:{} doesn't exist in redis", pid);
+      },
+    };
   }
 
-  if pid_not_cached.len() != 0 {
-    let query = doc!{"post_id": doc!{"$in": &pid_not_cached}};
-    let mut cursor = collection.find(query, None).unwrap();
-  
-    for doc in cursor {
-      let doc_ = doc.unwrap();
-      posts.push(doc_);    
-    }
-  }
   let serialized = serde_json::to_string(&posts).unwrap();
-//  let time_1 = Instant::now();
-//  println!("{:?}", time_1.duration_since(time_0));
+  let time_1 = Instant::now();
+  println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller(serialized);
 }
