@@ -44,7 +44,6 @@ fn main() {
         //update memecached
         let mut user_id_str: String = follow_info.user_id.to_string();
         user_id_str.push_str(":followees");
-        let followees_str: String = serde_json::to_string(&followees).unwrap();
         memcache_client.set(&user_id_str[..], &followees_str[..] , 0).unwrap();
       }
     },
@@ -75,7 +74,6 @@ fn main() {
         // update memcached
         let mut followee_id_str: String = follow_info.followee_id.to_string();
         followee_id_str.push_str(":followers");
-        let followers_str: String = serde_json::to_string(&followers).unwrap();
         memcache_client.set(&followee_id_str[..], &followers_str[..] , 0).unwrap();
       }
     },

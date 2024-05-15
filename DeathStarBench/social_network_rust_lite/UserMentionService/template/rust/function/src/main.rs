@@ -53,7 +53,6 @@ fn main() {
   }
   let uname_not_cached_array: &[&str] = &uname_not_cached;
   for uname in unames_not_cached {
-//    let ret: (String, i64) = con.hmget(uname, "username", "user_id").unwrap();
     let (name, id): (String, i64) = redis::cmd("HMGET").arg(&uname[..]).arg("username").arg("user_id").query(&mut con).unwrap(); 
     let new_user_mention = UserMention {
         user_id: id,
