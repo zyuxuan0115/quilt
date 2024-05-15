@@ -7,7 +7,7 @@ use memcache::Client as memcached_client;
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let now = Instant::now();
+//  let now = Instant::now();
   let user_id: i64 = serde_json::from_str(&input).unwrap();
 
   // get memcache connection
@@ -47,8 +47,8 @@ fn main() {
   let followers: Vec<i64> = followers_timestamp.into_iter().map(|x| x.follower_id).collect();
   let serialized = serde_json::to_string(&followers).unwrap();
 
-  let new_now =  Instant::now();
-  println!("{:?}", new_now.duration_since(now));
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
