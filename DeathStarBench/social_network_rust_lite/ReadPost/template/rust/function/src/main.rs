@@ -19,9 +19,9 @@ fn main() {
   real_post_name.push_str(&(post_id.to_string()));
 
   let result: redis::RedisResult<(i64, String, String, String, String, String, i64, String)> 
-    = redis::cmd("HMGET").arg("post_id").arg("creator").arg("text").arg("user_mentions")
-                         .arg("media").arg("urls").arg("timestamp").arg("post_type")
-                         .query(&mut con);
+    = redis::cmd("HMGET").arg(&real_post_name[..]).arg("post_id").arg("creator")
+                         .arg("text").arg("user_mentions").arg("media").arg("urls")
+                         .arg("timestamp").arg("post_type").query(&mut con);
   let mut result_str: String = String::new();
   match result {
     Ok((post_id, creator, text, user_mentions, media, urls, timestamp, post_type)) => {
