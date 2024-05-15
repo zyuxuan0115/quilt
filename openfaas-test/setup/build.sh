@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.50"
-AGENT_IP="130.127.133.93"
-SERVER_HOST="zyuxuan@clnode041.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode084.clemson.cloudlab.us"
+SERVER_IP="130.127.133.16"
+AGENT_IP="130.127.133.48"
+SERVER_HOST="zyuxuan@clnode007.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode039.clemson.cloudlab.us"
 
 function setup {
   k3sup install --ip $SERVER_IP --user $USER
@@ -24,8 +24,8 @@ function setup {
   MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace default mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
   faas-cli secret create mongo-db-password --from-literal $MONGODB_ROOT_PASSWORD
   echo "$MONGODB_ROOT_PASSWORD" > mongopass.txt
-  helm install sn-memcache bitnami/memcached --set architecture="high-availability" --set autoscaling.enabled="true"
-  helm install sn-redis bitnami/redis --namespace openfaas-fn --set usePassword=false --set master.persistence.enabled=false
+  helm install sn-memcache bitnami/memcached --set architecture="standalone" --set autoscaling.enabled="false" --set replicaCount="1"
+  helm install sn-redis bitnami/redis --namespace openfaas-fn --set usePassword=false --set master.persistence.enabled=true
   REDIS_PASSWORD=$(kubectl get secret --namespace openfaas-fn sn-redis -o jsonpath="{.data.redis-password}" | base64 -d)
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
   kubectl rollout status deployment/mongodb
