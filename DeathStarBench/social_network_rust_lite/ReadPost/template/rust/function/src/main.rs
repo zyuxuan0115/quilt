@@ -27,7 +27,7 @@ fn main() {
       // insert to memcached
       let memcache_uri = get_memcached_uri();
       let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();
-      let post_id_str: String = post_id.to_string();
+      let mut post_id_str: String = post_id.to_string();
 
       let post = Post {
         post_id: post_id,
@@ -39,7 +39,8 @@ fn main() {
         timestamp: timestamp,
         post_type: serde_json::from_str(&post_type).unwrap(),
       };
-
+      
+      post_id_str.push_str(":post");
       result_str = serde_json::to_string(&post).unwrap();
       memcache_client.set(&post_id_str[..], &result_str[..], 0).unwrap();
     },
