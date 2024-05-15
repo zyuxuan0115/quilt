@@ -8,7 +8,7 @@ use redis::{Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let time_0 = Instant::now();
+//  let time_0 = Instant::now();
   let post_id: i64 = serde_json::from_str(&input).unwrap();
 
   let redis_uri = get_redis_rw_uri();
@@ -50,7 +50,7 @@ fn main() {
     },
   };
 
-  let time_1 = Instant::now();
-  println!("{:?}", time_1.duration_since(time_0));
+//  let time_1 = Instant::now();
+//  println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller(result_str);
 }
