@@ -1,9 +1,9 @@
-use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{Duration, Instant}};
 use memcache::Client as memcached_client;
+use redis::{Commands, RedisResult};
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -27,24 +27,24 @@ fn main() {
   } 
 
   if memcache_has_username == false {
-    let uri = get_mongodb_uri();
-    let client = Client::with_uri_str(&uri[..]).unwrap();
-    let database = client.database("user");
-    let collection = database.collection::<UserInfo>("user");
-    
-    username = (&username[..]).strip_suffix(":user_id").unwrap().to_string();
+    let redis_uri = get_redis_rw_uri();
+    let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+    let mut con = redis_client.get_connection().unwrap();
+   
+    let mut real_username = String::from("user:");
+    real_username.push_str(&input[..]);
+  
+    let redis_result: RedisResult<i64> = con.hget(&real_username[..],"user_id");
 
-    let result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
-
-    match result {
-      Some(x) => {
-        user_id = x.user_id;
+    match redis_result {
+      Ok(x) => {
+        user_id = x;
       },
-      None => {
+      RedisError => {
         println!("User: {} doesn't exist in MongoDB", username);
         panic!("User: {} doesn't exist in MongoDB", username);
       },
-    } 
+    }
   }
   let new_creator = Creator {
       user_id: user_id,
