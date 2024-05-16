@@ -3,6 +3,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}};
 use redis::{Commands};
 use DbInterface::*;
+use memcache::Client as memcached_client;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -18,25 +19,18 @@ fn main() {
   }
   followers = followers_set.into_iter().map(|(k, _)| k).collect();
 
-  // update redis
-  let redis_uri = get_redis_rw_uri();
-  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
-  let mut con = redis_client.get_connection().unwrap();
-//  let mut pipeline: redis::Pipeline = redis::Pipeline::new(); 
-//  let mut i: usize = 1; 
+  // update memcached
+  let memcache_uri = get_memcached_uri();
+  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();
+
   for follower_id in &followers {
     let follower_id_str:String = follower_id.to_string();
     let post_id_str: String = timeline_info.post_id.to_string();
-//    if i<followers.len() {
-//      pipeline.cmd("ZADD").arg(&follower_id_str[..]).arg(timeline_info.timestamp).arg(&post_id_str[..]).ignore();
-//    }
-//    else {
-//      pipeline.cmd("ZADD").arg(&follower_id_str[..]).arg(timeline_info.timestamp).arg(&post_id_str[..]);
-//    }
-//    i+=1;
+    
+    let result: String = memcache_client.get(&post_id_str[..]).unwrap();
+    post
     let res: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   }
-  //let res: usize = pipeline.query(&mut con).unwrap();
 //  let time_1 = Instant::now();
 //  println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller("".to_string());

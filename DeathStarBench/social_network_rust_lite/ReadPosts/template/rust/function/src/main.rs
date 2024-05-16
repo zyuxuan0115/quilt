@@ -1,4 +1,3 @@
-use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
@@ -20,14 +19,16 @@ fn main() {
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
-  let post_ids_str: Vec<String> = post_ids.iter().map(|x| x.to_string()).collect();
+  let post_ids_str: Vec<String> = post_ids.iter().map(|x| {let mut a = x.to_string(); a.push_str(":post"); a}).collect();
   let post_ids_strslice: Vec<&str> = post_ids_str.iter().map(|x| &**x).collect();
   let keys: &[&str] = &post_ids_strslice;
   let result: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
   let mut posts: Vec<Post> = Vec::new();
   for (key, value) in result {
-    post_not_cached.remove(&key); 
+    let mut key_ = key[..].to_string();
+    key_.strip_suffix(":post");
+    post_not_cached.remove(&key_); 
     let post: Post = serde_json::from_str(&value).unwrap();
     posts.push(post);
   }
