@@ -6,7 +6,7 @@ use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let now = Instant::now();
+  //let now = Instant::now();
   let mut timeline_info: ReadTimelineArgs = serde_json::from_str(&input).unwrap();
 
   let mut user_id_str: String = "user-timeline:".to_string(); 
@@ -23,13 +23,9 @@ fn main() {
   let mut post_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
   let serialized = serde_json::to_string(&post_ids).unwrap(); 
 
-  println!("{:?}", post_ids);
-
-  let new_now =  Instant::now();
+  //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));
-
   let posts = make_rpc("read-posts", serialized); 
-  println!("{}", posts);
   send_return_value_to_caller(posts);
 }
 
