@@ -5,8 +5,8 @@ ROOT_DIR=$(pwd)
 echo $ROOT_DIR
 
 function build_rust_test {
-    cp -r $ROOT_DIR/../OpenFaaSRPC $ROOT_DIR/template/rust
-    cp -r $ROOT_DIR/../DbInterface $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build -t zyuxuan0115/deathstarbench-writeusertimeline:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
