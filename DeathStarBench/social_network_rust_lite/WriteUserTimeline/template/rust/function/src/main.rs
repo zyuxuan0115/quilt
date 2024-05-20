@@ -16,7 +16,7 @@ fn main() {
   let mut con = redis_client.get_connection().unwrap();
  
   // update redis
-  let mut real_name = String::from("user-timeline");
+  let mut real_name = String::from("user-timeline:");
   real_name.push_str(&(timeline_info.user_id.to_string()));
 
   let post_id_str = timeline_info.post_id.to_string();
