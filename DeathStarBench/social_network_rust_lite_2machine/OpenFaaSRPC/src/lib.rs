@@ -1,5 +1,5 @@
 use curl::easy::{Easy};
-use std::io::{self, Read, Write};
+use std::{io::{self, Read, Write, BufReader}, error::Error, fs::File, path::Path};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -189,8 +189,33 @@ pub struct UserLoginReturn {
   pub ttl: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct FuncInfo{
+  pub function_name: String,
+  pub cluster_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MachineInfo{
+  pub cluster1_ip: String,
+  pub cluster2_ip: String,
+}
+
+fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
+  // Open the file in read-only mode with buffer.
+  let file = File::open(path)?;
+  let reader = BufReader::new(file);
+ 
+  // Read the JSON contents of the file as an instance of `User`.
+  let u: Vec<FuncInfo> = serde_json::from_reader(reader)?;
+  Ok(u)
+}
 
 pub fn make_rpc_local(func_name: &str, input: String) -> String {
+
+  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/machine_info.txt");
+  println!("{:?}", func_vec);
+  
   let mut easy = Easy::new();
   let mut url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
   let mut input_to_be_sent = (&input).as_bytes();
