@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/bash::q
+q
+
   
 search_dir=$(pwd)
 
