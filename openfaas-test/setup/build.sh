@@ -28,6 +28,9 @@ function setup {
   helm install sn-redis bitnami/redis --namespace openfaas-fn --set usePassword=false --set master.persistence.enabled=true
   REDIS_PASSWORD=$(kubectl get secret --namespace openfaas-fn sn-redis -o jsonpath="{.data.redis-password}" | base64 -d)
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
+  echo "$REDIS_PASSWORD" > redispass.txt
+  IPV4_ADDR=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '172.17.0.1' | grep -v '10.0.1.1')
+  faas-cli secret create ipv4-addr --from-literal $IPV4_ADDR
   kubectl rollout status deployment/mongodb
   kubectl port-forward service/mongodb 27017:27017 &
   kubectl port-forward svc/sn-memcache-memcached 11211:11211 &
