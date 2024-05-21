@@ -1,4 +1,3 @@
-use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
@@ -37,7 +36,6 @@ fn main() {
     RedisError => (),
   }
 
-
   let mut pw_sha: String = String::from(&new_user_info.password[..]);
   let salt: String = gen_random_string();
   pw_sha.push_str(&salt[..]);
@@ -51,7 +49,6 @@ fn main() {
   ret = con.hset(&real_username[..],"password",pw_sha).unwrap();
 
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
-  println!("user_id_str: {}", user_id_str);
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   make_rpc("social-graph-insert-user", user_id_str);
