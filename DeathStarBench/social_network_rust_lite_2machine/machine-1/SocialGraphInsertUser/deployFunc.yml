@@ -10,5 +10,5 @@ functions:
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
-    - mongo-db-password
     - redis-password
+    - ipv4-addr
