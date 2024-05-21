@@ -71,6 +71,10 @@ curl 127.0.0.1:8080/function/user-login -d "{\"username\":\"zyuxuan\",\"password
 curl 127.0.0.1:8080/function/social-graph-insert-user -d "11028"
 ```
 
+```bash
+curl 127.0.0.1:8080/function/social-graph-insert-user -d "11029"
+```
+
 - <strong>SocialGraphFollow</strong>
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
@@ -114,15 +118,15 @@ curl 127.0.0.1:8080/function/social-graph-get-followees -d "11028"
 - <strong>StorePost</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"devietti\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[{\"shortened_url\":\"http://shortened.com/we2dcwAR1r\",\"expanded_url\":\"https://kate0115.net\"}],\"timestamp\":12343242,\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://abccba.net @twenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"devietti\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[{\"shortened_url\":\"http://shortened.com/we2dcwAR1r\",\"expanded_url\":\"https://kate0115.net\"}],\"timestamp\":12343242,\"post_type\":\"POST\"}"
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [],\"media\":[],\"urls\":[],\"timestamp\":12343242,\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"yesterday once more \",\"user_mentions\": [],\"media\":[],\"urls\":[],\"timestamp\":12343249,\"post_type\":\"POST\"}"
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"user_id\":11029,\"username\":\"devietti\"},\"req_id\":7798,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [],\"media\":[],\"urls\":[],\"timestamp\":12343242,\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"user_id\":11029,\"username\":\"devietti\"},\"req_id\":7798,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"devietti\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[],\"timestamp\":12343242,\"post_type\":\"POST\"}"
 ```
 
 - <strong>ReadPost</strong>
@@ -156,6 +160,10 @@ curl 127.0.0.1:8080/function/read-home-timeline -d "{\"user_id\":11028,\"start\"
 curl 127.0.0.1:8080/function/write-user-timeline -d "{\"post_id\":1722,\"user_id\":11029,\"timestamp\":12343242}"
 ```
 
+```bash
+curl 127.0.0.1:8080/function/write-user-timeline -d "{\"post_id\":1723,\"user_id\":11028,\"timestamp\":12343249}"
+```
+
 - <strong>ReadUserTimeline</strong>
 
 ```bash
@@ -165,5 +173,5 @@ curl 127.0.0.1:8080/function/read-user-timeline -d "{\"user_id\":11029,\"start\"
 - <strong>ComposePost</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://kate0115.net @devietti \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
 ```
