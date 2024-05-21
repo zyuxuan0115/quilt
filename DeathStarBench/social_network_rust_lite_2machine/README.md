@@ -32,6 +32,9 @@ curl 127.0.0.1:8080/function/media-service -d "{\"media_id\":[111,222],\"media_t
 
 ```bash
 curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Tom\",\"last_name\":\"Wenisch\",\"username\":\"twenisch\",\"password\":\"umichandgoogle\",\"user_id\":11028}"
+```
+
+```bash
 curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Joe\",\"last_name\":\"Devietti\",\"username\":\"devietti\",\"password\":\"uwandupenn\",\"user_id\":11029}"
 ```
 
