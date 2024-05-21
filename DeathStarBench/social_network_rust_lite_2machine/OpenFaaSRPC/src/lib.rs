@@ -234,7 +234,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.txt").unwrap();
   let func_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
   let machine_info = read_machine_info_from_file("/home/rust/OpenFaaSRPC/machine_info.txt").unwrap();
-  let ip = read_lines("ipv4-addr");
+  let ip = read_lines("/var/openfaas/secrets/ipv4-addr");
 
   println!("{:?}", func_hash);
   println!("{:?}", machine_info);
