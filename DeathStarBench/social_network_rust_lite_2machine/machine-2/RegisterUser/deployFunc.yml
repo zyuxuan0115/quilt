@@ -9,6 +9,6 @@ functions:
     image: zyuxuan0115/deathstarbench-registeruser:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
-    secrets:
-    - mongo-db-password
+    secrets: 
     - redis-password
+    - ipv4-addr
