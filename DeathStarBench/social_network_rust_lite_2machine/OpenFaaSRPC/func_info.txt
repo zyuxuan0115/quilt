@@ -1,108 +1,106 @@
-{
-  [
+[
     {
-      "function_name":"StorePost",
+      "function_name":"store-post",
       "cluster_id":1
     },
     {
-      "function_name":"ReadPost",
+      "function_name":"read-post",
       "cluster_id":1
     },
     {
-      "function_name":"ReadPosts",
+      "function_name":"read-posts",
       "cluster_id":1
     },
     {
-      "function_name":"WriteHomeTimeline",
+      "function_name":"write-home-timeline",
       "cluster_id":1
     },
     {
-      "function_name":"ReadHomeTimeline",
+      "function_name":"read-home-timeline",
       "cluster_id":1
     },
     {
-      "function_name":"WriteUserTimeline",
+      "function_name":"write-user-timeline",
       "cluster_id":1
     },
     {
-      "function_name":"ReadUserTimeline",
+      "function_name":"read-user-timeline",
       "cluster_id":1
     },
     {
-      "function_name":"SocialGraphInsertUser",
+      "function_name":"social-graph-insert-user",
       "cluster_id":1
     },
     {
-      "function_name":"SocialGraphFollow",
+      "function_name":"social-graph-follow",
       "cluster_id":1
     },
     {
-      "function_name":"SocialGraphUnfollow",
+      "function_name":"social-graph-unfollow",
       "cluster_id":1
     },
     {
-      "function_name":"SocialGraphFollowWithUsername",
+      "function_name":"social-graph-follow-with-username",
       "cluster_id":1
     },
     {
-      "function_name":"SocialGraphUnfollowWithUsername",
+      "function_name":"social-graph-unfollow-with-username",
       "cluster_id":1
     },
     {
-      "function_name":"SocialGraphGetFollowers",
+      "function_name":"social-graph-get-followers",
       "cluster_id":1
     },
     {
-      "function_name":"SocialGraphGetFollowees",
+      "function_name":"social-graph-get-followees",
       "cluster_id":1
     },
     {
-      "function_name":"GetUserId",
+      "function_name":"get-user-id",
       "cluster_id":2
     },
     {
-      "function_name":"RegisterUserWithId",
+      "function_name":"register-user-with-id",
       "cluster_id":2
     },
     {
-      "function_name":"MediaService",
+      "function_name":"media-service",
       "cluster_id":2
     },
     {
-      "function_name":"TextService",
+      "function_name":"text-service",
       "cluster_id":2
     },
     {
-      "function_name":"UniqueIdService",
+      "function_name":"unique-id-service",
       "cluster_id":2
     },
     {
-      "function_name":"ComposePost",
+      "function_name":"compose-post",
       "cluster_id":2
     },
     {
-      "function_name":"UserMentionService",
+      "function_name":"user-mention-service",
       "cluster_id":2
     },
     {
-      "function_name":"UrlShortenService",
+      "function_name":"url-shorten-service",
       "cluster_id":2
     },
     {
-      "function_name":"ComposeCreatorWithUserId",
+      "function_name":"compose-creator-with-user-id",
       "cluster_id":2
     },
     {
-      "function_name":"ComposeCreatorWithUsername",
+      "function_name":"compose-creator-with-username",
       "cluster_id":2
     },
     {
-      "function_name":"RegisterUser",
+      "function_name":"register-user",
       "cluster_id":2
     },
     {
-      "function_name":"UserLogin",
+      "function_name":"user-login",
       "cluster_id":2
     }
   ]
-}
