@@ -8,9 +8,7 @@ function build {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
-      continue
-    elif [[ "$BASE_NAME" = "build.sh" ]] ; then 
+    if [[ "$BASE_NAME" = "build.sh" ]] ; then 
       continue
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
@@ -26,9 +24,7 @@ function deploy {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
-      continue
-    elif [[ "$BASE_NAME" = "build.sh" ]] ; then 
+    if [[ "$BASE_NAME" = "build.sh" ]] ; then 
       continue
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
@@ -44,7 +40,7 @@ function clean {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
+    if [[ "$BASE_NAME" = "build.sh" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue

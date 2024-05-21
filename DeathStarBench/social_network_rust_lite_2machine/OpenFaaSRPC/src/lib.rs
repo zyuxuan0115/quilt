@@ -195,10 +195,11 @@ pub struct FuncInfo{
   pub cluster_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MachineInfo{
-  pub cluster1_ip: String,
-  pub cluster2_ip: String,
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct MachineInfo{ 
+  pub cluster_id: i64,
+  pub cluster_ip: String,
+  pub rest_api_ip: String,
 }
 
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
@@ -211,13 +212,13 @@ fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Bo
   Ok(u)
 }
 
-fn read_machine_info_from_file<P: AsRef<Path>>(path: P) -> Result<MachineInfo, Box<dyn Error>> {
+fn read_machine_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<MachineInfo>, Box<dyn Error>> {
   // Open the file in read-only mode with buffer.
   let file = File::open(path)?;
   let reader = BufReader::new(file);
  
   // Read the JSON contents of the file as an instance of `User`.
-  let u: MachineInfo = serde_json::from_reader(reader)?;
+  let u: Vec<MachineInfo> = serde_json::from_reader(reader)?;
   Ok(u)
 }
 
@@ -232,18 +233,28 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 pub fn make_rpc(func_name: &str, input: String) -> String {
 
   let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.txt").unwrap();
-  let func_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
+  let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
   let machine_info = read_machine_info_from_file("/home/rust/OpenFaaSRPC/machine_info.txt").unwrap();
+  let machine_info_copy = machine_info.clone();
+  let machine_ip_info_hash: HashMap<i64, String> = machine_info.into_iter().map(|x| (x.cluster_id, x.rest_api_ip)).collect();
+  let machine_info_hash: HashMap<String, i64> = machine_info_copy.into_iter().map(|x| (x.cluster_ip, x.cluster_id)).collect();
   let ip = read_lines("/var/openfaas/secrets/ipv4-addr");
 
-  println!("{:?}", func_hash);
-  println!("{:?}", machine_info);
-  println!("{:?}", ip);
+  let current_ip = (&ip[0]).to_owned();
+
+  let current_cluster_id: i64 = machine_info_hash.get(&current_ip).unwrap().to_owned();
+  let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
 
   let mut easy = Easy::new();
-  let mut url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
+  let mut url = String::new();
+  if current_cluster_id == callee_cluster_id {
+    url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
+  }
+  else {
+    let callee_rest_api_ip = machine_ip_info_hash.get(&callee_cluster_id).unwrap().to_owned();
+    url = format!("http://{}:8080/function/", callee_rest_api_ip);
+  }
   let mut input_to_be_sent = (&input).as_bytes();
-//  let mut url = String::from("http://127.0.0.1:8080/function/");
   url.push_str(func_name);
   easy.url(&url).unwrap();
   easy.post(true).unwrap();
