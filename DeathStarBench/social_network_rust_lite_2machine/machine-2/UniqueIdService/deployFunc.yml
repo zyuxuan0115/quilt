@@ -7,5 +7,5 @@ functions:
     lang: rust
     handler: ./unique-id-service
     image: zyuxuan0115/deathstarbench-uniqueidservice:latest
-  secrets:
+    secrets:
     - ipv4-addr
