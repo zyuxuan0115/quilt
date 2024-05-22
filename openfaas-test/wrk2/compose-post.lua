@@ -62,18 +62,22 @@ request = function(req_id)
   media_types = media_types:sub(1, #media_types - 1) .. "]"
 
   local method = "POST"
-  local path = "http://localhost:8080/wrk2-api/post/compose"
+  local path = "http://130.127.133.16:8080/function/compose-post"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
   if num_media then
-    body   = "username=" .. username .. "&user_id=" .. user_id ..
-        "&text=" .. text .. "&media_ids=" .. media_ids ..
-        "&media_types=" .. media_types .. "&post_type=0"
+    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
+        ',"text":"' .. text .. '","media_ids":' .. media_ids ..
+        ',"media_types":' .. media_types .. ',"post_type":"POST"}'
   else
-    body   = "username=" .. username .. "&user_id=" .. user_id ..
-        "&text=" .. text .. "&media_ids=" .. "&post_type=0"
+    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
+        ',"text":"' .. text .. '","media_ids":[],media_types":[]' .. ',"post_type":"POST"}'
   end
+
+--  file = io.open('log.txt', 'w')
+--  file:write(body)
+--  file:close()
 
   if req_id ~= "" then
     headers["Req-Id"] = req_id
