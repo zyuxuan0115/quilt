@@ -10,22 +10,18 @@ fn main() {
   let uuid: String = make_rpc("unique-id-service", "".to_string());
   let pid: i64 = uuid[..].parse::<i64>().unwrap();
 
-  println!("@@@@@");
   // call ComposerCreatorWithUserId
   let compose_creator_with_userid_arg = ComposeCreatorWithUseridArgs {
     user_id: input_info.user_id,
     username: input_info.username, 
   };
   let compose_creator_with_userid_arg_str = serde_json::to_string(&compose_creator_with_userid_arg).unwrap();
-  println!("kkkkkkkk");
   let creator_str: String = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str);
 
-  println!("######");
   // call TextService
   let text_str: String = make_rpc("text-service", input_info.text);
   let text_return_info: TextServiceReturn = serde_json::from_str(&text_str).unwrap();
 
-  println!("!!!!!!!");
 
   // call MediaService
   let media_arg = MediaServiceArgs {
@@ -35,8 +31,6 @@ fn main() {
   let media_arg_str: String = serde_json::to_string(&media_arg).unwrap();
   let media_return: String = make_rpc("media-service", media_arg_str);
   let media_return_info: Vec<Media> = serde_json::from_str(&media_return).unwrap();
-
-  println!("9999999999");
 
   let post = Post {
     post_id: pid,
@@ -53,8 +47,6 @@ fn main() {
   let post_str: String = serde_json::to_string(&post).unwrap(); 
   make_rpc("store-post", post_str);
 
-  println!("8888888888");
-
   // call WriteUserTimeline
   let write_u_tl_arg =  WriteUserTimelineArgs {
     post_id: post.post_id,
@@ -63,8 +55,6 @@ fn main() {
   };
   let write_u_tl_arg_str: String = serde_json::to_string(&write_u_tl_arg).unwrap();
   make_rpc("write-user-timeline", write_u_tl_arg_str);
-
-  println!("77777777777");
 
   // call WriteHomeTimeline
   let write_h_tl_arg = WriteHomeTimelineArgs {
@@ -76,7 +66,6 @@ fn main() {
   let write_h_tl_arg_str: String = serde_json::to_string(&write_h_tl_arg).unwrap();
   make_rpc("write-home-timeline", write_h_tl_arg_str); 
 
-  println!("666666666666");
   send_return_value_to_caller("".to_string());
 }
 
