@@ -62,10 +62,10 @@ request = function(req_id)
   media_types = media_types:sub(1, #media_types - 1) .. "]"
 
   local method = "POST"
-  local path = "http://130.127.133.16:8080/function/compose-post"
+  local path = "/function/compose-post"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/json"
+  headers["Content-Type"] = "application/x-www-form-urlencoded"
   if num_media then
     body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
         ',"text":"' .. text .. '","media_ids":' .. media_ids ..
@@ -84,6 +84,16 @@ request = function(req_id)
   end
 
   return wrk.format(method, path, headers, body)
+end
+
+response = function(status, headers, body)
+    if status ~= 200 then
+        io.write("------------------------------\n")
+        io.write("Response with status: ".. status .."\n")
+        io.write("------------------------------\n")
+        io.write("[response] Body:\n")
+        io.write(body .. "\n")
+    end
 end
 
 function init(rand_seed)
