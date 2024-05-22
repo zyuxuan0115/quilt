@@ -75,7 +75,7 @@ request = function(req_id)
         ',"text":"' .. text .. '","media_ids":[],media_types":[]' .. ',"post_type":"POST"}'
   end
 
---  file = io.open('log.txt', 'w')
+--  file = io.open('req_data_log.txt', 'w')
 --  file:write(body)
 --  file:close()
 
@@ -87,14 +87,14 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
-    if status ~= 200 then
+  if status ~= 200 then
         io.write("------------------------------\n")
         io.write("Response with status: ".. status .."\n")
         io.write("------------------------------\n")
         io.write("[response] Body:\n")
         io.write(body .. "\n")
     end
-end
+ end
 
 function init(rand_seed)
   math.randomseed(rand_seed)
