@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{Duration, Instant}};
 use redis::{Commands};
-use memcache::Client as memcached_client;
 
 fn main() {
   let input: String = get_arg_from_caller();
