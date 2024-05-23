@@ -20,7 +20,7 @@ end
 
 local function decRandom(length)
   if length > 0 then
-    return decRandom(length - 1) .. decset[math.random(1, #decset)]
+    return decRandom(length - 1) .. decset[math.random(1, #decset-1)]
   else
     return ""
   end
@@ -53,8 +53,8 @@ request = function(req_id)
   end
 
   for i = 0, num_media, 1 do
-    local media_id = decRandom(18)
-    media_ids = media_ids .. "\"" .. media_id .. "\","
+    local media_id = decRandom(10)
+    media_ids = media_ids .. media_id .. ","
     media_types = media_types .. "\"png\","
   end
 
@@ -87,14 +87,14 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
-  if status ~= 200 then
+  --if status ~= 200 then
         io.write("------------------------------\n")
         io.write("Response with status: ".. status .."\n")
         io.write("------------------------------\n")
         io.write("[response] Body:\n")
         io.write(body .. "\n")
-    end
- end
+  --end
+end
 
 function init(rand_seed)
   math.randomseed(rand_seed)
