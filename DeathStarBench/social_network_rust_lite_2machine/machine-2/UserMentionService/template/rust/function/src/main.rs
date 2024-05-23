@@ -1,4 +1,3 @@
-use mongodb::{bson::doc,sync::Client};
 use redis::{Commands, RedisResult};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
@@ -53,14 +52,19 @@ fn main() {
   }
   let uname_not_cached_array: &[&str] = &uname_not_cached;
   for uname in unames_not_cached {
-    let (name, id): (String, i64) = redis::cmd("HMGET").arg(&uname[..]).arg("username").arg("user_id").query(&mut con).unwrap(); 
-    let new_user_mention = UserMention {
-        user_id: id,
-        user_name: name,
+//    let (name, id): (String, i64) 
+    let res: Result<(String, i64), redis::RedisError>= redis::cmd("HMGET").arg(&uname[..]).arg("username").arg("user_id").query(&mut con); 
+    match res {
+      Ok((name, id)) => {
+        let new_user_mention = UserMention {
+          user_id: id,
+          user_name: name,
+        };
+        user_mentions.push(new_user_mention);
+      },
+      Err(_) => (),
     };
-    user_mentions.push(new_user_mention);
   }
-
   let serialized = serde_json::to_string(&user_mentions).unwrap();
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));
