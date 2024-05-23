@@ -24,6 +24,7 @@ fn main() {
 //  let time_1 = Instant::now();
   let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
 
+
   let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
 //  let time_2 = Instant::now();
   let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
@@ -39,6 +40,7 @@ fn main() {
     text: text,
   };
   let serialized = serde_json::to_string(&return_value).unwrap();
+
 //  let time_3 = Instant::now();
 //  println!("{:?}", time_1.duration_since(time_0));
 //  println!("{:?}", time_3.duration_since(time_2));
