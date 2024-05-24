@@ -1,6 +1,7 @@
 use curl::easy::{Easy};
-use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
+use std::{io::{self, Read, Write, BufReader, stdout}, error::Error, fs::{File, read_to_string, OpenOptions}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
+use std::io::Seek;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MemcachedUserLoginInfo {
@@ -261,6 +262,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   easy.post_field_size(input_to_be_sent.len() as u64).unwrap();
 
   let mut html_data = String::new();
+
   {
     let mut transfer = easy.transfer();
     transfer.read_function(|buf| {
@@ -268,12 +270,14 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
     }).unwrap();
 
     transfer.write_function(|data| {
-      html_data = String::from_utf8(Vec::from(data)).unwrap();
+      let data_str = String::from_utf8(Vec::from(data)).unwrap();
+      html_data.push_str(&data_str);
       Ok(data.len())
     }).unwrap();
 
     transfer.perform().unwrap();
   }
+
   html_data
 }
 
