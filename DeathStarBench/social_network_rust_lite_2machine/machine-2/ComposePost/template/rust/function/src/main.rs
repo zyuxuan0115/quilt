@@ -5,7 +5,6 @@ use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  println!("msg: {}", input);
   let time_0 = Instant::now();
 
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
@@ -23,6 +22,7 @@ fn main() {
   let compose_creator_with_userid_arg_str = serde_json::to_string(&compose_creator_with_userid_arg).unwrap();
   let time_3 = Instant::now();
   let creator_str: String = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str);
+
   // call TextService
   let text_str: String = make_rpc("text-service", input_info.text);
   let time_4 = Instant::now();
