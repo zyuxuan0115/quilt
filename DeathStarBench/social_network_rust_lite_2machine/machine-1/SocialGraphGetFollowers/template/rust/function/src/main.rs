@@ -37,9 +37,13 @@ fn main() {
           return_value = followees_str;
         },
         Err(_) => {
-          println!("user_id: {} not found", user_id);
-          panic!("user_id: {} not found", user_id);
+          let empty_vec: Vec<Follower>  = Vec::new();
+          return_value = serde_json::to_string(&empty_vec).unwrap();
         },
+//        Err(_) => {
+//          println!("user_id: {} not found", user_id);
+//          panic!("user_id: {} not found", user_id);
+//        },
       }
     },
   }
