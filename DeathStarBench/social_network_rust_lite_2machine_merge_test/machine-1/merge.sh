@@ -1,0 +1,52 @@
+#!/bin/bash
+LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-17/build/bin
+RUST_LIB=/users/zyuxuan/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
+LINKER_FLAGS='-lstd-320ebc7037fb8f95 -lcurl -lcrypto -lm -lssl'
+
+CALLER_FUNC=$2
+CALLEE_FUNC=$3
+
+function merge {
+  cp -r ../OpenFaaSRPC $CALLER_FUNC/template/rust \
+  && cp -r ../DbInterface $CALLER_FUNC/template/rust \
+  && cp -r ../OpenFaaSRPC $CALLEE_FUNC/template/rust \
+  && cp -r ../DbInterface $CALLEE_FUNC/template/rust \
+  && cd $CALLER_FUNC/template/rust/function \
+  && RUSTFLAGS="--emit=llvm-ir" cargo build \
+  && cd ../../../../$CALLEE_FUNC/template/rust/function \
+  && RUSTFLAGS="--emit=llvm-ir" cargo build \
+  && cd ../../../../
+
+  CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
+  echo $CALLEE_FUNC_LL
+  CALLER_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/$CALLEE_FUNC_LL-*.ll)
+  echo $CALLER_IR
+ # CALLEE_IR=$(cat tmp.txt)
+  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee_rename.ll
+#  cp callee_rename.ll caller/target/debug/deps/
+#  $LLVM_DIR/llvm-link caller/target/debug/deps/*.ll -S -o merge.ll
+#  $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
+#  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
+#  $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
+#  $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
+}
+
+function clean {
+  rm -rf $CALLER_FUNC/template/rust/OpenFaaSRPC \
+  && rm -rf $CALLER_FUNC/template/rust/DbInterface \
+  && rm -rf $CALLEE_FUNC/template/rust/OpenFaaSRPC \
+  && rm -rf $CALLEE_FUNC/template/rust/DbInterface \
+  && cd $CALLER_FUNC/template/rust/function && cargo clean \
+  && cd ../../../../$CALLEE_FUNC/template/rust/function && cargo clean \
+  && cd ../../../../
+  rm -rf *.ll *.o function
+}
+
+case "$1" in
+merge)
+    merge
+    ;;
+clean)
+    clean
+    ;;
+esac
