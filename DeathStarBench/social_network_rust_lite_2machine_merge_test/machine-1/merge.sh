@@ -1,7 +1,9 @@
 #!/bin/bash
 LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-17/build/bin
 RUST_LIB=/users/zyuxuan/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
-LINKER_FLAGS='-lstd-320ebc7037fb8f95 -lcurl -lcrypto -lm -lssl'
+RUST_LIBSTD_PATH=$(ls $RUST_LIB/libstd-*.so)
+RUST_LIBSTD_LINKER_FLAG=${RUST_LIBSTD_PATH#"libstd"}
+LINKER_FLAGS="-lstd-$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl"
 
 CALLER_FUNC=$2
 CALLEE_FUNC=$3
