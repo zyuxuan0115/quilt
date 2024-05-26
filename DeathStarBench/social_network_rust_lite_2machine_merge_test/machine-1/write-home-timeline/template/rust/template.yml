@@ -1,5 +1,5 @@
 language: rust
-fprocess: WriteHomeTimeline
+fprocess: write-home-timeline
 welcome_message: |
   Welcome to the rust template.
 
