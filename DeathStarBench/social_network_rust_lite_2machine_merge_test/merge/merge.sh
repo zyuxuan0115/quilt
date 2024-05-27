@@ -17,6 +17,9 @@ RUST_LIBTEST_NAME=$(basename $RUST_LIBTEST_PATH)
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_NAME#"libtest"}
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
+
+LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
+
 CALLER_FUNC=$2
 CALLEE_FUNC=$3
 
@@ -62,7 +65,7 @@ function merge {
     done
   done
 
-  $LLVM_DIR/clang -no-pie -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
+  ld -no-pie -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
 }
 
 function clean {
