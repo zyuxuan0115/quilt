@@ -1,5 +1,5 @@
 #!/bin/bash
-LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-17/build/bin
+LLVM_DIR=/llvm/build/bin
 RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
 CODE_LIB=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench/social_network_rust_lite_2machine_merge_test/machine-1/write-home-timeline/template/rust/function/target/debug/deps
 RUST_LIBSTD_PATH=$(ls $RUST_LIB/libstd-*.so)
