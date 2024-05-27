@@ -1,5 +1,5 @@
 language: rust
-fprocess: social-graph-get-followers
+fprocess: function 
 welcome_message: |
   Welcome to the rust template.
 
