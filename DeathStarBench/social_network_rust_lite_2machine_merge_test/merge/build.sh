@@ -14,10 +14,11 @@ function build_merge {
   CALLER=$1
   CALLEE=$2
   mkdir temp
-  cp -r ../machine-1/$CALLER temp
-  cp -r ../machine-1/$CALLEE temp
+  cp -r ../machine-1/$CALLER temp/caller
+  cp -r ../machine-1/$CALLEE temp/callee
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
+  cp merge.sh temp
   sudo docker build --no-cache -t zyuxuan0115/deathstartbench-$CALLER_NAME-merged:latest \
     -f Dockerfile.merge \
     temp

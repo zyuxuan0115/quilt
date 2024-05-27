@@ -1,6 +1,6 @@
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 
-FROM llvm-17:latest as builder
+FROM zyuxuan0115/llvm-17:latest as builder
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
 
@@ -10,12 +10,14 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 WORKDIR /home/rust
 
 # Copy all the sources
-COPY function ./function
+COPY caller/template/rust/function ./caller
+COPY callee/template/rust/function ./callee
 COPY OpenFaaSRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
- 
+COPY merge.sh ./merge.sh 
+
 #ENV CARGO_TARGET_DIR=/home/rust/target
-WORKDIR /home/rust/function
+WORKDIR /home/rust/caller
 RUN cargo build 
 
 ENV USER=app
@@ -25,7 +27,7 @@ COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 
 WORKDIR /home/app
 
-ENV fprocess="ReadPosts"
+ENV fprocess="write-home-timeline"
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
 
