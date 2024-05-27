@@ -19,9 +19,7 @@ RUN git clone https://github.com/zyuxuan0115/faas-test.git \
     && cp /faas-test/merge_func/merge-rust-func/llvm-pass/MergeRustFunc.cpp /llvm-project/llvm/lib/Transforms/Utils/ \
     && cp /faas-test/merge_func/merge-rust-func/llvm-pass/CMakeLists.txt    /llvm-project/llvm/lib/Transforms/Utils/ \
     && cp /faas-test/merge_func/merge-rust-func/llvm-pass/PassBuilder.cpp   /llvm-project/llvm/lib/Passes/ \
-    && echo 'MODULE_PASS("merge-rust-func", MergeRustFuncPass())' >> /llvm-project/llvm/lib/Passes/PassRegistry.def  
-
-
+    && cp /faas-test/merge_func/merge-rust-func/llvm-pass/PassRegistry.def  /llvm-project/llvm/lib/Passes/
 
 RUN cd /llvm-project \
     && mkdir build && cd build \
