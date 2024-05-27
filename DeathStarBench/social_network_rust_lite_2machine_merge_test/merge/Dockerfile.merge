@@ -1,24 +1,38 @@
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 
-FROM zyuxuan0115/llvm-17:latest as builder
+FROM zyuxuan0115/llvm-17:latest as llvm
+
+FROM ubuntu:bionic as builder
+
+RUN apt-get update\
+  && apt-get install -y build-essential \
+  && apt-get install -y curl ca-certificates pkg-config libssl-dev\
+  && addgroup --system app && adduser -system app
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
 
-ENV PATH="/llvm/build/bin:${PATH}"
+COPY --from=llvm /llvm-project/build /llvm
+
+ENV PATH="/llvm/bin:${PATH}"
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 WORKDIR /home/rust
 
 # Copy all the sources
-COPY caller/template/rust/function ./caller
-COPY callee/template/rust/function ./callee
+COPY caller ./caller
+COPY callee ./callee
 COPY OpenFaaSRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
 COPY merge.sh ./merge.sh 
 
-#ENV CARGO_TARGET_DIR=/home/rust/target
-WORKDIR /home/rust/caller
-RUN cargo build 
+
+ENV CARGO_TARGET_DIR=/home/rust/target
+WORKDIR /home/rust
+#RUN cargo build 
+
+RUN rustup default 1.76
+
+RUN ./merge.sh merge caller callee
 
 ENV USER=app
 ENV PATH=$PATH:/home/rust/function/target/debug
@@ -27,7 +41,7 @@ COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 
 WORKDIR /home/app
 
-ENV fprocess="write-home-timeline"
+ENV fprocess="function"
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
 

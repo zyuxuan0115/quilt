@@ -26,6 +26,8 @@ RUN cd /llvm-project \
     && /cmake-3.29/bin/cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm \
     && make -j
 
-RUN mv /llvm-project/build /llvm && rm -rf llvm-project
+#RUN mv /llvm-project/build /llvm 
+#RUN rm -rf /llvm-project
+#RUN rm -rf /llvm/docs /llvm/emamples /llvm/cmake /llvm/benchmarks /llvm/test /llvm/tnittests /llvm/projects /llvm/runtimes /llvm/third-party
 
-WORKDIR /llvm
+WORKDIR /llvm-project

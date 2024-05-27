@@ -8,29 +8,29 @@ function build_llvm {
   sudo docker build --no-cache -t zyuxuan0115/llvm-17:latest \
         -f Dockerfile.llvm \
         .
+  sudo docker push zyuxuan0115/llvm-17:latest
 }
 
 function build_merge {
   CALLER=$1
   CALLEE=$2
   mkdir temp
-  cp -r ../machine-1/$CALLER temp/caller
-  cp -r ../machine-1/$CALLEE temp/callee
+  mkdir temp/caller
+  mkdir temp/callee
+  cp -r ../machine-1/$CALLER/* temp/caller
+  cp -r ../machine-1/$CALLEE/* temp/callee
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
   cp merge.sh temp
-  sudo docker build --no-cache -t zyuxuan0115/deathstartbench-$CALLER_NAME-merged:latest \
+  sudo docker build -t zyuxuan0115/deathstartbench-$CALLER-merged:latest \
     -f Dockerfile.merge \
     temp
   rm -rf temp
+  sudo docker push zyuxuan0115/deathstartbench-$CALLER-merged:latest
 }
 
 function test_build {
   echo $ROOT_DIR
-}
-
-function push_llvm {
-  sudo docker push zyuxuan0115/llvm-17:latest
 }
 
 function build {
@@ -50,8 +50,5 @@ merge)
     ;;
 push)
     push_llvm
-    ;;
-test)
-    test_build
     ;;
 esac
