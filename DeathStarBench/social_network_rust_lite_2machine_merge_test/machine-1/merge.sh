@@ -17,21 +17,10 @@ RUST_LIBTEST_NAME=$(basename $RUST_LIBTEST_PATH)
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_NAME#"libtest"}
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
-LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG " 
-#STATIC_LINKER_FLAGS="write-home-timeline/template/rust/function/target/debug/build/ring-53a8dfa0d1660ad4/out/libring_core_0_17_8_.a write-home-timeline/template/rust/function/target/debug/build/ring-53a8dfa0d1660ad4/out/libring_core_0_17_8_test.a"
-
-
 CALLER_FUNC=$2
 CALLEE_FUNC=$3
 
 function merge {
-  echo $RUST_LIBRUSTC_PATH
-  echo $RUST_LIBTEST_PATH
-  echo $RUST_LIBRUSTC_NAME
-  echo $RUST_LIBTEST_NAME
-  echo $RUST_LIBRUSTC_LINKER_FLAG
-  echo $RUST_LIBTEST_LINKER_FLAG
-  echo $LINKER_FLAGS
   cp -r ../OpenFaaSRPC $CALLER_FUNC/template/rust \
   && cp -r ../DbInterface $CALLER_FUNC/template/rust \
   && cp -r ../OpenFaaSRPC $CALLEE_FUNC/template/rust \
@@ -55,8 +44,18 @@ function merge {
   $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
   $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
 
-  STATIC_RING_LIBS=$(ls $CALLER_FUNC/template/rust/function/target/debug/build/ring-*.a)
-  echo $STATIC_RING_LIBS
+  STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
+  STATIC_RING_LIBS=""
+  for entry in $STATIC_RING_LIB_DIR
+  do 
+    for dir in $entry/*
+    do
+      BASE_NAME=$(basename $dir)
+      if [[ "$BASE_NAME" = "out" ]] ; then
+        STATIC_RING_LIBS=$(ls $dir/libring_*.a)
+      fi
+    done
+  done
 
   $LLVM_DIR/clang -no-pie -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
 }
