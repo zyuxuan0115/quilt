@@ -23,7 +23,7 @@ RUN git clone git@github.com:zyuxuan0115/faas-test.git \
 
 
 
-RUN cd /llvm-project
+RUN cd /llvm-project \
     && mkdir build && cd build \
     && /cmake-3.29/bin/cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm \
     && make -j
