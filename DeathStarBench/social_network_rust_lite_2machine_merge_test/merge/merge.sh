@@ -1,7 +1,7 @@
 #!/bin/bash
-LLVM_DIR=/llvm/build/bin
-RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
-CODE_LIB=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench/social_network_rust_lite_2machine_merge_test/machine-1/write-home-timeline/template/rust/function/target/debug/deps
+LLVM_DIR=/llvm/bin
+RUST_LIB=/root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
+
 RUST_LIBSTD_PATH=$(ls $RUST_LIB/libstd-*.so)
 RUST_LIBSTD_NAME=$(basename $RUST_LIBSTD_PATH)
 RUST_LIBSTD_LINKER_FLAG=${RUST_LIBSTD_NAME#"libstd"}
@@ -21,10 +21,10 @@ CALLER_FUNC=$2
 CALLEE_FUNC=$3
 
 function merge {
-  cp -r ../OpenFaaSRPC $CALLER_FUNC/template/rust \
-  && cp -r ../DbInterface $CALLER_FUNC/template/rust \
-  && cp -r ../OpenFaaSRPC $CALLEE_FUNC/template/rust \
-  && cp -r ../DbInterface $CALLEE_FUNC/template/rust \
+  cp -r OpenFaaSRPC $CALLER_FUNC/template/rust \
+  && cp -r DbInterface $CALLER_FUNC/template/rust \
+  && cp -r OpenFaaSRPC $CALLEE_FUNC/template/rust \
+  && cp -r DbInterface $CALLEE_FUNC/template/rust \
   && cd $CALLER_FUNC/template/rust/function \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../../$CALLEE_FUNC/template/rust/function \
@@ -68,7 +68,7 @@ function clean {
   && cd $CALLER_FUNC/template/rust/function && cargo clean \
   && cd ../../../../$CALLEE_FUNC/template/rust/function && cargo clean \
   && cd ../../../../
-  rm -rf *.ll *.o function
+  rm -rf *.ll *.o
 }
 
 case "$1" in
