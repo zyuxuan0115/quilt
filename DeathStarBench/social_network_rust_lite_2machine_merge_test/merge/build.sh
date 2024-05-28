@@ -22,7 +22,7 @@ function build_merge {
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
   cp merge.sh temp
-  sudo docker build -t zyuxuan0115/deathstartbench-$CALLER-merged:latest \
+  sudo docker build --no-cache -t zyuxuan0115/deathstartbench-$CALLER-merged:latest \
     -f Dockerfile.merge \
     temp
   rm -rf temp

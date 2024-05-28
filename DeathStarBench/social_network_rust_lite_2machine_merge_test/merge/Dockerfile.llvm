@@ -3,7 +3,7 @@ FROM ubuntu:bionic as builder
 #Install packages and add non-root user
 RUN apt-get update\
     && apt-get install -y build-essential \
-    && apt-get install -y curl ca-certificates pkg-config libssl-dev wget python3 git \
+    && apt-get install -y curl ca-certificates pkg-config wget python3 git \
     && addgroup --system app && adduser -system app
 
 RUN wget https://github.com/Kitware/CMake/releases/download/v3.29.3/cmake-3.29.3-linux-x86_64.tar.gz \
@@ -26,8 +26,15 @@ RUN cd /llvm-project \
     && /cmake-3.29/bin/cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm \
     && make -j
 
-#RUN mv /llvm-project/build /llvm 
-#RUN rm -rf /llvm-project
-#RUN rm -rf /llvm/docs /llvm/emamples /llvm/cmake /llvm/benchmarks /llvm/test /llvm/tnittests /llvm/projects /llvm/runtimes /llvm/third-party
 
-WORKDIR /llvm-project
+FROM ubuntu:bionic as final
+
+RUN apt-get update\
+    && apt-get install -y build-essential \
+    && apt-get install -y ca-certificates pkg-config \
+    && addgroup --system app && adduser -system app
+
+COPY --from=builder /llvm-project/build /llvm
+RUN rm -rf /llvm/docs /llvm/emamples /llvm/cmake /llvm/benchmarks /llvm/test /llvm/tnittests /llvm/projects /llvm/third-party
+
+WORKDIR /llvm

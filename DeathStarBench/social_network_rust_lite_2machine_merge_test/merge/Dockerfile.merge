@@ -1,45 +1,55 @@
-FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
-
 FROM zyuxuan0115/llvm-17:latest as llvm
 
 FROM ubuntu:bionic as builder
 
-RUN apt-get update\
-  && apt-get install -y build-essential \
-  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl-dev \
+RUN apt-get update \
+  && apt-get install -y build-essential curl zlib1g-dev \
+  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
   && addgroup --system app && adduser -system app
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
+ENV CARGO_TARGET_DIR=/home/rust/target
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustup default 1.76
 
-COPY --from=llvm /llvm-project/build /llvm
+# copy clang and llvm opt 
+COPY --from=llvm /llvm /llvm
 
 ENV PATH="/llvm/bin:${PATH}"
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-WORKDIR /home/rust
 
 # Copy all the sources
+WORKDIR /home/rust
 COPY caller ./caller
 COPY callee ./callee
 COPY OpenFaaSRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
 COPY merge.sh ./merge.sh 
 
+# build function.o
+RUN ./merge.sh merge caller callee && /bin/bash -c "source /root/.bashrc"
+RUN ./merge.sh clean caller callee && rm -rf /llvm
+RUN rm -rf caller callee OpenFaaSRPC DbInterface
 
-ENV CARGO_TARGET_DIR=/home/rust/target
-WORKDIR /home/rust
-#RUN cargo build 
+###########################################################
 
-RUN rustup default 1.76
+FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
+FROM ubuntu:bionic as final
 
-RUN ./merge.sh merge caller callee
+RUN apt-get update \
+  && apt-get install -y build-essential curl zlib1g-dev \
+  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
+  && addgroup --system app && adduser -system app
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
 
 ENV USER=app
-ENV PATH=$PATH:/home/rust/function/target/debug
+ENV PATH=$PATH:/home/rust
+
 # Copy of-watchdog binary
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 
 WORKDIR /home/app
+COPY --from=builder /home/rust /home/rust
 
 ENV fprocess="function"
 

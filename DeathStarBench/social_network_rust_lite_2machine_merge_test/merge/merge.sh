@@ -18,7 +18,7 @@ RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_NAME#"libtest"}
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
 
-LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
+LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 
 CALLER_FUNC=$2
 CALLEE_FUNC=$3
@@ -64,8 +64,18 @@ function merge {
       fi
     done
   done
+  cp $STATIC_RING_LIBS .
+  ls .
+  echo  $LINKER_FLAGS
+  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+#  $LLVM_DIR/clang -fuse-ld=ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+  echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RUST_LIB" >> /root/.bashrc
+}
 
-  ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+function link {
+  STATIC_RING_LIBS=$(ls libring_*.a)
+  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+  echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RUST_LIB" >> /root/.bashrc
 }
 
 function clean {
@@ -82,6 +92,9 @@ function clean {
 case "$1" in
 merge)
     merge
+    ;;
+link)
+    link
     ;;
 clean)
     clean
