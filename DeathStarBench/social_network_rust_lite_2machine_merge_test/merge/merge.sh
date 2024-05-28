@@ -65,11 +65,9 @@ function merge {
     done
   done
   cp $STATIC_RING_LIBS .
-  ls .
-  echo  $LINKER_FLAGS
-  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+#  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 #  $LLVM_DIR/clang -fuse-ld=ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-  echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RUST_LIB" >> /root/.bashrc
+#  echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RUST_LIB" >> /root/.bashrc
 }
 
 function link {
@@ -86,7 +84,8 @@ function clean {
   && cd $CALLER_FUNC/template/rust/function && cargo clean \
   && cd ../../../../$CALLEE_FUNC/template/rust/function && cargo clean \
   && cd ../../../../
-  rm -rf *.ll *.o
+  rm -rf *.ll
+  rm -rf caller_ir callee_ir caller callee OpenFaaSRPC DbInterface
 }
 
 case "$1" in
