@@ -760,6 +760,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "function"
+version = "0.1.0"
+dependencies = [
+ "DbInterface",
+ "OpenFaaSRPC",
+ "jws",
+ "memcache",
+ "redis",
+ "serde",
+ "serde_json",
+ "sha256",
+]
+
+[[package]]
 name = "funty"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1868,20 +1882,6 @@ name = "smallvec"
 version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
-
-[[package]]
-name = "social-graph-get-followers"
-version = "0.1.0"
-dependencies = [
- "DbInterface",
- "OpenFaaSRPC",
- "jws",
- "memcache",
- "redis",
- "serde",
- "serde_json",
- "sha256",
-]
 
 [[package]]
 name = "socket2"

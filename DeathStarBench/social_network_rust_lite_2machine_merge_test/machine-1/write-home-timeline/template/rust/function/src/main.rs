@@ -8,6 +8,7 @@ use memcache::Client as memcached_client;
 fn main() {
   let input: String = get_arg_from_caller();
   let mut timeline_info: WriteHomeTimelineArgs = serde_json::from_str(&input).unwrap();
+  println!("{:?}", timeline_info);
 
   let user_id_str: String = timeline_info.user_id.to_string();
   let followers_str: String = make_rpc("social-graph-get-followers", user_id_str);
