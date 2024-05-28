@@ -22,14 +22,11 @@ function build_merge {
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
   cp merge.sh temp
-  sudo docker build --no-cache -t zyuxuan0115/deathstartbench-caller-tmp:latest \
+  sudo docker build --no-cache -t zyuxuan0115/deathstartbench-$CALLER-tmp:latest \
     -f Dockerfile.merge \
     temp
   rm -rf temp
-  sudo docker push zyuxuan0115/deathstartbench-caller-tmp:latest
-  sudo docker build --no-cache -t zyuxuan0115/deathstartbench-$CALLER-merged:latest \
-    -f Dockerfile.link . 
-  sudo docker push zyuxuan0115/deathstartbench-$CALLER-merged:latest
+  sudo docker push zyuxuan0115/deathstartbench-$CALLER-tmp:latest
 }
 
 function test_build {

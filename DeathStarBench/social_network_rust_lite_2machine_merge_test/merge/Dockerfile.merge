@@ -1,5 +1,4 @@
 FROM zyuxuan0115/llvm-17:latest as llvm
-
 FROM ubuntu:bionic as builder
 
 RUN apt-get update \
@@ -27,3 +26,32 @@ COPY merge.sh ./merge.sh
 # build function.o
 RUN ./merge.sh merge caller callee && /bin/bash -c "source /root/.bashrc"
 RUN ./merge.sh clean caller callee && rm -rf /llvm
+
+FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
+FROM ubuntu:bionic as final
+
+RUN apt-get update \
+  && apt-get install -y build-essential curl zlib1g-dev \
+  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
+  && addgroup --system app && adduser -system app
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
+ENV CARGO_TARGET_DIR=/home/rust/target
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustup default 1.76
+
+ENV USER=app
+ENV PATH=$PATH:/home/app
+
+# Copy of-watchdog binary
+COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
+
+WORKDIR /home/app
+COPY --from=builder /home/rust /home/app
+RUN ./merge.sh link
+
+ENV fprocess="function"
+
+HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
+
+CMD ["fwatchdog"] 
