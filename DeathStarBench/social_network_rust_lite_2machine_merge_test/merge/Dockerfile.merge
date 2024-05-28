@@ -4,8 +4,7 @@ FROM ubuntu:bionic as builder
 
 RUN apt-get update \
   && apt-get install -y build-essential curl zlib1g-dev \
-  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
-  && addgroup --system app && adduser -system app
+  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev 
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
 ENV CARGO_TARGET_DIR=/home/rust/target
@@ -43,13 +42,14 @@ RUN apt-get update \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
 
 ENV USER=app
-ENV PATH=$PATH:/home/rust
+ENV PATH=$PATH:/home/app
 
 # Copy of-watchdog binary
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
 
 WORKDIR /home/app
-COPY --from=builder /home/rust /home/rust
+COPY --from=builder /home/rust /home/app
+RUN ./merge.sh link
 
 ENV fprocess="function"
 
