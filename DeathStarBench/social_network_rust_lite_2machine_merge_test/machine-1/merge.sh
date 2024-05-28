@@ -17,6 +17,8 @@ RUST_LIBTEST_NAME=$(basename $RUST_LIBTEST_PATH)
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_NAME#"libtest"}
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
+LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
+
 CALLER_FUNC=$2
 CALLEE_FUNC=$3
 
@@ -32,13 +34,11 @@ function merge {
   && cd ../../../../
 
   CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
-  CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/$CALLEE_FUNC_LL-*.ll)
-  echo $CALLER_IR
+  CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee_rename.ll
+  rm $CALLEE_IR
   cp $CALLEE_FUNC/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
-  cp $CALLEE_FUNC/template/rust/function/target/debug/deps/*.so $CALLER_FUNC/template/rust/function/target/debug/deps
   cp callee_rename.ll $CALLER_FUNC/template/rust/function/target/debug/deps
-  rm -rf $CALLER_FUNC/template/rust/function/target/debug/deps/$CALLEE_FUNC_LL-*.ll
   $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o merge.ll
   $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
   $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
