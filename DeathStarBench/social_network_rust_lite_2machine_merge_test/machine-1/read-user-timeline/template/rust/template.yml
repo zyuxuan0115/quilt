@@ -1,5 +1,5 @@
 language: rust
-fprocess: ReadUserTimeline
+fprocess: function 
 welcome_message: |
   Welcome to the rust template.
 
