@@ -7,7 +7,7 @@ echo $ROOT_DIR
 function build_rust_test {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build -t zyuxuan0115/deathstarbench-registeruser:latest \
+    sudo docker build --no-cache -t zyuxuan0115/deathstarbench-registeruser:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
