@@ -6,7 +6,7 @@ functions:
   write-home-timeline:
     lang: rust
     handler: ./write-home-timeline
-    image: zyuxuan0115/deathstartbench-write-home-timeline-tmp:latest
+    image: zyuxuan0115/deathstartbench-write-home-timeline-merged:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
