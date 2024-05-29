@@ -3,9 +3,11 @@ FROM ubuntu:bionic as builder
 
 RUN apt-get update \
   && apt-get install -y build-essential curl zlib1g-dev \
-  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev 
+  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
+  && addgroup --system app && adduser -system app
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
+ 
 ENV CARGO_TARGET_DIR=/home/rust/target
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup default 1.76
@@ -36,20 +38,21 @@ RUN apt-get update \
   && addgroup --system app && adduser -system app
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
-ENV CARGO_TARGET_DIR=/home/rust/target
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup default 1.76
 
-ENV USER=app
-ENV PATH=$PATH:/home/app
+COPY --from=builder /home/rust /home/rust/function/target/debug
+RUN cd /home/rust/function/target/debug && ./merge.sh link 
 
 # Copy of-watchdog binary
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
+RUN chmod +x /usr/bin/fwatchdog
+
+ENV USER=app
+ENV PATH=$PATH:/home/rust/function/target/debug
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
 
 WORKDIR /home/app
-COPY --from=builder /home/rust /home/app
-RUN ./merge.sh link
-
 ENV fprocess="function"
 
 HEALTHCHECK --interval=3s CMD [ -e /tmp/.lock ] || exit 1
