@@ -31,7 +31,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
     if (!CallerFunc) return PreservedAnalyses::all();
 
     Function *CalleeFunc = M.getFunction("callee");
-    InvokeInst* RPCInst = findInvokeByCalleePrefix(CallerFunc, "function::make_rpc");
+    InvokeInst* RPCInst = findInvokeByCalleePrefix(CallerFunc, "OpenFaaSRPC::make_rpc");
     if (!RPCInst) return PreservedAnalyses::all();
 
     Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst);
@@ -112,7 +112,7 @@ Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeIns
 void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
   Module* M = NewCalleeFunc->getParent();
    // In the new callee function, change the way to get input 
-  CallInst* InputFuncCall = findCallByCalleePrefix(NewCalleeFunc, "function::get_arg_from_caller");
+  CallInst* InputFuncCall = findCallByCalleePrefix(NewCalleeFunc, "OpenFaaSRPC::get_arg_from_caller");
   Value* allocValue = InputFuncCall->getOperand(0);
   if (!InputFuncCall) return;
 
@@ -145,7 +145,7 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
 
   // In the new callee function, change the way to send output back to caller
-  InvokeInst* OutputFuncCall = findInvokeByCalleePrefix(NewCalleeFunc, "function::send_return_value_to_caller");
+  InvokeInst* OutputFuncCall = findInvokeByCalleePrefix(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
 
   if (!OutputFuncCall) return;
 
