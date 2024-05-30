@@ -48,20 +48,6 @@ request = function(req_id)
   end
   user_mentions = user_mentions:sub(1, num_user_mentions -1) .. "]"
 
-
-  for i = 0, num_urls, 1 do
-    text = text .. " http://" .. stringRandom(64)
-  end
-
-  for i = 0, num_media, 1 do
-    local media_id = decRandom(10)
-    media_ids = media_ids .. media_id .. ","
-    media_types = media_types .. "\"png\","
-  end
-
-  media_ids = media_ids:sub(1, #media_ids - 1) .. "]"
-  media_types = media_types:sub(1, #media_types - 1) .. "]"
-
   local method = "POST"
   local path = "/function/write-home-timeline"
   local headers = {}
