@@ -36,12 +36,14 @@ function merge {
   CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
   CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee_rename.ll
-  rm $CALLEE_IR
+
+  mv $CALLEE_IR old_callee_ir.ll
   cp $CALLEE_FUNC/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
   cp callee_rename.ll $CALLER_FUNC/template/rust/function/target/debug/deps
   $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o merge.ll
   $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
   $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
+
   $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
@@ -58,6 +60,9 @@ function merge {
   done
 
   $LLVM_DIR/clang -no-pie -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
+<<'###BLOCK-COMMENT'
+
+###BLOCK-COMMENT
 }
 
 function clean {

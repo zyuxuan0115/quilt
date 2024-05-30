@@ -8,6 +8,8 @@ function build {
     BASE_NAME=$(basename $entry)
     if [[ "$BASE_NAME" = "build.sh" ]] ; then 
       continue
+    elif [[ "$BASE_NAME" = "merge.sh" ]] ; then 
+      continue
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
     else
@@ -23,6 +25,8 @@ function deploy {
   do
     BASE_NAME=$(basename $entry)
     if [[ "$BASE_NAME" = "build.sh" ]] ; then 
+      continue
+    elif [[ "$BASE_NAME" = "merge.sh" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
@@ -40,6 +44,8 @@ function clean {
     BASE_NAME=$(basename $entry)
     if [[ "$BASE_NAME" = "build.sh" ]] ; then
       continue
+    elif [[ "$BASE_NAME" = "build.sh" ]] ; then
+      continue
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
     else
@@ -48,6 +54,26 @@ function clean {
     fi
   done
 }
+
+function nuke {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ "$BASE_NAME" = "build.sh" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "merge.sh" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "README.md" ]] ; then 
+      continue
+    else
+      cd $entry/template/rust/function
+      cargo clean
+    fi
+  done
+  sudo docker image rm -f $(sudo docker images -aq)
+  sudo docker system prune
+}
+
 
 
 
@@ -60,5 +86,8 @@ deploy)
     ;;
 clean)
     clean
+    ;;
+nuke)
+    nuke
     ;;
 esac
