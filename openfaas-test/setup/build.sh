@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.16"
-AGENT_IP="130.127.133.48"
-SERVER_HOST="zyuxuan@clnode007.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode039.clemson.cloudlab.us"
+SERVER_IP="130.127.133.189"
+AGENT_IP="130.127.133.148"
+SERVER_HOST="zyuxuan@clnode180.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode139.clemson.cloudlab.us"
 
 function setup {
   k3sup install --ip $SERVER_IP --user $USER
@@ -12,11 +12,12 @@ function setup {
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
-  arkade install openfaas --load-balancer
+  arkade install openfaas --load-balancer --max-inflight 8 --queue-workers 4
   kubectl rollout status -n openfaas deploy/gateway
   kubectl port-forward -n openfaas svc/gateway 8080:8080 &
   kubectl get svc -o wide gateway-external -n openfaas
   PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
+  echo $PASSWORD > openfaas_pass.txt
   echo -n $PASSWORD | faas-cli login --username admin --password-stdin
   arkade install mongodb
   kubectl expose deployment mongodb --port=27017 --target-port=27017 \
