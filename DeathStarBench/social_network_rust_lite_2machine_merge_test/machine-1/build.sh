@@ -38,22 +38,6 @@ function deploy {
   done
 }
 
-function clean {
-  for entry in "$search_dir"/*
-  do
-    BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "build.sh" ]] ; then
-      continue
-    elif [[ "$BASE_NAME" = "build.sh" ]] ; then
-      continue
-    elif [[ "$BASE_NAME" = "README.md" ]] ; then 
-      continue
-    else
-      cd $entry/template/rust/function
-      cargo clean
-    fi
-  done
-}
 
 function nuke {
   for entry in "$search_dir"/*
@@ -66,8 +50,9 @@ function nuke {
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
     else
-      cd $entry/template/rust/function
-      cargo clean
+      cd $entry
+      faas-cli remove $entry
+      cd ..
     fi
   done
   sudo docker image rm -f $(sudo docker images -aq)
@@ -83,9 +68,6 @@ build)
     ;;
 deploy)
     deploy
-    ;;
-clean)
-    clean
     ;;
 nuke)
     nuke

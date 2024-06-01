@@ -6,7 +6,7 @@ function build {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
+    if [[ "$BASE_NAME" = "merge.sh" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "build.sh" ]] ; then 
       continue
@@ -16,6 +16,7 @@ function build {
       cd $entry
       ./build.sh build
       ./build.sh push
+      cd ..
     fi
   done
 }
@@ -24,7 +25,7 @@ function deploy {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
+    if [[ "$BASE_NAME" = "merge.sh" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "build.sh" ]] ; then 
       continue
@@ -34,6 +35,7 @@ function deploy {
       cd $entry
       YAML_FILE=$(ls *.yml)
       faas-cli deploy -f $YAML_FILE
+      cd ..
     fi
   done
 }
@@ -42,7 +44,9 @@ function clean {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "OpenFaaSRPC" ]] ; then
+    if [[ "$BASE_NAME" = "merge.sh" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "build.sh" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "README.md" ]] ; then 
       continue
