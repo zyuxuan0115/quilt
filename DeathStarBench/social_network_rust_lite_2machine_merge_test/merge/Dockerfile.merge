@@ -19,7 +19,9 @@ ENV PATH="/llvm/bin:${PATH}"
 
 # Copy all the sources
 WORKDIR /home/rust
+ARG CACHEBUST=1
 COPY caller ./caller
+ARG CACHEBUST=2
 COPY callee ./callee
 COPY OpenFaaSRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
@@ -33,8 +35,8 @@ FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:bionic as final
 
 RUN apt-get update \
-  && apt-get install -y build-essential curl zlib1g-dev \
-  && apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
+  && apt-get install -y curl build-essential zlib1g-dev \
+  && apt-get install -y libssl-dev libcurl4-openssl-dev \
   && addgroup --system app && adduser -system app
 
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 

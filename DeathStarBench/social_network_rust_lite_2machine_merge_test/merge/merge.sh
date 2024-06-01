@@ -50,7 +50,8 @@ function merge {
   $LLVM_DIR/llvm-link caller_ir/debug/deps/*.ll -S -o merge.ll
   $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
   $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
-  $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
+  $LLVM_DIR/opt -O3 merge_new.ll -o merge_new.bc
+  $LLVM_DIR/llc -filetype=obj -O3 merge_new.bc -o function.o
 
   STATIC_RING_LIB_DIR=$(find caller_ir/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -72,8 +73,7 @@ function merge {
 
 function link {
   STATIC_RING_LIBS=$(ls libring_*.a)
-  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-  echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RUST_LIB" >> /root/.bashrc
+  g++ -no-pie -O3 -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 }
 
 function clean {
