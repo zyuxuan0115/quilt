@@ -28,9 +28,11 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
         }
       }
     }
+
     if (!CallerFunc) return PreservedAnalyses::all();
 
     Function *CalleeFunc = M.getFunction("callee");
+
     InvokeInst* RPCInst = findInvokeByCalleePrefix(CallerFunc, "OpenFaaSRPC::make_rpc");
     if (!RPCInst) return PreservedAnalyses::all();
 
@@ -42,6 +44,37 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
     f1->eraseFromParent();
     f2->eraseFromParent();
     CalleeFunc->eraseFromParent();
+ 
+  // function 
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+
+//  FunctionType* FuncType = FunctionType::get(Type::getInt32Ty(M.getContext()), argumentTypes, false);
+  FunctionType* FuncType = mainFunc->getFunctionType();
+  Function * NewMainFunc = Function::Create(FuncType, mainFunc->getLinkage(), "main", M);
+  ValueToValueMapTy VMap;
+  SmallVector<ReturnInst*, 8> Returns;
+  CloneFunctionInto(NewMainFunc, CallerFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+  std::vector<Instruction*> retInsts;
+  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if(isa<ReturnInst>(IB)){
+        Instruction* oldRet = dyn_cast<Instruction>(IB);
+        retInsts.push_back(oldRet);
+      }
+    }
+  }
+  for (auto inst: Returns){
+    llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(M.getContext());
+    llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 0/*value*/, true);
+    ReturnInst* newRet = ReturnInst::Create(M.getContext(), i32_val, inst);
+    inst->eraseFromParent(); 
+  }
+
+    mainFunc->setName("old_main");
+    NewMainFunc->setName("main");
+
   }
   else {
     Function *mainFunc = M.getFunction("main");
