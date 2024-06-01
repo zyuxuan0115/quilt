@@ -49,16 +49,16 @@ request = function(req_id)
   user_mentions = user_mentions:sub(1, num_user_mentions -1) .. "]"
 
   local method = "POST"
-  local path = "/function/write-home-timeline"
+  local path = "/function/write-home-timeline-new"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
   body = '{"post_id":' .. post_id .. ',"user_id":' .. user_id ..
          ',"timestamp":' .. timestamp .. ',"user_mentions_id":' .. user_mentions .. '}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
-  file:close()
+--  file = io.open('req_data_log.txt', 'w')
+--  file:write(body)
+--  file:close()
 
   if req_id ~= "" then
     headers["Req-Id"] = req_id
@@ -68,13 +68,13 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
---  if status ~= 200 then
+  if status ~= 200 then
       io.write("------------------------------\n")
       io.write("Response with status: ".. status .."\n")
       io.write("------------------------------\n")
       io.write("[response] Body:\n")
       io.write(body .. "\n")
---  end
+  end
 end
 
 function init(rand_seed)
