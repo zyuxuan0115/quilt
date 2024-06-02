@@ -36,7 +36,7 @@ request = function(req_id)
   local num_user_mentions = math.random(0, 5)
   local user_mentions = '['
 
-  for i = 0, num_user_mentions, 1 do
+  for i = 0, num_user_mentions-1, 1 do
     local user_mention_id
     while (true) do
       user_mention_id = math.random(1, 962)
@@ -46,7 +46,13 @@ request = function(req_id)
     end
     user_mentions = user_mentions .. tostring(user_mention_id) .. ","
   end
-  user_mentions = user_mentions:sub(1, num_user_mentions -1) .. "]"
+  while (true) do
+    user_mention_id = math.random(1, 962)
+    if user_index ~= user_mention_id then
+      break
+    end
+  end
+  user_mentions = user_mentions .. tostring(user_mention_id) .. "]"
 
   local method = "POST"
   local path = "/function/write-home-timeline"
@@ -56,9 +62,9 @@ request = function(req_id)
   body = '{"post_id":' .. post_id .. ',"user_id":' .. user_id ..
          ',"timestamp":' .. timestamp .. ',"user_mentions_id":' .. user_mentions .. '}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
-  file:close()
+--  file = io.open('req_data_log.txt', 'w')
+--  file:write(body)
+--  file:close()
 
   if req_id ~= "" then
     headers["Req-Id"] = req_id

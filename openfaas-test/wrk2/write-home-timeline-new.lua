@@ -36,7 +36,7 @@ request = function(req_id)
   local num_user_mentions = math.random(0, 5)
   local user_mentions = '['
 
-  for i = 0, num_user_mentions, 1 do
+  for i = 0, num_user_mentions-1, 1 do
     local user_mention_id
     while (true) do
       user_mention_id = math.random(1, 962)
@@ -46,7 +46,13 @@ request = function(req_id)
     end
     user_mentions = user_mentions .. tostring(user_mention_id) .. ","
   end
-  user_mentions = user_mentions:sub(1, num_user_mentions -1) .. "]"
+  while (true) do
+    user_mention_id = math.random(1, 962)
+    if user_index ~= user_mention_id then
+      break
+    end
+  end
+  user_mentions = user_mentions .. tostring(user_mention_id) .. "]"
 
   local method = "POST"
   local path = "/function/write-home-timeline-new"
@@ -68,13 +74,13 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
-  if status ~= 200 then
+--  if status ~= 200 then
       io.write("------------------------------\n")
       io.write("Response with status: ".. status .."\n")
       io.write("------------------------------\n")
       io.write("[response] Body:\n")
       io.write(body .. "\n")
-  end
+--  end
 end
 
 function init(rand_seed)
