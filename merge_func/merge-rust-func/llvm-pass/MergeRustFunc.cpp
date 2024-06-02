@@ -74,10 +74,10 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
     mainFunc->setName("old_main");
     NewMainFunc->setName("main");
 
-    InvokeInst* OutputFuncCall = findInvokeByCalleePrefix(NewMainFunc, "OpenFaaSRPC::send_return_value_to_caller");
-    llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(M.getContext());
-    llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 0/*value*/, true);
-    ReturnInst* newRet = ReturnInst::Create(M.getContext(), i32_val, OutputFuncCall);
+//    InvokeInst* OutputFuncCall = findInvokeByCalleePrefix(NewMainFunc, "OpenFaaSRPC::send_return_value_to_caller");
+//    llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(M.getContext());
+//    llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 0/*value*/, true);
+//    ReturnInst* newRet = ReturnInst::Create(M.getContext(), i32_val, OutputFuncCall);
 
   }
   else {
