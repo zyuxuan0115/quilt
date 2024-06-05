@@ -36,7 +36,10 @@ namespace llvm {
 class MergeRustFuncPass : public PassInfoMixin<MergeRustFuncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
+  Function* createRustNewCaller(Function* mainFunc);
   Function* createRustNewCallee(Function* CalleeFunc, InvokeInst* call);
+  Function* getRustRuntimeFunction(Function* mainFunc);
+  void renameCallee(Function* mainFunc, std::string newCalleeName);
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
   InvokeInst* findInvokeByCalleePrefix(Function* f, std::string prefix);
   CallInst* findCallByCalleePrefix(Function* f, std::string prefix);

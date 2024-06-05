@@ -13,21 +13,16 @@ using namespace llvm;
 static cl::opt<bool> RenameCallee_rr(
                                      "rename-callee-rr", cl::init(false),
                                      cl::desc("rename the rust callee functions"));
+static cl::opt<bool> RenameCaller_rr(
+                                     "rename-caller-rr", cl::init(false),
+                                     cl::desc("rename the rust callee functions"));
+
 
 PreservedAnalyses MergeRustFuncPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
-  if (!RenameCallee_rr){
-    Function *CallerFunc;
-    Function *mainFunc = M.getFunction("main");
-    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
-      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-        if(isa<CallInst>(IB)){
-          CallInst *ci = dyn_cast<CallInst>(IB);
-          CallerFunc = dyn_cast<Function>(ci->getArgOperand(0));
-          break;
-        }
-      }
-    }
+  // merge
+  if ((!RenameCallee_rr) && (!RenameCaller_rr)) {
+    Function *CallerFunc = M.getFunction("main");
 
     if (!CallerFunc) return PreservedAnalyses::all();
 
@@ -44,60 +39,114 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
     f1->eraseFromParent();
     f2->eraseFromParent();
     CalleeFunc->eraseFromParent();
- 
-    // function 
-    std::vector<Value*> arguments;
-    std::vector<Type*> argumentTypes;
-
-    FunctionType* FuncType = mainFunc->getFunctionType();
-    Function * NewMainFunc = Function::Create(FuncType, mainFunc->getLinkage(), "main", M);
-    ValueToValueMapTy VMap;
-    SmallVector<ReturnInst*, 8> Returns;
-    CloneFunctionInto(NewMainFunc, CallerFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
-
-    std::vector<Instruction*> retInsts;
-    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
-      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-        if(isa<ReturnInst>(IB)){
-          Instruction* oldRet = dyn_cast<Instruction>(IB);
-          retInsts.push_back(oldRet);
-        }
-      }
-    }
-    for (auto inst: Returns){
-      llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(M.getContext());
-      llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 0/*value*/, true);
-      ReturnInst* newRet = ReturnInst::Create(M.getContext(), i32_val, inst);
-      inst->eraseFromParent(); 
-    }
-
-    mainFunc->setName("old_main");
-    NewMainFunc->setName("main");
-
-    InvokeInst* OutputFuncCall = findInvokeByCalleePrefix(NewMainFunc, "OpenFaaSRPC::send_return_value_to_caller");
-    llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(M.getContext());
-    llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 0/*value*/, true);
-    ReturnInst* newRet = ReturnInst::Create(M.getContext(), i32_val, OutputFuncCall);
-    OutputFuncCall->eraseFromParent();
   }
-  else {
+  // rename caller
+  else if ((!RenameCallee_rr) && (RenameCaller_rr)){
     Function *mainFunc = M.getFunction("main");
-    Function *rustRTFunc;
-    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
-      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-        if(isa<CallInst>(IB)){
-          CallInst *ci = dyn_cast<CallInst>(IB);
-          Function* realMainFunc = dyn_cast<Function>(ci->getArgOperand(0));
-          rustRTFunc = ci->getCalledFunction();
-	  realMainFunc->setName("callee");
-        }
-      }
-    }    
+    Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
+    mainFunc->setName("main_caller_rust");
+    Function* NewMainFunc = createRustNewCaller(mainFunc);
+    rustRTFunc->setName("_std_rt_lang_start_caller");
+  }
+  // rename callee
+  else if ((RenameCallee_rr) && (!RenameCaller_rr)) {
+    Function *mainFunc = M.getFunction("main");
+    Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
+    renameCallee(mainFunc, "callee");
     mainFunc->setName("main_callee_rust");
     rustRTFunc->setName("_std_rt_lang_start_callee");
   }
+  else {
+    llvm::errs()<<"Error: cannot rename both caller and callee at the same time\n";
+  }
   return PreservedAnalyses::all();
 }
+
+
+
+Function* MergeRustFuncPass::getRustRuntimeFunction(Function* mainFunc){
+  Function *rustRTFunc; 
+  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if(isa<CallInst>(IB)){
+        CallInst *ci = dyn_cast<CallInst>(IB);
+        rustRTFunc = ci->getCalledFunction();
+      }
+    }
+  }
+  return rustRTFunc;    
+}
+
+
+
+void MergeRustFuncPass::renameCallee(Function* mainFunc, std::string newCalleeName){
+  Function *rustRTFunc; 
+  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if(isa<CallInst>(IB)){
+        CallInst *ci = dyn_cast<CallInst>(IB);
+        Function* realMainFunc = dyn_cast<Function>(ci->getArgOperand(0));
+        rustRTFunc = ci->getCalledFunction();
+	realMainFunc->setName(newCalleeName.c_str());
+      }
+    }
+  }
+  return;    
+}
+
+
+
+
+
+
+
+Function* MergeRustFuncPass::createRustNewCaller(Function* mainFunc){
+  Module* M = mainFunc->getParent();
+  Function* CallerFunc = NULL;
+  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if(isa<CallInst>(IB)){
+        CallInst *ci = dyn_cast<CallInst>(IB);
+        CallerFunc = dyn_cast<Function>(ci->getArgOperand(0));
+        break;
+      }
+    }
+  }
+
+  if (CallerFunc == NULL) return NULL;
+
+  // function 
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+
+  FunctionType* FuncType = mainFunc->getFunctionType();
+  Function * NewMainFunc = Function::Create(FuncType, mainFunc->getLinkage(), "main", M);
+  ValueToValueMapTy VMap;
+  SmallVector<ReturnInst*, 8> Returns;
+  CloneFunctionInto(NewMainFunc, CallerFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+  std::vector<Instruction*> retInsts;
+  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if(isa<ReturnInst>(IB)){
+        Instruction* oldRet = dyn_cast<Instruction>(IB);
+        retInsts.push_back(oldRet);
+      }
+    }
+  }
+  for (auto inst: Returns){
+    llvm::Type *i32_type = llvm::IntegerType::getInt32Ty(M->getContext());
+    llvm::Constant *i32_val = llvm::ConstantInt::get(i32_type, 0/*value*/, true);
+    ReturnInst* newRet = ReturnInst::Create(M->getContext(), i32_val, inst);
+    inst->eraseFromParent(); 
+  }
+
+  NewMainFunc->setName("main");
+  return NewMainFunc;
+}
+
+
+
 
 
 Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeInst* call){
