@@ -22,24 +22,32 @@ function build_merge {
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
   cp merge.sh temp
-  sudo docker build --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
+  sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
     -f Dockerfile.merge \
     temp
   rm -rf temp
   sudo docker push zyuxuan0115/deathstarbench-$CALLER-merged:latest
 }
 
-function test_build {
-  echo $ROOT_DIR
+
+function build_merge2 {
+  CALLER=$1
+  CALLEE=$2
+  mkdir temp
+  mkdir temp/caller
+  mkdir temp/callee
+  cp -r ../machine-1/$CALLER/* temp/caller
+  cp -r ../machine-1/$CALLEE/* temp/callee
+  cp -r ../OpenFaaSRPC temp
+  cp -r ../DbInterface temp
+  cp merge.sh temp
+  sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
+    -f Dockerfile.merge \
+    temp
+  rm -rf temp
+  sudo docker push zyuxuan0115/deathstarbench-$CALLER-merged:latest
 }
 
-function build {
-  build_llvm
-}
-
-function push {
-  push_llvm
-}
 
 case "$1" in
 llvm)
@@ -48,7 +56,7 @@ llvm)
 merge)
     build_merge $2 $3
     ;;
-push)
-    push_llvm
+merge2)
+    build_merge2 $2 $3
     ;;
 esac
