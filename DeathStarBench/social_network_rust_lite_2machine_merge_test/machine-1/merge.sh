@@ -33,18 +33,27 @@ function merge {
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../../
 
+  # prepare for merging
   CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
   CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
-  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee_rename.ll
-
+  CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
+  $LLVM_DIR/opt -S $CALLER_IR -passes=merge-rust-func -rename-caller-rr -o caller.ll
+  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
   mv $CALLEE_IR old_callee_ir.ll
-  cp $CALLEE_FUNC/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
-  cp callee_rename.ll $CALLER_FUNC/template/rust/function/target/debug/deps
-  $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o merge.ll
-  $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
-  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
+  mv $CALLER_IR old_caller_ir.ll
 
-  $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
+  # merge caller and callee
+  $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
+  $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
+  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=social-graph-get-followers -o merged.ll
+
+  # merge the rest lib code  
+  cp $CALLEE_FUNC/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
+  $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o lib_with_debug_info.ll
+  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
+
+  $LLVM_DIR/llvm-link lib.ll merged.ll -S -o function.ll
+  $LLVM_DIR/llc -filetype=obj function.ll -o function.o
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""

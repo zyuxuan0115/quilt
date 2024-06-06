@@ -42,16 +42,28 @@ function merge {
   && rm -rf target
 
   CALLEE_IR=$(ls callee_ir/debug/deps/function-*.ll) 
+  CALLER_IR=$(ls caller_ir/debug/deps/function-*.ll)
   echo $CALLEE_IR
-  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee_rename.ll
-  rm -rf $CALLEE_IR
+  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
+  $LLVM_DIR/opt -S $CALLER_IR -passes=merge-rust-func -rename-caller-rr -o caller.ll
+  mv $CALLEE_IR old_callee_ir.ll
+  mv $CALLER_IR old_caller_ir.ll
+
+  # merge caller and callee
+  $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
+  $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
+  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -o merged.ll
+
+  # merge the rest lib code 
   cp callee_ir/debug/deps/*.ll caller_ir/debug/deps
-  cp callee_rename.ll caller_ir/debug/deps
-  $LLVM_DIR/llvm-link caller_ir/debug/deps/*.ll -S -o merge.ll
-  $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
-  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
-  $LLVM_DIR/opt -O3 merge_new.ll -o merge_new.bc
-  $LLVM_DIR/llc -filetype=obj -O3 merge_new.bc -o function.o
+  $LLVM_DIR/llvm-link caller_ir/debug/deps/*.ll -S -o lib_with_debug_info.ll
+  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
+
+  # merge lib and real code
+  $LLVM_DIR/llvm-link lib.ll merged.ll -S -o function.ll
+  $LLVM_DIR/llc -O3 -filetype=obj function.ll -o function.o
+
+  echo "!!!!!!"
 
   STATIC_RING_LIB_DIR=$(find caller_ir/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -65,15 +77,16 @@ function merge {
       fi
     done
   done
-  cp $STATIC_RING_LIBS .
+  echo "#######"
+
+#  cp $STATIC_RING_LIBS .
 #  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 #  $LLVM_DIR/clang -fuse-ld=ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-#  echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$RUST_LIB" >> /root/.bashrc
 }
 
 function link {
-  STATIC_RING_LIBS=$(ls libring_*.a)
-  g++ -no-pie -O3 -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+#  STATIC_RING_LIBS=$(ls libring_*.a)
+  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 }
 
 function clean {
