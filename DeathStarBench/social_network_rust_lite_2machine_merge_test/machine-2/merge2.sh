@@ -62,11 +62,11 @@ function merge {
   # merge caller and callee
   $LLVM_DIR/llvm-link caller.ll callee1.ll -S -o caller_and_callee.ll
   $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
-  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=url-shorten-service -o merged1.ll
+  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC1 -o merged1.ll
   
   $LLVM_DIR/llvm-link merged1.ll callee2.ll -S -o caller_and_callee.ll
   $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
-  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=user-mention-service -o merged.ll
+  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC2 -o merged.ll
 
 
 
