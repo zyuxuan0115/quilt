@@ -22,6 +22,7 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/BasicBlock.h"
 #include "llvm/Support/Debug.h"
+#include "llvm/Support/FileSystem.h"
 #include "llvm/ADT/IndexedMap.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
@@ -30,12 +31,15 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/Demangle/Demangle.h"
 #include "llvm/Support/CommandLine.h"
+#include <fstream>
+#include <sstream>
 
 namespace llvm {
 
 class MergeRustFuncPass : public PassInfoMixin<MergeRustFuncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
+  std::string getRPCCalleeName(InvokeInst* RPCInst);
   Function* createRustNewCaller(Function* mainFunc);
   Function* createRustNewCallee(Function* CalleeFunc, InvokeInst* call);
   Function* getRustRuntimeFunction(Function* mainFunc);
@@ -43,6 +47,7 @@ public:
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
   InvokeInst* findInvokeByCalleePrefix(Function* f, std::string prefix);
   CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
+  InvokeInst* findRPCbyCalleeName(Function*, std::string);
 };
 
 } // namespace llvm
