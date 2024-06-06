@@ -50,7 +50,7 @@ function build_merge2 {
   cp -r ../DbInterface temp
   cp merge2.sh temp
   sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
-    -f Dockerfile.merge \
+    -f Dockerfile.merge2 \
     temp
   rm -rf temp
   sudo docker push zyuxuan0115/deathstarbench-$CALLER-merged:latest
