@@ -20,7 +20,8 @@ ENV PATH="/llvm/bin:${PATH}"
 # Copy all the sources
 WORKDIR /home/rust
 COPY caller ./caller
-COPY callee ./callee
+COPY callee1 ./callee1
+COPY callee2 ./callee2
 COPY OpenFaaSRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
 COPY merge.sh ./merge.sh 
