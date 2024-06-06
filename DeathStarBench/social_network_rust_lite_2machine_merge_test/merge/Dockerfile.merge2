@@ -24,7 +24,7 @@ COPY callee1 ./callee1
 COPY callee2 ./callee2
 COPY OpenFaaSRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
-COPY merge.sh ./merge.sh 
+COPY merge2.sh ./merge.sh 
 
 # build function.o
 RUN ./merge.sh merge caller callee1 callee2
