@@ -26,8 +26,8 @@ COPY DbInterface ./DbInterface
 COPY merge.sh ./merge.sh 
 
 # build function.o
-RUN ./merge.sh merge caller callee
-#RUN ./merge.sh clean caller callee && rm -rf /llvm
+RUN ./merge.sh merge caller callee1 callee2
+#RUN ./merge.sh clean caller callee callee2 && rm -rf /llvm
 
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final
