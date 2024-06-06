@@ -20,10 +20,16 @@ RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
 LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 
+ARGS=("$@")
 CALLER_FUNC=$2
 CALLEE_FUNC=$3
 
 function merge {
+  echo ${ARGS[0]}
+  echo ${ARGS[1]}
+<<'###BLOCK-COMMENT'
+
+
   cp -r OpenFaaSRPC $CALLER_FUNC/template/rust \
   && cp -r DbInterface $CALLER_FUNC/template/rust \
   && cp -r OpenFaaSRPC $CALLEE_FUNC/template/rust \
@@ -63,8 +69,6 @@ function merge {
   $LLVM_DIR/llvm-link lib.ll merged.ll -S -o function.ll
   $LLVM_DIR/llc -O3 -filetype=obj function.ll -o function.o
 
-  echo "!!!!!!"
-
   STATIC_RING_LIB_DIR=$(find caller_ir/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
   for entry in $STATIC_RING_LIB_DIR
@@ -77,7 +81,9 @@ function merge {
       fi
     done
   done
-  echo "#######"
+
+
+###BLOCK-COMMENT
 
 #  cp $STATIC_RING_LIBS .
 #  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS

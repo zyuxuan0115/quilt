@@ -42,7 +42,8 @@ function build_merge2 {
   CALLEE2=$3
   mkdir temp
   mkdir temp/caller
-  mkdir temp/callee
+  mkdir temp/callee1
+  mkdir temp/callee2
   cp -r ../machine-2/$CALLER/* temp/caller
   cp -r ../machine-2/$CALLEE1/* temp/callee1
   cp -r ../machine-2/$CALLEE2/* temp/callee2
