@@ -49,7 +49,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
     std::string CalleeName = getRPCCalleeName(RPCInst);
 
-    Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst);
+    Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst, CalleeName_rr);
     deleteCalleeInputOutputFunc(NewCalleeFunc);
     
     Function* f1 = M.getFunction("main_callee_rust");
@@ -132,7 +132,7 @@ Function* MergeRustFuncPass::getRustRuntimeFunction(Function* mainFunc){
 
 
 
-
+// rename the callee function (main) to be "callee"
 
 void MergeRustFuncPass::renameCallee(Function* mainFunc, std::string newCalleeName){
   Function *rustRTFunc; 
@@ -204,7 +204,15 @@ Function* MergeRustFuncPass::createRustNewCaller(Function* mainFunc){
 
 
 
-Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeInst* call){
+Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeInst* call, std::string CalleeName_rr){
+  std::string calleeName;
+  for (unsigned i=0; i<CalleeName_rr.size(); i++) {
+    if (CalleeName_rr[i]=='-')
+      calleeName.push_back('_');
+    else 
+      calleeName.push_back(CalleeName_rr[i]);
+  }
+
   // based on the RPC and callee function, create a new callee
   // function 
   Module* M = CalleeFunc->getParent();
@@ -219,7 +227,7 @@ Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeIns
   }
 
   FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), argumentTypes, false);
-  Function * NewCalleeFunc = Function::Create(FuncType, CalleeFunc->getLinkage(), "NewCallee", M);
+  Function * NewCalleeFunc = Function::Create(FuncType, CalleeFunc->getLinkage(), calleeName.c_str(), M);
   ValueToValueMapTy VMap;
   SmallVector<ReturnInst*, 8> Returns;
   CloneFunctionInto(NewCalleeFunc, CalleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
@@ -373,6 +381,8 @@ InvokeInst* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string call
         std::string realname = demangle(invoke->getCalledFunction()->getName());
         if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix)) {
           std::string CalleeName = getRPCCalleeName(invoke);
+//          llvm::errs()<<"arg: "<<calleeName<<"\n";
+//          llvm::errs()<<"from ir: "<< CalleeName<<"\n";
           if (CalleeName == calleeName) return invoke;
         }
       }

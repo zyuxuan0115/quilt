@@ -41,7 +41,7 @@ public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   std::string getRPCCalleeName(InvokeInst* RPCInst);
   Function* createRustNewCaller(Function* mainFunc);
-  Function* createRustNewCallee(Function* CalleeFunc, InvokeInst* call);
+  Function* createRustNewCallee(Function* CalleeFunc, InvokeInst* call, std::string newName);
   Function* getRustRuntimeFunction(Function* mainFunc);
   void renameCallee(Function* mainFunc, std::string newCalleeName);
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
