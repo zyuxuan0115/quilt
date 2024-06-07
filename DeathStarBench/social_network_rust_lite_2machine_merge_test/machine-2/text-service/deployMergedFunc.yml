@@ -8,4 +8,5 @@ functions:
     handler: ./text-service-new
     image: zyuxuan0115/deathstarbench-text-service-merged:latest
     secrets:
-    - ipv4-addr 
+    - ipv4-addr
+    - redis-password
