@@ -3,12 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  write-home-timeline:
+  write-home-timeline-new:
     lang: rust
-    handler: ./write-home-timeline
-    image: zyuxuan0115/deathstartbench-write-home-timeline-merged:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    handler: ./write-home-timeline-new
+    image: zyuxuan0115/deathstarbench-write-home-timeline-merged:latest
     secrets:
     - ipv4-addr 
     - redis-password

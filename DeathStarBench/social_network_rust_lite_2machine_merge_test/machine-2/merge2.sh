@@ -45,8 +45,6 @@ function merge {
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../../
 
-
-
   # prepare for merging
   CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
   CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
@@ -68,8 +66,6 @@ function merge {
   $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
   $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC2 -o merged.ll
 
-
-
   # merge the rest lib code  
   cp $CALLEE_FUNC1/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
   cp $CALLEE_FUNC2/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
@@ -80,7 +76,6 @@ function merge {
 
   $LLVM_DIR/llvm-link lib.ll merged.ll -S -o function.ll
   $LLVM_DIR/llc -filetype=obj function.ll -o function.o
-
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -112,7 +107,7 @@ function clean {
   && cd ../../../../$CALLEE_FUNC1/template/rust/function && cargo clean \
   && cd ../../../../$CALLEE_FUNC2/template/rust/function && cargo clean \
   && cd ../../../../
-  rm -rf *.ll *.o function
+  rm -rf *.ll *.o function *.txt
 }
 
 case "$1" in
