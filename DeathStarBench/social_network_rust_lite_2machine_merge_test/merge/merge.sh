@@ -21,15 +21,10 @@ RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 
 ARGS=("$@")
-CALLER_FUNC=$2
-CALLEE_FUNC=$3
+CALLER_FUNC=${ARGS[1]}
+CALLEE_FUNC=${ARGS[2]}
 
 function merge {
-  echo ${ARGS[0]}
-  echo ${ARGS[1]}
-<<'###BLOCK-COMMENT'
-
-
   cp -r OpenFaaSRPC $CALLER_FUNC/template/rust \
   && cp -r DbInterface $CALLER_FUNC/template/rust \
   && cp -r OpenFaaSRPC $CALLEE_FUNC/template/rust \
@@ -50,15 +45,14 @@ function merge {
   CALLEE_IR=$(ls callee_ir/debug/deps/function-*.ll) 
   CALLER_IR=$(ls caller_ir/debug/deps/function-*.ll)
   echo $CALLEE_IR
+  mv $CALLER_IR caller.ll
   $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
-  $LLVM_DIR/opt -S $CALLER_IR -passes=merge-rust-func -rename-caller-rr -o caller.ll
   mv $CALLEE_IR old_callee_ir.ll
-  mv $CALLER_IR old_caller_ir.ll
 
   # merge caller and callee
   $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
   $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
-  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -o merged.ll
+  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=social-graph-get-followers -o merged.ll
 
   # merge the rest lib code 
   cp callee_ir/debug/deps/*.ll caller_ir/debug/deps
@@ -82,6 +76,7 @@ function merge {
     done
   done
 
+<<'###BLOCK-COMMENT'
 
 ###BLOCK-COMMENT
 
