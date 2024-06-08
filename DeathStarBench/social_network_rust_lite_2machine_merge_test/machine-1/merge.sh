@@ -37,10 +37,10 @@ function merge {
   CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
   CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
-  $LLVM_DIR/opt -S $CALLER_IR -passes=merge-rust-func -rename-caller-rr -o caller.ll
+
+  mv $CALLER_IR caller.ll
   $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
   mv $CALLEE_IR old_callee_ir.ll
-  mv $CALLER_IR old_caller_ir.ll
 
   # merge caller and callee
   $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
@@ -82,7 +82,7 @@ function clean {
   && cd $CALLER_FUNC/template/rust/function && cargo clean \
   && cd ../../../../$CALLEE_FUNC/template/rust/function && cargo clean \
   && cd ../../../../
-  rm -rf *.ll *.o function
+  rm -rf *.ll *.o function *.txt
 }
 
 case "$1" in
