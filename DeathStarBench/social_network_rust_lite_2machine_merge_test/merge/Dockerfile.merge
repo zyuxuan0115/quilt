@@ -27,7 +27,7 @@ COPY merge.sh ./merge.sh
 
 # build function.o
 RUN ./merge.sh merge caller callee
-#RUN ./merge.sh clean caller callee && rm -rf /llvm
+RUN ./merge.sh clean caller callee && rm -rf /llvm
 
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final
@@ -39,10 +39,6 @@ RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
 
 #RUN pip3 install staticx
 ENV PATH="/users/root/.local/bin:${PATH}"
-
-#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
-#ENV PATH="/root/.cargo/bin:${PATH}"
-#RUN rustup default 1.76
 
 COPY --from=builder /root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib /root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
 COPY --from=builder /home/rust /home/rust
