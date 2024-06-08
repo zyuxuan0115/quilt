@@ -27,15 +27,12 @@ CALLEE_FUNC1=${ARGS[2]}
 CALLEE_FUNC2=${ARGS[3]}
 
 function merge {
-
-
   cp -r OpenFaaSRPC $CALLER_FUNC/template/rust \
   && cp -r DbInterface $CALLER_FUNC/template/rust \
   && cp -r OpenFaaSRPC $CALLEE_FUNC1/template/rust \
   && cp -r DbInterface $CALLEE_FUNC1/template/rust \
   && cp -r OpenFaaSRPC $CALLEE_FUNC2/template/rust \
   && cp -r DbInterface $CALLEE_FUNC2/template/rust 
-
 
   cd $CALLER_FUNC/template/rust/function \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
@@ -67,7 +64,6 @@ function merge {
   mv $CALLEE_IR1 old_callee_ir1.ll
   mv $CALLEE_IR2 old_callee_ir2.ll
 
-
   # merge caller and callee
   $LLVM_DIR/llvm-link caller.ll callee1.ll -S -o caller_and_callee.ll
   $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
@@ -76,7 +72,6 @@ function merge {
   $LLVM_DIR/llvm-link merged.ll callee2.ll -S -o caller_and_callee.ll
   $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
   $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=user-mention-service -o merged.ll
-
 
   # merge the rest lib code 
   cp callee_ir1/debug/deps/*.ll caller_ir/debug/deps
