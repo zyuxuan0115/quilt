@@ -28,22 +28,20 @@ COPY merge2.sh ./merge.sh
 
 # build function.o
 RUN ./merge.sh merge caller callee1 callee2
-#RUN ./merge.sh clean caller callee callee2 && rm -rf /llvm
+#RUN ./merge.sh clean caller callee1 callee2 && rm -rf /llvm
+RUN rm -rf /llvm
 
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y curl build-essential zlib1g-dev patchelf scons \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev libcurl4-openssl-dev python3-pip \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential zlib1g-dev \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev libcurl4-openssl-dev 
+#  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y patchelf scons python3-pip 
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
 
 #RUN pip3 install staticx
 ENV PATH="/users/root/.local/bin:${PATH}"
-
-#RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
-#ENV PATH="/root/.cargo/bin:${PATH}"
-#RUN rustup default 1.76
 
 COPY --from=builder /root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib /root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
 COPY --from=builder /home/rust /home/rust
