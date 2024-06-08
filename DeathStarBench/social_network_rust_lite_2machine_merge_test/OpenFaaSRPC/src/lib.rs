@@ -1,7 +1,6 @@
 use curl::easy::{Easy};
 use std::{io::{self, Read, Write, BufReader, stdout}, error::Error, fs::{File, read_to_string, OpenOptions}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
-use std::io::Seek;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MemcachedUserLoginInfo {
@@ -233,9 +232,9 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
 
-  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.txt").unwrap();
+  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
   let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
-  let machine_info = read_machine_info_from_file("/home/rust/OpenFaaSRPC/machine_info.txt").unwrap();
+  let machine_info = read_machine_info_from_file("/home/rust/OpenFaaSRPC/machine_info.json").unwrap();
   let machine_info_copy = machine_info.clone();
   let machine_ip_info_hash: HashMap<i64, String> = machine_info.into_iter().map(|x| (x.cluster_id, x.rest_api_ip)).collect();
   let machine_info_hash: HashMap<String, i64> = machine_info_copy.into_iter().map(|x| (x.cluster_ip, x.cluster_id)).collect();
