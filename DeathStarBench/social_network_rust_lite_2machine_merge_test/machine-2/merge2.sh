@@ -50,10 +50,11 @@ function merge {
   CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   CALLEE_IR1=$(ls $CALLEE_FUNC1/template/rust/function/target/debug/deps/function-*.ll)
   CALLEE_IR2=$(ls $CALLEE_FUNC2/template/rust/function/target/debug/deps/function-*.ll)
-  $LLVM_DIR/opt -S $CALLER_IR -passes=merge-rust-func -rename-caller-rr -o caller.ll
+  mv $CALLER_IR caller.ll
+#  $LLVM_DIR/opt -S $CALLER_IR -passes=merge-rust-func -rename-caller-rr -o caller.ll
   $LLVM_DIR/opt -S $CALLEE_IR1 -passes=merge-rust-func -rename-callee-rr -o callee1.ll
   $LLVM_DIR/opt -S $CALLEE_IR2 -passes=merge-rust-func -rename-callee-rr -o callee2.ll
-  mv $CALLER_IR old_caller_ir.ll
+#  mv $CALLER_IR old_caller_ir.ll
   mv $CALLEE_IR1 old_callee_ir1.ll
   mv $CALLEE_IR2 old_callee_ir2.ll
 
