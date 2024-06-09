@@ -19,36 +19,41 @@ RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
 LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 
-CALLER_FUNC=$2
-CALLEE_FUNC=$3
+ARGS=("$@")
+NUM_ARGS=$#
+CALLER_FUNC=${ARGS[1]}
+
 
 function merge {
-  cp -r ../OpenFaaSRPC $CALLER_FUNC/template/rust \
-  && cp -r ../DbInterface $CALLER_FUNC/template/rust \
-  && cp -r ../OpenFaaSRPC $CALLEE_FUNC/template/rust \
-  && cp -r ../DbInterface $CALLEE_FUNC/template/rust \
-  && cd $CALLER_FUNC/template/rust/function \
-  && RUSTFLAGS="--emit=llvm-ir" cargo build \
-  && cd ../../../../$CALLEE_FUNC/template/rust/function \
-  && RUSTFLAGS="--emit=llvm-ir" cargo build \
-  && cd ../../../../
+  for i in $(seq 1 $(($NUM_ARGS-1)) );
+  do
+    FUNC_NAME=${ARGS[$i]}
+    cp -r ../OpenFaaSRPC $FUNC_NAME/template/rust \
+    && cp -r ../DbInterface $FUNC_NAME/template/rust \
+    && cd $FUNC_NAME/template/rust/function \
+    && RUSTFLAGS="--emit=llvm-ir" cargo build \
+    && cd ../../../../
+  done
 
   # prepare for merging
   CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
-  CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
-
   mv $CALLER_IR caller.ll
-  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
-  mv $CALLEE_IR old_callee_ir.ll
+  cp caller.ll merged.ll
 
-  # merge caller and callee
-  $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
-  $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
-  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC -o merged.ll
+  for i in $(seq 2 $(($NUM_ARGS-1)) );
+  do
+    CALLEE_FUNC=${ARGS[$i]}
+    CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
+    $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
+    mv $CALLEE_IR old_callee_ir_$i.ll
+    $LLVM_DIR/llvm-link merged.ll callee.ll -S -o caller_and_callee.ll
+    $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
+    $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC -o merged.ll
+    cp $CALLEE_FUNC/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
+    cp -r $CALLEE_FUNC/template/rust/function/target/debug/build/* $CALLER_FUNC/template/rust/function/target/debug/build/
+  done
 
-  # merge the rest lib code  
-  cp $CALLEE_FUNC/template/rust/function/target/debug/deps/*.ll $CALLER_FUNC/template/rust/function/target/debug/deps
   $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o lib_with_debug_info.ll
   $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
 
@@ -75,13 +80,14 @@ function merge {
 }
 
 function clean {
-  rm -rf $CALLER_FUNC/template/rust/OpenFaaSRPC \
-  && rm -rf $CALLER_FUNC/template/rust/DbInterface \
-  && rm -rf $CALLEE_FUNC/template/rust/OpenFaaSRPC \
-  && rm -rf $CALLEE_FUNC/template/rust/DbInterface \
-  && cd $CALLER_FUNC/template/rust/function && cargo clean \
-  && cd ../../../../$CALLEE_FUNC/template/rust/function && cargo clean \
-  && cd ../../../../
+  for i in $(seq 1 $(($NUM_ARGS-1)) );
+  do
+    FUNC_NAME=${ARGS[$i]}
+    rm -rf $FUNC_NAME/template/rust/OpenFaaSRPC \
+    && rm -rf $FUNC_NAME/template/rust/DbInterface \
+    && cd $FUNC_NAME/template/rust/function && cargo clean \
+    && cd ../../../../
+  done
   rm -rf *.ll *.o function *.txt
 }
 
