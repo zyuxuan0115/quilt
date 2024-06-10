@@ -1,4 +1,4 @@
-#!/usr/bin python3.8
+#!/usr/bin/env python3.8
 import os
 import sys 
 
@@ -29,6 +29,8 @@ def merge():
     print(cmd)
     os.system(cmd)
   cmd = "./merge.sh merge_with_lib "+caller
+  os.system(cmd)  
+
 
 def link():
   f_name = sys.argv[2]
@@ -40,6 +42,7 @@ def link():
   print(final_caller)
   cmd = "./merge.sh link "+final_caller
   os.system(cmd)
+
 
 def clean():
   f_name = sys.argv[2]
@@ -63,6 +66,8 @@ def main():
   arg = sys.argv[1]
   if arg == "merge":
     merge()
+  elif arg == "link":
+    link()
   elif arg == "clean":
     clean()    
   else:

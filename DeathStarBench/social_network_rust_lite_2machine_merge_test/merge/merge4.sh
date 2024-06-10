@@ -106,6 +106,9 @@ case "$1" in
 merge)
     merge
     ;;
+compile)
+    compile_to_ir
+    ;;
 merge_with_lib)
     merge_with_lib
     ;;

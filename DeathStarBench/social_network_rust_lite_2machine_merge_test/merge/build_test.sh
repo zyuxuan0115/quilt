@@ -41,15 +41,15 @@ function build_merge2 {
   CALLEE1=$2
   CALLEE2=$3
   mkdir temp
-  mkdir temp/caller
-  mkdir temp/callee1
-  mkdir temp/callee2
-  cp -r ../machine-test/$CALLER/* temp/caller
-  cp -r ../machine-test/$CALLEE1/* temp/callee1
-  cp -r ../machine-test/$CALLEE2/* temp/callee2
+  mkdir temp/$CALLER
+  mkdir temp/$CALLEE1
+  mkdir temp/$CALLEE2
+  cp -r ../machine-test/$CALLER/* temp/$CALLER
+  cp -r ../machine-test/$CALLEE1/* temp/$CALLEE1
+  cp -r ../machine-test/$CALLEE2/* temp/$CALLEE2
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
-  cp merge2.sh temp
+  cp merge3.sh temp
   sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
     -f Dockerfile.merge2 \
     temp
