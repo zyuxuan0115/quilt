@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys 
 
@@ -28,7 +29,10 @@ def merge():
     os.system(cmd)
 
   # merge libs
-
+  final_caller = Lines[len(Lines)-1].split()[0]
+  print(final_caller)
+  cmd = "./merge_m.sh link "+final_caller
+  os.system(cmd)
 
 def clean():
   f = open('funcTree', 'r')
@@ -42,6 +46,7 @@ def clean():
   for key in functions:
     cmd = cmd + key + " "
   os.system(cmd)
+
 
 def main():
   arg = sys.argv[1]

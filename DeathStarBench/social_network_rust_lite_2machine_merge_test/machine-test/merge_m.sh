@@ -60,11 +60,9 @@ function merge {
 
 
 function link {
-  CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o lib_with_debug_info.ll
-  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
+  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o function.ll -S
 
-  $LLVM_DIR/llvm-link lib.ll $CALLER_IR -S -o function.ll
   $LLVM_DIR/llc -filetype=obj function.ll -o function.o
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
@@ -90,7 +88,8 @@ function clean {
     rm -rf $FUNC_NAME/template/rust/OpenFaaSRPC \
     && rm -rf $FUNC_NAME/template/rust/DbInterface \
     && cd $FUNC_NAME/template/rust/function && cargo clean \
-    && cd ../../../../
+    && cd ../../../../ \
+    && rm $FUNC_NAME/template/rust/function/Cargo.lock
   done
   rm -rf *.ll *.o function *.txt
 }
