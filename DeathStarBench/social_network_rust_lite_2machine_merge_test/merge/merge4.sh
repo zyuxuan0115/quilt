@@ -22,10 +22,9 @@ LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthr
 
 ARGS=("$@")
 NUM_ARGS=$#
-
 CALLER_FUNC=${ARGS[1]}
 
-function merge {
+function compile_to_ir {
   for i in $(seq 1 $(($NUM_ARGS-1)) );
   do
     FUNC_NAME=${ARGS[$i]}
@@ -37,7 +36,9 @@ function merge {
     rm -rf $FUNC_NAME
     mv target $FUNC_NAME
   done 
+}
 
+function merge {
   CALLER_IR=$(ls $CALLER_FUNC/debug/deps/function-*.ll)
   mv $CALLER_IR caller.ll
   cp caller.ll merged.ll
@@ -54,15 +55,15 @@ function merge {
     cp $CALLEE_FUNC/debug/deps/*.ll $CALLER_FUNC/debug/deps
     cp -r $CALLEE_FUNC/debug/build/* $CALLER_FUNC/debug/build/
   done
+  
+  mv merged.ll $CALLER_IR
+}
 
+function merge_with_lib {
   # merge the rest lib code 
-  $LLVM_DIR/llvm-link $CALLER_FUNC/debug/deps/*.ll -S -o lib_with_debug_info.ll
-  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
-
-  # merge lib and real code
-  $LLVM_DIR/llvm-link lib.ll merged.ll -S -o function.ll
+  $LLVM_DIR/llvm-link $CALLER_FUNC/debug/deps/*.ll -S -o func_with_debug_info.ll
+  $LLVM_DIR/opt func_with_debug_info.ll -strip-debug -o function.ll -S
   $LLVM_DIR/llc -O3 -filetype=obj function.ll -o function.o
-
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -104,6 +105,9 @@ function clean {
 case "$1" in
 merge)
     merge
+    ;;
+merge_with_lib)
+    merge_with_lib
     ;;
 link)
     link

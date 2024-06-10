@@ -2,7 +2,7 @@ FROM zyuxuan0115/llvm-17:latest as llvm
 FROM ubuntu:focal as builder
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update -y \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential curl zlib1g-dev \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential curl zlib1g-dev python3.8 \
   && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
   && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
 
@@ -20,11 +20,11 @@ ENV PATH="/llvm/bin:${PATH}"
 # Copy all the sources
 WORKDIR /home/rust
 COPY . .
-RUN mv merge3.sh merge.sh 
+RUN mv merge4.sh merge.sh 
 
 # build function.o
-RUN ./merge.sh merge text-service url-shorten-service user-mention-service
-RUN ./merge.sh clean text-service url-shorten-service user-mention-service && rm -rf /llvm
+RUN ./merge_tree.py merge funcTree
+RUN ./merge_tree.py clean funcTree && rm -rf /llvm
 
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final
@@ -42,7 +42,7 @@ COPY --from=builder /root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib /
 COPY --from=builder /home/rust /home/rust
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
 
-RUN cd /home/rust && ./merge.sh link 
+RUN cd /home/rust && ./merge_tree.py link funcTree 
 #RUN cd /home/rust && staticx function function_new && mv function_new function
 
 # Copy of-watchdog binary

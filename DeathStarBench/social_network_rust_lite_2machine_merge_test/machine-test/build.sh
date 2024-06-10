@@ -10,6 +10,10 @@ function build {
       continue
     elif [[ "$BASE_NAME" = "merge.sh" ]] ; then 
       continue
+    elif [[ "$BASE_NAME" = "merge_tree.py" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "funcTree" ]] ; then
+      continue
     else
       cd $entry
       ./build.sh build
@@ -25,6 +29,10 @@ function deploy {
     if [[ "$BASE_NAME" = "build.sh" ]] ; then 
       continue
     elif [[ "$BASE_NAME" = "merge.sh" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "merge_tree.py" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "funcTree" ]] ; then
       continue
     else
       cd $entry
@@ -42,6 +50,10 @@ function nuke {
     if [[ "$BASE_NAME" = "build.sh" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "merge.sh" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "merge_tree.py" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "funcTree" ]] ; then
       continue
     else
       cd $entry
