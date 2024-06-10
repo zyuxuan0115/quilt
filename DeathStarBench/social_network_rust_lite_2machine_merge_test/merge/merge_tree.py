@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin python3.8
 import os
 import sys 
 
@@ -28,6 +28,12 @@ def merge():
     cmd = "./merge.sh merge "+caller+" "+callees
     print(cmd)
     os.system(cmd)
+  cmd = "./merge.sh merge_with_lib "+caller
+
+def link():
+  f_name = sys.argv[2]
+  f = open(f_name, 'r')
+  Lines = f.readlines() 
 
   # merge libs
   final_caller = Lines[len(Lines)-1].split()[0]
