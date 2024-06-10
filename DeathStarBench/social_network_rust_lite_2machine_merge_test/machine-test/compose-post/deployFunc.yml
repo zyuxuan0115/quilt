@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  user-mention-service:
+  compose-post:
     lang: rust
-    handler: ./user-mention-service
-    image: zyuxuan0115/deathstarbench-usermentionservice:latest
+    handler: ./compose-post
+    image: zyuxuan0115/deathstarbench-composepost:latest
     secrets:
     - ipv4-addr 
     - redis-password
