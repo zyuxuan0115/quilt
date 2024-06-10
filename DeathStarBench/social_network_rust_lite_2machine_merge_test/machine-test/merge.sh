@@ -23,8 +23,7 @@ ARGS=("$@")
 NUM_ARGS=$#
 CALLER_FUNC=${ARGS[1]}
 
-
-function merge {
+function compiler_to_ir {
   for i in $(seq 1 $(($NUM_ARGS-1)) );
   do
     FUNC_NAME=${ARGS[$i]}
@@ -34,9 +33,11 @@ function merge {
     && RUSTFLAGS="--emit=llvm-ir" cargo build \
     && cd ../../../../
   done
+}
 
+
+function merge {
   # prepare for merging
-  CALLEE_FUNC_LL=$(echo $CALLEE_FUNC | tr '-' '_') 
   CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   mv $CALLER_IR caller.ll
   cp caller.ll merged.ll
@@ -46,7 +47,7 @@ function merge {
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
     $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
-    mv $CALLEE_IR old_callee_ir_$i.ll
+    mv $CALLEE_IR $CALLEE_FUNC.ll
     $LLVM_DIR/llvm-link merged.ll callee.ll -S -o caller_and_callee.ll
     $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
     $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC -o merged.ll
@@ -54,10 +55,14 @@ function merge {
     cp -r $CALLEE_FUNC/template/rust/function/target/debug/build/* $CALLER_FUNC/template/rust/function/target/debug/build/
   done
 
-  $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o lib_with_debug_info.ll
-  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
+  mv merged.ll $CALLER_IR
+}
 
-  $LLVM_DIR/llvm-link lib.ll merged.ll -S -o function.ll
+
+function link {
+  $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o lib_with_debug_info.ll
+  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o function.ll -S
+
   $LLVM_DIR/llc -filetype=obj function.ll -o function.o
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
@@ -74,9 +79,6 @@ function merge {
   done
 
   $LLVM_DIR/clang -no-pie -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
-<<'###BLOCK-COMMENT'
-
-###BLOCK-COMMENT
 }
 
 function clean {
@@ -86,16 +88,28 @@ function clean {
     rm -rf $FUNC_NAME/template/rust/OpenFaaSRPC \
     && rm -rf $FUNC_NAME/template/rust/DbInterface \
     && cd $FUNC_NAME/template/rust/function && cargo clean \
-    && cd ../../../../
+    && cd ../../../../ \
+    && rm $FUNC_NAME/template/rust/function/Cargo.lock
   done
   rm -rf *.ll *.o function *.txt
 }
 
 case "$1" in
+compile)
+    compiler_to_ir
+    ;;
 merge)
     merge
+    ;;
+link)
+    link
     ;;
 clean)
     clean
     ;;
 esac
+
+<<'###BLOCK-COMMENT'
+
+###BLOCK-COMMENT
+
