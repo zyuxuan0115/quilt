@@ -7,8 +7,6 @@ functions:
     lang: rust
     handler: ./url-shorten-service
     image: zyuxuan0115/deathstarbench-urlshortenservice:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
     - ipv4-addr 
     - redis-password

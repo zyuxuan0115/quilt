@@ -7,7 +7,5 @@ functions:
     lang: rust
     handler: ./compose-creator-with-userid
     image: zyuxuan0115/deathstarbench-composecreatorwithuserid:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
     - ipv4-addr 
