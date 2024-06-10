@@ -6,7 +6,7 @@ echo $ROOT_DIR
 
 ARGS=("$@")
 
-CALLER_FUNC=${ARGS[1]}
+CALLER=${ARGS[1]}
 
 function build_llvm {
   sudo docker build --no-cache -t zyuxuan0115/llvm-17:latest \
@@ -52,6 +52,6 @@ llvm)
     build_llvm
     ;;
 merge)
-    build_merge $CALLER_FUNC $CALLEE_FUNC1
+    build_merge 
     ;;
 esac

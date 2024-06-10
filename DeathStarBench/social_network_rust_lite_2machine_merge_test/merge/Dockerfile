@@ -23,14 +23,15 @@ COPY . .
 RUN mv merge4.sh merge.sh 
 
 # build function.o
+RUN chmod 777 merge_tree.py
 RUN ./merge_tree.py merge funcTree
-RUN ./merge_tree.py clean funcTree && rm -rf /llvm
+RUN ./merge_tree.py clean funcTree && rm -rf /llvm 
 
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential zlib1g-dev \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential zlib1g-dev python3.8 \
   && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev libcurl4-openssl-dev 
 #  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y patchelf scons python3-pip 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app

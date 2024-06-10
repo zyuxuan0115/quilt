@@ -98,7 +98,7 @@ function merge {
       fi
     done
   done
-  cp $STATIC_RING_LIBS .
+#  cp $STATIC_RING_LIBS .
 #  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 #  $LLVM_DIR/clang -fuse-ld=ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 <<'###BLOCK-COMMENT'
@@ -108,8 +108,9 @@ function merge {
 }
 
 function link {
-  STATIC_RING_LIBS=$(ls libring_*.a)
-  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+#  STATIC_RING_LIBS=$(ls libring_*.a)
+#  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS
 }
 
 function clean {
@@ -124,7 +125,7 @@ function clean {
   && cd ../../../../$CALLEE_FUNC2/template/rust/function && cargo clean \
   && cd ../../../../
   rm -rf *.ll
-  rm -rf caller_ir callee_ir caller callee1 callee2 OpenFaaSRPC DbInterface
+  rm -rf caller_ir callee_ir1 callee_ir2 caller callee1 callee2 OpenFaaSRPC DbInterface
 }
 
 case "$1" in

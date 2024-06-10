@@ -54,9 +54,12 @@ def clean():
     for func in funcs:
       functions[func] = 1
   cmd = "./merge.sh clean "
+  cmd1 = "rm -rf "
   for key in functions:
     cmd = cmd + key + " "
+    cmd1 = cmd1 + key + " "
   os.system(cmd)
+  os.system(cmd1)
 
 
 def main():
