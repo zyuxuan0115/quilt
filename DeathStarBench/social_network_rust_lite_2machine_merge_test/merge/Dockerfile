@@ -20,7 +20,7 @@ ENV PATH="/llvm/bin:${PATH}"
 # Copy all the sources
 WORKDIR /home/rust
 COPY . .
-RUN mv merge4.sh merge.sh 
+RUN mv merge.sh merge.sh 
 
 # build function.o
 RUN chmod 777 merge_tree.py
