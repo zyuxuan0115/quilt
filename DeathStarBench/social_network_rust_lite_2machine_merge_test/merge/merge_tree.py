@@ -10,7 +10,8 @@ def merge():
   callers = {}
   # merge functions 
   for line in Lines:
-    functions = line.split()
+    line_0 = line.strip();
+    functions = line_0.split()
     caller = functions[0]
     callers[caller] = 1
     callees = ""
@@ -50,7 +51,8 @@ def clean():
   Lines = f.readlines()
   functions = {}
   for line in Lines:
-    funcs = line.split()
+    line_0 = line.strip()
+    funcs = line_0.split()
     for func in funcs:
       functions[func] = 1
   cmd = "./merge.sh clean "

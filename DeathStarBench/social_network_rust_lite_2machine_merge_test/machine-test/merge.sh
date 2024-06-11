@@ -23,7 +23,7 @@ ARGS=("$@")
 NUM_ARGS=$#
 CALLER_FUNC=${ARGS[1]}
 
-function compiler_to_ir {
+function compile_to_ir {
   for i in $(seq 1 $(($NUM_ARGS-1)) );
   do
     FUNC_NAME=${ARGS[$i]}
@@ -96,7 +96,7 @@ function clean {
 
 case "$1" in
 compile)
-    compiler_to_ir
+    compile_to_ir
     ;;
 merge)
     merge

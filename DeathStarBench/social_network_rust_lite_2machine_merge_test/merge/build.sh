@@ -35,7 +35,7 @@ function build_merge {
   done
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
-  cp merge4.sh temp
+  cp merge.sh temp
   cp merge_tree.py temp
   cp funcTree temp
   sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
