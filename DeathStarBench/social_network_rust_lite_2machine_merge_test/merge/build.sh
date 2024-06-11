@@ -6,56 +6,45 @@ echo $ROOT_DIR
 
 ARGS=("$@")
 
-CALLER_FUNC=${ARGS[1]}
-CALLEE_FUNC1=${ARGS[2]}
-CALLEE_FUNC2=${ARGS[3]}
+CALLER=${ARGS[1]}
 
 function build_llvm {
   sudo docker build --no-cache -t zyuxuan0115/llvm-17:latest \
-        -f Dockerfile.llvm \
-        .
+       -f Dockerfile.llvm \
+       .
   sudo docker push zyuxuan0115/llvm-17:latest
 }
 
 function build_merge {
-  CALLER=$1
-  CALLEE=$2
+  FUNC_DIR=../machine-test
   mkdir temp
-  mkdir temp/caller
-  mkdir temp/callee
-  cp -r ../machine-1/$CALLER/* temp/caller
-  cp -r ../machine-1/$CALLEE/* temp/callee
+  for entry in "$FUNC_DIR"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ "$BASE_NAME" = "build.sh" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "merge.sh" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "merge_tree.py" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "funcTree" ]] ; then
+      continue
+    else
+      cp -r $entry temp
+    fi
+  done
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
-  cp merge.sh temp
+  cp merge4.sh temp
+  cp merge_tree.py temp
+  cp funcTree temp
   sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
-    -f Dockerfile.merge \
+    -f Dockerfile \
     temp
   rm -rf temp
   sudo docker push zyuxuan0115/deathstarbench-$CALLER-merged:latest
 }
 
-
-function build_merge2 {
-  CALLER=$1
-  CALLEE1=$2
-  CALLEE2=$3
-  mkdir temp
-  mkdir temp/caller
-  mkdir temp/callee1
-  mkdir temp/callee2
-  cp -r ../machine-2/$CALLER/* temp/caller
-  cp -r ../machine-2/$CALLEE1/* temp/callee1
-  cp -r ../machine-2/$CALLEE2/* temp/callee2
-  cp -r ../OpenFaaSRPC temp
-  cp -r ../DbInterface temp
-  cp merge2.sh temp
-  sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
-    -f Dockerfile.merge2 \
-    temp
-  rm -rf temp
-  sudo docker push zyuxuan0115/deathstarbench-$CALLER-merged:latest
-}
 
 
 case "$1" in
@@ -63,9 +52,6 @@ llvm)
     build_llvm
     ;;
 merge)
-    build_merge $CALLER_FUNC $CALLEE_FUNC1
-    ;;
-merge2)
-    build_merge2 $CALLER_FUNC $CALLEE_FUNC1 $CALLEE_FUNC2
+    build_merge 
     ;;
 esac

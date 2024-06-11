@@ -19,17 +19,12 @@ ENV PATH="/llvm/bin:${PATH}"
 
 # Copy all the sources
 WORKDIR /home/rust
-COPY caller ./caller
-COPY callee1 ./callee1
-COPY callee2 ./callee2
-COPY OpenFaaSRPC ./OpenFaaSRPC
-COPY DbInterface ./DbInterface
-COPY merge2.sh ./merge.sh 
+COPY . .
+RUN mv merge3.sh merge.sh 
 
 # build function.o
-RUN ./merge.sh merge caller callee1 callee2
-RUN ./merge.sh clean caller callee1 callee2 && rm -rf /llvm
-#RUN rm -rf /llvm
+RUN ./merge.sh merge text-service url-shorten-service user-mention-service
+RUN ./merge.sh clean text-service url-shorten-service user-mention-service && rm -rf /llvm
 
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final

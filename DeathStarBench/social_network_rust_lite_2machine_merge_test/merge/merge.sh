@@ -21,49 +21,51 @@ RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 
 ARGS=("$@")
+NUM_ARGS=$#
 CALLER_FUNC=${ARGS[1]}
-CALLEE_FUNC=${ARGS[2]}
+
+function compile_to_ir {
+  for i in $(seq 1 $(($NUM_ARGS-1)) );
+  do
+    FUNC_NAME=${ARGS[$i]}
+    cp -r OpenFaaSRPC $FUNC_NAME/template/rust \
+    && cp -r DbInterface $FUNC_NAME/template/rust \
+    && cd $FUNC_NAME/template/rust/function \
+    && RUSTFLAGS="--emit=llvm-ir" cargo build \
+    && cd ../../../../
+    rm -rf $FUNC_NAME
+    mv target $FUNC_NAME
+  done 
+}
 
 function merge {
-  cp -r OpenFaaSRPC $CALLER_FUNC/template/rust \
-  && cp -r DbInterface $CALLER_FUNC/template/rust \
-  && cp -r OpenFaaSRPC $CALLEE_FUNC/template/rust \
-  && cp -r DbInterface $CALLEE_FUNC/template/rust 
-
-  cd $CALLER_FUNC/template/rust/function \
-  && RUSTFLAGS="--emit=llvm-ir" cargo build \
-  && cd ../../../../ 
-  mkdir caller_ir && cp -r target/* caller_ir \
-  && rm -rf target
-
-  cd $CALLEE_FUNC/template/rust/function \
-  && RUSTFLAGS="--emit=llvm-ir" cargo build \
-  && cd ../../../../ 
-  mkdir callee_ir && cp -r target/* callee_ir \
-  && rm -rf target
-
-  CALLEE_IR=$(ls callee_ir/debug/deps/function-*.ll) 
-  CALLER_IR=$(ls caller_ir/debug/deps/function-*.ll)
-  echo $CALLEE_IR
+  CALLER_IR=$(ls $CALLER_FUNC/debug/deps/function-*.ll)
   mv $CALLER_IR caller.ll
-  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
-  mv $CALLEE_IR old_callee_ir.ll
+  cp caller.ll merged.ll
 
-  # merge caller and callee
-  $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
-  $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
-  $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=social-graph-get-followers -o merged.ll
+  for i in $(seq 2 $(($NUM_ARGS-1)) );
+  do
+    CALLEE_FUNC=${ARGS[$i]}
+    CALLEE_IR=$(ls $CALLEE_FUNC/debug/deps/function-*.ll)
+    $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
+    $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
+    $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
+    $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC -o merged.ll
+    rm $CALLEE_IR
+    cp $CALLEE_FUNC/debug/deps/*.ll $CALLER_FUNC/debug/deps
+    cp -r $CALLEE_FUNC/debug/build/* $CALLER_FUNC/debug/build/
+  done
+  
+  mv merged.ll $CALLER_IR
+}
 
+function merge_with_lib {
   # merge the rest lib code 
-  cp callee_ir/debug/deps/*.ll caller_ir/debug/deps
-  $LLVM_DIR/llvm-link caller_ir/debug/deps/*.ll -S -o lib_with_debug_info.ll
-  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
-
-  # merge lib and real code
-  $LLVM_DIR/llvm-link lib.ll merged.ll -S -o function.ll
+  $LLVM_DIR/llvm-link $CALLER_FUNC/debug/deps/*.ll -S -o func_with_debug_info.ll
+  $LLVM_DIR/opt func_with_debug_info.ll -strip-debug -o function.ll -S
   $LLVM_DIR/llc -O3 -filetype=obj function.ll -o function.o
 
-  STATIC_RING_LIB_DIR=$(find caller_ir/debug/build/ -type d -name ring-*)
+  STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
   for entry in $STATIC_RING_LIB_DIR
   do 
@@ -75,36 +77,40 @@ function merge {
       fi
     done
   done
-
+#  cp $STATIC_RING_LIBS .
+#  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+#  $LLVM_DIR/clang -fuse-ld=ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 <<'###BLOCK-COMMENT'
 
 ###BLOCK-COMMENT
 
-#  cp $STATIC_RING_LIBS .
-#  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-#  $LLVM_DIR/clang -fuse-ld=ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
 }
 
 function link {
 #  STATIC_RING_LIBS=$(ls libring_*.a)
-  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+#  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS
 }
 
 function clean {
-  rm -rf $CALLER_FUNC/template/rust/OpenFaaSRPC \
-  && rm -rf $CALLER_FUNC/template/rust/DbInterface \
-  && rm -rf $CALLEE_FUNC/template/rust/OpenFaaSRPC \
-  && rm -rf $CALLEE_FUNC/template/rust/DbInterface \
-  && cd $CALLER_FUNC/template/rust/function && cargo clean \
-  && cd ../../../../$CALLEE_FUNC/template/rust/function && cargo clean \
-  && cd ../../../../
+  for i in $(seq 1 $(($NUM_ARGS-1)) );
+  do 
+    FUNC_NAME=${ARGS[$i]}
+    rm -rf $FUNC_NAME
+  done
   rm -rf *.ll
-  rm -rf caller_ir callee_ir caller callee OpenFaaSRPC DbInterface
+  rm -rf OpenFaaSRPC DbInterface
 }
 
 case "$1" in
 merge)
     merge
+    ;;
+compile)
+    compile_to_ir
+    ;;
+merge_with_lib)
+    merge_with_lib
     ;;
 link)
     link
