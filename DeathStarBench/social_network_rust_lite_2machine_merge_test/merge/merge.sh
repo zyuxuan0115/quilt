@@ -48,7 +48,7 @@ function merge {
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(ls $CALLEE_FUNC/debug/deps/function-*.ll)
     $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -o callee.ll
-    $LLVM_DIR/llvm-link caller.ll callee.ll -S -o caller_and_callee.ll
+    $LLVM_DIR/llvm-link merged.ll callee.ll -S -o caller_and_callee.ll
     $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
     $LLVM_DIR/opt -S caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC -o merged.ll
     rm $CALLEE_IR
