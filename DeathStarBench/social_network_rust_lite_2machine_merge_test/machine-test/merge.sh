@@ -61,9 +61,10 @@ function merge {
 
 function link {
   $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o lib_with_debug_info.ll
-  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o function.ll -S
+  $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
+  $LLVM_DIR/opt -S lib_with_debug_info.ll -passes=strip-dead-prototypes -o function.ll
 
-  $LLVM_DIR/llc -filetype=obj function.ll -o function.o
+  $LLVM_DIR/llc -filetype=obj --function-sections --data-sections function.ll -o function.o
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -78,7 +79,7 @@ function link {
     done
   done
 
-  $LLVM_DIR/clang -no-pie -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
+  $LLVM_DIR/clang -no-pie -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
 }
 
 function clean {
