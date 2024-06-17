@@ -18,7 +18,7 @@ fn main() {
   real_name.push_str(&(timeline_info.user_id.to_string()));
 
   let post_id_str = timeline_info.post_id.to_string();
-  let res: isize = con.zadd(&real_name[..], &post_id_str[..], timeline_info.timestamp).unwrap();
+  let _: isize = con.zadd(&real_name[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));

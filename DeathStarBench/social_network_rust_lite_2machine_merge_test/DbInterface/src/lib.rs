@@ -1,4 +1,3 @@
-// use mongodb::{bson::doc,sync::Client};
 use std::fs::read_to_string;
 
 pub fn read_lines(filename: &str) -> Vec<String> {
@@ -8,21 +7,6 @@ pub fn read_lines(filename: &str) -> Vec<String> {
       .map(String::from)  // make each slice into a string
       .collect()  // gather them together into a vector
 }
-
-// pub fn get_mongodb_uri() -> String{
-//  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
-//  if passwords.len() == 0 {
-//    println!("no password found!");
-//  }
-//  if passwords.len() > 1 {
-//    println!("more than 1 passwords found!");
-//  }
-//  let password = passwords[0].to_owned();
-//  let mut uri: String = String::from("mongodb://root:");
-//    uri.push_str(&password[..]);
-//    uri.push_str("@mongodb.default.svc.cluster.local:27017");
-//  uri
-// }
 
 pub fn get_redis_rw_uri() -> String{
   let passwords: Vec<String> = read_lines("/var/openfaas/secrets/redis-password");

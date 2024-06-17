@@ -1,7 +1,7 @@
 use rand::{distributions::Alphanumeric, Rng}; // 0.8
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use redis::{Commands, RedisResult};
+use redis::Commands;
 //use std::time::{Duration, Instant};
 
 fn gen_short_url()->String{
