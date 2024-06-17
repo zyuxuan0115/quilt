@@ -67,6 +67,8 @@ function link {
 
   $LLVM_DIR/llc -filetype=obj --function-sections --data-sections function.ll -o function.o
 
+  ./sharedLib
+
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
   for entry in $STATIC_RING_LIB_DIR
@@ -92,7 +94,7 @@ function clean {
     && rm -rf $FUNC_NAME/template/rust/DbInterface \
     && cd $FUNC_NAME/template/rust/function && cargo clean \
     && cd ../../../../ \
-    && rm $FUNC_NAME/template/rust/function/Cargo.lock
+    && rm -rf $FUNC_NAME/template/rust/function/Cargo.lock
   done
   rm -rf *.ll function.o function *.txt
 }
