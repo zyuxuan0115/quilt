@@ -1,9 +1,10 @@
-use serde::{Deserialize, Serialize};
+//use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
+use std::collections::HashMap; 
 use redis::{Commands, RedisResult};
-use memcache::Client as memcached_client;
+use memcache::Client;
+use std::time::{SystemTime, Duration, Instant}};
 
 fn main() {
 
@@ -41,10 +42,6 @@ fn main() {
           let empty_vec: Vec<Follower>  = Vec::new();
           return_value = serde_json::to_string(&empty_vec).unwrap();
         },
-//        Err(_) => {
-//          println!("user_id: {} not found", user_id);
-//          panic!("user_id: {} not found", user_id);
-//        },
       }
     },
   }
