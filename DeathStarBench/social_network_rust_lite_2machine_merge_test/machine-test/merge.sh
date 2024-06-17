@@ -1,7 +1,7 @@
 #!/bin/bash
 LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-17/build/bin
 RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
-CODE_LIB=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench/social_network_rust_lite_2machine_merge_test/machine-1/write-home-timeline/template/rust/function/target/debug/deps
+
 RUST_LIBSTD_PATH=$(ls $RUST_LIB/libstd-*.so)
 RUST_LIBSTD_NAME=$(basename $RUST_LIBSTD_PATH)
 RUST_LIBSTD_LINKER_FLAG=${RUST_LIBSTD_NAME#"libstd"}
@@ -65,7 +65,7 @@ function link {
   $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
   $LLVM_DIR/opt -S lib_with_debug_info.ll -passes=strip-dead-prototypes -o function.ll
 
-  $LLVM_DIR/llc -filetype=obj --function-sections --data-sections function.ll -o function.o
+  $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.ll -o function.o
 
   ./sharedLib.sh
 

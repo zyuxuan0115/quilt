@@ -1,9 +1,10 @@
 use redis::{Commands, RedisResult};
-use serde::{Deserialize, Serialize};
+//use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::{HashMap,BTreeMap}, time::{SystemTime,Duration, Instant}};
-use memcache::Client as memcached_client;
+use std::{collections::HashMap, time::SystemTime};
+use memcache::Client;
+//use std::{Duration, Instant};
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {

@@ -1,9 +1,9 @@
 use rand::{distributions::Alphanumeric, Rng}; // 0.8
-use serde::{Deserialize, Serialize};
+//use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::time::{Duration, Instant};
 use redis::{Commands, RedisResult};
+//use std::time::{Duration, Instant};
 
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");

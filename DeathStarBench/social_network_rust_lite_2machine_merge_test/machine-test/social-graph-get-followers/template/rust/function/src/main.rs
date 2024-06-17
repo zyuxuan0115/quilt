@@ -1,13 +1,12 @@
 //use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::collections::HashMap; 
+use std::{collections::HashMap, time::SystemTime};
 use redis::{Commands, RedisResult};
 use memcache::Client;
-use std::time::{SystemTime, Duration, Instant}};
+//use std::time::{Duration, Instant};
 
 fn main() {
-
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let user_id: i64 = serde_json::from_str(&input).unwrap();
