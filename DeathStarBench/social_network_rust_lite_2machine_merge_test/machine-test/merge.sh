@@ -67,7 +67,7 @@ function link {
 
   $LLVM_DIR/llc -filetype=obj --function-sections --data-sections function.ll -o function.o
 
-  ./sharedLib
+  ./sharedLib.sh
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -96,7 +96,7 @@ function clean {
     && cd ../../../../ \
     && rm -rf $FUNC_NAME/template/rust/function/Cargo.lock
   done
-  rm -rf *.ll function.o function *.txt
+  rm -rf *.ll *.o function *.txt
 }
 
 case "$1" in

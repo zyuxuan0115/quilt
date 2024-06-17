@@ -2,18 +2,23 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::time::SystemTime;
 use std::time::{Duration, Instant};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
+//  println!("@@@ {}", input);
+//  process::exit(0);
+
   let time_0 = Instant::now();
 
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
-
+  println!("@@@ input_info: {:?}", input_info);
   let time_1 = Instant::now();
   // call UniqueIdService
   let uuid: String = make_rpc("unique-id-service", "".to_string());
   let pid: i64 = uuid[..].parse::<i64>().unwrap();
   let time_2 = Instant::now();
+
   // call ComposerCreatorWithUserId
   let compose_creator_with_userid_arg = ComposeCreatorWithUseridArgs {
     user_id: input_info.user_id,
@@ -41,6 +46,8 @@ fn main() {
   let time_6 = Instant::now();
   let media_return_info: Vec<Media> = serde_json::from_str(&media_return).unwrap();
 
+  println!("@@@@@@ after media service");
+
   let post = Post {
     post_id: pid,
     creator: serde_json::from_str(&creator_str).unwrap(),
@@ -56,6 +63,8 @@ fn main() {
   let time_7 = Instant::now();
   make_rpc("store-post", post_str);
 
+  println!("@@@@@ after store-post");
+
   let time_8 = Instant::now();
   // call WriteUserTimeline
   let write_u_tl_arg =  WriteUserTimelineArgs {
@@ -67,6 +76,8 @@ fn main() {
   let time_9 = Instant::now();
   make_rpc("write-user-timeline", write_u_tl_arg_str);
   let time_10 = Instant::now();
+
+  println!("@@@@@@ after write-user-timeline");
 
   // call WriteHomeTimeline
   let write_h_tl_arg = WriteHomeTimelineArgs {

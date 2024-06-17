@@ -7,7 +7,6 @@ fn main() {
   let input: String = get_arg_from_caller();
 //  let time_0 = Instant::now();
   let mut text = input;
-  println!("text-service: the input is: {}", text);
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
   let mut mentioned_usernames: Vec<String> = Vec::new();
   let mut urls : Vec<String> = Vec::new();
@@ -18,13 +17,13 @@ fn main() {
   for url in re2.captures_iter(&text[..]).map(|m| m.get(0).unwrap().as_str()) {
     urls.push(url.to_string());
   }
-
   let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
   let urls_serialized = serde_json::to_string(&urls).unwrap();
 //  let time_1 = Instant::now();
   let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
   let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
 //  let time_2 = Instant::now();
+
   let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
   let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
   for item in &url_pairs {

@@ -16,7 +16,6 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let usernames: Vec<String> = serde_json::from_str(&input).unwrap();
-
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();

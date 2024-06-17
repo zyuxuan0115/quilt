@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  compose-post-new:
+    lang: rust
+    handler: ./compose-post-new
+    image: zyuxuan0115/deathstarbench-compose-post-merged:latest
+    secrets:
+    - ipv4-addr 
+    - redis-password
