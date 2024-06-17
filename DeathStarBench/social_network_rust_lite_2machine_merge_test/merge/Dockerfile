@@ -21,6 +21,8 @@ ENV PATH="/llvm/bin:${PATH}"
 WORKDIR /home/rust
 COPY . .
 
+RUN ./sharedLib.sh
+
 # build function.o
 RUN chmod 777 merge_tree.py
 RUN ./merge_tree.py merge funcTree
@@ -32,10 +34,8 @@ FROM ubuntu:focal as final
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
   && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential zlib1g-dev python3.8 \
   && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev libcurl4-openssl-dev 
-#  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y patchelf scons python3-pip 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
 
-#RUN pip3 install staticx
 ENV PATH="/users/root/.local/bin:${PATH}"
 
 COPY --from=builder /root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib /root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
@@ -43,7 +43,6 @@ COPY --from=builder /home/rust /home/rust
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
 
 RUN cd /home/rust && ./merge_tree.py link funcTree 
-#RUN cd /home/rust && staticx function function_new && mv function_new function
 
 # Copy of-watchdog binary
 COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog

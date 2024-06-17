@@ -37,6 +37,7 @@ function build_merge {
   cp -r ../DbInterface temp
   cp merge.sh temp
   cp merge_tree.py temp
+  cp sharedLib.sh temp
   cp funcTree temp
   sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
     -f Dockerfile \
