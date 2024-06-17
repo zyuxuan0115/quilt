@@ -62,11 +62,18 @@ request = function(req_id)
   media_types = media_types:sub(1, #media_types - 1) .. "]"
 
   local method = "POST"
-  local path = "/function/text-service-new"
+  local path = "/function/compose-post-new"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
-  body = text 
+  if num_media then
+    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
+        ',"text":"' .. text .. '","media_ids":' .. media_ids ..
+        ',"media_types":' .. media_types .. ',"post_type":"POST"}'
+  else
+    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
+        ',"text":"' .. text .. '","media_ids":[],media_types":[]' .. ',"post_type":"POST"}'
+  end
 
 --  file = io.open('req_data_log.txt', 'w')
 --  file:write(body)
