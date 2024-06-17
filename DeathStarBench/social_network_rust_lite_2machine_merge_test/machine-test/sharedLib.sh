@@ -8,5 +8,5 @@ cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH \
 && gcc -c *.S && gcc -c *.c && rm *.S *.c \
 && ./implib-gen.py $RUST_LIBLLVM_PATH \
 && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-&& cd .. && cp *.o . 
+&& cd .. && cp Implib.so/*.o . 
 rm -rf Implib.so
