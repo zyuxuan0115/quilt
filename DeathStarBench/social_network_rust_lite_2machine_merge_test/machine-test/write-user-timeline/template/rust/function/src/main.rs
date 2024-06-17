@@ -1,8 +1,7 @@
-use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller, *};
 use DbInterface::*;
 use redis::{Commands};
-//use std::{time::{Duration, Instant}};
+//use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();

@@ -1,8 +1,7 @@
 use redis::{Commands, RedisResult};
-//use serde::{Deserialize, Serialize};
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{collections::HashMap, time::SystemTime};
+use std::collections::HashMap;
 use memcache::Client;
 //use std::{Duration, Instant};
 

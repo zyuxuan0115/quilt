@@ -1,5 +1,4 @@
 use rand::{distributions::Alphanumeric, Rng}; // 0.8
-//use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use redis::{Commands, RedisResult};
@@ -32,8 +31,8 @@ fn main() {
       shortened_url: s.clone(), 
       expanded_url: url.clone(),
     };
-    let mut ret: isize = con.hset("url-shorten","shortened_url", &new_pair.shortened_url[..]).unwrap();
-    ret = con.hset("url-shorten","expanded_url", &new_pair.expanded_url[..]).unwrap();
+    let _: isize = con.hset("url-shorten","shortened_url", &new_pair.shortened_url[..]).unwrap();
+    let _: isize = con.hset("url-shorten","expanded_url", &new_pair.expanded_url[..]).unwrap();
     docs.push(new_pair);
   }
   let serialized = serde_json::to_string(&docs).unwrap();
