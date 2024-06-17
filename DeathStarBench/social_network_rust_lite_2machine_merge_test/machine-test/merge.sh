@@ -17,6 +17,8 @@ RUST_LIBTEST_NAME=$(basename $RUST_LIBTEST_PATH)
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_NAME#"libtest"}
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
+RUST_LIBLLVM_PATH=$(ls $RUST_LIB/libLLVM-*.so)
+
 #LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -ldl"
 
@@ -60,6 +62,19 @@ function merge {
 }
 
 
+
+function wrap_shared_lib {
+  git clone https://github.com/yugr/Implib.so.git
+  cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH 2>/dev/null \
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
+  && ./implib-gen.py $RUST_LIBLLVM_PATH 2>/dev/null \
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
+  && cd .. && cp Implib.so/*.o . 
+  rm -rf Implib.so
+}
+
+
+
 function link {
   $LLVM_DIR/llvm-link $CALLER_FUNC/template/rust/function/target/debug/deps/*.ll -S -o lib_with_debug_info.ll
   $LLVM_DIR/opt lib_with_debug_info.ll -strip-debug -o lib.ll -S
@@ -67,7 +82,7 @@ function link {
 
   $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.ll -o function.o
 
-  ./sharedLib.sh
+  wrap_shared_lib
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/template/rust/function/target/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -85,6 +100,8 @@ function link {
 #  $LLVM_DIR/clang -no-pie -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
   gcc -no-pie -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
 }
+
+
 
 function clean {
   for i in $(seq 1 $(($NUM_ARGS-1)) );
