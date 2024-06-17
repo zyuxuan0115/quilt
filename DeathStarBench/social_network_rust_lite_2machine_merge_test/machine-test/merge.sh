@@ -17,7 +17,8 @@ RUST_LIBTEST_NAME=$(basename $RUST_LIBTEST_PATH)
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_NAME#"libtest"}
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
-LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
+#LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
+LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -ldl"
 
 ARGS=("$@")
 NUM_ARGS=$#
@@ -79,7 +80,8 @@ function link {
     done
   done
 
-  $LLVM_DIR/clang -no-pie -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB function.o $STATIC_LINKER_FLAGS -o function $LINKER_FLAGS $STATIC_RING_LIBS
+#  $LLVM_DIR/clang -no-pie -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
+  gcc -no-pie -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
 }
 
 function clean {
@@ -92,7 +94,7 @@ function clean {
     && cd ../../../../ \
     && rm $FUNC_NAME/template/rust/function/Cargo.lock
   done
-  rm -rf *.ll *.o function *.txt
+  rm -rf *.ll function.o function *.txt
 }
 
 case "$1" in
