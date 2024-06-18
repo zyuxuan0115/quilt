@@ -9,7 +9,7 @@ ARGS=("$@")
 CALLER=${ARGS[1]}
 
 function build_llvm {
-  sudo docker build --no-cache -t zyuxuan0115/llvm-17:latest \
+  sudo docker build -t zyuxuan0115/llvm-17:latest \
        -f Dockerfile.llvm \
        .
   sudo docker push zyuxuan0115/llvm-17:latest
@@ -37,7 +37,6 @@ function build_merge {
   cp -r ../DbInterface temp
   cp merge.sh temp
   cp merge_tree.py temp
-  cp sharedLib.sh temp
   cp funcTree temp
   sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/deathstarbench-$CALLER-merged:latest \
     -f Dockerfile \

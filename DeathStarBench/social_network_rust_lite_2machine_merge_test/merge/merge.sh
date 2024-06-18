@@ -17,8 +17,10 @@ RUST_LIBTEST_NAME=$(basename $RUST_LIBTEST_PATH)
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_NAME#"libtest"}
 RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 
+RUST_LIBLLVM_PATH=$(ls $RUST_LIB/libLLVM-*.so)
 
-LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
+#LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
+LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -ldl"
 
 ARGS=("$@")
 NUM_ARGS=$#
@@ -62,8 +64,11 @@ function merge {
 function merge_with_lib {
   # merge the rest lib code 
   $LLVM_DIR/llvm-link $CALLER_FUNC/debug/deps/*.ll -S -o func_with_debug_info.ll
-  $LLVM_DIR/opt func_with_debug_info.ll -strip-debug -o function.ll -S
-  $LLVM_DIR/llc -O3 -filetype=obj function.ll -o function.o
+  $LLVM_DIR/opt func_with_debug_info.ll -strip-debug -o func.ll -S
+  $LLVM_DIR/opt -S func.ll -passes=strip-dead-prototypes -o function.ll
+  $LLVM_DIR/llc -O3 --function-sections --data-sections -filetype=obj function.ll -o function.o
+
+  wrap_lib
 
   STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/debug/build/ -type d -name ring-*)
   STATIC_RING_LIBS=""
@@ -78,18 +83,24 @@ function merge_with_lib {
     done
   done
 #  cp $STATIC_RING_LIBS .
-#  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-#  $LLVM_DIR/clang -fuse-ld=ld -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-<<'###BLOCK-COMMENT'
-
-###BLOCK-COMMENT
-
 }
+
+
+function wrap_lib {
+  git clone https://github.com/yugr/Implib.so.git
+  cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH \
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
+  && ./implib-gen.py $RUST_LIBLLVM_PATH \
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
+  && cd ..
+  rm -rf Implib.so
+}
+
 
 function link {
 #  STATIC_RING_LIBS=$(ls libring_*.a)
 #  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS
+  gcc -no-pie -Wl,--as-needed -Wl,--strip-debug -Wl,--gc-sections -L$RUST_LIB *.o -o function $LINKER_FLAGS
 }
 
 function clean {
@@ -119,3 +130,9 @@ clean)
     clean
     ;;
 esac
+
+<<'###BLOCK-COMMENT'
+
+###BLOCK-COMMENT
+
+

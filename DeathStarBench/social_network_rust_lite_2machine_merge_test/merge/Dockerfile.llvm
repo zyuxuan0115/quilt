@@ -26,15 +26,24 @@ RUN cd /llvm-project \
     && /cmake-3.29/bin/cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE="Release" -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" ../llvm \
     && make -j
 
+RUN cd /llvm-project/build \
+    && rm -rf docs emamples cmake benchmarks test tnittests projects third-party
 
-FROM ubuntu:bionic as final
+FROM ubuntu:focal as final
 
-RUN apt-get update\
-    && apt-get install -y build-essential \
-    && apt-get install -y ca-certificates pkg-config \
-    && addgroup --system app && adduser -system app
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update -y \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential curl zlib1g-dev python3 git \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 
 COPY --from=builder /llvm-project/build /llvm
-RUN rm -rf /llvm/docs /llvm/emamples /llvm/cmake /llvm/benchmarks /llvm/test /llvm/tnittests /llvm/projects /llvm/third-party
+ 
+ENV CARGO_TARGET_DIR=/home/rust/target
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN rustup default 1.76
+
+ENV PATH="/llvm/bin:${PATH}"
 
 WORKDIR /llvm

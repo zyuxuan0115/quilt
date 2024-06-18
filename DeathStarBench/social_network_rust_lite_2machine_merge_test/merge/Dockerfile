@@ -1,27 +1,8 @@
 FROM zyuxuan0115/llvm-17:latest as llvm
-FROM ubuntu:focal as builder
-
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update -y \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential curl zlib1g-dev python3.8 \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates pkg-config libssl-dev libcurl4-openssl-dev \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
-
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
- 
-ENV CARGO_TARGET_DIR=/home/rust/target
-ENV PATH="/root/.cargo/bin:${PATH}"
-RUN rustup default 1.76
-
-# copy clang and llvm opt 
-COPY --from=llvm /llvm /llvm
-
-ENV PATH="/llvm/bin:${PATH}"
 
 # Copy all the sources
 WORKDIR /home/rust
 COPY . .
-
-RUN ./sharedLib.sh
 
 # build function.o
 RUN chmod 777 merge_tree.py
@@ -32,7 +13,7 @@ FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential zlib1g-dev python3.8 \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential zlib1g-dev python3 \
   && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev libcurl4-openssl-dev 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
 
