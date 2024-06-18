@@ -15,10 +15,14 @@ function setup {
   kubectl get node -o wide
 
   kubectl create namespace sn-tempo-tracing
+  kubectl create namespace sn-opentelemetry
   helm repo add grafana https://grafana.github.io/helm-charts
+  helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
   helm repo update
-  helm -n sn-tempo-tracing install tempo grafana/tempo-distributed -f tempo-value.yaml
+  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed -f tempo-value.yaml
   #helm install loki grafana/loki-stack
+  helm -n sn-opentelemetry install opentelemetry-collector open-telemetry/opentelemetry-collector -f open-telemetry-value.yaml
+
   kubectl get pods
   kubectl get service
 

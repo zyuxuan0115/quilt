@@ -1,4 +1,9 @@
-mode: "deployment"
+mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-k8s
+
+replicaCount: 1
 
 config:
   receivers:
@@ -9,24 +14,16 @@ config:
         http:
           endpoint: 0.0.0.0:4318
 
-  processors:
-    batch:
-     timeout: 10s
-     send_batch_size: 1024
+  processor:
 
   exporters:
-    logging:
-      loglevel: debug
-    otlp:
-     endpoint: grafana-tempo:4317
-     tls:
-      insecure: true
+    debug:
 
   service:
     pipelines:
       traces:
        receivers: [otlp]
-       processors: [batch]
+       processors: []
        exporters: [debug, otlp]
 
 resources:
