@@ -17,8 +17,10 @@ function setup {
   kubectl create namespace sn-tempo-tracing
   helm repo add grafana https://grafana.github.io/helm-charts
   helm repo update
-  helm install tempo grafana/tempo
-  helm install loki grafana/loki-stack
+  helm -n sn-tempo-tracing install tempo grafana/tempo-distributed -f tempo-value.yaml
+  #helm install loki grafana/loki-stack
+  kubectl get pods
+  kubectl get service
 
   arkade install openfaas --load-balancer --max-inflight 8 --queue-workers 4
   kubectl rollout status -n openfaas deploy/gateway
@@ -51,6 +53,7 @@ function killa {
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
+  rm -rf *.txt
 }
 
 case "$1" in
