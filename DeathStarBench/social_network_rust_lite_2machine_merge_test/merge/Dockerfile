@@ -1,4 +1,4 @@
-FROM zyuxuan0115/llvm-17:latest as llvm
+FROM zyuxuan0115/llvm-17:latest as builder
 
 # Copy all the sources
 WORKDIR /home/rust
@@ -8,6 +8,7 @@ COPY . .
 RUN chmod 777 merge_tree.py
 RUN ./merge_tree.py merge funcTree
 RUN ./merge_tree.py clean funcTree && rm -rf /llvm 
+
 
 FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
 FROM ubuntu:focal as final
