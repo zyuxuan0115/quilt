@@ -30,7 +30,12 @@ function setup {
   kubectl -n sn-tempo-tracing expose deployment grafana --type=LoadBalancer --port=3000 --target-port=3000 --name=grafana-external
   #helm install loki grafana/loki-stack
 
-  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed -f values.yaml
+  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed
+
+  TEMPO_POD_NAME=$(kubectl get pods --namespace sn-tempo-tracing -l "app.kubernetes.io/instance=grafana-tempo" -o jsonpath="{.items[0].metadata.name}")
+  kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s
+  kubectl --namespace sn-tempo-tracing port-forward $TEMPO_POD_NAME 3100 &
+  kubectl -n sn-tempo-tracing expose deployment grafana-tempo-query-frontend --type=LoadBalancer --port=3100 --target-port=3100 --name=grafana-tempo-external
 
   helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
   helm repo update
