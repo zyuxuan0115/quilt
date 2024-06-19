@@ -14,20 +14,45 @@ function setup {
   kubectl config use-context default
   kubectl get node -o wide
 
-  # add open-telemetry to kubernete
+
+  kubectl create namespace sn-tempo-tracing
   kubectl create namespace sn-opentelemetry
+
+  ### install grafana, the GUI of Tempo
+  helm repo add grafana https://grafana.github.io/helm-charts
+  helm repo update
+  helm -n sn-tempo-tracing install grafana grafana/grafana --set grafana.ingress.enabled=true
+  GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo-tracing grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
+  echo $GRAFANA_PASSWORD > grafana_password.txt
+  POD_NAME=$(kubectl get pods --namespace sn-tempo-tracing -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+  kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" --timeout=90s
+  kubectl --namespace sn-tempo-tracing port-forward $POD_NAME 3000 &
+  kubectl -n sn-tempo-tracing expose deployment grafana --type=LoadBalancer --port=3000 --target-port=3000 --name=grafana-external
+  #helm install loki grafana/loki-stack
+
+  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed -f values.yaml
+
   helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
   helm repo update
+
   helm -n sn-opentelemetry install opentelemetry-receiver open-telemetry/opentelemetry-collector \
      --values open-telemetry-receiver-value.yaml
   helm -n sn-opentelemetry install opentelemetry-collector open-telemetry/opentelemetry-collector \
      --values open-telemetry-collector-value.yaml
 
+  arkade install ingress-nginx -n ingress-nginx \
+    --set controller.config.enable-opentracing='true' \
+    --set controller.config.jaeger-collector-host=grafana-tempo.sn-tempo-tracing.default.svc.cluster.local \
+    --set controller.config.log-format-upstream='$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_length $request_time [$proxy_upstream_name] [$proxy_alternative_upstream_name] $upstream_addr $upstream_response_length $upstream_response_time $upstream_status $req_id traceId $opentracing_context_uber_trace_id'
+
+  kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
+
   arkade install openfaas \
     --load-balancer \
     --max-inflight 8 \
-    --queue-workers 4 \
-    --set ingress.enabled='true'
+    --queue-workers 4 
+#    --set ingress.enabled='true' \
+#    --dashboard 
 
   kubectl rollout status -n openfaas deploy/gateway
   kubectl port-forward -n openfaas svc/gateway 8080:8080 &
@@ -59,7 +84,7 @@ function killa {
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
-  rm -rf *.txt kubeconfig
+  rm -rf *.txt
 }
 
 case "$1" in

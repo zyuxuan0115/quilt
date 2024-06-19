@@ -32,13 +32,3 @@ traces:
       enabled: false
   opencensus:
     enabled: false
-nginx:
-  ingress:
-    enabled: true
-    ingressClassName: nginx
-    hosts:
-      - host: <ingress-host>
-        paths:
-          - path: /
-            pathType: Prefix
-    tls: {} # empty, disabled.
