@@ -14,6 +14,7 @@ function setup {
   kubectl config use-context default
   kubectl get node -o wide
 
+  # add open-telemetry to kubernete
   kubectl create namespace sn-opentelemetry
   helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
   helm repo update
@@ -53,7 +54,7 @@ function killa {
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
-  rm -rf *.txt
+  rm -rf *.txt kubeconfig
 }
 
 case "$1" in

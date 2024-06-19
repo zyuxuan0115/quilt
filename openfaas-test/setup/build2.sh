@@ -7,11 +7,22 @@ SERVER_HOST="zyuxuan@clnode007.clemson.cloudlab.us"
 AGENT_HOST="zyuxuan@clnode024.clemson.cloudlab.us"
 
 function setup {
+  sudo chmod -R 777 /users/zyuxuan/.docker || true
   k3sup install --ip $SERVER_IP --user $USER
   k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
+
+  # add open-telemetry to kubernete
+  kubectl create namespace sn-opentelemetry
+  helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+  helm repo update
+  helm -n sn-opentelemetry install opentelemetry-receiver open-telemetry/opentelemetry-collector \
+     --values open-telemetry-receiver-value.yaml
+  helm -n sn-opentelemetry install opentelemetry-collector open-telemetry/opentelemetry-collector \
+     --values open-telemetry-collector-value.yaml
+
   arkade install openfaas --load-balancer --max-inflight 8 --queue-workers 4
   kubectl rollout status -n openfaas deploy/gateway
   kubectl port-forward -n openfaas svc/gateway 8080:8080 &
@@ -33,6 +44,7 @@ function setup {
   kubectl rollout status deployment/mongodb
   kubectl port-forward service/mongodb 27017:27017 &
   kubectl port-forward svc/sn-memcache-memcached 11211:11211 &
+  sleep 30
   kubectl port-forward --namespace openfaas-fn svc/sn-redis-master 6379:6379 &
 }
 
