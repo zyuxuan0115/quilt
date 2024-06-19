@@ -7,11 +7,21 @@ SERVER_HOST="zyuxuan@clnode180.clemson.cloudlab.us"
 AGENT_HOST="zyuxuan@clnode139.clemson.cloudlab.us"
 
 function setup {
+  sudo chmod -R 777 /users/zyuxuan/.docker
   k3sup install --ip $SERVER_IP --user $USER
   k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
+
+  kubectl create namespace sn-opentelemetry
+  helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+  helm repo update
+  helm -n sn-opentelemetry install opentelemetry-receiver open-telemetry/opentelemetry-collector \
+     --values open-telemetry-receiver-value.yaml
+  helm -n sn-opentelemetry install opentelemetry-collector open-telemetry/opentelemetry-collector \
+     --values open-telemetry-collector-value.yaml
+
   arkade install openfaas --load-balancer --max-inflight 8 --queue-workers 4
   kubectl rollout status -n openfaas deploy/gateway
   kubectl port-forward -n openfaas svc/gateway 8080:8080 &
@@ -43,6 +53,7 @@ function killa {
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
+  rm -rf *.txt
 }
 
 case "$1" in
