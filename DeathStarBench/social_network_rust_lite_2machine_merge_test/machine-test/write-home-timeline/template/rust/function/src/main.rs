@@ -31,7 +31,7 @@ fn main() {
     follower_id_str.push_str(&(follower_id.to_string()));
 
     let post_id_str: String = timeline_info.post_id.to_string();
-    let res: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
+    let _: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   }
 //  let time_1 = Instant::now();
 //  println!("{:?}", time_1.duration_since(time_0));

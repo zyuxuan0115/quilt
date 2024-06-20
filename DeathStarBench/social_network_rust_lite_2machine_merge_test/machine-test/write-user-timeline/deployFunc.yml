@@ -6,7 +6,7 @@ functions:
   write-user-timeline:
     lang: rust
     handler: ./write-user-timeline
-    image: zyuxuan0115/deathstarbench-writeusertimeline:latest
+    image: zyuxuan0115/sn-write-user-timeline:latest
     secrets:
     - ipv4-addr 
     - redis-password

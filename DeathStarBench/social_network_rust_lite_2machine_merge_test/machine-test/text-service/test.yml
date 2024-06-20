@@ -6,7 +6,7 @@ functions:
   text-service-new:
     lang: rust
     handler: ./text-service-new
-    image: zyuxuan0115/deathstarbench-test-t-merged:latest
+    image: zyuxuan0115/deathstarbench-test-t-new-merged:latest
     secrets:
     - ipv4-addr
     - redis-password
