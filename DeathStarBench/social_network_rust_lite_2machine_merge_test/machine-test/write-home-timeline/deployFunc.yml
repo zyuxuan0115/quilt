@@ -6,7 +6,7 @@ functions:
   write-home-timeline:
     lang: rust
     handler: ./write-home-timeline
-    image: zyuxuan0115/sn-write-hometime-line:latest
+    image: zyuxuan0115/sn-write-home-timeline:latest
     secrets:
     - ipv4-addr 
     - redis-password
