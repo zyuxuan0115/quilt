@@ -3,9 +3,9 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  write-home-timeline-new:
+  write-home-timeline-merged:
     lang: rust
-    handler: ./write-home-timeline-new
+    handler: ./write-home-timeline-merged
     image: zyuxuan0115/sn-write-home-timeline-merged:latest
     secrets:
     - ipv4-addr 
