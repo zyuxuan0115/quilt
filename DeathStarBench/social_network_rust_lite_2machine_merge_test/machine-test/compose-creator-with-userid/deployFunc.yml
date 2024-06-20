@@ -6,6 +6,6 @@ functions:
   compose-creator-with-userid:
     lang: rust
     handler: ./compose-creator-with-userid
-    image: zyuxuan0115/deathstarbench-composecreatorwithuserid:latest
+    image: zyuxuan0115/sn-compose-creator-with-userid:latest
     secrets:
     - ipv4-addr 
