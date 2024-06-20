@@ -22,6 +22,12 @@ function build {
   done
 }
 
+function build_0 {
+    sudo docker build -t zyuxuan0115/sn-rust-env:latest \
+        -f Dockerfile .
+    sudo docker push zyuxuan0115/sn-rust-env:latest
+}
+
 function deploy {
   for entry in "$search_dir"/*
   do
@@ -69,6 +75,9 @@ function nuke {
 
 
 case "$1" in
+build_env)
+    build_0
+    ;;
 build)
     build
     ;;
