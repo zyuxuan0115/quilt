@@ -6,7 +6,7 @@ functions:
   write-home-timeline-new:
     lang: rust
     handler: ./write-home-timeline-new
-    image: zyuxuan0115/deathstarbench-write-home-timeline-merged:latest
+    image: zyuxuan0115/sn-write-home-timeline-merged:latest
     secrets:
     - ipv4-addr 
     - redis-password
