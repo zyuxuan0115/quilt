@@ -21,7 +21,7 @@ pub fn get_mongodb_uri() -> String{
   let password = passwords[0].to_owned();
   let mut uri: String = String::from("mongodb://root:");
     uri.push_str(&password[..]);
-    uri.push_str("@mongodb.default.svc.cluster.local:27017");
+    uri.push_str("@mongodb.openfaas-fn.svc.cluster.local:27017");
   uri
 }
 
@@ -56,5 +56,5 @@ pub fn get_redis_ro_uri() -> String{
 }
 
 pub fn get_memcached_uri() -> String {
-   "memcache://sn-memcache-memcached.default.svc.cluster.local:11211??timeout=10&tcp_nodelay=true".to_string()
+   "memcache://sn-memcache-memcached.openfaas-fn.svc.cluster.local.local:11211??timeout=10&tcp_nodelay=true".to_string()
 }

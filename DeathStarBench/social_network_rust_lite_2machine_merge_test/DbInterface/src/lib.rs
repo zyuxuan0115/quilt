@@ -39,5 +39,5 @@ pub fn get_redis_ro_uri() -> String{
 }
 
 pub fn get_memcached_uri() -> String {
-   "memcache://sn-memcache-memcached.default.svc.cluster.local:11211??timeout=10&tcp_nodelay=true".to_string()
+   "memcache://sn-memcache-memcached.openfaas-fn.svc.cluster.local:11211??timeout=10&tcp_nodelay=true".to_string()
 }
