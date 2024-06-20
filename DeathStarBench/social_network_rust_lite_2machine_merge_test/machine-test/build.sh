@@ -14,6 +14,8 @@ function build {
       continue
     elif [[ "$BASE_NAME" = "funcTree" ]] ; then
       continue
+    elif [[ "$BASE_NAME" = "Dockerfile" ]] ; then
+      continue
     else
       cd $entry
       ./build.sh build
@@ -40,7 +42,9 @@ function deploy {
       continue
     elif [[ "$BASE_NAME" = "funcTree" ]] ; then
       continue
-    else
+    elif [[ "$BASE_NAME" = "Dockerfile" ]] ; then
+      continue
+   else
       cd $entry
       YAML_FILE=$(ls *.yml)
       faas-cli deploy -f deployFunc.yml
@@ -60,6 +64,8 @@ function nuke {
     elif [[ "$BASE_NAME" = "merge_tree.py" ]] ; then
       continue
     elif [[ "$BASE_NAME" = "funcTree" ]] ; then
+      continue
+    elif [[ "$BASE_NAME" = "Dockerfile" ]] ; then
       continue
     else
       cd $entry
