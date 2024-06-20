@@ -6,14 +6,14 @@ echo $ROOT_DIR
 
 function build_rust_test {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/deathstarbench-composecreatorwithuserid:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-compose-creator-with-userid:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/deathstarbench-composecreatorwithuserid:latest
+    sudo docker push zyuxuan0115/sn-compose-creator-with-userid:latest
 }
 
 function build {
