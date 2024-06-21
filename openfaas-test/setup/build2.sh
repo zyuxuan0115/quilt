@@ -6,7 +6,7 @@ AGENT_IP="130.127.133.213"
 SERVER_HOST="zyuxuan@clnode220.clemson.cloudlab.us"
 AGENT_HOST="zyuxuan@clnode204.clemson.cloudlab.us"
 
-function setup {
+function setup_k8s {
   ### setup the kubernetes cluster
   sudo chmod -R 777 /users/zyuxuan/.docker
   k3sup install --ip $SERVER_IP --user $USER
@@ -14,8 +14,9 @@ function setup {
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
+}
 
-
+function setup_grafana_tempo {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace sn-tempo-tracing
@@ -45,7 +46,9 @@ EOF
   kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s
   kubectl -n sn-tempo-tracing port-forward $TEMPO_POD_NAME 3100 &
   kubectl -n sn-tempo-tracing expose deployment grafana-tempo-query-frontend --type=LoadBalancer --port=3100 --target-port=3100 --name=grafana-tempo-external
+}
 
+function setup_telemetry {
   
   ### install open-telemetry for distributed tracing
   kubectl create namespace sn-opentelemetry
@@ -56,7 +59,9 @@ EOF
      --values open-telemetry-receiver-value.yaml
   helm -n sn-opentelemetry install opentelemetry-collector open-telemetry/opentelemetry-collector \
      --values open-telemetry-collector-value.yaml
+}
 
+function setup_ingress_nginx {
 #  curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml -o ingress-nginx-values.yaml
 #  sed -i "s/NodePort/LoadBalancer/g" ingress-nginx-values.yaml
   kubectl apply -f ingress-nginx-values.yaml
@@ -68,7 +73,9 @@ EOF
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
+}
 
+function setup_openfaas {
   ### install OpenFaaS
   kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
   helm repo add openfaas https://openfaas.github.io/faas-netes/
@@ -99,7 +106,14 @@ EOF
   echo $PASSWORD > openfaas_pass.txt
   echo -n $PASSWORD | faas-cli login --username admin --password-stdin
 
-  
+  ### get the IP of the current machine and pass it to OpenFaaS
+  IPV4_ADDR=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '172.17.0.1' | grep -v '10.0.1.1')
+  faas-cli secret create ipv4-addr --from-literal $IPV4_ADDR
+
+}
+
+
+function setup_mongodb_redis_memcached {  
   ### install MongoDB, Redis and memcached
   arkade install mongodb --namespace openfaas-fn
   kubectl --namespace openfaas-fn expose deployment mongodb --port=27017 --target-port=27017 \
@@ -116,10 +130,15 @@ EOF
   kubectl port-forward --namespace openfaas-fn service/mongodb 27017:27017 &
   kubectl port-forward --namespace openfaas-fn svc/sn-memcache-memcached 11211:11211 &
   kubectl port-forward --namespace openfaas-fn svc/sn-redis-master 6379:6379 &
+}
 
-  ### get the IP of the current machine and pass it to OpenFaaS
-  IPV4_ADDR=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '172.17.0.1' | grep -v '10.0.1.1')
-  faas-cli secret create ipv4-addr --from-literal $IPV4_ADDR
+function setup {
+  setup_k8s
+  setup_grafana_tempo
+  setup_telemetry
+  setup_ingress_nginx
+  setup_openfaas
+  setup_mongodb_redis_memcached 
 }
 
 function killa {
