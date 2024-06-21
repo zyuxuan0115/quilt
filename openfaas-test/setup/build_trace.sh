@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.189"
-AGENT_IP="130.127.133.148"
-SERVER_HOST="zyuxuan@clnode180.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode139.clemson.cloudlab.us"
+SERVER_IP="130.127.133.229"
+AGENT_IP="130.127.133.213"
+SERVER_HOST="zyuxuan@clnode220.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode204.clemson.cloudlab.us"
 
 function setup {
   ### setup the kubernetes cluster
@@ -21,7 +21,19 @@ function setup {
   kubectl create namespace sn-tempo-tracing
   helm repo add grafana https://grafana.github.io/helm-charts
   helm repo update
-  helm -n sn-tempo-tracing install grafana grafana/grafana --set grafana.ingress.enabled=true
+#  helm -n sn-tempo-tracing install grafana grafana/grafana --set grafana.ingress.enabled=true 
+
+  IPV4_ADDR=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '172.17.0.1' | grep -v '10.0.1.1')
+  helm -n sn-tempo-tracing install grafana grafana/grafana --set grafana.ingress.enabled=true --values - <<EOF
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Tempo
+        type: tempo
+        url: http://$SERVER_IP:3100
+EOF
+
   GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo-tracing grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
   echo $GRAFANA_PASSWORD > grafana_password.txt
   GRAFANA_POD_NAME=$(kubectl get pods --namespace sn-tempo-tracing -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
