@@ -1,10 +1,9 @@
 #!/bin/bash
-
 USER="zyuxuan"
-SERVER_IP="130.127.133.189"
-AGENT_IP="130.127.133.148"
-SERVER_HOST="zyuxuan@clnode180.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode139.clemson.cloudlab.us"
+SERVER_IP="130.127.133.229"
+AGENT_IP="130.127.133.213"
+SERVER_HOST="zyuxuan@clnode220.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode204.clemson.cloudlab.us"
 
 function setup {
   sudo chmod -R 777 /users/zyuxuan/.docker
