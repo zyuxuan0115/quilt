@@ -65,17 +65,13 @@ function setup_ingress_nginx {
 #  sed -i "s/NodePort/LoadBalancer/g" ingress-nginx-values.yaml
   kubectl apply -f ingress-nginx-values.yaml
 #  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
-#  sleep 120
   while ! kubectl get secret ingress-nginx-admission --namespace ingress-nginx; 
   do 
     echo "Waiting for ingress-nginx-admission. CTRL-C to exit."; 
     sleep 10;
   done 
 
-  ingress-nginx-admission
-
   kubectl apply -f deployment.yaml 
-
   kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
