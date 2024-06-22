@@ -82,9 +82,10 @@ function setup_openfaas {
   arkade install openfaas --max-inflight 8 --queue-workers 4 
   kubectl rollout status -n openfaas deploy/gateway
   kubectl port-forward -n openfaas svc/gateway 8080:8080 &
+  kubectl get svc -o wide gateway-external -n openfaas
   PASSWORD=$(kubectl get secret -n openfaas basic-auth -o jsonpath="{.data.basic-auth-password}" | base64 --decode; echo)
   echo $PASSWORD > openfaas_pass.txt
-  echo -n $PASSWORD | faas-cli login --username admin --password-stdin
+  faas-cli login --username admin --password $PASSWORD
 
   ### get the IP of the current machine and pass it to OpenFaaS
   IPV4_ADDR=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '172.17.0.1' | grep -v '10.0.1.1')
