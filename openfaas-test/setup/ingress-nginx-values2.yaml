@@ -30,7 +30,7 @@ spec:
     app.kubernetes.io/instance: ingress-nginx
     app.kubernetes.io/name: ingress-nginx
   type: LoadBalancer
-  externalIPs:
+  externalIPs: 
   - "130.127.133.229"
 ---
 apiVersion: apps/v1
