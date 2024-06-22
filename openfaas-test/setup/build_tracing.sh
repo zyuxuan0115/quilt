@@ -71,7 +71,7 @@ function setup_ingress_nginx {
     sleep 10;
   done 
 
-  kubectl apply -f ingress-nginx-value2.yaml 
+  kubectl apply -f ingress-nginx-values2.yaml 
   kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
