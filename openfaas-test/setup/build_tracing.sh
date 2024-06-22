@@ -137,6 +137,8 @@ function setup {
   setup_ingress_nginx
   setup_openfaas
   setup_mongodb_redis_memcached 
+  NODE_PORT="$(kubectl get svc/ingress-nginx-controller -n ingress-nginx -o go-template='{{(index .spec.ports 0).nodePort}}')"
+  echo $NODE_PORT > node_port.txt
 }
 
 function killa {
