@@ -77,19 +77,22 @@ function setup_ingress_nginx {
 
 function setup_openfaas {
   ### install OpenFaaS
-  kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
-  helm repo add openfaas https://openfaas.github.io/faas-netes/
-  helm repo update 
-  helm upgrade openfaas \
-    --install openfaas/openfaas \
-    --namespace openfaas \
-    --set ingress.enabled=true \
-    --values - << EOF
-ingress:
-  exposeServices: false
-  enabled: true
-  ingressClassName: nginx
-EOF
+#  kubectl apply -f https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml
+#  helm repo add openfaas https://openfaas.github.io/faas-netes/
+#  helm repo update 
+#  helm upgrade openfaas \
+#    --install openfaas/openfaas \
+#    --namespace openfaas \
+#    --set ingress.enabled=true \
+#    --values - << EOF
+#ingress:
+#  exposeServices: false
+#  enabled: true
+#  ingressClassName: nginx
+#EOF
+
+  arkade install openfaas --max-inflight 8 \
+    --queue-workers 4 
 
   kubectl rollout status -n openfaas deploy/gateway
   kubectl port-forward -n openfaas svc/gateway 8080:8080 &
