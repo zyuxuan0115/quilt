@@ -48,8 +48,7 @@ EOF
   kubectl -n sn-tempo-tracing expose deployment grafana-tempo-query-frontend --type=LoadBalancer --port=3100 --target-port=3100 --name=grafana-tempo-external
 }
 
-function setup_telemetry {
-  
+function setup_open_telemetry {  
   ### install open-telemetry for distributed tracing
   kubectl create namespace sn-opentelemetry
   helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
@@ -108,7 +107,6 @@ EOF
 
 }
 
-
 function setup_mongodb_redis_memcached {  
   ### install MongoDB, Redis and memcached
   arkade install mongodb --namespace openfaas-fn
@@ -130,11 +128,11 @@ function setup_mongodb_redis_memcached {
 
 function setup {
   setup_k8s
-#  setup_grafana_tempo
-#  setup_telemetry
+  setup_grafana_tempo
+#  setup_open_telemetry
   setup_ingress_nginx
   setup_openfaas
-#  setup_mongodb_redis_memcached 
+  setup_mongodb_redis_memcached 
 }
 
 function killa {
