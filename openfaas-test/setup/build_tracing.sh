@@ -112,7 +112,7 @@ function setup_ingress_nginx {
       enable-opentelemetry: "true"
       opentelemetry-config: "/etc/ingress-controller/telemetry/opentelemetry.toml"
       opentelemetry-trust-incoming-span: "true"
-      otlp-collector-host: "otel-collector.sn-otel.svc.cluster.local"
+      otlp-collector-host: "otel-collector-opentelemetry-collector.sn-otel.svc.cluster.local"
       otlp-collector-port: "4317"
       otel-schedule-delay-millis: "5000"
       otel-max-export-batch-size: "512"
