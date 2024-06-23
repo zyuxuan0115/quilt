@@ -48,16 +48,50 @@ EOF
   kubectl -n sn-tempo-tracing expose deployment grafana-tempo-query-frontend --type=LoadBalancer --port=3100 --target-port=3100 --name=grafana-tempo-external
 }
 
-function setup_open_telemetry {  
+function setup_otel {  
   ### install open-telemetry for distributed tracing
-  kubectl create namespace sn-opentelemetry
+  kubectl create namespace sn-otel
   helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
   helm repo update
 
-  helm -n sn-opentelemetry install opentelemetry-receiver open-telemetry/opentelemetry-collector \
-     --values open-telemetry-receiver-value.yaml
-  helm -n sn-opentelemetry install opentelemetry-collector open-telemetry/opentelemetry-collector \
-     --values open-telemetry-collector-value.yaml
+#  helm -n sn-otel install otel-receiver open-telemetry/opentelemetry-collector \
+#     --values otel-receiver-value.yaml
+  helm -n sn-otel install otel-collector open-telemetry/opentelemetry-collector \
+      --values - <<EOF
+mode: deployment
+image:
+  repository: otel/opentelemetry-collector-k8s
+
+replicaCount: 1
+
+presets:
+  clusterMetrics:
+    enabled: true
+  kubernetesEvents:
+    enabled: true
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+  exporters:
+    otlp:
+      endpoint: "http://grafana-tempo-distributor.sn-tempo-tracing.svc.cluster.local:3100"
+      tls:
+        insecure: true
+  service:
+    pipelines:
+      traces:
+        receivers: [ otlp ]
+        exporters: [ otlp ]
+      metrics:
+        exporters: [ otlp ]
+      logs:
+        exporters: [ otlp ]
+EOF
 }
 
 function setup_ingress_nginx {
@@ -76,6 +110,26 @@ function setup_ingress_nginx {
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
+
+  echo '
+    apiVersion: v1
+    kind: ConfigMap
+    data:
+      enable-opentelemetry: "true"
+      opentelemetry-config: "/etc/ingress-controller/telemetry/opentelemetry.toml"
+      opentelemetry-trust-incoming-span: "true"
+      otlp-collector-host: "otel-collector.sn-otel.svc.cluster.local"
+      otlp-collector-port: "4317"
+      otel-schedule-delay-millis: "5000"
+      otel-max-export-batch-size: "512"
+      otel-sampler: "AlwaysOn"
+      otel-sampler-ratio: "1.0"
+      otel-sampler-parent-based: "false"
+    metadata:
+      name: ingress-nginx-controller
+      namespace: ingress-nginx
+  ' | kubectl replace -f -
+
 }
 
 function setup_openfaas {
@@ -112,7 +166,7 @@ EOF
 
 }
 
-function setup_mongodb_redis_memcached {  
+function setup_db {  
   ### install MongoDB, Redis and memcached
   arkade install mongodb --namespace openfaas-fn
   kubectl --namespace openfaas-fn expose deployment mongodb --port=27017 --target-port=27017 \
@@ -126,7 +180,7 @@ function setup_mongodb_redis_memcached {
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
   echo "$REDIS_PASSWORD" > redispass.txt
   kubectl --namespace openfaas-fn rollout status deployment/mongodb
-  kubectl port-forward --namespace openfaas-fn service/mongodb 27017:27017 &
+  kubectl port-forward --namespace openfaas-fn svc/mongodb 27017:27017 &
   kubectl port-forward --namespace openfaas-fn svc/sn-memcache-memcached 11211:11211 &
   kubectl port-forward --namespace openfaas-fn svc/sn-redis-master 6379:6379 &
 }
@@ -134,10 +188,10 @@ function setup_mongodb_redis_memcached {
 function setup {
   setup_k8s
   setup_grafana_tempo
-#  setup_open_telemetry
+  setup_otel
   setup_ingress_nginx
   setup_openfaas
-  setup_mongodb_redis_memcached 
+  setup_db # mongodb, redis and memcached
   NODE_PORT="$(kubectl get svc/ingress-nginx-controller -n ingress-nginx -o go-template='{{(index .spec.ports 0).nodePort}}')"
   echo $NODE_PORT > node_port.txt
 }
