@@ -41,24 +41,19 @@ EOF
 
   ### install Tempo, which collect the trace from open-telemetry
   ### and expose the IP to external, port 3100 
-  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed --values -<<EOF
+  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed --set traces.otlp.grpc.enabled=true --set traces.otlp.http.enabled=true --values - << EOF
 distributor:
   receivers:
     otlp:
       protocols:
-        http:
-          endpoint: "0.0.0.0:4318"
         grpc:
-          endpoint: "0.0.0.0:4317"
-
+        http: 
 EOF
+
+
   TEMPO_DISTRIBUTOR_NAME=$(kubectl -n sn-tempo-tracing get pods | ./get_tempo_pod_name.py distributor)
   TEMPO_QUERY_FRONTEND=$(kubectl -n sn-tempo-tracing get pods | ./get_tempo_pod_name.py query-frontend)
   kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s
-#  kubectl -n sn-tempo-tracing port-forward $TEMPO_DISTRIBUTOR_NAME 3200:7946 &
-#  kubectl -n sn-tempo-tracing port-forward $TEMPO_QUERY_FRONTEND 3200:3100 &
-#  kubectl -n sn-tempo-tracing expose deployment grafana-tempo-query-frontend --type=LoadBalancer --port=3200 --target-port=3100 --name=tempo-query-frontend-external
-#  kubectl -n sn-tempo-tracing expose deployment grafana-tempo-distributor --type=LoadBalancer --port=3100 --target-port=3100 --name=tempo-distributor-external
 
 }
 
@@ -86,7 +81,7 @@ presets:
 config:
   exporters:
     otlphttp:
-      endpoint: "http://grafana-tempo-distributor.sn-tempo-tracing.svc.cluster.local:3100"
+      endpoint: "http://grafana-tempo-distributor.sn-tempo-tracing.svc.cluster.local:4318"
       tls:
         insecure: true
   service:
