@@ -29,7 +29,7 @@ function setup_grafana_tempo {
       datasources:
       - name: Tempo
         type: tempo
-        url: http://$SERVER_IP:3200
+        url: http://grafana-tempo-query-frontend.sn-tempo-tracing.svc.cluster.local:3100
 EOF
 
   GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo-tracing grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
