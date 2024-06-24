@@ -47,9 +47,9 @@ distributor:
     otlp:
       protocols:
         http:
-          endpoint: "localhost:4318"
+          endpoint: "0.0.0.0:4318"
         grpc:
-          endpoint: "localhost:4317"
+          endpoint: "0.0.0.0:4317"
 
 EOF
   TEMPO_DISTRIBUTOR_NAME=$(kubectl -n sn-tempo-tracing get pods | ./get_tempo_pod_name.py distributor)
@@ -57,8 +57,8 @@ EOF
   kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s
 #  kubectl -n sn-tempo-tracing port-forward $TEMPO_DISTRIBUTOR_NAME 3200:7946 &
 #  kubectl -n sn-tempo-tracing port-forward $TEMPO_QUERY_FRONTEND 3200:3100 &
-  kubectl -n sn-tempo-tracing expose deployment grafana-tempo-query-frontend --type=LoadBalancer --port=3200 --target-port=3100 --name=tempo-query-frontend-external
-  kubectl -n sn-tempo-tracing expose deployment grafana-tempo-distributor --type=LoadBalancer --port=3100 --target-port=3100 --name=tempo-distributor-external
+#  kubectl -n sn-tempo-tracing expose deployment grafana-tempo-query-frontend --type=LoadBalancer --port=3200 --target-port=3100 --name=tempo-query-frontend-external
+#  kubectl -n sn-tempo-tracing expose deployment grafana-tempo-distributor --type=LoadBalancer --port=3100 --target-port=3100 --name=tempo-distributor-external
 
 }
 
