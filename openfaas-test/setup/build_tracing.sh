@@ -41,7 +41,17 @@ EOF
 
   ### install Tempo, which collect the trace from open-telemetry
   ### and expose the IP to external, port 3100 
-  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed
+  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed --values -<<EOF
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        http:
+          endpoint: "localhost:4318"
+        grpc:
+          endpoint: "localhost:4317"
+
+EOF
   TEMPO_DISTRIBUTOR_NAME=$(kubectl -n sn-tempo-tracing get pods | ./get_tempo_pod_name.py distributor)
   TEMPO_QUERY_FRONTEND=$(kubectl -n sn-tempo-tracing get pods | ./get_tempo_pod_name.py query-frontend)
   kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s

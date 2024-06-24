@@ -331,6 +331,9 @@ metadata:
     app.kubernetes.io/version: 1.10.1
   name: ingress-nginx-controller
   namespace: ingress-nginx
+  annotations:
+    nginx.ingress.kubernetes.io/enable-opentelemetry: "true"
+    nginx.ingress.kubernetes.io/opentelemetry-trust-incoming-spans: "true"
 ---
 apiVersion: v1
 kind: Service
