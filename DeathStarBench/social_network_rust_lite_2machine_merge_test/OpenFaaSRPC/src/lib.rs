@@ -248,9 +248,11 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::new();
   if current_cluster_id == callee_cluster_id {
-    url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
+  //    url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
+    url = String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/function/");
   }
   else {
+    // TODO only consider things happened on the same machine
     let callee_rest_api_ip = machine_ip_info_hash.get(&callee_cluster_id).unwrap().to_owned();
     url = format!("http://{}:8080/function/", callee_rest_api_ip);
   }
