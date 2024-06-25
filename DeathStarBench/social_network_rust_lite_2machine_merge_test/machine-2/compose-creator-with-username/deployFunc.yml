@@ -6,9 +6,7 @@ functions:
   compose-creator-with-username:
     lang: rust
     handler: ./compose-creator-with-username
-    image: zyuxuan0115/deathstarbench-composecreatorwithusername:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-compose-creator-with-username:latest
     secrets:
     - ipv4-addr 
     - redis-password

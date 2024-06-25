@@ -6,9 +6,7 @@ functions:
   get-user-id:
     lang: rust
     handler: ./get-user-id
-    image: zyuxuan0115/deathstarbench-getuserid:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-get-user-id:latest
     secrets:
     - ipv4-addr 
     - redis-password
