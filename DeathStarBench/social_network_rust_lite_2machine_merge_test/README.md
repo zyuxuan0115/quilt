@@ -19,7 +19,7 @@ curl 127.0.0.1:8080/function/user-mention-service -d "[\"Alice\",\"Bob\"]"
 - <strong>TextService</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/text-service -d "Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch "
+curl 127.0.0.1:8080/function/text-service -d "Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"
 ```
 
 - <strong>MediaService</strong>
@@ -35,7 +35,7 @@ curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Tom\",\
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Joe\",\"last_name\":\"Devietti\",\"username\":\"devietti\",\"password\":\"uwandupenn\",\"user_id\":11029}"
+curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Todd\",\"last_name\":\"Austin\",\"username\":\"todda\",\"password\":\"uwandupenn\",\"user_id\":11029}"
 ```
 
 - <strong>RegisterUser</strong>
@@ -95,13 +95,13 @@ curl 127.0.0.1:8080/function/social-graph-unfollow -d "{\"user_id\":11028,\"foll
 - <strong>SocialGraphFollowWithUsername</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-follow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"devietti\"}"
+curl 127.0.0.1:8080/function/social-graph-follow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"todda\"}"
 ```
 
 - <strong>SocialGraphUnfollowWithUsername</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"devietti\"}"
+curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"todda\"}"
 ```
 
 - <strong>SocialGraphGetFollowers</strong>
@@ -121,15 +121,11 @@ curl 127.0.0.1:8080/function/social-graph-get-followees -d "11028"
 - <strong>StorePost</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://abccba.net @twenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"devietti\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[{\"shortened_url\":\"http://shortened.com/we2dcwAR1r\",\"expanded_url\":\"https://kate0115.net\"}],\"timestamp\":12343242,\"post_type\":\"POST\"}"
-```
-
-```bash
 curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"yesterday once more \",\"user_mentions\": [],\"media\":[],\"urls\":[],\"timestamp\":12343249,\"post_type\":\"POST\"}"
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"user_id\":11029,\"username\":\"devietti\"},\"req_id\":7798,\"text\":\"Hey, this is @devietti! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"devietti\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[],\"timestamp\":12343242,\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"user_id\":11029,\"username\":\"todda\"},\"req_id\":7798,\"text\":\"Hey, this is @todda! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"todda\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[],\"timestamp\":12343242,\"post_type\":\"POST\"}"
 ```
 
 - <strong>ReadPost</strong>
@@ -176,5 +172,5 @@ curl 127.0.0.1:8080/function/read-user-timeline -d "{\"user_id\":11029,\"start\"
 - <strong>ComposePost</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://kate0115.net @devietti \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
 ```
