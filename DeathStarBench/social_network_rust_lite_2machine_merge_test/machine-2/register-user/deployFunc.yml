@@ -6,9 +6,7 @@ functions:
   register-user:
     lang: rust
     handler: ./register-user
-    image: zyuxuan0115/deathstarbench-registeruser:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-register-user:latest
     secrets: 
     - redis-password
     - ipv4-addr
