@@ -29,7 +29,7 @@ function setup_grafana_tempo {
       datasources:
       - name: Tempo
         type: tempo
-        url: http://grafana-tempo-query-frontend.sn-tempo.svc.cluster.local:3100
+        url: http://tempo-query-frontend.sn-tempo.svc.cluster.local:3100
 EOF
 
   GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
@@ -41,7 +41,7 @@ EOF
 
   ### install Tempo, which collect the trace from open-telemetry
   ### and expose the IP to external, port 3100 
-  helm -n sn-tempo install grafana-tempo grafana/tempo-distributed \
+  helm -n sn-tempo install tempo grafana/tempo-distributed \
     --set traces.otlp.grpc.enabled=true \
     --set traces.otlp.http.enabled=true \
     --set ingester.zoneAwareReplication.enabled=true \
@@ -54,7 +54,7 @@ distributor:
         http: 
 EOF
 
-  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=3600s
+  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=tempo" --timeout=3600s
 
 }
 
@@ -80,7 +80,7 @@ presets:
 config:
   exporters:
     otlphttp:
-      endpoint: "http://grafana-tempo-distributor.sn-tempo.svc.cluster.local:4318"
+      endpoint: "http://tempo-distributor.sn-tempo.svc.cluster.local:4318"
       tls:
         insecure: true
   service:
@@ -93,7 +93,6 @@ EOF
 }
 
 function setup_ingress_nginx {
-#  kubectl apply -f ingress-nginx-values.yaml
   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
   while ! kubectl get secret ingress-nginx-admission --namespace ingress-nginx; 
   do 
