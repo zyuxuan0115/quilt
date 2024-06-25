@@ -41,7 +41,11 @@ EOF
 
   ### install Tempo, which collect the trace from open-telemetry
   ### and expose the IP to external, port 3100 
-  helm -n sn-tempo install grafana-tempo grafana/tempo-distributed --set traces.otlp.grpc.enabled=true --set traces.otlp.http.enabled=true --values - << EOF
+  helm -n sn-tempo install grafana-tempo grafana/tempo-distributed \
+    --set traces.otlp.grpc.enabled=true \
+    --set traces.otlp.http.enabled=true \
+    --set ingester.zoneAwareReplication.enabled=true \
+    --values - << EOF
 distributor:
   receivers:
     otlp:
