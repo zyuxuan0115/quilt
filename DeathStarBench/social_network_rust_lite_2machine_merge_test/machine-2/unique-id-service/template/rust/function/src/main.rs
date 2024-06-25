@@ -1,9 +1,9 @@
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
-use rand::{distributions::Alphanumeric, Rng};
-use std::time::{Duration, Instant};
+use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller};
+use rand::Rng;
+//use std::time::{Duration, Instant};
 
 fn main() {
-  let input: String = get_arg_from_caller();
+  let _input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let mut uuid:i64 = rand::thread_rng().gen();
   if uuid < 0 {

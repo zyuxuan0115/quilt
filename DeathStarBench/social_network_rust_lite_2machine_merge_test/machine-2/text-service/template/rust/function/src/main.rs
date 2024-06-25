@@ -1,13 +1,12 @@
-use serde::{Deserialize, Serialize};
+//use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use regex::Regex;
-use std::time::{Duration, Instant};
+//use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();
 //  let time_0 = Instant::now();
   let mut text = input;
-
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
   let mut mentioned_usernames: Vec<String> = Vec::new();
   let mut urls : Vec<String> = Vec::new();
@@ -24,13 +23,13 @@ fn main() {
   let user_mentions_str: String = make_rpc("user-mention-service", mentioned_usernames_serialized);
   let urls_str: String = make_rpc("url-shorten-service", urls_serialized);
 //  let time_2 = Instant::now();
+
   let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
   let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
   for item in &url_pairs {
     let text_str: &str = &text[..];
     text = text_str.replace(&item.expanded_url[..], &item.shortened_url[..]).to_string();
   }
-
   let return_value = TextServiceReturn {
     user_mentions: user_mentions,
     urls: url_pairs,

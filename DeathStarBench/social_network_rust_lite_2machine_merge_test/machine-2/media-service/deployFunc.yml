@@ -6,8 +6,6 @@ functions:
   media-service:
     lang: rust
     handler: ./media-service
-    image: zyuxuan0115/deathstarbench-mediaservice:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-media-service:latest
     secrets:
     - ipv4-addr 

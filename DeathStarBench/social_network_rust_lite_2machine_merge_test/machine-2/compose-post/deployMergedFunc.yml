@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  user-mention-service:
+  compose-post-merged:
     lang: rust
-    handler: ./user-mention-service
-    image: zyuxuan0115/sn-user-mention-service:latest
+    handler: ./compose-post-merged
+    image: zyuxuan0115/sn-compose-post-merged:latest
     secrets:
     - ipv4-addr 
     - redis-password

@@ -5,15 +5,16 @@ use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();
+
   let time_0 = Instant::now();
 
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
-
   let time_1 = Instant::now();
   // call UniqueIdService
   let uuid: String = make_rpc("unique-id-service", "".to_string());
   let pid: i64 = uuid[..].parse::<i64>().unwrap();
   let time_2 = Instant::now();
+
   // call ComposerCreatorWithUserId
   let compose_creator_with_userid_arg = ComposeCreatorWithUseridArgs {
     user_id: input_info.user_id,
