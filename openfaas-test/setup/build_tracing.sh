@@ -16,12 +16,16 @@ function setup_k8s {
   kubectl get node -o wide
 }
 
+function add_repo_to_helm {
+  helm repo add grafana https://grafana.github.io/helm-charts
+  helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+  helm repo add bitnami https://charts.bitnami.com/bitnami
+}
+
 function setup_grafana_tempo {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace sn-tempo
-  helm repo add grafana https://grafana.github.io/helm-charts
-  helm repo update
   helm -n sn-tempo install grafana grafana/grafana --set grafana.ingress.enabled=true --values - <<EOF
   datasources:
     datasources.yaml:
@@ -34,9 +38,7 @@ EOF
 
   GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
   echo $GRAFANA_PASSWORD > grafana_password.txt
-  GRAFANA_POD_NAME=$(kubectl get pods --namespace sn-tempo -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
-  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" --timeout=90s
-  kubectl -n sn-tempo port-forward $GRAFANA_POD_NAME 3000 &
+  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" --timeout=3600s
   kubectl -n sn-tempo expose deployment grafana --type=LoadBalancer --port=3000 --target-port=3000 --name=grafana-external
 
   ### install Tempo, which collect the trace from open-telemetry
@@ -61,9 +63,6 @@ EOF
 function setup_otel {  
   ### install open-telemetry for distributed tracing
   kubectl create namespace sn-otel
-  helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-  helm repo update
-
   helm -n sn-otel install otel-collector open-telemetry/opentelemetry-collector \
       --values - <<EOF
 mode: deployment
@@ -182,6 +181,8 @@ function setup_db {
 
 function setup {
   setup_k8s
+  # add_repo_to_helm # only need to run for the first time
+  helm repo update
   setup_grafana_tempo
   setup_otel
   setup_ingress_nginx
