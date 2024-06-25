@@ -63,8 +63,6 @@ function setup_otel {
   helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
   helm repo update
 
-#  helm -n sn-otel install otel-receiver open-telemetry/opentelemetry-collector \
-#     --values otel-receiver-value.yaml
   helm -n sn-otel install otel-collector open-telemetry/opentelemetry-collector \
       --values - <<EOF
 mode: deployment
