@@ -6,7 +6,7 @@ functions:
   social-graph-insert-user:
     lang: rust
     handler: ./social-graph-insert-user
-    image: zyuxuan0115/deathstarbench-socialgraphinsertuser:latest
+    image: zyuxuan0115/sn-social-graph-insert-user:latest
     environment:
       mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
