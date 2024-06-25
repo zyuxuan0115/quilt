@@ -6,9 +6,7 @@ functions:
   read-post:
     lang: rust
     handler: ./read-post
-    image: zyuxuan0115/deathstarbench-readpost:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-read-post:latest
     secrets:
     - ipv4-addr 
     - redis-password
