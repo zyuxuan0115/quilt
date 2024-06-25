@@ -54,9 +54,7 @@ distributor:
         http: 
 EOF
 
-  TEMPO_DISTRIBUTOR_NAME=$(kubectl -n sn-tempo get pods | ./get_tempo_pod_name.py distributor)
-  TEMPO_QUERY_FRONTEND=$(kubectl -n sn-tempo get pods | ./get_tempo_pod_name.py query-frontend)
-  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s
+  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=3600s
 
 }
 
