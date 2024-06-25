@@ -6,9 +6,7 @@ functions:
   social-graph-unfollow:
     lang: rust
     handler: ./social-graph-unfollow
-    image: zyuxuan0115/deathstarbench-socialgraphunfollow:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-social-graph-unfollow:latest
     secrets:
     - ipv4-addr 
     - redis-password
