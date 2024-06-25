@@ -19,29 +19,29 @@ function setup_k8s {
 function setup_grafana_tempo {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
-  kubectl create namespace sn-tempo-tracing
+  kubectl create namespace sn-tempo
   helm repo add grafana https://grafana.github.io/helm-charts
   helm repo update
-  helm -n sn-tempo-tracing install grafana grafana/grafana --set grafana.ingress.enabled=true --values - <<EOF
+  helm -n sn-tempo install grafana grafana/grafana --set grafana.ingress.enabled=true --values - <<EOF
   datasources:
     datasources.yaml:
       apiVersion: 1
       datasources:
       - name: Tempo
         type: tempo
-        url: http://grafana-tempo-query-frontend.sn-tempo-tracing.svc.cluster.local:3100
+        url: http://grafana-tempo-query-frontend.sn-tempo.svc.cluster.local:3100
 EOF
 
-  GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo-tracing grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
+  GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
   echo $GRAFANA_PASSWORD > grafana_password.txt
-  GRAFANA_POD_NAME=$(kubectl get pods --namespace sn-tempo-tracing -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
-  kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" --timeout=90s
-  kubectl -n sn-tempo-tracing port-forward $GRAFANA_POD_NAME 3000 &
-  kubectl -n sn-tempo-tracing expose deployment grafana --type=LoadBalancer --port=3000 --target-port=3000 --name=grafana-external
+  GRAFANA_POD_NAME=$(kubectl get pods --namespace sn-tempo -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" -o jsonpath="{.items[0].metadata.name}")
+  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" --timeout=90s
+  kubectl -n sn-tempo port-forward $GRAFANA_POD_NAME 3000 &
+  kubectl -n sn-tempo expose deployment grafana --type=LoadBalancer --port=3000 --target-port=3000 --name=grafana-external
 
   ### install Tempo, which collect the trace from open-telemetry
   ### and expose the IP to external, port 3100 
-  helm -n sn-tempo-tracing install grafana-tempo grafana/tempo-distributed --set traces.otlp.grpc.enabled=true --set traces.otlp.http.enabled=true --values - << EOF
+  helm -n sn-tempo install grafana-tempo grafana/tempo-distributed --set traces.otlp.grpc.enabled=true --set traces.otlp.http.enabled=true --values - << EOF
 distributor:
   receivers:
     otlp:
@@ -50,10 +50,9 @@ distributor:
         http: 
 EOF
 
-
-  TEMPO_DISTRIBUTOR_NAME=$(kubectl -n sn-tempo-tracing get pods | ./get_tempo_pod_name.py distributor)
-  TEMPO_QUERY_FRONTEND=$(kubectl -n sn-tempo-tracing get pods | ./get_tempo_pod_name.py query-frontend)
-  kubectl wait --for=condition=Ready -n sn-tempo-tracing pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s
+  TEMPO_DISTRIBUTOR_NAME=$(kubectl -n sn-tempo get pods | ./get_tempo_pod_name.py distributor)
+  TEMPO_QUERY_FRONTEND=$(kubectl -n sn-tempo get pods | ./get_tempo_pod_name.py query-frontend)
+  kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=grafana-tempo" --timeout=90s
 
 }
 
@@ -79,7 +78,7 @@ presets:
 config:
   exporters:
     otlphttp:
-      endpoint: "http://grafana-tempo-distributor.sn-tempo-tracing.svc.cluster.local:4318"
+      endpoint: "http://grafana-tempo-distributor.sn-tempo.svc.cluster.local:4318"
       tls:
         insecure: true
   service:
@@ -92,10 +91,8 @@ EOF
 }
 
 function setup_ingress_nginx {
-#  curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml -o ingress-nginx-values.yaml
-#  sed -i "s/NodePort/LoadBalancer/g" ingress-nginx-values.yaml
-  kubectl apply -f ingress-nginx-values.yaml
-#  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
+#  kubectl apply -f ingress-nginx-values.yaml
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml
   while ! kubectl get secret ingress-nginx-admission --namespace ingress-nginx; 
   do 
     echo "Waiting for ingress-nginx-admission. CTRL-C to exit."; 
@@ -209,13 +206,4 @@ kill)
     killa
     ;;
 esac
-
-
-#  arkade install ingress-nginx -n ingress-nginx \
-#    --set controller.config.enable-opentracing='true' \
-#    --set controller.config.jaeger-collector-host=grafana-tempo.sn-tempo-tracing.default.svc.cluster.local \
-#    --set controller.config.log-format-upstream='$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" $request_length $request_time [$proxy_upstream_name] [$proxy_alternative_upstream_name] $upstream_addr $upstream_response_length $upstream_response_time $upstream_status $req_id traceId $opentracing_context_uber_trace_id'
-
-#  kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
-
 
