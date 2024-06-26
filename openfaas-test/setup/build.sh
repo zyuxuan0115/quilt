@@ -124,6 +124,27 @@ function setup_ingress_nginx {
       namespace: ingress-nginx
   ' | kubectl replace -f -
 
+  kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
+
+  kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+spec:
+  ports:
+  - name: api
+    nodePort: 30000
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  type: NodePort
+EOF
+
 }
 
 function setup_openfaas {
