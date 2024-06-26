@@ -179,7 +179,25 @@ spec:
             port:
               number: 8080
 EOF
+}
 
+function setup_openfaas2 {
+  git clone https://github.com/openfaas/faas-netes.git
+  cd faas-netes 
+  helm template \
+    openfaas chart/openfaas/ \
+    --namespace openfaas2 \
+    --set gateway.nodePort=31113 \
+    --set basic_auth=false \
+    --set functionNamespace=openfaas2-fn > openfaas2.yaml
+  mv openfaas2.yaml ../
+  cd ..
+  rm -rf faas-netes
+  kubectl apply -f openfaas2.yml,openfaas2.yaml
+
+  kubectl rollout status -n openfaas2 deploy/gateway
+  kubectl port-forward -n openfaas2 svc/gateway 8081:8080 &
+  kubectl get svc -o wide gateway-external -n openfaas2
 }
 
 function setup_db {  
@@ -209,6 +227,7 @@ function setup {
   setup_otel
   setup_ingress_nginx
   setup_openfaas
+  setup_openfaas2
   setup_db # mongodb, redis and memcached
   NODE_PORT="$(kubectl get svc/ingress-nginx-controller -n ingress-nginx -o go-template='{{(index .spec.ports 0).nodePort}}')"
   echo $NODE_PORT > node_port.txt
@@ -217,11 +236,10 @@ function setup {
 function killa {
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
-  ssh -q $SERVER_HOST -- npx kill-port 30080
+  ssh -q $SERVER_HOST -- npx kill-port 30080 6379 27017 11211 30081 3000 
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
-  ssh -q $AGENT_HOST -- npx kill-port 30080
- 
+  ssh -q $AGENT_HOST -- npx kill-port 30080  6379 27017 11211 30081 3000 
   rm -rf *.txt kubeconfig
 }
 
