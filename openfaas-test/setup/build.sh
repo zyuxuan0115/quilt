@@ -136,13 +136,14 @@ metadata:
   name: ingress-nginx-controller
   namespace: ingress-nginx
 spec:
-  ports:
-  - name: api
-    nodePort: 30000
-    port: 80
-    protocol: TCP
-    targetPort: 80
   type: NodePort
+  ports:
+    - port: 80
+      nodePort: 30080
+      name: http
+    - port: 443
+      nodePort: 30443
+      name: https  
 EOF
 
 }
@@ -216,8 +217,11 @@ function setup {
 function killa {
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
+  ssh -q $SERVER_HOST -- npx kill-port 30080
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
+  ssh -q $AGENT_HOST -- npx kill-port 30080
+ 
   rm -rf *.txt kubeconfig
 }
 
