@@ -99,7 +99,9 @@ function setup_ingress_nginx {
     sleep 10;
   done 
 
-  kubectl apply -f ingress-nginx-values2.yaml 
+  curl https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml | python3 gen_yaml.py nginx
+
+  kubectl apply -f ingress-nginx-values.yaml 
   kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
@@ -193,6 +195,7 @@ function setup_openfaas2 {
   mv openfaas2.yaml ../
   cd ..
   rm -rf faas-netes
+  curl https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml | python3 gen_yaml.py
   kubectl apply -f openfaas2.yml,openfaas2.yaml
 
   kubectl rollout status -n openfaas2 deploy/gateway
