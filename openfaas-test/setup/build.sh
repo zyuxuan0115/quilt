@@ -202,21 +202,22 @@ function setup_openfaas2 {
 
 function setup_db {  
   ### install MongoDB, Redis and memcached
-  arkade install mongodb --namespace openfaas-fn
-  kubectl --namespace openfaas-fn expose deployment mongodb --port=27017 --target-port=27017 \
+  kubectl create namespace openfaas-db
+  arkade install mongodb --namespace openfaas-db
+  kubectl --namespace openfaas-db expose deployment mongodb --port=27017 --target-port=27017 \
         --name=mongodb-service --type=LoadBalancer
-  MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace openfaas-fn mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
+  MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace openfaas-db mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
   faas-cli secret create mongo-db-password --from-literal $MONGODB_ROOT_PASSWORD
   echo "$MONGODB_ROOT_PASSWORD" > mongopass.txt
-  helm install sn-memcache bitnami/memcached --namespace openfaas-fn --set architecture="standalone" --set autoscaling.enabled="false" --set replicaCount="1"
-  helm install sn-redis bitnami/redis --namespace openfaas-fn --set usePassword=false --set master.persistence.enabled=true
-  REDIS_PASSWORD=$(kubectl get secret --namespace openfaas-fn sn-redis -o jsonpath="{.data.redis-password}" | base64 -d)
+  helm install sn-memcache bitnami/memcached --namespace openfaas-db --set architecture="standalone" --set autoscaling.enabled="false" --set replicaCount="1"
+  helm install sn-redis bitnami/redis --namespace openfaas-db --set usePassword=false --set master.persistence.enabled=true
+  REDIS_PASSWORD=$(kubectl get secret --namespace openfaas-db sn-redis -o jsonpath="{.data.redis-password}" | base64 -d)
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
   echo "$REDIS_PASSWORD" > redispass.txt
-  kubectl --namespace openfaas-fn rollout status deployment/mongodb
-  kubectl port-forward --namespace openfaas-fn svc/mongodb 27017:27017 &
-  kubectl port-forward --namespace openfaas-fn svc/sn-memcache-memcached 11211:11211 &
-  kubectl port-forward --namespace openfaas-fn svc/sn-redis-master 6379:6379 &
+  kubectl --namespace openfaas-db rollout status deployment/mongodb
+  kubectl port-forward --namespace openfaas-db svc/mongodb 27017:27017 &
+  kubectl port-forward --namespace openfaas-db svc/sn-memcache-memcached 11211:11211 &
+  kubectl port-forward --namespace openfaas-db svc/sn-redis-master 6379:6379 &
 }
 
 function setup {
