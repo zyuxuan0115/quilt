@@ -49,20 +49,36 @@ def nginx():
   docs3 = []
   with open('ingress-nginx2.yaml', 'a') as outfile2: 
     for doc in docs2:
-      docs3.append(doc)
-      if 'metadata' in doc and 'namespace' in doc['metadata'] and doc['metadata']['namespace'] == 'ingress-nginx':
-        doc['metadata']['namespace'] = 'ingress-nginx2'
-      if doc['kind'] == 'Namespace' and doc['metadata']['name'] == 'ingress-nginx':
+      if doc['kind'] == 'Namespace':
         doc['metadata']['name'] = 'ingress-nginx2'
+      if doc['kind'] == 'IngressClass': 
+         doc['metadata']['name'] = 'nginx2'
+         doc['spec']['controller'] = 'k8s.io/ingress-nginx2'
+      if doc['kind'] == 'Deployment':
+        if 'spec' in doc and 'template' in doc['spec'] and 'spec' in doc['spec']['template']:
+          if 'containers' in doc['spec']['template']['spec']:
+            for item in doc['spec']['template']['spec']['containers']:
+              new_args = []
+              for arg in item['args']:
+                print(arg)
+                if arg == '--controller-class=k8s.io/ingress-nginx':
+                  new_args.append('--controller-class=k8s.io/ingress-nginx2')
+                elif arg == '--ingress-class=nginx':
+                  new_args.append('--ingress-class=nginx2')
+                else:
+                  new_args.append(arg)
+              item['args'] = new_args
+      if 'metadata' in doc and 'namespace' in doc['metadata']:
+        doc['metadata']['namespace'] = 'ingress-nginx2'
       if 'subjects' in doc:
         for item in doc['subjects']:
-          if 'namespace' in item and item['namespace'] == 'ingress-nginx':
+          if 'namespace' in item:
             item['namespace'] = 'ingress-nginx2'
       if 'webhooks' in doc:
         for item in doc['webhooks']:
           if 'clientConfig' in item and 'service' in item['clientConfig'] and 'namespace' in item['clientConfig']['service']:
-            if item['clientConfig']['service']['namespace'] == 'ingress-nginx':
-               item['clientConfig']['service']['namespace'] = 'ingress-nginx2'
+            item['clientConfig']['service']['namespace'] = 'ingress-nginx2'
+      docs3.append(doc)
       doc_yaml = yaml.dump(doc)
       outfile2.write('---\n')
       outfile2.write(doc_yaml)
