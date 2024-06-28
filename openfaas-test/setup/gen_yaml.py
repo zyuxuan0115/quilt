@@ -93,7 +93,12 @@ def nginx():
     os.remove("ingress-nginx2-values.yaml")
   with open('ingress-nginx2-values.yaml', 'a') as outfile3: 
     for doc in docs3:
-      if doc['kind'] == 'Service' and 'metadata' in doc and 'namespace' in doc['metadata'] and doc['metadata']['name'] == 'ingress-nginx-controller':
+      if doc['kind'] == 'Service' and doc['metadata']['name'] == 'ingress-nginx-controller':
+        for item in doc['spec']['ports']:
+          if item['appProtocol'] == 'http':
+            item['nodePort'] = 30081
+          elif item['appProtocol'] == 'https':
+            item['nodePort'] = 30442
         doc_yaml = yaml.dump(doc)
         outfile3.write('---\n')
         outfile3.write(doc_yaml)
