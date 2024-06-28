@@ -237,7 +237,9 @@ spec:
             port:
               number: 8080
 EOF
-
+  IPV4_ADDR=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | grep -v '172.17.0.1' | grep -v '10.0.1.1')
+#  kubectl create secret generic ipv4-addr --from-literal $IPV4_ADDR -n openfaas2-fn
+  faas-cli secret create ipv4-addr --from-literal=$IPV4_ADDR --gateway=http://127.0.0.1:8081
 }
 
 function setup_db {  
@@ -253,6 +255,8 @@ function setup_db {
   helm install sn-redis bitnami/redis --namespace openfaas-db --set usePassword=false --set master.persistence.enabled=true
   REDIS_PASSWORD=$(kubectl get secret --namespace openfaas-db sn-redis -o jsonpath="{.data.redis-password}" | base64 -d)
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
+  faas-cli secret create redis-password --from-literal $REDIS_PASSWORD --gateway=http://127.0.0.1:8081
+#  kubectl create secret generic redis-password --from-literal $REDIS_PASSWORD -n openfaas2-fn
   echo "$REDIS_PASSWORD" > redispass.txt
   kubectl --namespace openfaas-db rollout status deployment/mongodb
   kubectl port-forward --namespace openfaas-db svc/mongodb 27017:27017 &

@@ -234,27 +234,16 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 
   let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
   let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
-  let machine_info = read_machine_info_from_file("/home/rust/OpenFaaSRPC/machine_info.json").unwrap();
-  let machine_info_copy = machine_info.clone();
-  let machine_ip_info_hash: HashMap<i64, String> = machine_info.into_iter().map(|x| (x.cluster_id, x.rest_api_ip)).collect();
-  let machine_info_hash: HashMap<String, i64> = machine_info_copy.into_iter().map(|x| (x.cluster_ip, x.cluster_id)).collect();
-  let ip = read_lines("/var/openfaas/secrets/ipv4-addr");
 
-  let current_ip = (&ip[0]).to_owned();
-
-  let current_cluster_id: i64 = machine_info_hash.get(&current_ip).unwrap().to_owned();
   let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
-
   let mut easy = Easy::new();
   let mut url = String::new();
-  if current_cluster_id == callee_cluster_id {
+  if callee_cluster_id == 1 {
   //    url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
     url = String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/function/");
   }
   else {
-    // TODO only consider things happened on the same machine
-    let callee_rest_api_ip = machine_ip_info_hash.get(&callee_cluster_id).unwrap().to_owned();
-    url = format!("http://{}:8080/function/", callee_rest_api_ip);
+    url = String::from("http://ingress-nginx-controller.ingress-nginx2.svc.cluster.local.:80/function/");
   }
   let mut input_to_be_sent = (&input).as_bytes();
   url.push_str(func_name);
