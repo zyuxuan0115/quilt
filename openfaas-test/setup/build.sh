@@ -275,7 +275,7 @@ spec:
           service:
             name: gateway
             port:
-              number: 8081
+              number: 8080
 EOF
 
 }
@@ -307,7 +307,7 @@ function setup {
   setup_grafana_tempo
   setup_otel
   setup_ingress_nginx
-#  setup_ingress_nginx2
+  setup_ingress_nginx2
   setup_openfaas
   setup_openfaas2
   setup_db # mongodb, redis and memcached
