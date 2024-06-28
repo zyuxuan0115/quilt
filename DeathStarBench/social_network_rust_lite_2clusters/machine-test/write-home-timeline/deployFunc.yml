@@ -8,5 +8,4 @@ functions:
     handler: ./write-home-timeline
     image: zyuxuan0115/sn-write-home-timeline:latest
     secrets:
-    - ipv4-addr 
     - redis-password

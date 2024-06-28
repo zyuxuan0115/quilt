@@ -8,5 +8,4 @@ functions:
     handler: ./store-post
     image: zyuxuan0115/sn-store-post:latest
     secrets:
-    - ipv4-addr 
     - redis-password
