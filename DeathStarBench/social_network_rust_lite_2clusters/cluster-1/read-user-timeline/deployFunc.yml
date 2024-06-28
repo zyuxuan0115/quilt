@@ -6,9 +6,6 @@ functions:
   read-user-timeline:
     lang: rust
     handler: ./read-user-timeline
-    image: zyuxuan0115/deathstarbench-readusertimeline:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-read-user-timeline:latest
     secrets:
-    - ipv4-addr 
     - redis-password

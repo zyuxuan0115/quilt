@@ -8,5 +8,4 @@ functions:
     handler: ./social-graph-unfollow-with-username
     image: zyuxuan0115/sn-social-graph-unfollow-with-username:latest
     secrets:
-    - ipv4-addr 
     - redis-password

@@ -7,8 +7,5 @@ functions:
     lang: rust
     handler: ./social-graph-get-followees
     image: zyuxuan0115/sn-social-graph-get-followees:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
-    - ipv4-addr 
     - redis-password

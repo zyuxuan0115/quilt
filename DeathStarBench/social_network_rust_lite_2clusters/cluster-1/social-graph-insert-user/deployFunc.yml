@@ -7,8 +7,5 @@ functions:
     lang: rust
     handler: ./social-graph-insert-user
     image: zyuxuan0115/sn-social-graph-insert-user:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
     - redis-password
-    - ipv4-addr

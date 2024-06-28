@@ -8,5 +8,4 @@ functions:
     handler: ./read-posts
     image: zyuxuan0115/sn-read-posts:latest
     secrets:
-    - ipv4-addr 
     - redis-password
