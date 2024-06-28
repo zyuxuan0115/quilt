@@ -185,7 +185,10 @@ function setup_ingress_nginx2 {
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
+}
 
+
+function not_used2 {
   kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Service
@@ -202,9 +205,6 @@ spec:
       nodePort: 30442
       name: https  
 EOF
-
-
-
 }
 
 function setup_openfaas {
