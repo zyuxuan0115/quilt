@@ -35,6 +35,11 @@ def nginx():
     for doc in docs:
       docs2.append(doc)
       if doc['kind'] == 'Service' and doc['metadata']['name'] == 'ingress-nginx-controller':
+        for item in doc['spec']['ports']:
+          if item['appProtocol'] == 'http':
+            item['nodePort'] = 30080
+          elif item['appProtocol'] == 'https':
+            item['nodePort'] = 30443
         doc_yaml = yaml.dump(doc)
         outfile.write('---\n')
         outfile.write(doc_yaml)
