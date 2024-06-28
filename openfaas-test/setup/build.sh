@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.229"
-AGENT_IP="130.127.133.213"
-SERVER_HOST="zyuxuan@clnode220.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode204.clemson.cloudlab.us"
+SERVER_IP="130.127.133.29"
+AGENT_IP="130.127.133.28"
+SERVER_HOST="zyuxuan@clnode020.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode019.clemson.cloudlab.us"
 
 function setup_k8s {
   ### setup the kubernetes cluster
@@ -131,7 +131,9 @@ function setup_ingress_nginx {
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
+}
 
+function not_used {
   kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Service
@@ -158,8 +160,8 @@ function setup_ingress_nginx2 {
     echo "Waiting for ingress-nginx-admission. CTRL-C to exit."; 
     sleep 10;
   done 
-#  kubectl apply -f ingress-nginx2-values.yaml
-  kubectl apply -f new.yaml
+  kubectl apply -f ingress-nginx2-values.yaml
+#  kubectl apply -f new.yaml
   echo '
     apiVersion: v1
     kind: ConfigMap
@@ -300,12 +302,12 @@ function setup_db {
 
 function setup {
   setup_k8s
-  # add_repo_to_helm # only need to run for the first time
+  add_repo_to_helm # only need to run for the first time
   helm repo update
   setup_grafana_tempo
   setup_otel
   setup_ingress_nginx
-  setup_ingress_nginx2
+#  setup_ingress_nginx2
   setup_openfaas
   setup_openfaas2
   setup_db # mongodb, redis and memcached
