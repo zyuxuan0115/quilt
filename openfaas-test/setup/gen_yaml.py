@@ -7,8 +7,6 @@ def main():
     openfaas()
   elif sys.argv[1] == 'nginx':
     nginx()
-  elif sys.argv[1] == 'test':
-    test()
 
 def openfaas():
   if os.path.exists("openfaas2.yml"):
@@ -108,14 +106,6 @@ def nginx():
         outfile3.write(doc_yaml)
   outfile3.close()
 
-
-def test():
-  docs = yaml.safe_load_all(sys.stdin)
-  # generate the yaml file for reloading the controller
-  with open('ingress-nginx-values.yaml', 'a') as outfile:
-    for doc in docs:
-      if 'webhooks' in doc:
-        print(doc)
 
 if __name__=="__main__": 
   main() 
