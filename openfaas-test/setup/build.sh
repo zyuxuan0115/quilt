@@ -133,25 +133,6 @@ function setup_ingress_nginx {
   --timeout=120s
 }
 
-function not_used {
-  kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Service
-metadata:
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
-spec:
-  type: NodePort
-  ports:
-    - port: 80
-      nodePort: 30080
-      name: http
-    - port: 443
-      nodePort: 30443
-      name: https  
-EOF
-
-}
 
 function setup_ingress_nginx2 {
   kubectl apply -f ingress-nginx2.yaml
@@ -161,7 +142,6 @@ function setup_ingress_nginx2 {
     sleep 10;
   done 
   kubectl apply -f ingress-nginx2-values.yaml
-#  kubectl apply -f new.yaml
   echo '
     apiVersion: v1
     kind: ConfigMap
@@ -185,26 +165,6 @@ function setup_ingress_nginx2 {
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
-}
-
-
-function not_used2 {
-  kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Service
-metadata:
-  name: ingress-nginx-controller
-  namespace: ingress-nginx2
-spec:
-  type: NodePort
-  ports:
-    - port: 20080
-      nodePort: 30081
-      name: http
-    - port: 20443
-      nodePort: 30442
-      name: https  
-EOF
 }
 
 function setup_openfaas {
@@ -311,8 +271,6 @@ function setup {
   setup_openfaas
   setup_openfaas2
   setup_db # mongodb, redis and memcached
-  NODE_PORT="$(kubectl get svc/ingress-nginx-controller -n ingress-nginx -o go-template='{{(index .spec.ports 0).nodePort}}')"
-  echo $NODE_PORT > node_port.txt
 }
 
 function killa {
@@ -322,7 +280,7 @@ function killa {
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
   ssh -q $AGENT_HOST -- npx kill-port 30080  6379 27017 11211 30081 3000 30443 30442
-  rm -rf *.txt kubeconfig
+  rm -rf *.txt *.yaml *.yml kubeconfig
 }
 
 case "$1" in
