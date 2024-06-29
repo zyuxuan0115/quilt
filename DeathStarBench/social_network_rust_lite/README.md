@@ -1,37 +1,37 @@
 - <strong>UniqueIdService</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/unique-id-service -d ""
+curl 127.0.0.1:8081/function/unique-id-service -d ""
 ```
 
 - <strong>UrlShortenService</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/url-shorten-service -d "[\"http://google.com\",\"http://kate0115.net\"]"
+curl 127.0.0.1:8081/function/url-shorten-service -d "[\"http://google.com\",\"http://kate0115.net\"]"
 ```
 
 - <strong>UserMentionService</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/user-mention-service -d "[\"Alice\",\"Bob\"]"
+curl 127.0.0.1:8081/function/user-mention-service -d "[\"Alice\",\"Bob\"]"
 ```
 
 - <strong>TextService</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/text-service -d "Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"
+curl 127.0.0.1:8081/function/text-service -d "Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"
 ```
 
 - <strong>MediaService</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/media-service -d "{\"media_id\":[111,222],\"media_type\":[\"png\",\"jpg\"]}"
+curl 127.0.0.1:8081/function/media-service -d "{\"media_id\":[111,222],\"media_type\":[\"png\",\"jpg\"]}"
 ```
 
 - <strong>RegisterUserWithId</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Tom\",\"last_name\":\"Wenisch\",\"username\":\"twenisch\",\"password\":\"umichandgoogle\",\"user_id\":11028}"
+curl 127.0.0.1:8081/function/register-user-with-id -d "{\"first_name\":\"Tom\",\"last_name\":\"Wenisch\",\"username\":\"twenisch\",\"password\":\"umichandgoogle\",\"user_id\":11028}"
 ```
 
 ```bash
@@ -41,31 +41,31 @@ curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Todd\",
 - <strong>RegisterUser</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/register-user -d "{\"first_name\":\"Yuxuan\",\"last_name\":\"Zhang\",\"username\":\"zyuxuan\",\"password\":\"umichandupenn\"}"
+curl 127.0.0.1:8081/function/register-user -d "{\"first_name\":\"Yuxuan\",\"last_name\":\"Zhang\",\"username\":\"zyuxuan\",\"password\":\"umichandupenn\"}"
 ```
 
 - <strong>ComposeCreatorWithUsername</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/compose-creator-with-username -d "zyuxuan"
+curl 127.0.0.1:8081/function/compose-creator-with-username -d "zyuxuan"
 ```
 
 - <strong>ComposeCreatorWithUserId</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/compose-creator-with-userid -d "{\"user_id\":11028,\"username\":\"twenisch\"}"
+curl 127.0.0.1:8081/function/compose-creator-with-userid -d "{\"user_id\":11028,\"username\":\"twenisch\"}"
 ```
 
 - <strong>GetUserId</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/get-user-id -d "zyuxuan"
+curl 127.0.0.1:8081/function/get-user-id -d "zyuxuan"
 ```
 
 - <strong>UserLogin</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/user-login -d "{\"username\":\"zyuxuan\",\"password\":\"umichandupenn\",\"secret\":\"idon'tknowwhatshouldbesecret\"}"
+curl 127.0.0.1:8081/function/user-login -d "{\"username\":\"zyuxuan\",\"password\":\"umichandupenn\",\"secret\":\"idon'tknowwhatshouldbesecret\"}"
 ```
 
 - <strong>SocialGraphInsertUser</strong>
@@ -172,5 +172,5 @@ curl 127.0.0.1:8080/function/read-user-timeline -d "{\"user_id\":11029,\"start\"
 - <strong>ComposePost</strong>
 
 ```bash
-curl 127.0.0.1:8080/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
+curl 127.0.0.1:8081/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
 ```

@@ -21,16 +21,10 @@ function build_merge {
   for entry in "$FUNC_DIR"/*
   do
     BASE_NAME=$(basename $entry)
-    if [[ "$BASE_NAME" = "build.sh" ]] ; then
-      continue
-    elif [[ "$BASE_NAME" = "merge.sh" ]] ; then
-      continue
-    elif [[ "$BASE_NAME" = "merge_tree.py" ]] ; then
-      continue
-    elif [[ "$BASE_NAME" = "funcTree" ]] ; then
-      continue
-    else
+    if [[ -d $entry ]] ; then
       cp -r $entry temp
+    else
+      continue
     fi
   done
   cp -r ../OpenFaaSRPC temp
