@@ -40,7 +40,7 @@ function clean {
     BASE_NAME=$(basename $entry)
     if [[ -d $entry ]] ; then
       cd $entry
-      faas-cli remove $(basename $entry)
+      faas-cli remove $(basename $entry) --gateway=http://127.0.0.1:8081
     fi
     cd ..
   done
