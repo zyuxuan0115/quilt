@@ -10,7 +10,7 @@ def merge():
   callers = {}
   # merge functions 
   for line in Lines:
-    line_0 = line.strip();
+    line_0 = line.strip()
     functions = line_0.split()
     caller = functions[0]
     callers[caller] = 1

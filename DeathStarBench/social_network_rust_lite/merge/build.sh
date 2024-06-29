@@ -16,17 +16,8 @@ function build_llvm {
 }
 
 function build_merge {
-  FUNC_DIR=../machine-test
-  mkdir temp
-  for entry in "$FUNC_DIR"/*
-  do
-    BASE_NAME=$(basename $entry)
-    if [[ -d $entry ]] ; then
-      cp -r $entry temp
-    else
-      continue
-    fi
-  done
+  rm -rf temp && mkdir temp
+  ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
   cp merge.sh temp
