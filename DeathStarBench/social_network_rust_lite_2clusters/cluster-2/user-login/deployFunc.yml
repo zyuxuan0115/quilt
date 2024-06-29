@@ -1,12 +1,11 @@
 version: 1.0
 provider:
   name: openfaas
-  gateway: http://127.0.0.1:8080
+  gateway: http://127.0.0.1:8081
 functions:
   user-login:
     lang: rust
     handler: ./user-login
     image: zyuxuan0115/sn-user-login:latest
     secrets:
-    - ipv4-addr 
     - redis-password

@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  write-user-timeline:
+    lang: rust
+    handler: ./write-user-timeline
+    image: zyuxuan0115/sn-write-user-timeline:latest
+    secrets:
+    - redis-password
