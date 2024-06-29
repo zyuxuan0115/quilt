@@ -34,16 +34,20 @@ function deploy {
 }
 
 
-function nuke {
+function clean {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
     if [[ -d $entry ]] ; then
       cd $entry
-      faas-cli remove $entry
+      faas-cli remove $(basename $entry)
     fi
     cd ..
   done
+}
+
+
+function nuke {
   sudo docker image rm -f $(sudo docker images -aq)
   sudo docker system prune
 }
@@ -60,6 +64,9 @@ build)
     ;;
 deploy)
     deploy
+    ;;
+clean)
+    clean
     ;;
 nuke)
     nuke
