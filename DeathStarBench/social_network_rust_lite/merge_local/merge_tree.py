@@ -50,7 +50,6 @@ def merge():
     cmd = "./merge.sh merge "+caller+" "+callees
     print(cmd)
     os.system(cmd)
-
   # merge libs
   final_caller = Lines[len(Lines)-1].split()[0]
   print(final_caller)
@@ -70,6 +69,8 @@ def clean():
   cmd = "rm -rf "
   for key in functions:
     cmd = cmd + key + " "
+  os.system(cmd)
+  cmd = "rm -rf *.ll *.o function"
   os.system(cmd)
 
 
