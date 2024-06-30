@@ -1,6 +1,28 @@
 #!/usr/bin/env python3
 import os
 import sys 
+import json
+
+
+def move_functions(json_file):
+  funcTree = sys.argv[2]
+  f = open(sys.argv[2], 'r')
+  Lines = f.readlines()
+  funcs = {}
+  for line in Lines:
+    line_0 = line.strip()
+    functions = line_0.split()
+    for func in functions:
+      if func not in funcs:
+        funcs[func] = 1 
+  print(funcs)
+  with open(json_file) as json_file:
+    func_info = json.load(json_file)
+    for item in func_info:
+      if item['function_name'] in funcs:
+        cmd = "cp -r ../cluster-"+str(item['cluster_id'])+"/"+item['function_name']+" ."
+        os.system(cmd)
+
 
 def merge():
   f_name = sys.argv[2]
@@ -35,6 +57,7 @@ def merge():
   cmd = "./merge.sh link "+final_caller
   os.system(cmd)
 
+
 def clean():
   f_name = sys.argv[2]
   f = open(f_name, 'r')
@@ -44,7 +67,7 @@ def clean():
     funcs = line.split()
     for func in funcs:
       functions[func] = 1
-  cmd = "./merge.sh clean "
+  cmd = "rm -rf "
   for key in functions:
     cmd = cmd + key + " "
   os.system(cmd)
@@ -56,6 +79,7 @@ def main():
     exit(1)
   arg = sys.argv[1]
   if arg == "merge":
+    move_functions("../OpenFaaSRPC/func_info.json")
     merge()
   elif arg == "clean":
     clean()    
