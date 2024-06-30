@@ -39,7 +39,7 @@ for item in traces['traces']:
   caller_callee.append(caller)
   caller_callee.append(callee)
   caller_callee_info.append(caller_callee)
-print(caller_callee_info)
+#print(caller_callee_info)
 
 cmd = "kubectl get -n openfaas-fn pods -o yaml"
 process = subprocess.Popen(cmd, shell=True,
@@ -68,5 +68,22 @@ func_info = yaml.safe_load(res)
 for item in func_info['items']:
   if 'status' in item and 'podIP' in item['status']:
     ip_func_map[item['status']['podIP']] = item['metadata']['labels']['faas_function']
-print(ip_func_map)
+#print(ip_func_map)
+
+result = {}
+
+for item in caller_callee_info:
+  caller_name = ip_func_map[item[0]]
+  callee_name = item[1][len('/function/'):] 
+  if caller_name not in result:
+    temp = {}
+    temp[callee_name] = 1
+    result[caller_name] = temp
+  else:
+    if callee_name not in result[caller_name]:
+      result[caller_name][callee_name] = 1
+    else:
+      result[caller_name][callee_name] = result[caller_name][callee_name] + 1
+with open("call-freq.json", "w") as outfile: 
+    json.dump(result, outfile)
 
