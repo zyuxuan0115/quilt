@@ -47,6 +47,8 @@ EOF
     --set traces.otlp.grpc.enabled=true \
     --set traces.otlp.http.enabled=true \
     --set ingester.zoneAwareReplication.enabled=true \
+    --set ingester.config.complete_block_timeout="24h" \
+    --set ingester.config.max_block_duration="24h" \
     --values - << EOF
 distributor:
   receivers:
@@ -57,7 +59,9 @@ distributor:
 EOF
 
   kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=tempo" --timeout=3600s
+  kubectl port-forward -n sn-tempo svc/tempo-query-frontend 8082:3100 &
 }
+
 
 function setup_otel {  
   ### install open-telemetry for distributed tracing
