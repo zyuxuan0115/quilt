@@ -1,18 +1,4 @@
-FROM ghcr.io/openfaas/of-watchdog:0.9.11 as watchdog
-
-FROM ubuntu:bionic as builder
-
-#Install packages and add non-root user
-RUN apt-get update\
-    && apt-get install -y build-essential \
-    && apt-get install -y curl ca-certificates pkg-config libssl-dev\
-    && addgroup --system app && adduser -system app
-
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y 
-
-ENV PATH="/root/.cargo/bin:${PATH}"
-
-WORKDIR /home/rust
+FROM zyuxuan0115/sn-rust-env as builder
 
 # Copy all the sources
 COPY function ./function
@@ -21,12 +7,21 @@ COPY DbInterface ./DbInterface
  
 #ENV CARGO_TARGET_DIR=/home/rust/target
 WORKDIR /home/rust/function
-RUN cargo build 
+RUN cargo build --release
+
+FROM ubuntu:bionic
+
+RUN apt-get update \
+    && apt-get install -y ca-certificates pkg-config libssl-dev\
+    && addgroup --system app && adduser -system app
+
+WORKDIR /home/rust
+COPY --from=builder /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib 
+COPY --from=builder /home/rust/function/target/release/Callee /home/rust/
+COPY --from=builder /usr/bin/fwatchdog /usr/bin/fwatchdog
 
 ENV USER=app
-ENV PATH=$PATH:/home/rust/function/target/debug
-# Copy of-watchdog binary
-COPY --from=watchdog /fwatchdog /usr/bin/fwatchdog
+ENV PATH=$PATH:/home/rust
 
 WORKDIR /home/app
 

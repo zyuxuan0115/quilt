@@ -104,7 +104,12 @@
       "cluster_id":2
     },
     {
+      "function_name":"caller-rust",
+      "cluster_id":2
+    },
+    {
       "function_name":"callee-rust",
       "cluster_id":2
     }
+
   ]
