@@ -7,3 +7,5 @@ functions:
     lang: rust
     handler: ./unique-id-service
     image: zyuxuan0115/sn-unique-id-service:latest
+    secrets:
+    - ingress-enable

@@ -9,3 +9,4 @@ functions:
     image: zyuxuan0115/sn-social-graph-follow:latest
     secrets:
     - redis-password
+    - ingress-enable

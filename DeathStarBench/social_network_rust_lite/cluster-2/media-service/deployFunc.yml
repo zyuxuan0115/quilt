@@ -7,3 +7,5 @@ functions:
     lang: rust
     handler: ./media-service
     image: zyuxuan0115/sn-media-service:latest
+    secrets:
+    - ingress-enable

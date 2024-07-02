@@ -9,3 +9,4 @@ functions:
     image: zyuxuan0115/sn-register-user-with-id:latest
     secrets:
     - redis-password
+    - ingress-enable

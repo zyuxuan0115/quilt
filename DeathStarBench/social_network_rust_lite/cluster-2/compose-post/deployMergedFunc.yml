@@ -9,3 +9,4 @@ functions:
     image: zyuxuan0115/sn-compose-post-merged:latest
     secrets:
     - redis-password
+    - ingress-enable

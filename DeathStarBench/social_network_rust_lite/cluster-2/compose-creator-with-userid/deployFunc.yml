@@ -7,3 +7,5 @@ functions:
     lang: rust
     handler: ./compose-creator-with-userid
     image: zyuxuan0115/sn-compose-creator-with-userid:latest
+    secrets:
+      - ingress-enable
