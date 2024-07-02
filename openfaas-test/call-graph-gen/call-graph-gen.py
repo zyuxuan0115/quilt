@@ -4,7 +4,7 @@ import sys
 import subprocess
 import select
 
-cmd = "curl -G -s http://localhost:8082/api/search --data-urlencode 'tags=service.name=nginx' --data-urlencode 'tags=http.method=POST' "
+cmd = "curl -G -s http://localhost:8082/api/search --data-urlencode 'tags=http.method=POST' "
 process = subprocess.Popen(cmd, shell=True,
                            stdout=subprocess.PIPE, 
                            stderr=subprocess.PIPE)
