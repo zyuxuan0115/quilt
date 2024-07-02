@@ -197,6 +197,8 @@ spec:
             port:
               number: 8080
 EOF
+
+  faas-cli secret create ingress-enable --from-literal 1
 }
 
 function setup_openfaas2 {
@@ -236,6 +238,8 @@ spec:
             port:
               number: 8080
 EOF
+
+  faas-cli secret create ingress-enable --from-literal 1 --gateway=http://127.0.0.1:8081
 }
 
 function setup_db {  
