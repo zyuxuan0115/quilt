@@ -8,5 +8,5 @@ functions:
     handler: ./write-home-timeline-merged
     image: zyuxuan0115/sn-write-home-timeline-merged:latest
     secrets:
-    - ipv4-addr 
     - redis-password
+    - ingress-enable
