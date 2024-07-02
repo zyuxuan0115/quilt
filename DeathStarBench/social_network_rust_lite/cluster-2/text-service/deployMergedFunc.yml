@@ -8,5 +8,5 @@ functions:
     handler: ./text-service-merged
     image: zyuxuan0115/sn-text-service-merged:latest
     secrets:
-    - ipv4-addr
     - redis-password
+    - ingress-enable
