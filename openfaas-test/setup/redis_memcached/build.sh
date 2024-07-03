@@ -56,6 +56,7 @@ function killa {
   kill_mongodb
   kill_memcached
   kill_redis
+  rm *.txt
 }
 
 case "$1" in
