@@ -20,8 +20,6 @@ function setup_mongodb {
 
 function setup_memcached {
   helm install sn-memcache bitnami/memcached --namespace openfaas-db --set architecture="standalone" --set autoscaling.enabled="false" --set replicaCount="1"
-  kubectl port-forward --namespace openfaas-db svc/sn-memcache-memcached 11211:11211 &
- 
 }
 
 function setup_redis {
@@ -30,7 +28,6 @@ function setup_redis {
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD
   faas-cli secret create redis-password --from-literal $REDIS_PASSWORD --gateway=http://127.0.0.1:8081
   echo "$REDIS_PASSWORD" > redispass.txt
-  kubectl port-forward --namespace openfaas-db svc/sn-redis-master 6379:6379 &
 }
 
 function setup {
@@ -47,12 +44,10 @@ function kill_mongodb {
 
 function kill_memcached {
   helm uninstall sn-memcache -n openfaas-db
-  python3 ../kill_port_fwd.py 11211:11211
 }
 
 function kill_redis {
   helm uninstall sn-redis -n openfaas-db
-  python3 ../kill_port_fwd.py 6379:6379
 }
 
 function killa {
