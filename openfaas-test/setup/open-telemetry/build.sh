@@ -1,9 +1,7 @@
 #!/bin/bash
 
 function add_repo_to_helm {
-  helm repo add grafana https://grafana.github.io/helm-charts
   helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-  helm repo add bitnami https://charts.bitnami.com/bitnami
 }
 
 
@@ -45,6 +43,7 @@ function setup {
 }
 
 function killa {
+  helm -n sn-otel uninstall otel-collector
 }
 
 case "$1" in
