@@ -238,12 +238,28 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
   let mut easy = Easy::new();
   let mut url = String::new();
-  if callee_cluster_id == 1 {
-  //    url = String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/");
-    url = String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/function/");
+
+  let lines: Vec<String> = read_lines("/var/openfaas/secrets/ingress-enable");
+  let ingress_enable = lines[0].clone();
+  if ingress_enable == "0" {  
+    url = match callee_cluster_id {
+      1 => String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/"),
+      2 => String::from("http://gateway.openfaas2.svc.cluster.local.:8080/function/"),
+      _ => {
+        println!("Error: callee_cluster_id should not have other value");
+        panic!("Error: callee_cluster_id should not have other value");
+      },
+    }
   }
   else {
-    url = String::from("http://ingress-nginx-controller.ingress-nginx2.svc.cluster.local.:80/function/");
+    url = match callee_cluster_id {
+      1 => String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/function/"),
+      2 => String::from("http://ingress-nginx-controller.ingress-nginx2.svc.cluster.local.:80/function/"),
+      _ => {
+        println!("Error: callee_cluster_id should not have other value");
+        panic!("Error: callee_cluster_id should not have other value"); 
+      },
+    }
   }
   let mut input_to_be_sent = (&input).as_bytes();
   url.push_str(func_name);
