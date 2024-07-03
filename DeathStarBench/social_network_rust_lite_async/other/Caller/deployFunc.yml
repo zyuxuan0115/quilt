@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  caller-rust:
+    lang: rust
+    handler: ./caller-rust
+    image: zyuxuan0115/sn-caller-rust:latest
+    secrets: 
+    - ingress-enable

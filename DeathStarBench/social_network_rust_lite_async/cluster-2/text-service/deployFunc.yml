@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  text-service:
+    lang: rust
+    handler: ./text-service
+    image: zyuxuan0115/sn-text-service:latest
+    secrets:
+    - ingress-enable

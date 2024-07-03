@@ -1,0 +1,29 @@
+use serde::{Deserialize, Serialize};
+use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use DbInterface::*;
+use std::{collections::HashMap, time::{SystemTime,Duration,Instant}};
+use redis::{Commands};
+
+fn main() {
+  let input: String = get_arg_from_caller();
+//  let now = Instant::now();
+  let timeline_info: ReadTimelineArgs = serde_json::from_str(&input).unwrap();
+
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
+
+  let mut user_id_str: String = "user-timeline:".to_string(); 
+  user_id_str.push_str(&(timeline_info.user_id.to_string()));
+  let res: Vec<String> = con.zrevrange(&user_id_str[..], timeline_info.start as isize, timeline_info.stop as isize).unwrap(); 
+
+  let mut post_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
+
+  let serialized = serde_json::to_string(&post_ids).unwrap(); 
+//  let new_now = Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
+  let posts = make_rpc("read-posts", serialized); 
+ 
+  send_return_value_to_caller(posts);
+}
+
