@@ -5,6 +5,7 @@ use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 use std::time::{Duration, Instant};
 use redis::{Commands, RedisResult};
+use futures::executor::block_on;
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
@@ -51,6 +52,7 @@ fn main() {
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  make_rpc("social-graph-insert-user", user_id_str);
+  let future = make_rpc("social-graph-insert-user", user_id_str);
+  block_on(future);
   send_return_value_to_caller("".to_string());
 }
