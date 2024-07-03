@@ -1,11 +1,5 @@
 #!/bin/bash
 
-function add_repo_to_helm {
-  helm repo add grafana https://grafana.github.io/helm-charts
-  helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
-  helm repo add bitnami https://charts.bitnami.com/bitnami
-}
-
 function setup_ingress_nginx {
   NGINX_YAML=https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml 
   curl $NGINX_YAML | python3 gen_yaml.py nginx
@@ -83,21 +77,28 @@ function setup_ingress_nginx2 {
 }
 
 function setup {
-  setup_k8s
-  add_repo_to_helm # only need to run for the first time
-  helm repo update
   setup_ingress_nginx
   setup_ingress_nginx2
 }
 
+
+function kill_nginx {
+  kubectl delete --all deployments --namespace=ingress-nginx
+  kubectl delete --all services --namespace=ingress-nginx
+  kubectl delete --all pods --namespace=ingress-nginx
+}
+
+function kill_nginx2 {
+  kubectl delete --all deployments --namespace=ingress-nginx2
+  kubectl delete --all services --namespace=ingress-nginx2
+  kubectl delete --all pods --namespace=ingress-nginx2
+}
+
+
+
 function killa {
-  ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
-  ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
-  ssh -q $SERVER_HOST -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442
-  ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
-  ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
-  ssh -q $AGENT_HOST -- npx kill-port 30080  6379 27017 11211 30081 3000 30443 30442
-  rm -rf *.txt *.yaml *.yml kubeconfig
+  kill_nginx
+  kill_nginx2
 }
 
 case "$1" in
@@ -106,6 +107,18 @@ setup)
     ;;
 kill)
     killa
+    ;;
+setup_nginx)
+    setup_nginx
+    ;;
+setup_nginx2)
+    setup_nginx2
+    ;;
+kill_nginx)
+    kill_nginx
+    ;;
+kill_nginx2)
+    kill_nginx2
     ;;
 esac
 
