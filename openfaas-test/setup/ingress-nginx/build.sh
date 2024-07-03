@@ -99,6 +99,7 @@ function kill_nginx2 {
 function killa {
   kill_nginx
   kill_nginx2
+  rm *.yaml
 }
 
 case "$1" in
