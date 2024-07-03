@@ -44,6 +44,8 @@ function setup {
 
 function killa {
   helm -n sn-otel uninstall otel-collector
+  kubectl delete all --all -n sn-otel
+  kubectl delete namespace sn-otel
 }
 
 case "$1" in
