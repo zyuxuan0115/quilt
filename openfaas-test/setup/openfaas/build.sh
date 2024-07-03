@@ -80,7 +80,7 @@ function setup {
 
 
 function kill_openfaas {
-  helm -n openfaas uninstall openfaas
+  helm -n openfaas uninstall openfaas --purge demo
 }
 
 function kill_openfaas2 {
