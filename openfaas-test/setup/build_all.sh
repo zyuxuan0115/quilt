@@ -50,12 +50,17 @@ EOF
     --set ingester.config.complete_block_timeout="24h" \
     --set ingester.config.max_block_duration="24h" \
     --values - << EOF
-distributor:
-  receivers:
-    otlp:
-      protocols:
-        grpc:
-        http: 
+tempo:
+  structuredConfig:
+    query_frontend:
+      search:
+        default_result_limit: 20000 
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+            http: 
 EOF
 
   kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=tempo" --timeout=3600s
