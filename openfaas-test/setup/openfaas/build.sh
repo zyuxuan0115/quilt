@@ -78,7 +78,21 @@ function setup {
   setup_openfaas2
 }
 
+
+function kill_openfaas {
+  helm -n openfaas uninstall openfaas
+}
+
+function kill_openfaas2 {
+  kubectl delete all --all -n openfaas2
+  kubectl delete all --all -n openfaas2-fn
+  kubectl delete namespace openfaas2
+  kubectl delete namespace openfaas2-fn
+}
+
 function killa {
+  kill_openfaas
+  kill_openfaas2
   rm -rf *.txt *.yaml *.yml
 }
 
@@ -88,6 +102,18 @@ setup)
     ;;
 kill)
     killa
+    ;;
+setup_openfaas)
+    setup_openfaas
+    ;;
+setup_openfaas2)
+    setup_openfaas2
+    ;;
+kill_openfaas)
+    kill_openfaas
+    ;;
+kill_openfaas2)
+    kill_openfaas2
     ;;
 esac
 

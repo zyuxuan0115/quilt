@@ -83,15 +83,13 @@ function setup {
 
 
 function kill_nginx {
-  kubectl delete --all deployments --namespace=ingress-nginx
-  kubectl delete --all services --namespace=ingress-nginx
-  kubectl delete --all pods --namespace=ingress-nginx
+  kubectl delete all --all -n ingress-nginx
+  kubectl delete namespace ingress-nginx
 }
 
 function kill_nginx2 {
-  kubectl delete --all deployments --namespace=ingress-nginx2
-  kubectl delete --all services --namespace=ingress-nginx2
-  kubectl delete --all pods --namespace=ingress-nginx2
+  kubectl delete all --all -n ingress-nginx2
+  kubectl delete namespace ingress-nginx2
 }
 
 
