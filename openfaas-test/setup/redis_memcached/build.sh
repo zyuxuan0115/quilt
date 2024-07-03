@@ -42,14 +42,17 @@ function setup {
 
 function kill_mongodb {
   helm uninstall mongodb -n openfaas-db
+  python3 ../kill_port_fwd.py 27017:27017
 }
 
 function kill_memcached {
   helm uninstall sn-memcache -n openfaas-db
+  python3 ../kill_port_fwd.py 11211:11211
 }
 
 function kill_redis {
   helm uninstall sn-redis -n openfaas-db
+  python3 ../kill_port_fwd.py 6379:6379
 }
 
 function killa {
