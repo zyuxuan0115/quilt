@@ -80,7 +80,11 @@ function setup {
 
 
 function kill_openfaas {
-  helm -n openfaas uninstall openfaas --purge demo
+  helm -n openfaas uninstall openfaas
+  kubectl delete all --all -n openfaas
+  kubectl delete all --all -n openfaas-fn
+  kubectl delete namespace openfaas
+  kubectl delete namespace openfaas-fn
 }
 
 function kill_openfaas2 {
