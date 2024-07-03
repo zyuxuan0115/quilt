@@ -3,6 +3,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
+use futures::executor::block_on;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -25,7 +26,8 @@ fn main() {
 
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));
-  let posts = make_rpc("read-posts", serialized); 
+  let future = make_rpc("read-posts", serialized); 
+  let posts = block_on(future);
   send_return_value_to_caller(posts);
 }
 

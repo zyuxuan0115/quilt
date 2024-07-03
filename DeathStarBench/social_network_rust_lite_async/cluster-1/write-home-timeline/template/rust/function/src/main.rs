@@ -1,9 +1,10 @@
-//use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::collections::HashMap;
 use redis::Commands;
 use DbInterface::*;
 use memcache::Client;
+use futures::executor::block_on;
+
 //use std::time::{Duration, Instant}};
 
 fn main() {
@@ -13,7 +14,10 @@ fn main() {
 
   let mut timeline_info: WriteHomeTimelineArgs = serde_json::from_str(&input).unwrap();
   let user_id_str: String = timeline_info.user_id.to_string();
-  let followers_str: String = make_rpc("social-graph-get-followers", user_id_str);
+  let future =  make_rpc("social-graph-get-followers", user_id_str);
+
+  let followers_str: String = block_on(future);
+ 
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
   let mut followers_set: HashMap<i64,bool> = followers.iter().map(|x| (*x, false) ).collect::<HashMap<_, _>>();
   for follower in timeline_info.user_mentions_id {
