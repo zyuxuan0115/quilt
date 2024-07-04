@@ -15,7 +15,7 @@ function build_rust_test {
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/sn-url-shorten-service:latest
+    sudo docker push zyuxuan0115/sn-url-shorten-service-async:latest
 }
 
 function build {

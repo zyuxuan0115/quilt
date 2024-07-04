@@ -13,7 +13,7 @@ function build_rust_test {
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/sn-unique-id-service:latest
+    sudo docker push zyuxuan0115/sn-unique-id-service-async:latest
 }
 
 function build {
