@@ -6,14 +6,14 @@ echo $ROOT_DIR
 
 function build_rust_test {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/sn-media-service:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-media-service-async:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/sn-media-service:latest
+    sudo docker push zyuxuan0115/sn-media-service-async:latest
 }
 
 function build {
