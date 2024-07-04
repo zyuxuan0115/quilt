@@ -6,7 +6,7 @@ functions:
   read-posts:
     lang: rust
     handler: ./read-posts
-    image: zyuxuan0115/sn-read-posts:latest
+    image: zyuxuan0115/sn-read-posts-async:latest
     secrets:
     - redis-password
     - ingress-enable

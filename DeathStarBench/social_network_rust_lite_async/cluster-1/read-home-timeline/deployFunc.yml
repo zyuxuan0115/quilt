@@ -6,7 +6,7 @@ functions:
   read-home-timeline:
     lang: rust
     handler: ./read-home-timeline
-    image: zyuxuan0115/sn-read-home-timeline:latest
+    image: zyuxuan0115/sn-read-home-timeline-async:latest
     secrets:
     - redis-password
     - ingress-enable
