@@ -6,7 +6,7 @@ functions:
   social-graph-unfollow-with-username:
     lang: rust
     handler: ./social-graph-unfollow-with-username
-    image: zyuxuan0115/sn-social-graph-unfollow-with-username:latest
+    image: zyuxuan0115/sn-social-graph-unfollow-with-username-async:latest
     secrets:
     - redis-password
     - ingress-enable
