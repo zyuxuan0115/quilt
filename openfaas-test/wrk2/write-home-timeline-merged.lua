@@ -27,17 +27,16 @@ local function decRandom(length)
 end
 
 request = function(req_id)
-  local user_index = math.random(1, 962)
-  local username = "username_" .. tostring(user_index)
-  local user_id = tostring(user_index)
-  local text = stringRandom(256)
+  local post_idx = math.random(1,65535)
+  local post_id = tostring(post_idx)
+  local user_idx = math.random(1, 962)
+  local user_id = tostring(user_idx)
+  local timestamp_num = math.random(1,100000000)
+  local timestamp = tostring(timestamp_num)
   local num_user_mentions = math.random(0, 5)
-  local num_urls = math.random(0, 5)
-  local num_media = math.random(0, 4)
-  local media_ids = '['
-  local media_types = '['
+  local user_mentions = '['
 
-  for i = 0, num_user_mentions, 1 do
+  for i = 0, num_user_mentions-1, 1 do
     local user_mention_id
     while (true) do
       user_mention_id = math.random(1, 962)
@@ -45,39 +44,27 @@ request = function(req_id)
         break
       end
     end
-    text = text .. " @username_" .. tostring(user_mention_id)
+    user_mentions = user_mentions .. tostring(user_mention_id) .. ","
   end
-
-  for i = 0, num_urls, 1 do
-    text = text .. " http://" .. stringRandom(64)
+  while (true) do
+    user_mention_id = math.random(1, 962)
+    if user_index ~= user_mention_id then
+      break
+    end
   end
-
-  for i = 0, num_media, 1 do
-    local media_id = decRandom(10)
-    media_ids = media_ids .. media_id .. ","
-    media_types = media_types .. "\"png\","
-  end
-
-  media_ids = media_ids:sub(1, #media_ids - 1) .. "]"
-  media_types = media_types:sub(1, #media_types - 1) .. "]"
+  user_mentions = user_mentions .. tostring(user_mention_id) .. "]"
 
   local method = "POST"
-  local path = "/function/compose-post"
+  local path = "/function/write-home-timeline-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
-  if num_media then
-    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
-        ',"text":"' .. text .. '","media_ids":' .. media_ids ..
-        ',"media_types":' .. media_types .. ',"post_type":"POST"}'
-  else
-    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
-        ',"text":"' .. text .. '","media_ids":[],media_types":[]' .. ',"post_type":"POST"}'
-  end
+  body = '{"post_id":' .. post_id .. ',"user_id":' .. user_id ..
+         ',"timestamp":' .. timestamp .. ',"user_mentions_id":' .. user_mentions .. '}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
-  file:close()
+--  file = io.open('req_data_log.txt', 'w')
+--  file:write(body)
+--  file:close()
 
   if req_id ~= "" then
     headers["Req-Id"] = req_id

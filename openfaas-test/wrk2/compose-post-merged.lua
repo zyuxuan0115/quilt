@@ -62,7 +62,7 @@ request = function(req_id)
   media_types = media_types:sub(1, #media_types - 1) .. "]"
 
   local method = "POST"
-  local path = "/function/compose-post"
+  local path = "/function/compose-post-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -75,9 +75,9 @@ request = function(req_id)
         ',"text":"' .. text .. '","media_ids":[],media_types":[]' .. ',"post_type":"POST"}'
   end
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
-  file:close()
+--  file = io.open('req_data_log.txt', 'w')
+--  file:write(body)
+--  file:close()
 
   if req_id ~= "" then
     headers["Req-Id"] = req_id
