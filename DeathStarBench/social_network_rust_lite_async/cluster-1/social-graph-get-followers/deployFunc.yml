@@ -6,7 +6,7 @@ functions:
   social-graph-get-followers:
     lang: rust
     handler: ./social-graph-get-followers
-    image: zyuxuan0115/sn-social-graph-get-followers:latest
+    image: zyuxuan0115/sn-social-graph-get-followers-async:latest
     secrets:
     - redis-password
     - ingress-enable

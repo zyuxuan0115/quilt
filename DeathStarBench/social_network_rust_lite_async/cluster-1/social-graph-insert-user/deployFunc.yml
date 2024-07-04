@@ -6,7 +6,7 @@ functions:
   social-graph-insert-user:
     lang: rust
     handler: ./social-graph-insert-user
-    image: zyuxuan0115/sn-social-graph-insert-user:latest
+    image: zyuxuan0115/sn-social-graph-insert-user-async:latest
     secrets:
     - redis-password
     - ingress-enable

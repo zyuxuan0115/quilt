@@ -7,7 +7,7 @@ echo $ROOT_DIR
 function build_rust_test {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/sn-social-graph-get-followers:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-social-graph-get-followers-async:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
@@ -15,7 +15,7 @@ function build_rust_test {
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/sn-social-graph-get-followers:latest
+    sudo docker push zyuxuan0115/sn-social-graph-get-followers-async:latest
 }
 
 function build {
