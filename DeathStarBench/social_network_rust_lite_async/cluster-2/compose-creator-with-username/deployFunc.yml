@@ -6,7 +6,7 @@ functions:
   compose-creator-with-username:
     lang: rust
     handler: ./compose-creator-with-username
-    image: zyuxuan0115/sn-compose-creator-with-username:latest
+    image: zyuxuan0115/sn-compose-creator-with-username-async:latest
     secrets:
     - redis-password
     - ingress-enable
