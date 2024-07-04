@@ -6,7 +6,7 @@ functions:
   get-user-id:
     lang: rust
     handler: ./get-user-id
-    image: zyuxuan0115/sn-get-user-id:latest
+    image: zyuxuan0115/sn-get-user-id-async:latest
     secrets:
     - redis-password
     - ingress-enable

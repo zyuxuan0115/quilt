@@ -15,7 +15,7 @@ function build_rust_test {
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/sn-register-user:latest
+    sudo docker push zyuxuan0115/sn-register-user-async:latest
 }
 
 function build {
