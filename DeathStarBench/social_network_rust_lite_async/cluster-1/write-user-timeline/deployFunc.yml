@@ -6,7 +6,7 @@ functions:
   write-user-timeline:
     lang: rust
     handler: ./write-user-timeline
-    image: zyuxuan0115/sn-write-user-timeline:latest
+    image: zyuxuan0115/sn-write-user-timeline-async:latest
     secrets:
     - redis-password
     - ingress-enable
