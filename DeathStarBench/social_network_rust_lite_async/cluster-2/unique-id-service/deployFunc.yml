@@ -6,6 +6,6 @@ functions:
   unique-id-service:
     lang: rust
     handler: ./unique-id-service
-    image: zyuxuan0115/sn-unique-id-service:latest
+    image: zyuxuan0115/sn-unique-id-service-async:latest
     secrets:
     - ingress-enable

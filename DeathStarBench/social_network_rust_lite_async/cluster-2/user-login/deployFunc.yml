@@ -6,7 +6,7 @@ functions:
   user-login:
     lang: rust
     handler: ./user-login
-    image: zyuxuan0115/sn-user-login:latest
+    image: zyuxuan0115/sn-user-login-async:latest
     secrets:
     - redis-password
     - ingress-enable

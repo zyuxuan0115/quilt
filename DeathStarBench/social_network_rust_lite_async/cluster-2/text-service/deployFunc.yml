@@ -6,6 +6,6 @@ functions:
   text-service:
     lang: rust
     handler: ./text-service
-    image: zyuxuan0115/sn-text-service:latest
+    image: zyuxuan0115/sn-text-service-async:latest
     secrets:
     - ingress-enable

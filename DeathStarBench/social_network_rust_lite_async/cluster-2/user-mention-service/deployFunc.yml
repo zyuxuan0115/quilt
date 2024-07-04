@@ -6,7 +6,7 @@ functions:
   user-mention-service:
     lang: rust
     handler: ./user-mention-service
-    image: zyuxuan0115/sn-user-mention-service:latest
+    image: zyuxuan0115/sn-user-mention-service-async:latest
     secrets:
     - redis-password
     - ingress-enable
