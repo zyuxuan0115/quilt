@@ -2,6 +2,7 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::time::SystemTime;
 use std::time::{Duration, Instant};
+use futures::executor::block_on;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -9,11 +10,8 @@ fn main() {
   let time_0 = Instant::now();
 
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
-  let time_1 = Instant::now();
   // call UniqueIdService
-  let uuid: String = make_rpc("unique-id-service", "".to_string());
-  let pid: i64 = uuid[..].parse::<i64>().unwrap();
-  let time_2 = Instant::now();
+  let future_uuid = make_rpc("unique-id-service", "".to_string());
 
   // call ComposerCreatorWithUserId
   let compose_creator_with_userid_arg = ComposeCreatorWithUseridArgs {
@@ -21,13 +19,10 @@ fn main() {
     username: input_info.username, 
   };
   let compose_creator_with_userid_arg_str = serde_json::to_string(&compose_creator_with_userid_arg).unwrap();
-  let time_3 = Instant::now();
-  let creator_str: String = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str);
+  let future_creator_str = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str);
 
   // call TextService
-  let text_str: String = make_rpc("text-service", input_info.text);
-  let time_4 = Instant::now();
-  let text_return_info: TextServiceReturn = serde_json::from_str(&text_str).unwrap();
+  let future_text_str = make_rpc("text-service", input_info.text);
 
   // call MediaService
   let media_arg = MediaServiceArgs {
@@ -36,10 +31,17 @@ fn main() {
   };
 
   let media_arg_str: String = serde_json::to_string(&media_arg).unwrap();
-  let time_5 = Instant::now();
-  let media_return: String = make_rpc("media-service", media_arg_str);
+  let future_media_return = make_rpc("media-service", media_arg_str);
 
-  let time_6 = Instant::now();
+  let uuid: String = block_on(future_uuid);
+  let pid: i64 = uuid[..].parse::<i64>().unwrap();
+
+  let creator_str: String = block_on(future_creator_str); 
+
+  let text_str: String = block_on(future_text_str);
+  let text_return_info: TextServiceReturn = serde_json::from_str(&text_str).unwrap();
+
+  let media_return: String = block_on(future_media_return);
   let media_return_info: Vec<Media> = serde_json::from_str(&media_return).unwrap();
 
   let post = Post {
@@ -54,10 +56,8 @@ fn main() {
   };
   // call StorePost
   let post_str: String = serde_json::to_string(&post).unwrap(); 
-  let time_7 = Instant::now();
-  make_rpc("store-post", post_str);
+  let future_store_post = make_rpc("store-post", post_str);
 
-  let time_8 = Instant::now();
   // call WriteUserTimeline
   let write_u_tl_arg =  WriteUserTimelineArgs {
     post_id: post.post_id,
@@ -65,9 +65,7 @@ fn main() {
     timestamp: post.timestamp,
   };
   let write_u_tl_arg_str: String = serde_json::to_string(&write_u_tl_arg).unwrap();
-  let time_9 = Instant::now();
-  make_rpc("write-user-timeline", write_u_tl_arg_str);
-  let time_10 = Instant::now();
+  let future_write_user_timeline = make_rpc("write-user-timeline", write_u_tl_arg_str);
 
   // call WriteHomeTimeline
   let write_h_tl_arg = WriteHomeTimelineArgs {
@@ -77,15 +75,15 @@ fn main() {
     user_mentions_id: post.user_mentions.iter().map(|x| x.user_id).collect(),
   };
   let write_h_tl_arg_str: String = serde_json::to_string(&write_h_tl_arg).unwrap();
-  let time_11 = Instant::now();
-  make_rpc("write-home-timeline", write_h_tl_arg_str); 
+  let future_write_h_tl_arg_str = make_rpc("write-home-timeline", write_h_tl_arg_str); 
 
+  block_on(future_store_post);
+  block_on(future_write_user_timeline);
+  block_on(future_write_h_tl_arg_str);
+
+  let time_1 = Instant::now();
   println!("{:?}", time_1.duration_since(time_0));
-  println!("{:?}", time_3.duration_since(time_2));
-  println!("{:?}", time_5.duration_since(time_4));
-  println!("{:?}", time_7.duration_since(time_6));
-  println!("{:?}", time_9.duration_since(time_8));
-  println!("{:?}", time_11.duration_since(time_10));
+
   send_return_value_to_caller("".to_string());
 }
 
