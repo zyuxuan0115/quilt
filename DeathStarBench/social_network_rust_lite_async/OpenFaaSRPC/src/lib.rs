@@ -222,16 +222,14 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 
 pub async fn make_rpc(func_name: &str, input: String) -> String {
 
-//  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
-//  let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
+  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
+  let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
 
-//  let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
-  let callee_cluster_id: i64 = 2;
+  let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
   let mut url = String::new();
 
-//  let lines: Vec<String> = read_lines("/var/openfaas/secrets/ingress-enable");
-//  let ingress_enable = lines[0].clone();
-  let ingress_enable = "1";
+  let lines: Vec<String> = read_lines("/var/openfaas/secrets/ingress-enable");
+  let ingress_enable = lines[0].clone();
   if ingress_enable == "0" {  
     url = match callee_cluster_id {
       1 => String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/"),
@@ -245,8 +243,7 @@ pub async fn make_rpc(func_name: &str, input: String) -> String {
   else {
     url = match callee_cluster_id {
       1 => String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/function/"),
-      2 => String::from("http://130.127.133.29:30081/function/"),
-      //2 => String::from("http://ingress-nginx-controller.ingress-nginx2.svc.cluster.local.:80/function/"),
+      2 => String::from("http://ingress-nginx-controller.ingress-nginx2.svc.cluster.local.:80/function/"),
       _ => {
         println!("Error: callee_cluster_id should not have other value");
         panic!("Error: callee_cluster_id should not have other value"); 
@@ -255,9 +252,8 @@ pub async fn make_rpc(func_name: &str, input: String) -> String {
   }
   //let mut input_to_be_sent = (&input).as_bytes();
   url.push_str(func_name);
-  println!("url: {}", url);
-  let result = send_req(url, input);
-  result
+  let ret = send_req(url, input);
+  ret
 }
 
 
