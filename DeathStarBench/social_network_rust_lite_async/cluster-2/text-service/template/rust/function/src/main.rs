@@ -1,11 +1,13 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use regex::Regex;
 use futures::executor::block_on;
-//use std::time::{Duration, Instant};
+use std::time::{Duration, Instant};
+use reqwest::Client;
 
-fn main() {
+#[tokio::main]
+async fn main() {
+  let client = reqwest::Client::new();
   let input: String = get_arg_from_caller();
-//  let time_0 = Instant::now();
   let mut text = input;
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
   let mut mentioned_usernames: Vec<String> = Vec::new();
@@ -19,13 +21,13 @@ fn main() {
   }
   let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
   let urls_serialized = serde_json::to_string(&urls).unwrap();
-//  let time_1 = Instant::now();
-  let future = make_rpc("user-mention-service", mentioned_usernames_serialized);
-  let future1 = make_rpc("url-shorten-service", urls_serialized);
-  let user_mentions_str: String = block_on(future);
-  let urls_str: String = block_on(future1);
-//  let time_2 = Instant::now();
-
+  let time_1 = Instant::now();
+  let future = make_rpc("user-mention-service", mentioned_usernames_serialized, &client);
+  let time_2 = Instant::now();
+  let future1 = make_rpc("url-shorten-service", urls_serialized, &client);
+  let time_3 = Instant::now();
+  let (user_mentions_str, urls_str): (String, String) = futures::join!(future, future1);
+  let time_4 = Instant::now();
   let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
   let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
   for item in &url_pairs {
@@ -38,9 +40,9 @@ fn main() {
     text: text,
   };
   let serialized = serde_json::to_string(&return_value).unwrap();
-//  let time_3 = Instant::now();
-//  println!("{:?}", time_1.duration_since(time_0));
-//  println!("{:?}", time_3.duration_since(time_2));
+  println!("1st make_rpc: {:?}", time_2.duration_since(time_1));
+  println!("2nd make_rpc: {:?}", time_3.duration_since(time_2));
+  println!("concurrent exec time: {:?}", time_4.duration_since(time_3));
   send_return_value_to_caller(serialized);
 }
 
