@@ -250,7 +250,7 @@ pub async fn make_rpc(func_name: &str, input: String) -> String {
       },
     }
   }
-  //let mut input_to_be_sent = (&input).as_bytes();
+
   url.push_str(func_name);
   let ret = send_req(url, input);
   ret
