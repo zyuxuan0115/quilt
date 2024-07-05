@@ -220,7 +220,7 @@ pub fn read_lines(filename: &str) -> Vec<String> {
                  .collect()  // gather them together into a vector
 }
 
-pub async fn make_rpc(func_name: &str, input: String) -> String {
+pub async fn make_rpc(func_name: &str, input: String, client: &reqwest::Client) -> String {
 
   let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
   let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
@@ -252,22 +252,17 @@ pub async fn make_rpc(func_name: &str, input: String) -> String {
   }
 
   url.push_str(func_name);
-  let ret = send_req(url, input);
-  ret
-}
 
-
-#[tokio::main]
-pub async fn send_req(url: String, input: String) -> String {
-  let client = reqwest::Client::new();
   let res = client.post(url)
     .body(input)
     .send()
     .await;
   let full_res = res.unwrap().text().await;
   let ret = full_res.unwrap();
-  ret 
+  ret
 }
+
+
 
 pub fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
