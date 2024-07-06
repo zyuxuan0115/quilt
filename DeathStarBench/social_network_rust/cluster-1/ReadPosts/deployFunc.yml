@@ -6,6 +6,6 @@ functions:
   read-posts:
     lang: rust
     handler: ./read-posts
-    image: zyuxuan0115/deathstarbench-readposts:latest
+    image: zyuxuan0115/sn-read-posts:latest
     secrets:
     - mongodb-password
