@@ -6,6 +6,6 @@ functions:
   url-shorten-service:
     lang: rust
     handler: ./url-shorten-service
-    image: zyuxuan0115/deathstarbench-urlshortenservice:latest
+    image: zyuxuan0115/sn-url-shorten-service:latest
     secrets:
     - mongodb-password

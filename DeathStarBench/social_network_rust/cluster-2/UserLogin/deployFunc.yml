@@ -6,6 +6,6 @@ functions:
   user-login:
     lang: rust
     handler: ./user-login
-    image: zyuxuan0115/deathstarbench-userlogin:latest
+    image: zyuxuan0115/sn-user-login:latest
     secrets:
     - mongodb-password
