@@ -6,7 +6,7 @@ functions:
   social-graph-follow-with-username:
     lang: rust
     handler: ./social-graph-follow-with-username
-    image: zyuxuan0115/deathstarbench-socialgraphfollowwithusername:latest
+    image: zyuxuan0115/sn-social-graph-follow-with-username:latest
     secrets:
     - mongodb-password
     - redis-password
