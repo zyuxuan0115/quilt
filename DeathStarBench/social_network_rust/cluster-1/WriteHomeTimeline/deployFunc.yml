@@ -6,7 +6,7 @@ functions:
   write-home-timeline:
     lang: rust
     handler: ./write-home-timeline
-    image: zyuxuan0115/deathstarbench-writehometimeline:latest
+    image: zyuxuan0115/sn-write-home-timeline:latest
     secrets:
     - mongodb-password
     - redis-password

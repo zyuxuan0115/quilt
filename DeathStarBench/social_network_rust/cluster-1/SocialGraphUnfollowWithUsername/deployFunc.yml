@@ -6,7 +6,7 @@ functions:
   social-graph-unfollow-with-username:
     lang: rust
     handler: ./social-graph-unfollow-with-username
-    image: zyuxuan0115/deathstarbench-socialgraphunfollowwithusername:latest
+    image: zyuxuan0115/sn-social-graph-unfollow-with-username:latest
     secrets:
     - mongodb-password
     - redis-password

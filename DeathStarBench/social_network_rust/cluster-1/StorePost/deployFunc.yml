@@ -6,6 +6,6 @@ functions:
   store-post:
     lang: rust
     handler: ./store-post
-    image: zyuxuan0115/deathstarbench-storepost:latest
+    image: zyuxuan0115/sn-store-post:latest
     secrets:
     - mongodb-password
