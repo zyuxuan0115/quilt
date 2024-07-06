@@ -12,7 +12,7 @@ function setup_mongodb {
   kubectl --namespace openfaas-db expose deployment mongodb --port=27017 --target-port=27017 \
         --name=mongodb-service --type=LoadBalancer
   MONGODB_ROOT_PASSWORD=$(kubectl get secret --namespace openfaas-db mongodb -o jsonpath="{.data.mongodb-root-password}" | base64 --decode)
-  faas-cli secret create mongo-db-password --from-literal $MONGODB_ROOT_PASSWORD
+  faas-cli secret create mongodb-password --from-literal $MONGODB_ROOT_PASSWORD
   echo "$MONGODB_ROOT_PASSWORD" > mongopass.txt
   kubectl --namespace openfaas-db rollout status deployment/mongodb
   kubectl port-forward --namespace openfaas-db svc/mongodb 27017:27017 &
