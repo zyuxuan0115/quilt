@@ -1,11 +1,12 @@
-use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration,Instant}};
 use redis::{Commands};
 use futures::executor::block_on;
 
+
 fn main() {
+  let http_client = reqwest::Client::new();
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let timeline_info: ReadTimelineArgs = serde_json::from_str(&input).unwrap();
@@ -23,7 +24,7 @@ fn main() {
   let serialized = serde_json::to_string(&post_ids).unwrap(); 
 //  let new_now = Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  let future = make_rpc("read-posts", serialized); 
+  let future = make_rpc("read-posts", serialized, &http_client); 
   let posts = block_on(future);
   send_return_value_to_caller(posts);
 }
