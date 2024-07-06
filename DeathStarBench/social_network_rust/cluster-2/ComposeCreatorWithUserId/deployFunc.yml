@@ -6,8 +6,6 @@ functions:
   compose-creator-with-userid:
     lang: rust
     handler: ./compose-creator-with-userid
-    image: zyuxuan0115/deathstarbench-composecreatorwithuserid:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
+    image: zyuxuan0115/sn-compose-creator-with-userid:latest
     secrets:
     - mongodb-password
