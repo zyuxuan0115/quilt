@@ -4,7 +4,8 @@ use std:: time::{SystemTime, Duration, Instant};
 use redis::Commands;
 use futures::executor::block_on;
 
-fn main() {
+#[tokio::main]
+async fn main() {
   let http_client = reqwest::Client::new();
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
