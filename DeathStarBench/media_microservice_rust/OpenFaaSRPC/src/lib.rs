@@ -3,203 +3,21 @@ use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_s
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct MemcachedUserLoginInfo {
-  pub user_id: i64,
-  pub salt: String,
-  pub password: String, 
+pub struct RegisterMovieIdArgs {
+  pub movie_id: i64,
+  pub title: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RegisterUserWithIdArgs {
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
-  pub password: String, 
-  pub user_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RegisterUserArgs {
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
-  pub password: String, 
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComposeCreatorWithUseridArgs {
-  pub user_id: i64,
-  pub username: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserLoginArgs {
-  pub username: String,
-  pub password: String,
-  pub secret: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MediaServiceArgs {
-  pub media_id: Vec<i64>,
-  pub media_type: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SocialGraphFollowArgs {
-  pub user_id: i64,
-  pub followee_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SocialGraphFollowWithUsernameArgs {
-  pub user_name: String,
-  pub followee_name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct WriteHomeTimelineArgs {
-  pub post_id: i64,
-  pub user_id: i64,
-  pub timestamp: i64,
-  pub user_mentions_id: Vec<i64>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ReadTimelineArgs {
-  pub user_id: i64,
-  pub start: i64,
-  pub stop: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct WriteUserTimelineArgs {
-  pub post_id: i64,
-  pub user_id: i64,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComposePostArgs {
-  pub username: String,
-  pub user_id: i64,
-  pub text: String,
-  pub media_ids: Vec<i64>,
-  pub media_types: Vec<String>,
-  pub post_type: PostType,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PostEntry {
-  pub post_id: i64,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserTimelineEntry {
-  pub user_id: i64,
-  pub posts: Vec<PostEntry>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SocialGraphEntry {
-  pub user_id: i64,
-  pub followers: Vec<Follower>,
-  pub followees: Vec<Followee>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Followee {
-  pub followee_id: i64,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Follower {
-  pub follower_id: i64,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum PostType {
-  POST,
-  REPOST,
-  REPLY,
-  DM,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Creator {
-  pub user_id: i64,
-  pub username: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserInfo {
-  pub user_id: i64,
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
-  pub salt: String,
-  pub password: String, 
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Post {
-  pub post_id: i64,
-  pub creator: Creator,
-  pub text: String,
-  pub user_mentions: Vec<UserMention>,
-  pub media: Vec<Media>,
-  pub urls: Vec<UrlPair>,
-  pub timestamp: i64,
-  pub post_type: PostType, 
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Media{
-  pub media_type: String,
-  pub media_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UrlPair {
-  pub shortened_url: String,
-  pub expanded_url: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserMention {
-  pub user_id: i64,
-  pub user_name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TextServiceReturn{
-  pub user_mentions: Vec<UserMention>,
-  pub urls: Vec<UrlPair>,
-  pub text: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserLoginReturn {
-  pub user_id: i64,
-  pub username: String,
-  pub timestamp: i64,
-  pub ttl: i64,
+pub struct MovieIdEntry {
+  pub movie_id: i64,
+  pub title: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FuncInfo{
   pub function_name: String,
   pub cluster_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct MachineInfo{ 
-  pub cluster_id: i64,
-  pub cluster_ip: String,
-  pub rest_api_ip: String,
 }
 
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
@@ -209,16 +27,6 @@ fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Bo
  
   // Read the JSON contents of the file as an instance of `User`.
   let u: Vec<FuncInfo> = serde_json::from_reader(reader)?;
-  Ok(u)
-}
-
-fn read_machine_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<MachineInfo>, Box<dyn Error>> {
-  // Open the file in read-only mode with buffer.
-  let file = File::open(path)?;
-  let reader = BufReader::new(file);
- 
-  // Read the JSON contents of the file as an instance of `User`.
-  let u: Vec<MachineInfo> = serde_json::from_reader(reader)?;
   Ok(u)
 }
 
