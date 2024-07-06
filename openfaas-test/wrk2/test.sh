@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WRK_BIN=./wrk
-WRK_SCRIPT="$1.lua"
+WRK_SCRIPT="lua_files/$1.lua"
 CLUSTER_ID=$2
 # cluster 1 IP
 ENTRY_HOST="http://130.127.133.29:30080"
