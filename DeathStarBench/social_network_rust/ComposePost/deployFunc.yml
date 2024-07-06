@@ -7,8 +7,6 @@ functions:
     lang: rust
     handler: ./compose-post
     image: zyuxuan0115/deathstarbench-composepost:latest
-    environment:
-      mongo_host: mongodb.default.svc.cluster.local:27017
     secrets:
-    - mongo-db-password
+    - mongodb-password
     - redis-password
