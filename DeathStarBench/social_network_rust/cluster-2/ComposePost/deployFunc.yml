@@ -6,7 +6,7 @@ functions:
   compose-post:
     lang: rust
     handler: ./compose-post
-    image: zyuxuan0115/deathstarbench-composepost:latest
+    image: zyuxuan0115/sn-compose-post:latest
     secrets:
     - mongodb-password
     - redis-password

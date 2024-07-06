@@ -6,6 +6,6 @@ functions:
   get-user-id:
     lang: rust
     handler: ./get-user-id
-    image: zyuxuan0115/deathstarbench-getuserid:latest
+    image: zyuxuan0115/sn-get-user-id:latest
     secrets:
     - mongodb-password

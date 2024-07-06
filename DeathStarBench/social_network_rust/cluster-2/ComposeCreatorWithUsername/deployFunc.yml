@@ -6,6 +6,6 @@ functions:
   compose-creator-with-username:
     lang: rust
     handler: ./compose-creator-with-username
-    image: zyuxuan0115/deathstarbench-composecreatorwithusername:latest
+    image: zyuxuan0115/sn-compose-creator-with-username:latest
     secrets:
     - mongodb-password

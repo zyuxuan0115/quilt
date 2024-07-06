@@ -6,6 +6,6 @@ functions:
   register-user-with-id:
     lang: rust
     handler: ./register-user-with-id
-    image: zyuxuan0115/deathstarbench-registeruserwithid:latest
+    image: zyuxuan0115/sn-register-user-with-id:latest
     secrets:
     - mongodb-password
