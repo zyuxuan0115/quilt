@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use std::time::{Duration, Instant};
 use futures::executor::block_on;
+//use std::time::{Duration, Instant};
 
 #[tokio::main]
 async fn main() {
