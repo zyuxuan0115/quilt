@@ -40,9 +40,9 @@ async fn main() {
     text: text,
   };
   let serialized = serde_json::to_string(&return_value).unwrap();
-  println!("1st make_rpc: {:?}", time_2.duration_since(time_1));
-  println!("2nd make_rpc: {:?}", time_3.duration_since(time_2));
-  println!("concurrent exec time: {:?}", time_4.duration_since(time_3));
+  //println!("1st make_rpc: {:?}", time_2.duration_since(time_1));
+  //println!("2nd make_rpc: {:?}", time_3.duration_since(time_2));
+  //println!("concurrent exec time: {:?}", time_4.duration_since(time_3));
   send_return_value_to_caller(serialized);
 }
 

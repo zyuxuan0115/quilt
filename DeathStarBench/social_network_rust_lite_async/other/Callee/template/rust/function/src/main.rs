@@ -5,5 +5,5 @@ use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("I'm callee".to_string());
 }

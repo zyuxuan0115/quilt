@@ -7,14 +7,15 @@ use futures::executor::block_on;
 
 //use std::time::{Duration, Instant}};
 
-fn main() {
+#[tokio::main]
+async fn main() {
 //  let time_0 = Instant::now();
-
+  let client = reqwest::Client::new();
   let input: String = get_arg_from_caller();
 
   let mut timeline_info: WriteHomeTimelineArgs = serde_json::from_str(&input).unwrap();
   let user_id_str: String = timeline_info.user_id.to_string();
-  let future =  make_rpc("social-graph-get-followers", user_id_str);
+  let future =  make_rpc("social-graph-get-followers", user_id_str, &client);
 
   let followers_str: String = block_on(future);
  
