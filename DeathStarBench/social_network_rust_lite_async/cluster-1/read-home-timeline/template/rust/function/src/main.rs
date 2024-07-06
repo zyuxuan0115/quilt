@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
+use std:: time::{SystemTime, Duration, Instant};
 use redis::Commands;
 use futures::executor::block_on;
 
@@ -17,7 +16,6 @@ fn main() {
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
-
 
   let res: Vec<String> = con.zrevrange(&user_id_str[..], timeline_info.start as isize, timeline_info.stop as isize).unwrap();
 
