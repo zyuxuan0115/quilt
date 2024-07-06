@@ -194,13 +194,6 @@ pub struct FuncInfo{
   pub cluster_id: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct MachineInfo{ 
-  pub cluster_id: i64,
-  pub cluster_ip: String,
-  pub rest_api_ip: String,
-}
-
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
   // Open the file in read-only mode with buffer.
   let file = File::open(path)?;
@@ -260,8 +253,6 @@ pub async fn make_rpc(func_name: &str, input: String, client: &reqwest::Client) 
   let ret = full_res.unwrap();
   ret
 }
-
-
 
 pub fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
