@@ -1,5 +1,4 @@
-use curl::easy::{Easy};
-use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
+use std::{io::{self, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
