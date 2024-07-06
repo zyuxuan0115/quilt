@@ -11,7 +11,7 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 }
 
 pub fn get_mongodb_uri() -> String{
-  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongo-db-password");
+  let passwords: Vec<String> = read_lines("/var/openfaas/secrets/mongodb-password");
   if passwords.len() == 0 {
     println!("no password found!");
   }
