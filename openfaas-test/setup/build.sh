@@ -34,7 +34,11 @@ function kill_k8s {
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
   ssh -q $AGENT_HOST -- npx kill-port 30080  6379 27017 11211 30081 3000 30443 30442
   for entry in "$(pwd)"/*
-  rm -rf *.txt *.yaml *.yml 
+  do
+    if [[ -d $entry  ]] ; then
+      rm -rf $entry/*.txt $entry/*.yaml $entry/*.yml 
+    fi
+  done
   rm kubeconfig
 }
 

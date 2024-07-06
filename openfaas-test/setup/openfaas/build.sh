@@ -43,7 +43,7 @@ function setup_openfaas2 {
   mv openfaas2.yaml ../
   cd ..
   rm -rf faas-netes
-  curl https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml | python3 gen_yaml.py openfaas
+  curl https://raw.githubusercontent.com/openfaas/faas-netes/master/namespaces.yml | python3 ../gen_yaml.py openfaas
   kubectl apply -f openfaas2.yml,openfaas2.yaml
 
   kubectl rollout status -n openfaas2 deploy/gateway
