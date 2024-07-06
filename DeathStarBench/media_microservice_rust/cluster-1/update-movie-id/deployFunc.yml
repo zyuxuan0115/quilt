@@ -6,7 +6,7 @@ functions:
   social-graph-follow:
     lang: rust
     handler: ./upload-movie-id
-    image: zyuxuan0115/ms-upload-movie-id:latest
+    image: zyuxuan0115/mm-upload-movie-id:latest
     secrets:
     - redis-password
     - ingress-enable
