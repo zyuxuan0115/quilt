@@ -6,6 +6,6 @@ functions:
   user-mention-service:
     lang: rust
     handler: ./user-mention-service
-    image: zyuxuan0115/deathstarbench-usermentionservice:latest
+    image: zyuxuan0115/sn-user-mention-service:latest
     secrets:
     - mongodb-password
