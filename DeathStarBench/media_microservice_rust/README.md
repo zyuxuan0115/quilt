@@ -19,5 +19,11 @@ curl localhost:8080/function/upload-movie-id -d '{"title":"Barbie","rating": 5}'
 - upload-rating
 
 ```bash
-curl localhost:8080/function/upload-rating -d
+curl localhost:8080/function/upload-rating -d '{"movie_id":"tt1517268", "rating":5, "req_id":"7788945"}'
+```
+
+- write-movie-info
+
+```bash
+curl localhost:8080/function/write-movie-info -d 
 ```
