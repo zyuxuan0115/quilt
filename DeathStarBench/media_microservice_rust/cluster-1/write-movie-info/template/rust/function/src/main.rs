@@ -17,7 +17,7 @@ fn main() {
 
   let avg_r: f64 = movie_info.avg_rating.parse().unwrap();
 
-  let doc = MovieIdEntry {
+  let doc = MovieInfoEntry {
     movie_id: movie_info.movie_id,
     title: movie_info.title,
     plot_id: movie_info.plot_id,
