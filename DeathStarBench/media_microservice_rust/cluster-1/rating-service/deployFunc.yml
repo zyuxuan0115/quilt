@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  upload-rating:
+  rating-service:
     lang: rust
-    handler: ./upload-rating
-    image: zyuxuan0115/mm-upload-rating:latest
+    handler: ./rating-service
+    image: zyuxuan0115/mm-rating-service:latest
     secrets:
     - redis-password
     - mongodb-password
