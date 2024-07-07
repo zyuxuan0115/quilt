@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  write-movie-info:
+  write-cast-info:
     lang: rust
-    handler: ./write-movie-info
-    image: zyuxuan0115/mm-write-movie-info:latest
+    handler: ./write-cast-info
+    image: zyuxuan0115/mm-write-cast-info:latest
     secrets:
     - redis-password
     - mongodb-password

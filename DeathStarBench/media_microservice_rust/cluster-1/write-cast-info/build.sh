@@ -7,7 +7,7 @@ echo $ROOT_DIR
 function build_rust_test {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build -t zyuxuan0115/mm-read-movie-info:latest \
+    sudo docker build -t zyuxuan0115/mm-write-cast-info:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
@@ -15,7 +15,7 @@ function build_rust_test {
 }
 
 function push_rust_test {
-    sudo docker push zyuxuan0115/mm-read-movie-info:latest
+    sudo docker push zyuxuan0115/mm-write-cast-info:latest
 }
 
 function build {
