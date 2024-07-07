@@ -13,7 +13,7 @@ curl localhost:8080/function/register-movie-id -d '{"title":"Barbie","movie_id":
 - upload-movie-id
 
 ```bash
-curl localhost:8080/function/upload-movie-id -d '{"title":"Barbie", "rating": 5}'
+curl localhost:8080/function/upload-movie-id -d '{"title":"Barbie","rating": 5}'
 ```
 
 - upload-rating
