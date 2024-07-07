@@ -28,6 +28,13 @@ pub struct ComposeReviewUploadRatingArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateRatingArgs {
+  pub movie_id: String,
+  pub sum_uncommitted_rating: i32,
+  pub num_uncommitted_rating: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct WriteMovieInfoArgs {
   pub movie_id: String,
   pub title: String,
