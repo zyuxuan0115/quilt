@@ -1,0 +1,10 @@
+[
+    {
+      "function_name":"register-movie-id",
+      "cluster_id":1
+    },
+    {
+      "function_name":"update-movie-id",
+      "cluster_id":1
+    }
+]

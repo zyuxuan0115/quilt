@@ -40,14 +40,14 @@ fn main() {
     },
   }; 
 
-  let upload_rating_args = UploadRatingArgs {
+  let rating_svc_args = RatingServiceArgs {
     movie_id: movie_id,
     rating: movie_info.rating,
   };
 
-  let upload_rating_args_str = serde_json::to_string(&upload_rating_args).unwrap();
+  let rating_svc_args_str = serde_json::to_string(&rating_svc_args).unwrap();
 
-  let _ = make_rpc("upload-rating", upload_rating_args_str);
+  let _ = make_rpc("upload-rating", rating_svc_args_str);
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
