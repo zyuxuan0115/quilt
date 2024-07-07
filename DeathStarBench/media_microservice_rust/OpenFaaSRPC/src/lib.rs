@@ -61,6 +61,13 @@ pub struct MovieIdEntry {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphEntry {
+  pub movie_id: String,
+  pub avg_rating: f64,
+  pub num_rating: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct MovieInfoEntry {
   pub movie_id: String,
   pub title: String,

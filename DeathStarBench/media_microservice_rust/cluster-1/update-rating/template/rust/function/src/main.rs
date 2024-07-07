@@ -6,27 +6,37 @@ use mongodb::{bson::doc,sync::Client};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let movie_info: WriteMovieInfoArgs = serde_json::from_str(&input).unwrap();
+  let new_rating_info: UpdateRatingArgs = serde_json::from_str(&input).unwrap();
 
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("movie-info");
-  let mongodb_collection = mongodb_database.collection::<MovieInfoEntry>("movie-info");
+  let mongodb_database = mongodb_client.database("social-graph");
+  let mongodb_collection = mongodb_database.collection::<SocialGraphEntry>("social-graph");
 
-  let avg_r: f64 = movie_info.avg_rating.parse().unwrap();
+  let search_query = doc!{"movie_id":&new_rating_info.movie_id[..]};
+  let res = mongodb_collection.find_one(search_query, None).unwrap();
+  match res {
+    Some(rating_info) => {
+      let avg_rating: f64 = (rating_info.avg_rating * rating_info.num_rating as f64 + 
+                             new_rating_info.sum_uncommitted_rating as f64) / (rating_info.num_rating as f64 
+                             + new_rating_info.num_uncommitted_rating as f64);
+      let num_rating: i32 = rating_info.num_rating + new_rating_info.num_uncommitted_rating;
+      // update rating 
+      let search_query = doc!{"movie_id":&new_rating_info.movie_id[..]};
+      let update_query = doc!{"$set":doc!{"avg_rating":avg_rating,"num_rating":num_rating}};
+      let _ = mongodb_collection.update_one(search_query, update_query, None).unwrap();      
+    },
+    None => {
+      println!("Movie {} is not found in MongoDB;", new_rating_info.movie_id);
+      panic!("Movie {} is not found in MongoDB;", new_rating_info.movie_id);
+    },
+  }
 
-  let doc = MovieInfoEntry {
-    movie_id: movie_info.movie_id,
-    title: movie_info.title,
-    plot_id: movie_info.plot_id,
-    avg_rating: avg_r,
-    num_rating: movie_info.num_rating,
-    casts: movie_info.casts,
-    thumbnail_ids: movie_info.thumbnail_ids,
-    photo_ids: movie_info.photo_ids,
-    video_ids: movie_info.video_ids,
-  };
-  mongodb_collection.insert_one(doc, None).unwrap();
+  let memcache_uri = get_memcached_uri();
+  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
+
+  let _: bool = memcache_client.delete(&new_rating_info.movie_id[..]).unwrap();
+
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
