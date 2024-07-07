@@ -4,14 +4,66 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterMovieIdArgs {
-  pub movie_id: i64,
+  pub movie_id: String,
   pub title: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct MovieIdEntry {
-  pub movie_id: i64,
+pub struct UploadMovieIdArgs {
   pub title: String,
+  pub rating: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RatingServiceArgs {
+  pub movie_id: String,
+  pub rating: i32,
+  pub req_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeReviewUploadRatingArgs {
+  pub rating: i32,
+  pub req_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct WriteMovieInfoArgs {
+  pub movie_id: String,
+  pub title: String,
+  pub casts: Vec<Cast>,
+  pub plot_id: i64,
+  pub thumbnail_ids: Vec<String>,
+  pub photo_ids: Vec<String>,
+  pub video_ids: Vec<String>,
+  pub avg_rating: String,
+  pub num_rating: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Cast {
+  pub cast_id: i32,
+  pub character: String,
+  pub cast_info_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MovieIdEntry {
+  pub movie_id: String,
+  pub title: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MovieInfoEntry {
+  pub movie_id: String,
+  pub title: String,
+  pub plot_id: i64,
+  pub avg_rating: f64,
+  pub num_rating: i32,
+  pub casts: Vec<Cast>,
+  pub thumbnail_ids: Vec<String>,
+  pub photo_ids: Vec<String>,
+  pub video_ids: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
