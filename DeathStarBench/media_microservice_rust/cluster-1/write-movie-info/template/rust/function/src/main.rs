@@ -15,18 +15,20 @@ fn main() {
   let mongodb_database = mongodb_client.database("movie-info");
   let mongodb_collection = mongodb_database.collection::<MovieInfoEntry>("movie-info");
 
-  let query = doc!{"title":movie_info.title.clone()};
-  let mut cursor = mongodb_collection.find(query, None).unwrap();
-  if cursor.count() == 0 {
-    let doc = MovieIdEntry {
-      title: movie_info.title,
-      movie_id: movie_info.movie_id,
-    };
-    mongodb_collection.insert_one(doc, None).unwrap();
-  }
-  else {
-    println!("Movie {} already existed in MongoDB", movie_info.title);
-  }
+  let avg_r: f64 = movie_info.avg_rating.parse().unwrap();
+
+  let doc = MovieIdEntry {
+    movie_id: movie_info.movie_id,
+    title: movie_info.title,
+    plot_id: movie_info.plot_id,
+    avg_rating: avg_r,
+    num_rating: movie_info.num_rating,
+    casts: movie_info.casts,
+    thumbnail_ids: movie_info.thumbnail_ids,
+    photo_ids: movie_info.photo_ids,
+    video_ids: movie_info.video_ids,
+  };
+  mongodb_collection.insert_one(doc, None).unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
