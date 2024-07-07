@@ -1,3 +1,9 @@
+- unique-id-service
+
+```bash
+curl localhost:8080/function/unique-id-service -d ""
+```
+
 - register-movie-id
 
 ```bash
