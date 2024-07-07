@@ -47,7 +47,7 @@ fn main() {
 
   let rating_svc_args_str = serde_json::to_string(&rating_svc_args).unwrap();
 
-  let _ = make_rpc("upload-rating", rating_svc_args_str);
+  let _ = make_rpc("rating-service", rating_svc_args_str);
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
