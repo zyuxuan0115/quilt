@@ -31,5 +31,11 @@ curl localhost:8080/function/write-movie-info -d '{"movie_id":"tt1517268","title
 - read-movie-info
 
 ```bash
-curl localhost:8080/function/read-movie-info -d ''
+curl localhost:8080/function/read-movie-info -d 'tt1517268'
+```
+
+- update-rating
+
+```bash
+curl localhost:8080/function/update-rating -d ""
 ```
