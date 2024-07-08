@@ -49,9 +49,7 @@ fn main() {
 
   collection.insert_one(user_info_entry, None).unwrap();
 
-  let user_id_str = serde_json::to_string(&uid).unwrap();
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
 }
