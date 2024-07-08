@@ -56,6 +56,12 @@ pub struct WriteCastInfoArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct WritePlotArgs {
+  pub plot_id: i64,
+  pub plot: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Cast {
   pub cast_id: i32,
   pub character: String,
@@ -95,6 +101,14 @@ pub struct CastInfoEntry {
   pub gender: bool,
   pub intro: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PlotEntry {
+  pub plot_id: i64,
+  pub plot: String,
+}
+
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FuncInfo{
