@@ -62,6 +62,23 @@ pub struct WritePlotArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ResigerUserArgs {
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResigerUserWithIdArgs {
+  pub user_id: i64,
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Cast {
   pub cast_id: i32,
   pub character: String,
