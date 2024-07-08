@@ -6,5 +6,37 @@
     {
       "function_name":"update-movie-id",
       "cluster_id":1
+    },
+    {
+      "function_name":"rating-service",
+      "cluster_id":1
+    },
+    {
+      "function_name":"write-movie-info",
+      "cluster_id":1
+    },
+    {
+      "function_name":"read-movie-info",
+      "cluster_id":1
+    },
+    {
+      "function_name":"update-rating",
+      "cluster_id":1
+    },
+    {
+      "function_name":"write-cast-info",
+      "cluster_id":1
+    },
+    {
+      "function_name":"read-cast-info",
+      "cluster_id":1
+    },
+    {
+      "function_name":"write-plot",
+      "cluster_id":1
+    },
+    {
+      "function_name":"read-plot",
+      "cluster_id":1
     }
 ]
