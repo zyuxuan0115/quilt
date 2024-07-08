@@ -37,5 +37,17 @@ curl localhost:8080/function/read-movie-info -d 'tt1517268'
 - update-rating
 
 ```bash
-curl localhost:8080/function/update-rating -d ""
+curl localhost:8080/function/update-rating -d ''
+```
+
+- write-cast-info
+
+```bash
+curl localhost:8080/function/write-cast-info -d ''
+```
+
+- read-cast-info
+
+```bash
+curl localhost:8080/function/read-cast-info -d ''
 ```
