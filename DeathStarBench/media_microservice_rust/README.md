@@ -1,7 +1,7 @@
 - unique-id-service
 
 ```bash
-curl localhost:8080/function/unique-id-service -d ""
+curl localhost:8080/function/unique-id-service -d ''
 ```
 
 - register-movie-id
@@ -28,7 +28,6 @@ curl localhost:8080/function/rating-service -d '{"movie_id":"tt1517268", "rating
 curl localhost:8080/function/write-movie-info -d '{"movie_id":"tt1517268","title":"Barbie","plot_id":113473,"avg_rating":"8.9","num_rating":165314,"casts":[],"thumbnail_ids":[],"photo_ids":[],"video_ids":[]}'
 ```
 
-
 - read-movie-info
 
 ```bash
@@ -38,7 +37,7 @@ curl localhost:8080/function/read-movie-info -d 'tt1517268'
 - update-rating
 
 ```bash
-curl localhost:8080/function/update-rating -d ''
+curl localhost:8080/function/update-rating -d '{"movie_id":"tt1517268","sum_uncommitted_rating":477,"num_uncommitted_rating":100}'
 ```
 
 - write-cast-info
@@ -60,11 +59,11 @@ curl localhost:8080/function/read-cast-info -d '[12345,12346]'
 - write-plot
 
 ```bash
-curl localhost:8080/function/write-plot -d ''
+curl localhost:8080/function/write-plot -d '{"plot_id":7788945,"plot":"One evening at a dance party, Barbie is suddenly stricken with worries about mortality. Overnight, she develops bad breath, cellulite, and flat feet, disrupting her routines and impairing the aura of classic perfection experienced by the Barbies. Weird Barbie, a disfigured doll, tells Barbie to find the child playing with her in the real world to cure her afflictions. Barbie follows the advice and travels to the real world, with Ken joining Barbie by stowing away in her convertible."}'
 ```
 
 - read-plot
 
 ```bash
-curl localhost:8080/function/read-plot -d ''
+curl localhost:8080/function/read-plot -d '7788945'
 ```
