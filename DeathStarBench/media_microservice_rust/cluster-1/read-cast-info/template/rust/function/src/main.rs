@@ -40,7 +40,7 @@ fn main() {
     let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
     let mongodb_database = mongodb_client.database("cast-info");
     let mongodb_collection = mongodb_database.collection::<CastInfoEntry>("cast-info");
-    let query = doc!{"cast_id": doc!{"$in": &cast_not_cached}};
+    let query = doc!{"cast_info_id": doc!{"$in": &cast_not_cached}};
     let mut cursor = mongodb_collection.find(query, None).unwrap(); 
     for doc in cursor {
       let doc_ = doc.unwrap();

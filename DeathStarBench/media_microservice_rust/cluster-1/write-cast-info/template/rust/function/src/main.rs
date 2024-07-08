@@ -6,7 +6,7 @@ use mongodb::{bson::doc,sync::Client};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let cast_info: WriteMovieInfoArgs = serde_json::from_str(&input).unwrap();
+  let cast_info: WriteCastInfoArgs = serde_json::from_str(&input).unwrap();
 
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
