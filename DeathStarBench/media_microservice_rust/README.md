@@ -28,6 +28,7 @@ curl localhost:8080/function/rating-service -d '{"movie_id":"tt1517268", "rating
 curl localhost:8080/function/write-movie-info -d '{"movie_id":"tt1517268","title":"Barbie","plot_id":113473,"avg_rating":"8.9","num_rating":165314,"casts":[],"thumbnail_ids":[],"photo_ids":[],"video_ids":[]}'
 ```
 
+
 - read-movie-info
 
 ```bash
@@ -44,6 +45,10 @@ curl localhost:8080/function/update-rating -d ''
 
 ```bash
 curl localhost:8080/function/write-cast-info -d '{"cast_info_id":12345,"name":"Kirk Douglas","gender":"true","intro":"Kirk Douglas was an American actor and filmmaker."}'
+```
+
+```bash
+curl localhost:8080/function/write-cast-info -d '{"cast_info_id":12346,"name":"Jennifer Lawrence","gender":"false","intro":"Considered one of the most successful actresses of her generation, Lawrence was the highest-paid actress in the world in 2015 and 2016."}'
 ```
 
 - read-cast-info
