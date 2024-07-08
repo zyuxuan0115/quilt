@@ -62,7 +62,7 @@ pub struct WritePlotArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ResigerUserArgs {
+pub struct RegisterUserArgs {
   pub first_name: String,
   pub last_name: String,
   pub username: String,
@@ -125,7 +125,15 @@ pub struct PlotEntry {
   pub plot: String,
 }
 
-
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserEntry {
+  pub user_id: i64,
+  pub first_name: String,
+  pub last_name: String,
+  pub username: String,
+  pub salt: String,
+  pub password: String,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FuncInfo{
