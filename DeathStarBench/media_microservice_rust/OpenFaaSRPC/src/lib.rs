@@ -48,6 +48,14 @@ pub struct WriteMovieInfoArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct WriteCastInfoArgs {
+  pub cast_info_id: i64,
+  pub name: String,
+  pub gender: bool,
+  pub intro: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Cast {
   pub cast_id: i32,
   pub character: String,
@@ -78,6 +86,14 @@ pub struct MovieInfoEntry {
   pub thumbnail_ids: Vec<String>,
   pub photo_ids: Vec<String>,
   pub video_ids: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CastInfoEntry {
+  pub cast_info_id: i64,
+  pub name: String,
+  pub gender: bool,
+  pub intro: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
