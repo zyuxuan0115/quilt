@@ -70,7 +70,7 @@ pub struct RegisterUserArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ResigerUserWithIdArgs {
+pub struct RegisterUserWithIdArgs {
   pub user_id: i64,
   pub first_name: String,
   pub last_name: String,
