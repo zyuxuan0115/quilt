@@ -1,7 +1,7 @@
 - unique-id-service
 
 ```bash
-curl localhost:8080/function/unique-id-service -d ""
+curl localhost:8080/function/unique-id-service -d ''
 ```
 
 - register-movie-id
@@ -37,7 +37,7 @@ curl localhost:8080/function/read-movie-info -d 'tt1517268'
 - update-rating
 
 ```bash
-curl localhost:8080/function/update-rating -d ''
+curl localhost:8080/function/update-rating -d '{"movie_id":"tt1517268","sum_uncommitted_rating":477,"num_uncommitted_rating":100}'
 ```
 
 - write-cast-info
