@@ -71,11 +71,17 @@ curl localhost:8080/function/read-plot -d '7788945'
 - register-user
 
 ```bash
-curl localhost:8080/function/register-user -d '{"first_name":"Yuxuan","last_name":"Zhang","username":"zyuxuan","password":"123456"}'
+curl localhost:8081/function/register-user -d '{"first_name":"Yuxuan","last_name":"Zhang","username":"zyuxuan","password":"123456"}'
 ```
 
 - register-user-with-id
 
 ```bash
-curl localhost:8080/function/register-user-with-id -d '{"user_id":11078,"first_name":"Tom","last_name":"Wenisch","username":"twenisch","password":"12345"}'
+curl localhost:8081/function/register-user-with-id -d '{"user_id":11078,"first_name":"Tom","last_name":"Wenisch","username":"twenisch","password":"12345"}'
+```
+
+- login
+
+```bash
+curl localhost:8081/function/login -d '{"username":"zyuxuan","password":"123456","secret":"idontknowwhatasecretis"}'
 ```
