@@ -1,5 +1,9 @@
 [
     {
+      "function_name":"unique-id-service",
+      "cluster_id":1
+    },
+    {
       "function_name":"register-movie-id",
       "cluster_id":1
     },
@@ -38,5 +42,18 @@
     {
       "function_name":"read-plot",
       "cluster_id":1
+    },
+    {
+      "function_name":"register-user",
+      "cluster_id":2
+    },
+    {
+      "function_name":"register-user-with-id",
+      "cluster_id":2
+    },
+    {
+      "function_name":"login",
+      "cluster_id":2
     }
+ 
 ]
