@@ -54,6 +54,14 @@
     {
       "function_name":"login",
       "cluster_id":2
+    },
+    {
+      "function_name":"upload-user-with-username",
+      "cluster_id":2
+    },
+    {
+      "function_name":"upload-user-with-userid",
+      "cluster_id":2
     }
  
 ]
