@@ -95,5 +95,5 @@ curl localhost:8081/function/upload-user-with-username -d '{"username":"zyuxuan"
 - upload-user-with-userid
 
 ```bash
-curl localhost:8081/function/upload-user-with-userid -d ''
+curl localhost:8081/function/upload-user-with-userid -d '11078'
 ```
