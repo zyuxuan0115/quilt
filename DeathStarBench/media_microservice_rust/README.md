@@ -85,3 +85,15 @@ curl localhost:8081/function/register-user-with-id -d '{"user_id":11078,"first_n
 ```bash
 curl localhost:8081/function/login -d '{"username":"zyuxuan","password":"123456","secret":"idontknowwhatasecretis"}'
 ```
+
+- upload-user-with-username
+
+```bash
+curl localhost:8081/function/upload-user-with-username -d '{"username":"zyuxuan"}'
+```
+
+- upload-user-with-userid
+
+```bash
+curl localhost:8081/function/upload-user-with-userid -d ''
+```
