@@ -8,6 +8,4 @@ functions:
     handler: ./upload-user-with-userid
     image: zyuxuan0115/mm-upload-user-with-userid:latest
     secrets:
-    - redis-password
-    - mongodb-password
     - ingress-enable
