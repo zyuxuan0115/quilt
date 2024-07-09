@@ -83,5 +83,5 @@ curl localhost:8081/function/register-user-with-id -d '{"user_id":11078,"first_n
 - login
 
 ```bash
-curl localhost:8081/function/register-user-with-id -d ''
+curl localhost:8081/function/register-user-with-id -d '{"username":"zyuxuan","password":"123456","secret":"idon'tknowwhatasecretis"}'
 ```
