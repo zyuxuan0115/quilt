@@ -79,6 +79,13 @@ pub struct RegisterUserWithIdArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct LoginArgs {
+  pub username: String,
+  pub password: String,
+  pub secret: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Cast {
   pub cast_id: i32,
   pub character: String,
