@@ -97,3 +97,9 @@ curl localhost:8081/function/upload-user-with-username -d '{"username":"zyuxuan"
 ```bash
 curl localhost:8081/function/upload-user-with-userid -d '11078'
 ```
+
+- text-service
+
+```bash
+curl localhost:8080/function/text-service -d 'hi this is some text.'
+```
