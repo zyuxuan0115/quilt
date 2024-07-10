@@ -1,12 +1,13 @@
 version: 1.0
 provider:
   name: openfaas
-  gateway: http://127.0.0.1:8080
+  gateway: http://127.0.0.1:8081
 functions:
-  social-graph-unfollow:
+  upload-user-review:
     lang: rust
-    handler: ./social-graph-unfollow
-    image: zyuxuan0115/sn-social-graph-unfollow:latest
+    handler: ./upload-user-review
+    image: zyuxuan0115/mm-upload-user-review:latest
     secrets:
     - mongodb-password
     - redis-password
+    - ingress-enable
