@@ -86,6 +86,25 @@ pub struct LoginArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct UploadUserReviewArgs {
+  pub user_id: i64,
+  pub review_id: i64,
+  pub timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserReviewEntry {
+  pub user_id: i64,
+  pub reviews: Vec<Review>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Review {
+  pub review_id: i64,
+  pub timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Cast {
   pub cast_id: i32,
   pub character: String,

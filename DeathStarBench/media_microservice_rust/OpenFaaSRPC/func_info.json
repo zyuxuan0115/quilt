@@ -44,6 +44,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"text-service",
+      "cluster_id":1
+    },
+    {
       "function_name":"register-user",
       "cluster_id":2
     },
