@@ -115,13 +115,13 @@ pub struct ReadMovieReviewArgs {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StoreReviewArgs {
-  review_id: i64,
-  user_id: i64,
-  req_id: i64,
-  text: String,
-  movie_id: String,
-  rating: i32,
-  timestamp: i64,
+  pub review_id: i64,
+  pub user_id: i64,
+  pub req_id: i64,
+  pub text: String,
+  pub movie_id: String,
+  pub rating: i32,
+  pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -144,13 +144,13 @@ pub struct Review {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ReviewEntry {
-  review_id: i64,
-  user_id: i64,
-  req_id: i64,
-  text: String,
-  movie_id: String,
-  rating: i32,
-  timestamp: i64,
+  pub review_id: i64,
+  pub user_id: i64,
+  pub req_id: i64,
+  pub text: String,
+  pub movie_id: String,
+  pub rating: i32,
+  pub timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
