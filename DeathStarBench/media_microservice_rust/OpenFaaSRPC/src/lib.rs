@@ -93,8 +93,35 @@ pub struct UploadUserReviewArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ReadUserReviewArgs {
+  pub user_id: i64,
+  pub start: i32,
+  pub stop: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UploadMovieReviewArgs {
+  pub movie_id: String,
+  pub review_id: i64,
+  pub timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReadMovieReviewArgs {
+  pub movie_id: String,
+  pub start: i32,
+  pub stop: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
+  pub reviews: Vec<Review>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MovieReviewEntry {
+  pub movie_id: String,
   pub reviews: Vec<Review>,
 }
 
