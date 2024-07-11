@@ -30,7 +30,7 @@ fn main() {
     let collection = database.collection::<UserReviewEntry>("user-review");
 
     let query = doc!{"user_id":review_info.user_id};
-    let proj = doc!{"reviews":doc!{"$slice":[review_info.start,timeline_info.stop]}};
+    let proj = doc!{"reviews":doc!{"$slice":[review_info.start,review_info.stop]}};
     let options = FindOptions::builder().projection(Some(proj)).build();
 
     let mut cursor = collection.find(query, options).unwrap();
