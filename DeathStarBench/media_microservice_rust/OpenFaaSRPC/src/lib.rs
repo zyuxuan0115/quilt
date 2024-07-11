@@ -114,6 +114,17 @@ pub struct ReadMovieReviewArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct StoreReviewArgs {
+  review_id: i64,
+  user_id: i64,
+  req_id: i64,
+  text: String,
+  movie_id: String,
+  rating: i32,
+  timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
   pub reviews: Vec<Review>,
@@ -129,6 +140,17 @@ pub struct MovieReviewEntry {
 pub struct Review {
   pub review_id: i64,
   pub timestamp: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReviewEntry {
+  review_id: i64,
+  user_id: i64,
+  req_id: i64,
+  text: String,
+  movie_id: String,
+  rating: i32,
+  timestamp: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
