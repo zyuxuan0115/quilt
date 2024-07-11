@@ -20,7 +20,7 @@ fn main() {
   match mongodb_result {
     Some(x) => {
       let search_query = doc!{"movie_id":&review_info.movie_id[..]};
-      let update_query = doc!{"$push":doc!{"reviews":doc!{"$each":[{"review_id":review_info.user_id,"timestamp":review_info.timestamp}],"$position":0}}};
+      let update_query = doc!{"$push":doc!{"reviews":doc!{"$each":[{"review_id":review_info.review_id,"timestamp":review_info.timestamp}],"$position":0}}};
       let res = collection.update_one(search_query, update_query, None).unwrap();
     },
     None => {
@@ -32,7 +32,7 @@ fn main() {
         movie_id: review_info.movie_id.clone(),
         reviews: vec![review],
       };
-      collection.insert_one(new_user_review, None).unwrap();
+      collection.insert_one(new_movie_review, None).unwrap();
     }
   }
 
