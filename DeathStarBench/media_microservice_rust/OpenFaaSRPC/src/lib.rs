@@ -140,6 +140,24 @@ pub struct ComposeReviewUploadMovieIdArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeReviewUploadUserIdArgs {
+  pub req_id: i64,
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeReviewUploadUniqueIdArgs {
+  pub req_id: i64,
+  pub review_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeReviewUploadTextArgs {
+  pub req_id: i64,
+  pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
   pub reviews: Vec<Review>,
