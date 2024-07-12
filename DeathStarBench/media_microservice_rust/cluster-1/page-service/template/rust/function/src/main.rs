@@ -1,25 +1,40 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let plot_info: WritePlotArgs = serde_json::from_str(&input).unwrap();
+  let args: PageServiceArgs = serde_json::from_str(&input).unwrap();
 
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("plot");
-  let mongodb_collection = mongodb_database.collection::<PlotEntry>("plot");
+  let read_movie_info_ret = make_rpc("read-movie-info", args.movie_id.clone());
+  let movie_info: MovieInfoEntry = serde_json::from_str(&read_movie_info_ret).unwrap();
 
-  let doc = PlotEntry {
-    plot_id: plot_info.plot_id,
-    plot: plot_info.plot,
+  let read_movie_reviews_args = ReadMovieReviewArgs {
+    movie_id: args.movie_id.clone(),
+    start: args.review_start,
+    stop: args.review_stop,
   };
-  mongodb_collection.insert_one(doc, None).unwrap();
+  let read_movie_reviews_input = serde_json::to_string(&read_movie_reviews_args).unwrap();
+  let read_movie_review_ret = make_rpc("read-movie-reviews", read_movie_reviews_input);
+  let reviews: Vec<ReviewEntry> = serde_json::from_str(&read_movie_review_ret).unwrap();
+
+  let cast_info_ids: Vec<i64> = movie_info.casts.iter().map(|x| x.cast_id as i64).collect();
+  let cast_info_id_str: String = serde_json::to_string(&cast_info_ids).unwrap();
+  let cast_info_str = make_rpc("read-cast-info", cast_info_id_str);
+  let cast_info: CastInfoEntry = serde_json::from_str(&cast_info_str).unwrap();
+
+  let plot = make_rpc("read-plot", movie_info.plot_id.to_string());
+
+  let page = Page {
+    movie_info: movie_info,
+    reviews: reviews,
+    cast_info: cast_info,
+    plot: plot, 
+  };
+
+  let page_str = serde_json::to_string(&page).unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller(page_str);
 }
 

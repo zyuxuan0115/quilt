@@ -125,6 +125,13 @@ pub struct StoreReviewArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct PageServiceArgs {
+  pub movie_id: String,
+  pub review_start: i32,
+  pub review_stop: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
   pub reviews: Vec<Review>,
@@ -208,6 +215,14 @@ pub struct UserEntry {
   pub username: String,
   pub salt: String,
   pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Page {
+  pub movie_info: MovieInfoEntry,
+  pub reviews: Vec<ReviewEntry>,
+  pub cast_info: CastInfoEntry,
+  pub plot: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
