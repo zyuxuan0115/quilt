@@ -2,6 +2,8 @@ use curl::easy::{Easy};
 use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
 
+pub static NUM_COMPONENTS: u64 = 5;
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RegisterMovieIdArgs {
   pub movie_id: String,
@@ -129,6 +131,12 @@ pub struct PageServiceArgs {
   pub movie_id: String,
   pub review_start: i32,
   pub review_stop: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeReviewUploadMovieIdArgs {
+  pub req_id: i64,
+  pub movie_id: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
