@@ -48,6 +48,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"page-service",
+      "cluster_id":1
+    },
+    {
       "function_name":"register-user",
       "cluster_id":2
     },
@@ -66,6 +70,29 @@
     {
       "function_name":"upload-user-with-userid",
       "cluster_id":2
+    },
+    {
+      "function_name":"upload-movie-review",
+      "cluster_id":2
+    },
+    {
+      "function_name":"read-movie-review",
+      "cluster_id":2
+    },
+    {
+      "function_name":"upload-user-review",
+      "cluster_id":2
+    },
+    {
+      "function_name":"read-user-review",
+      "cluster_id":2
+    },
+    {
+      "function_name":"store-review",
+      "cluster_id":2
+    },
+    {
+      "function_name":"read-reviews",
+      "cluster_id":2
     }
- 
 ]
