@@ -24,12 +24,6 @@ pub struct RatingServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ComposeReviewUploadRatingArgs {
-  pub rating: i32,
-  pub req_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateRatingArgs {
   pub movie_id: String,
   pub sum_uncommitted_rating: i32,
