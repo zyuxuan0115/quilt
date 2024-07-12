@@ -2,42 +2,26 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{Duration, Instant};
 
-
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
-  let new_user_info: RegisterUserArgs = serde_json::from_str(&input).unwrap();
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("user");
-  let collection = database.collection::<UserEntry>("user");
+  let args: ComposeReviewUploadMovieIdArgs = serde_json::from_str(&input).unwrap();
+  let mut key_counter:String = args.req_id.to_string();
+  key_counter.push_str(":counter"); 
 
-  let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
+  let memcache_uri = get_memcached_uri();
+  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
+  memcache_client.add(&key_counter[..], 0, 0);
 
-  match result {
-    Some(_) => {
-      println!("User {} already existed", new_user_info.username);
-      panic!("User {} already existed", new_user_info.username);
-    },
-    None => (),
-  } 
+  let mut key_movie_id: String = args.req_id.to_string();
+  key_movie_id.push_str(":movie_id");
+ 
+  memcache_client.add(&key_movie_id[..], 0, 0);
+  let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
-  let mut pw_sha: String = String::from(&new_user_info.password[..]);
-  let salt: String = gen_random_string();
-  let uid: i64 = rand::thread_rng().gen();
-  pw_sha.push_str(&salt[..]);
-  pw_sha = digest(pw_sha);
-  let user_info_entry = UserEntry {
-    user_id: uid,
-    first_name: new_user_info.first_name,
-    last_name: new_user_info.last_name,
-    username: new_user_info.username,
-    salt: salt,
-    password: pw_sha, 
-  };
-
-  collection.insert_one(user_info_entry, None).unwrap();
-
+  if counter_value == NUM_COMPONENTS {
+    make_rpc("compose-and-upload", args.req_id.to_string());
+  }
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
