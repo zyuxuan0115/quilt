@@ -13,10 +13,10 @@ fn main() {
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
   memcache_client.add(&key_counter[..], 0, 0);
 
-  let mut key_movie_id: String = args.req_id.to_string();
-  key_movie_id.push_str(":movie_id");
+  let mut key_user_id: String = args.req_id.to_string();
+  key_user_id.push_str(":user_id");
  
-  memcache_client.add(&key_movie_id[..], 0, 0);
+  memcache_client.add(&key_user_id[..], 0, 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
   if counter_value == NUM_COMPONENTS {
