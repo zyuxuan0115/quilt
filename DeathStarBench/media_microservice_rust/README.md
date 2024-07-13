@@ -82,6 +82,10 @@ curl localhost:8081/function/register-user -d '{"first_name":"Yuxuan","last_name
 curl localhost:8081/function/register-user-with-id -d '{"user_id":11078,"first_name":"Tom","last_name":"Wenisch","username":"twenisch","password":"12345"}'
 ```
 
+```bash
+curl localhost:8081/function/register-user-with-id -d '{"user_id":11079,"first_name":"Todd","last_name":"Austin","username":"taustin","password":"12345"}'
+```
+
 - login
 
 ```bash
@@ -134,6 +138,16 @@ curl localhost:8080/function/read-movie-review -d '{"movie_id":"tt1517268","star
 
 ```bash
 curl localhost:8080/function/store-review -d '{"review_id":98765,"user_id":11078,"req_id":8037,"text":"This is a good movie","movie_id":"tt1517268","rating":4,"timestamp":712389123}'
+```
+
+```bash
+curl localhost:8080/function/store-review -d '{"review_id":98766,"user_id":11079,"req_id":8038,"text":"Great!","movie_id":"tt1517268","rating":5,"timestamp":712389135}'
+```
+
+- read-reviews
+
+```bash
+curl localhost:8080/function/read-reviews -d '[98765,98766]'
 ```
 
 - page-service
