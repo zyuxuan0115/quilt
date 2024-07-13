@@ -16,7 +16,7 @@ fn main() {
   let mut key_rating: String = args.req_id.to_string();
   key_rating.push_str(":rating");
  
-  memcache_client.add(&key_rating[..], args.rating, 0);
+  memcache_client.add(&key_rating[..], args.rating.to_string(), 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
   if counter_value == NUM_COMPONENTS {
