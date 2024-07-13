@@ -113,41 +113,41 @@ curl localhost:8080/function/text-service -d 'hi this is some text.'
 - upload-user-review
 
 ```bash
-curl localhost:8080/function/upload-user-review -d '{"user_id":11078,"review_id":98765,"timestamp":712389123}'
+curl localhost:8081/function/upload-user-review -d '{"user_id":11078,"review_id":98765,"timestamp":712389123}'
 ```
 
 - upload-movie-review
 
 ```bash
-curl localhost:8080/function/upload-movie-review -d '{"movie_id":"tt1517268","review_id":98765,"timestamp":712389123}'
+curl localhost:8081/function/upload-movie-review -d '{"movie_id":"tt1517268","review_id":98765,"timestamp":712389123}'
 ```
 
 - read-user-review
 
 ```bash
-curl localhost:8080/function/read-user-review -d '{"user_id":11078,"start":0,"stop":1}'
+curl localhost:8081/function/read-user-review -d '{"user_id":11078,"start":0,"stop":1}'
 ```
 
 - read-movie-review
 
 ```bash
-curl localhost:8080/function/read-movie-review -d '{"movie_id":"tt1517268","start":0,"stop":1}'
+curl localhost:8081/function/read-movie-review -d '{"movie_id":"tt1517268","start":0,"stop":1}'
 ```
 
 - store-review
 
 ```bash
-curl localhost:8080/function/store-review -d '{"review_id":98765,"user_id":11078,"req_id":8037,"text":"This is a good movie","movie_id":"tt1517268","rating":4,"timestamp":712389123}'
+curl localhost:8081/function/store-review -d '{"review_id":98765,"user_id":11078,"req_id":8037,"text":"This is a good movie","movie_id":"tt1517268","rating":4,"timestamp":712389123}'
 ```
 
 ```bash
-curl localhost:8080/function/store-review -d '{"review_id":98766,"user_id":11079,"req_id":8038,"text":"Great!","movie_id":"tt1517268","rating":5,"timestamp":712389135}'
+curl localhost:8081/function/store-review -d '{"review_id":98766,"user_id":11079,"req_id":8038,"text":"Great!","movie_id":"tt1517268","rating":5,"timestamp":712389135}'
 ```
 
 - read-reviews
 
 ```bash
-curl localhost:8080/function/read-reviews -d '[98765,98766]'
+curl localhost:8081/function/read-reviews -d '[98765,98766]'
 ```
 
 - page-service
@@ -159,19 +159,19 @@ curl localhost:8080/function/page-service -d '{"movie_id":"tt1517268","review_st
 - compose-review-upload-movie-id
 
 ```bash
-curl localhost:8080/function/compose-review-upload-movie-id -d '{"req_id":8037,"movie_id":"tt1517268"}'
+curl localhost:8081/function/compose-review-upload-movie-id -d '{"req_id":8037,"movie_id":"tt1517268"}'
 ```
 
 - compose-review-upload-user-id
 
 ```bash
-curl localhost:8080/function/compose-review-upload-user-id -d '{"req_id":8037,"user_id":11078}'
+curl localhost:8081/function/compose-review-upload-user-id -d '{"req_id":8037,"user_id":11078}'
 ```
 
 - compose-review-upload-unique-id
 
 ```bash
-curl localhost:8080/function/compose-review-upload-unique-id -d '{"req_id":8037,"review_id":98765}'
+curl localhost:8081/function/compose-review-upload-unique-id -d '{"req_id":8037,"review_id":98765}'
 ```
 
 - compose-review-upload-rating
@@ -183,7 +183,7 @@ curl localhost:8080/function/compose-review-upload-rating -d '{"req_id":8037,"ra
 - compose-review-upload-text
 
 ```bash
-curl localhost:8080/function/compose-review-upload-text -d '{"req_id":8037,"text":"This is a good movie"}'
+curl localhost:8081/function/compose-review-upload-text -d '{"req_id":8037,"text":"This is a good movie"}'
 ```
 
 - compose-and-upload
