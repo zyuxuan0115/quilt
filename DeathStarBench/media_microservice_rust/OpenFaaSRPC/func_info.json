@@ -94,5 +94,21 @@
     {
       "function_name":"read-reviews",
       "cluster_id":2
+    },
+    {
+      "function_name":"compose-review-upload-movie-id",
+      "cluster_id":2
+    },
+    {
+      "function_name":"compose-review-upload-text",
+      "cluster_id":2
+    },
+    {
+      "function_name":"compose-review-upload-unique-id",
+      "cluster_id":2
+    },
+    {
+      "function_name":"compose-review-upload-user-id",
+      "cluster_id":2
     }
 ]
