@@ -5,7 +5,7 @@ use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now =  Instant::now();
-  let _ = make_rpc("upload-user-id", input);
+  let _ = make_rpc("compose-review-upload-user-id", input);
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
