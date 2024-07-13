@@ -105,3 +105,27 @@ curl localhost:8081/function/upload-user-with-userid -d '11078'
 ```bash
 curl localhost:8080/function/text-service -d 'hi this is some text.'
 ```
+
+- upload-user-review
+
+```bash
+curl localhost:8080/function/upload-user-review -d '{"user_id":11078,"review_id":98765,"timestamp":712389123}'
+```
+
+- upload-movie-review
+
+```bash
+curl localhost:8080/function/upload-movie-review -d '{"movie_id":"tt1517268","review_id":98765,"timestamp":712389135}'
+```
+
+- read-user-review
+
+```bash
+curl localhost:8080/function/read-user-review -d '{"user_id":11078,"start":0,"stop":1}'
+```
+
+- read-movie-review
+
+```bash
+curl localhost:8080/function/read-movie-review -d '{"movie_id":"tt1517268","start":0,"stop":1}'
+```
