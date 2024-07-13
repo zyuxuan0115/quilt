@@ -40,7 +40,7 @@ fn main() {
     },
   }; 
 
-  let _ = make_rpc("upload-user-id", user_id_str);
+  let _ = make_rpc("compose-review-upload-user-id", user_id_str);
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
