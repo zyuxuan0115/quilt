@@ -14,6 +14,7 @@ pub struct RegisterMovieIdArgs {
 pub struct UploadMovieIdArgs {
   pub title: String,
   pub rating: i32,
+  pub req_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

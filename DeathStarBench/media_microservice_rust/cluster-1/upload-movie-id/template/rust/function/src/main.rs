@@ -45,6 +45,7 @@ fn main() {
   let rating_svc_args = RatingServiceArgs {
     movie_id: movie_id,
     rating: movie_info.rating,
+    req_id: movie_info.req_id,
   };
 
   let rating_svc_args_str = serde_json::to_string(&rating_svc_args).unwrap();
