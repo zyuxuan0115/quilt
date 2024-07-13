@@ -185,3 +185,8 @@ curl localhost:8080/function/compose-review-upload-rating -d '{"req_id":8037,"ra
 ```bash
 curl localhost:8080/function/compose-review-upload-text -d '{"req_id":8037,"text":"This is a good movie"}'
 ```
+
+- compose-and-upload
+```bash
+curl localhost:8080/function/compose-and-upload -d '8037'
+```
