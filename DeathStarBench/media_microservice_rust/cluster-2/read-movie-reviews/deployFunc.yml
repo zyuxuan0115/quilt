@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8081
 functions:
-  read-movie-review:
+  read-movie-reviews:
     lang: rust
-    handler: ./read-movie-review
-    image: zyuxuan0115/mm-read-movie-review:latest
+    handler: ./read-movie-reviews
+    image: zyuxuan0115/mm-read-movie-reviews:latest
     secrets:
     - mongodb-password
     - redis-password

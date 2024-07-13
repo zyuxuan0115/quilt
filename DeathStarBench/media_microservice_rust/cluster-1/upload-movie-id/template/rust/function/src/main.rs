@@ -40,6 +40,8 @@ fn main() {
     },
   }; 
 
+  let _ = make_rpc("compose-review-upload-movie-id", movie_id.clone());
+
   let rating_svc_args = RatingServiceArgs {
     movie_id: movie_id,
     rating: movie_info.rating,
