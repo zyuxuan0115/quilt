@@ -16,7 +16,7 @@ fn main() {
   let mut key_review_id: String = args.req_id.to_string();
   key_review_id.push_str(":review_id"); 
 
-  memcache_client.add(&key_review_id[..], args.review_id, 0);
+  memcache_client.add(&key_review_id[..], args.review_id.to_string(), 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
   if counter_value == NUM_COMPONENTS {
