@@ -48,7 +48,7 @@ fn main() {
       new_review.rating = value[..].parse::<i32>().unwrap();
     }
   }
-  new_review.timestamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i32;
+  new_review.timestamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64;
 
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
