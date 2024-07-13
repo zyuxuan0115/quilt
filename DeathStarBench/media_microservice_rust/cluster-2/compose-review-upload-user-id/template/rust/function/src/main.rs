@@ -17,7 +17,7 @@ fn main() {
   key_user_id.push_str(":user_id");
   let user_id = args.user_id;
  
-  memcache_client.add(&key_user_id[..], user_id, 0);
+  memcache_client.add(&key_user_id[..], user_id.to_string(), 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
   if counter_value == NUM_COMPONENTS {
