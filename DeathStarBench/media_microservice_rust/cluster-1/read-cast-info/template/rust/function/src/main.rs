@@ -30,6 +30,7 @@ fn main() {
     cast_infos.push(cast);
   }
 
+
   let mut cast_not_cached: Vec<i64> = Vec::new();
   for (key, _) in &cast_info_ids_not_cached {
     cast_not_cached.push(key[..].parse::<i64>().unwrap());
@@ -44,6 +45,12 @@ fn main() {
     let mut cursor = mongodb_collection.find(query, None).unwrap(); 
     for doc in cursor {
       let doc_ = doc.unwrap();
+      
+      // update memcached
+      let key = doc_.cast_info_id.to_string();
+      let value = serde_json::to_string(&doc_).unwrap();
+      memcache_client.set(&key[..],&value[..],0).unwrap();
+
       cast_infos.push(doc_);    
     }
   }
