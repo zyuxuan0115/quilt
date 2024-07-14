@@ -21,7 +21,7 @@ curl localhost:8080/function/upload-movie-id -d '{"title":"Barbie","rating": 5,"
 ### rating-service
 
 ```bash
-curl localhost:8080/function/rating-service -d '{"movie_id":"tt1517268", "rating":5, "req_id":"7788945"}'
+curl localhost:8080/function/rating-service -d '{"movie_id":"tt1517268", "rating":5, "req_id":8037}'
 ```
 
 ### write-movie-info
