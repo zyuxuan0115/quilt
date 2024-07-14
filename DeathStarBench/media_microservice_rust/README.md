@@ -128,7 +128,7 @@ curl localhost:8081/function/upload-movie-review -d '{"movie_id":"tt1517268","re
 curl localhost:8081/function/read-user-review -d '{"user_id":11078,"start":0,"stop":1}'
 ```
 
-- read-movie-review
+- read-movie-reviews
 
 ```bash
 curl localhost:8081/function/read-movie-review -d '{"movie_id":"tt1517268","start":0,"stop":1}'
