@@ -3,12 +3,18 @@ use rand::Rng;
 //use std::time::{Duration, Instant};
 
 fn main() {
-  let _input: String = get_arg_from_caller();
+  let input: String = get_arg_from_caller();
+  
 //  let now = Instant::now();
   let mut uuid:i64 = rand::thread_rng().gen();
   if uuid < 0 {
     uuid = 0-uuid;
   }
+  let args = ComposeReviewUploadUniqueIdArgs {
+    req_id: input.parse::<i64>().unwrap()
+    review_id: uuid,
+  };
+  let args_str = serde_json::to_string(&args).unwrap();
   make_rpc("compose-review-upload-unique-id", uuid.to_string());
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
