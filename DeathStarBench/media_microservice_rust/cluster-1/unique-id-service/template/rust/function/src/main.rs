@@ -1,4 +1,4 @@
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller};
+use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller, *};
 use rand::Rng;
 //use std::time::{Duration, Instant};
 
@@ -11,7 +11,7 @@ fn main() {
     uuid = 0-uuid;
   }
   let args = ComposeReviewUploadUniqueIdArgs {
-    req_id: input.parse::<i64>().unwrap()
+    req_id: input.parse::<i64>().unwrap(),
     review_id: uuid,
   };
   let args_str = serde_json::to_string(&args).unwrap();
