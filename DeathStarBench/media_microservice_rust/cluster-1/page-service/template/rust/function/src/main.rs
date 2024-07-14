@@ -8,15 +8,18 @@ fn main() {
 
   let read_movie_info_ret = make_rpc("read-movie-info", args.movie_id.clone());
   let movie_info: MovieInfoEntry = serde_json::from_str(&read_movie_info_ret).unwrap();
-
+  println!("movie_info:{:?}", movie_info);
   let read_movie_reviews_args = ReadMovieReviewArgs {
     movie_id: args.movie_id.clone(),
     start: args.review_start,
     stop: args.review_stop,
   };
   let read_movie_reviews_input = serde_json::to_string(&read_movie_reviews_args).unwrap();
+  println!("read_movie_reviews_inpug:{}", read_movie_reviews_input);
   let read_movie_review_ret = make_rpc("read-movie-reviews", read_movie_reviews_input);
+  println!("after read-movie-reviews rpc");
   let reviews: Vec<ReviewEntry> = serde_json::from_str(&read_movie_review_ret).unwrap();
+  println!("reviews: {:?}", reviews);
 
   let cast_info_ids: Vec<i64> = movie_info.casts.iter().map(|x| x.cast_id as i64).collect();
   let cast_info_id_str: String = serde_json::to_string(&cast_info_ids).unwrap();

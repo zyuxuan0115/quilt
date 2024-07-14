@@ -84,7 +84,7 @@
       "cluster_id":2
     },
     {
-      "function_name":"read-movie-review",
+      "function_name":"read-movie-reviews",
       "cluster_id":2
     },
     {
