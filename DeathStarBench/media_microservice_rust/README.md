@@ -131,7 +131,7 @@ curl localhost:8081/function/read-user-review -d '{"user_id":11078,"start":0,"st
 - read-movie-reviews
 
 ```bash
-curl localhost:8081/function/read-movie-review -d '{"movie_id":"tt1517268","start":0,"stop":1}'
+curl localhost:8081/function/read-movie-reviews -d '{"movie_id":"tt1517268","start":0,"stop":1}'
 ```
 
 - store-review
