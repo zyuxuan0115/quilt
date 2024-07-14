@@ -26,6 +26,7 @@ fn main() {
 
       let query = doc!{"movie_id":movie_id.clone()};
       let res = mongodb_collection.find_one(query, None).unwrap();
+
       match res {
         Some(x) => {
           movie_info = serde_json::to_string(&x).unwrap();
