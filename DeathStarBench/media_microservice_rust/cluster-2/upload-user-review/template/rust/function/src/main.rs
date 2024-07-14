@@ -9,8 +9,6 @@ fn main() {
 //  let now = Instant::now();
   let review_info: UploadUserReviewArgs = serde_json::from_str(&input).unwrap();
 
-  let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
-
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
   let database = client.database("user-review");
