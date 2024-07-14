@@ -191,7 +191,7 @@ pub struct ReviewEntry {
 pub struct Cast {
   pub cast_id: i32,
   pub character: String,
-  pub cast_info_id: String,
+  pub cast_info_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
