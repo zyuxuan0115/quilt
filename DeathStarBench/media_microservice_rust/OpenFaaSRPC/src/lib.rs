@@ -248,7 +248,7 @@ pub struct UserEntry {
 pub struct Page {
   pub movie_info: MovieInfoEntry,
   pub reviews: Vec<ReviewEntry>,
-  pub cast_info: CastInfoEntry,
+  pub cast_info: Vec<CastInfoEntry>,
   pub plot: String,
 }
 
