@@ -4,11 +4,13 @@ use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();
+  println!("@@@@@@@@");
 //  let now = Instant::now();
   let args: ComposeReviewUploadRatingArgs = serde_json::from_str(&input).unwrap();
   let mut key_counter:String = args.req_id.to_string();
   key_counter.push_str(":counter"); 
 
+  println!("#########");
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
   memcache_client.add(&key_counter[..], 0, 0);
@@ -18,6 +20,8 @@ fn main() {
  
   memcache_client.add(&key_rating[..], args.rating.to_string(), 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
+
+  println!("counter_value:{}", counter_value);
 
   if counter_value == NUM_COMPONENTS {
     make_rpc("compose-and-upload", args.req_id.to_string());
