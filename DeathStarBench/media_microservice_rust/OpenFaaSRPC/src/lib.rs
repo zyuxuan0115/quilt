@@ -18,6 +18,18 @@ pub struct UploadMovieIdArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct UploadUserWithUsernameArgs {
+  pub username: String,
+  pub req_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UploadUserWithUserIdArgs {
+  pub user_id: i64,
+  pub req_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct RatingServiceArgs {
   pub movie_id: String,
   pub rating: i32,
