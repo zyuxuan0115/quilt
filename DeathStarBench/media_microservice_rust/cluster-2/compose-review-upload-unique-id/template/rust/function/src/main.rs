@@ -22,6 +22,7 @@ fn main() {
   if counter_value == NUM_COMPONENTS {
     make_rpc("compose-and-upload", args.req_id.to_string());
   }
+
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());

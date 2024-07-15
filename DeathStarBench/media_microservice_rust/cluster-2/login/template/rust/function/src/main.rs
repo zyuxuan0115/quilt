@@ -20,12 +20,12 @@ fn jwt_encode(secret: &str, payload: &str) -> String {
 
 fn main() {
   let input: String = get_arg_from_caller();
+  println!("{}", input);
   let user_info: LoginArgs = serde_json::from_str(&input).unwrap();
 
   let username = user_info.username;
   let mut password = user_info.password;
   let secret = user_info.secret;
-
   let mut user_id_str = String::new();
   let mut password_stored = String::new();
   let mut salt = String::new();
@@ -37,7 +37,7 @@ fn main() {
   // connect to memcache
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();  
- 
+
   let mut user_password = username.clone();
   user_password.push_str(":password");
   let result = memcache_client.get(&user_password[..]).unwrap();
