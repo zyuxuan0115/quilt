@@ -111,7 +111,7 @@ curl localhost:8081/function/upload-user-with-userid -d '11078'
 ### text-service
 
 ```bash
-curl localhost:8080/function/text-service -d 'hi this is some text.'
+curl localhost:8080/function/text-service -d '{"req_id":8037,"text":"This is a good movie"}'
 ```
 
 ### upload-user-review
