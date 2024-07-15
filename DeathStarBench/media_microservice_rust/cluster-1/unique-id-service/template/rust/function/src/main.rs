@@ -15,8 +15,8 @@ fn main() {
     review_id: uuid,
   };
   let args_str = serde_json::to_string(&args).unwrap();
-  make_rpc("compose-review-upload-unique-id", uuid.to_string());
+  make_rpc("compose-review-upload-unique-id", args_str);
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  send_return_value_to_caller(uuid.to_string());
+  send_return_value_to_caller("".to_string());
 }
