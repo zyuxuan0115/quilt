@@ -65,13 +65,13 @@ curl localhost:8080/function/read-cast-info -d '[12345,12346]'
 ### write-plot
 
 ```bash
-curl localhost:8080/function/write-plot -d '{"plot_id":7788945,"plot":"One evening at a dance party, Barbie is suddenly stricken with worries about mortality. Overnight, she develops bad breath, cellulite, and flat feet, disrupting her routines and impairing the aura of classic perfection experienced by the Barbies. Weird Barbie, a disfigured doll, tells Barbie to find the child playing with her in the real world to cure her afflictions. Barbie follows the advice and travels to the real world, with Ken joining Barbie by stowing away in her convertible."}'
+curl localhost:8080/function/write-plot -d '{"plot_id":113473,"plot":"One evening at a dance party, Barbie is suddenly stricken with worries about mortality. Overnight, she develops bad breath, cellulite, and flat feet, disrupting her routines and impairing the aura of classic perfection experienced by the Barbies. Weird Barbie, a disfigured doll, tells Barbie to find the child playing with her in the real world to cure her afflictions. Barbie follows the advice and travels to the real world, with Ken joining Barbie by stowing away in her convertible."}'
 ```
 
 ### read-plot
 
 ```bash
-curl localhost:8080/function/read-plot -d '7788945'
+curl localhost:8080/function/read-plot -d '113473'
 ```
 
 ### register-user
