@@ -99,13 +99,13 @@ curl localhost:8081/function/login -d '{"username":"zyuxuan","password":"123456"
 ### upload-user-with-username
 
 ```bash
-curl localhost:8081/function/upload-user-with-username -d '{"username":"zyuxuan"}'
+curl localhost:8081/function/upload-user-with-username -d '{"username":"zyuxuan","req_id":8037}'
 ```
 
 ### upload-user-with-userid
 
 ```bash
-curl localhost:8081/function/upload-user-with-userid -d '11078'
+curl localhost:8081/function/upload-user-with-userid -d '{"user_id":11078,"req_id":8037}'
 ```
 
 ### text-service
