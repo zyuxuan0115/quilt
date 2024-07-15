@@ -40,7 +40,13 @@ fn main() {
     },
   }; 
 
-  let _ = make_rpc("compose-review-upload-movie-id", movie_id.clone());
+  let args = ComposeReviewUploadMovieIdArgs {
+    req_id : movie_info.req_id,
+    movie_id : movie_id.clone(),
+  };
+  let serialized = serde_json::to_string(&args).unwrap();
+
+  let _ = make_rpc("compose-review-upload-movie-id", serialized);
 
   let rating_svc_args = RatingServiceArgs {
     movie_id: movie_id,

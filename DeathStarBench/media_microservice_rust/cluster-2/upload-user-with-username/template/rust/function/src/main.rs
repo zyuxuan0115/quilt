@@ -5,9 +5,9 @@ use mongodb::{bson::doc,sync::Client};
 
 fn main() {
   let input: String = get_arg_from_caller();
-
+  let user_info: UploadUserWithUsernameArgs = serde_json::from_str(&input).unwrap();
   //let now = Instant::now();
-  let mut username_uid = input.clone();
+  let mut username_uid = user_info.username.clone();
   username_uid.push_str(":user_id");
 
   let memcache_uri = get_memcached_uri();
@@ -25,7 +25,7 @@ fn main() {
       let mongodb_database = mongodb_client.database("user");
       let mongodb_collection = mongodb_database.collection::<UserEntry>("user");
 
-      let query = doc!{"username":&input[..]};
+      let query = doc!{"username":&user_info.username[..]};
       let result = mongodb_collection.find_one(query, None).unwrap();
       match result {
         Some(x) => {
@@ -33,14 +33,20 @@ fn main() {
           memcache_client.set(&username_uid[..], &user_id_str[..], 0).unwrap();
         },
         None => {
-          println!("User {} is not found in MongoDB;", input);
-          panic!("User {} is not found in MongoDB;", input);
+          println!("User {} is not found in MongoDB;", user_info.username);
+          panic!("User {} is not found in MongoDB;", user_info.username);
         },
       }
     },
   }; 
 
-  let _ = make_rpc("compose-review-upload-user-id", user_id_str);
+  let callee_args = ComposeReviewUploadUserIdArgs {
+    req_id: user_info.req_id,
+    user_id: user_id_str.parse::<i64>().unwrap(),
+  };
+  let serialized = serde_json::to_string(&callee_args).unwrap();
+
+  let _ = make_rpc("compose-review-upload-user-id", serialized);
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
