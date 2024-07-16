@@ -13,7 +13,7 @@ fn main() {
   let mongodb_database = mongodb_client.database("attractions-db");
   let mongodb_collection = mongodb_database.collection::<Point>("hotels");
 
-  let res = mongodb_collection.find_one(doc! { "hotel_id": &hotel_id[..] }, None).unwrap();
+  let res = mongodb_collection.find_one(doc! { "id": &hotel_id[..] }, None).unwrap();
 
   let mut rest_pids: Vec<String> = Vec::new(); 
   match res {
@@ -26,7 +26,7 @@ fn main() {
       let serialized = serde_json::to_string(&args).unwrap();
       let rest_points_str = make_rpc("get-nearby-points-rest", serialized); 
       let rest_points: Vec<Point> = serde_json::from_str(&rest_points_str).unwrap();
-      rest_pids = rest_points.iter().map(|x| x.hotel_id.clone()).collect();
+      rest_pids = rest_points.iter().map(|x| x.id.clone()).collect();
     },
     None => {
       println!("Hotel {} already existed", hotel_id);
