@@ -10,6 +10,12 @@ pub struct GetNearbyPointsRestArgs {
   pub longitude: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetNearbyPointsMusArgs {
+  pub latitude: f64,
+  pub longitude: f64,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
@@ -20,7 +26,7 @@ pub struct Restaurant {
   pub restaurant_type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Museum {
   pub museum_id: String,
   pub latitude: f64,
@@ -29,7 +35,7 @@ pub struct Museum {
   pub museum_type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Cinema {
   pub cinema_id: String,
   pub latitude: f64, 

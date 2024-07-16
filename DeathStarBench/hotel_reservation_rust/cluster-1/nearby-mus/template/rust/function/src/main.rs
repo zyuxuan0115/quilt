@@ -15,28 +15,28 @@ fn main() {
 
   let res = mongodb_collection.find_one(doc! { "id": &hotel_id[..] }, None).unwrap();
 
-  let mut rest_pids: Vec<String> = Vec::new(); 
+  let mut mus_pids: Vec<String> = Vec::new(); 
   match res {
     Some(x) => {
-      // call another function to return the K-nearest restaurants
+      // call another function to return the K-nearest museums
       let args = GetNearbyPointsRestArgs {
         latitude: x.latitude,
         longitude: x.longitude,
       };
       let serialized = serde_json::to_string(&args).unwrap();
-      let rest_points_str = make_rpc("get-nearby-points-rest", serialized); 
-      let rest_points: Vec<Point> = serde_json::from_str(&rest_points_str).unwrap();
-      rest_pids = rest_points.iter().map(|x| x.id.clone()).collect();
+      let mus_points_str = make_rpc("get-nearby-points-mus", serialized); 
+      let mus_points: Vec<Point> = serde_json::from_str(&mus_points_str).unwrap();
+      mus_pids = mus_points.iter().map(|x| x.id.clone()).collect();
     },
     None => {
       println!("Hotel {} already existed", hotel_id);
       panic!("Hotel {} already existed", hotel_id);
     }
   }
-  let rest_pids_str = serde_json::to_string(&rest_pids).unwrap();
+  let mus_pids_str = serde_json::to_string(&mus_pids).unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller(rest_pids_str);
+  send_return_value_to_caller(mus_pids_str);
 }
 
