@@ -16,6 +16,12 @@ pub struct GetNearbyPointsMusArgs {
   pub longitude: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetNearbyPointsCinemaArgs {
+  pub latitude: f64,
+  pub longitude: f64,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
