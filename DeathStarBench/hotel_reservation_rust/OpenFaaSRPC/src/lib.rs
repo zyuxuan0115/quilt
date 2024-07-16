@@ -5,250 +5,44 @@ use serde::{Deserialize, Serialize};
 pub static NUM_COMPONENTS: u64 = 5;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RegisterMovieIdArgs {
-  pub movie_id: String,
-  pub title: String,
+pub struct GetNearbyPointsRestArgs {
+  pub latitude: f64,
+  pub longitude: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Restaurant {
+  pub restaurant_id: String,
+  pub latitude: f64,
+  pub longitude: f64,
+  pub restaurant_name: String,
+  pub rating: f32,
+  pub restaurant_type: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UploadMovieIdArgs {
-  pub title: String,
-  pub rating: i32,
+pub struct Museum {
+  pub museum_id: String,
+  pub latitude: f64,
+  pub longitude: f64,
+  pub museum_name: String,
+  pub museum_type: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RatingServiceArgs {
-  pub movie_id: String,
-  pub rating: i32,
-  pub req_id: i64,
+pub struct Cinema {
+  pub cinema_id: String,
+  pub latitude: f64, 
+  pub longitude: f64,
+  pub cinema_name: String, 
+  pub cinema_type: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateRatingArgs {
-  pub movie_id: String,
-  pub sum_uncommitted_rating: i32,
-  pub num_uncommitted_rating: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct WriteMovieInfoArgs {
-  pub movie_id: String,
-  pub title: String,
-  pub casts: Vec<Cast>,
-  pub plot_id: i64,
-  pub thumbnail_ids: Vec<String>,
-  pub photo_ids: Vec<String>,
-  pub video_ids: Vec<String>,
-  pub avg_rating: String,
-  pub num_rating: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct WriteCastInfoArgs {
-  pub cast_info_id: i64,
-  pub name: String,
-  pub gender: bool,
-  pub intro: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct WritePlotArgs {
-  pub plot_id: i64,
-  pub plot: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RegisterUserArgs {
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
-  pub password: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct RegisterUserWithIdArgs {
-  pub user_id: i64,
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
-  pub password: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct LoginArgs {
-  pub username: String,
-  pub password: String,
-  pub secret: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UploadUserReviewArgs {
-  pub user_id: i64,
-  pub review_id: i64,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ReadUserReviewArgs {
-  pub user_id: i64,
-  pub start: i32,
-  pub stop: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UploadMovieReviewArgs {
-  pub movie_id: String,
-  pub review_id: i64,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ReadMovieReviewArgs {
-  pub movie_id: String,
-  pub start: i32,
-  pub stop: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct StoreReviewArgs {
-  pub review_id: i64,
-  pub user_id: i64,
-  pub req_id: i64,
-  pub text: String,
-  pub movie_id: String,
-  pub rating: i32,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PageServiceArgs {
-  pub movie_id: String,
-  pub review_start: i32,
-  pub review_stop: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComposeReviewUploadMovieIdArgs {
-  pub req_id: i64,
-  pub movie_id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComposeReviewUploadUserIdArgs {
-  pub req_id: i64,
-  pub user_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComposeReviewUploadUniqueIdArgs {
-  pub req_id: i64,
-  pub review_id: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComposeReviewUploadTextArgs {
-  pub req_id: i64,
-  pub text: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ComposeReviewUploadRatingArgs {
-  pub req_id: i64,
-  pub rating: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserReviewEntry {
-  pub user_id: i64,
-  pub reviews: Vec<Review>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MovieReviewEntry {
-  pub movie_id: String,
-  pub reviews: Vec<Review>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Review {
-  pub review_id: i64,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ReviewEntry {
-  pub review_id: i64,
-  pub user_id: i64,
-  pub req_id: i64,
-  pub text: String,
-  pub movie_id: String,
-  pub rating: i32,
-  pub timestamp: i64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Cast {
-  pub cast_id: i32,
-  pub character: String,
-  pub cast_info_id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MovieIdEntry {
-  pub movie_id: String,
-  pub title: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SocialGraphEntry {
-  pub movie_id: String,
-  pub avg_rating: f64,
-  pub num_rating: i32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct MovieInfoEntry {
-  pub movie_id: String,
-  pub title: String,
-  pub plot_id: i64,
-  pub avg_rating: f64,
-  pub num_rating: i32,
-  pub casts: Vec<Cast>,
-  pub thumbnail_ids: Vec<String>,
-  pub photo_ids: Vec<String>,
-  pub video_ids: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CastInfoEntry {
-  pub cast_info_id: i64,
-  pub name: String,
-  pub gender: bool,
-  pub intro: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PlotEntry {
-  pub plot_id: i64,
-  pub plot: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserEntry {
-  pub user_id: i64,
-  pub first_name: String,
-  pub last_name: String,
-  pub username: String,
-  pub salt: String,
-  pub password: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Page {
-  pub movie_info: MovieInfoEntry,
-  pub reviews: Vec<ReviewEntry>,
-  pub cast_info: CastInfoEntry,
-  pub plot: String,
+pub struct Point {
+  pub id: String,
+  pub latitude: f64,
+  pub longitude: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
