@@ -8,7 +8,7 @@ use std::collections::HashMap;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let cast_info: GetNearbyPointsRestArgs = serde_json::from_str(&input).unwrap();
+  let hotel_loc: GetNearbyPointsRestArgs = serde_json::from_str(&input).unwrap();
 
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
@@ -40,7 +40,8 @@ fn main() {
     pc.add_point(&restaurant_p[i]); 
   }
 
-  let d = pc.get_nearest_n(&[2.1, 2.1], 2);
+  let center: [f64;2] = [hotel_loc.latitude, hotel_loc.longitude];
+  let d = pc.get_nearest_n(&center, maxSearchResults);
 //  pc.add_point(&p);  
 
   //let new_now =  Instant::now();
