@@ -18,7 +18,7 @@ fn main() {
   let mut cinemas: Vec<Cinema> = Vec::new();
   for doc in cursor {
     let doc_ = doc.unwrap();
-    cinema.push(doc_.clone());
+    cinemas.push(doc_.clone());
   } 
 
   let cinema_hashmap: HashMap<String, String> = cinemas.iter().map(|x| {

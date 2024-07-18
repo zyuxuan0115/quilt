@@ -50,7 +50,7 @@ pub struct Cinema {
   pub cinema_type: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Point {
   pub id: String,
   pub latitude: f64,
