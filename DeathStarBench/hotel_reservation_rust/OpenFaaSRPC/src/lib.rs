@@ -3,6 +3,7 @@ use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_s
 use serde::{Deserialize, Serialize};
 
 pub static maxSearchResults: usize = 5;
+pub static maxSearchRadius: f64  = 10.0;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetNearbyPointsRestArgs {
@@ -18,6 +19,12 @@ pub struct GetNearbyPointsMusArgs {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetNearbyPointsCinemaArgs {
+  pub latitude: f64,
+  pub longitude: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct NearbyHotelArgs {
   pub latitude: f64,
   pub longitude: f64,
 }

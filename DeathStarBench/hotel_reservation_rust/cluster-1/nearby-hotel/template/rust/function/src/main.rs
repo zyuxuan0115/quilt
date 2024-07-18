@@ -9,7 +9,7 @@ use kdtree::distance::squared_euclidean;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let hotel_id: String = input; 
+  let hotel_info: NearbyHotelArgs = serde_json::from_str(&input).unwrap(); 
 
   let dimensions = 2;
   let mut kdtree = KdTree::new(dimensions);
@@ -29,10 +29,22 @@ fn main() {
   for i in 0..hotels.len() {
     kdtree.add(&hotels[i].0, hotels[i].1.clone()).unwrap();
   }
-//  let rest_pids_str = serde_json::to_string(&rest_pids).unwrap();
+  let center: [f64;2] = [hotel_info.latitude, hotel_info.longitude];
+  let result = kdtree.within(&center, maxSearchRadius, &squared_euclidean).unwrap();
+  
+  let mut result_top: Vec<(f64, &String)> = Vec::new();
+  if result.len() > maxSearchResults {
+    result_top = result[0..maxSearchResults].to_owned();
+  } 
+  else {
+    result_top = result;
+  }
+
+  let hotel_ids: Vec<String> = result_top.iter().map(|x| x.1.to_owned()).collect();
+  let hotel_ids_str = serde_json::to_string(&hotel_ids).unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller(hotel_ids_str);
 }
 
