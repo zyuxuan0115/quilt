@@ -11,7 +11,7 @@ fn main() {
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
   let mongodb_database = mongodb_client.database("attractions-db");
-  let mongodb_collection = mongodb_database.collection::<RatePlan>("cinemas");
+  let mongodb_collection = mongodb_database.collection::<Cinema>("cinemas");
 
   let new_cinema = Cinema {
     cinema_id: cinema_info.cinema_id,
