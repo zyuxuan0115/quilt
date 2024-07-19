@@ -44,7 +44,7 @@ pub struct SetRateArgs {
   pub hotel_id: String,
   pub code: String,
   pub in_date: String,
-  pub out_data: String,
+  pub out_date: String,
   pub room_type: RoomType,
 }
 
@@ -109,7 +109,7 @@ pub struct RatePlan {
   pub hotel_id: String,
   pub code: String,
   pub in_date: String,
-  pub out_data: String,
+  pub out_date: String,
   pub room_type: RoomType,
 }
 
