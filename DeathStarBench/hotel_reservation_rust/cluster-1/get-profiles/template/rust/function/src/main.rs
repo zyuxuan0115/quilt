@@ -24,11 +24,11 @@ fn main() {
   let keys: &[&str] = &hotel_id_strslice;
   let results: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
-  let mut hotel_profiles: Vec<Hotel> = Vec::new();
+  let mut hotel_profiles: Vec<HotelProfile> = Vec::new();
 
   for (key, value) in results {
     hotel_id_not_cached.remove(&key);
-    let profile: Hotel = serde_json::from_str(&value).unwrap();
+    let profile: HotelProfile = serde_json::from_str(&value).unwrap();
     hotel_profiles.push(profile);
   }
 
@@ -41,14 +41,14 @@ fn main() {
     let mongodb_uri = get_mongodb_uri();
     let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
     let mongodb_database = mongodb_client.database("profile-db");
-    let mongodb_collection = mongodb_database.collection::<Hotel>("hotels");
+    let mongodb_collection = mongodb_database.collection::<HotelProfile>("hotels");
     let query = doc!{"id": doc!{"$in": &profile_not_cached}};
     let mut cursor = mongodb_collection.find(query, None).unwrap();
    
     for doc in cursor {
       let doc_ = doc.unwrap();
       // update memcached
-      let mut key: String = doc_.id.to_owned();
+      let mut key: String = doc_.hotel_id.to_owned();
       key.push_str(":profile");
       let value = serde_json::to_string(&doc_).unwrap();
       memcache_client.set(&key[..],&value[..],0).unwrap();
