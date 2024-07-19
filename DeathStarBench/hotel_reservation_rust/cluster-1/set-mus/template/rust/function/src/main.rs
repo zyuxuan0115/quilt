@@ -7,22 +7,21 @@ use std::collections::HashMap;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let rest_info: SetRestArgs = serde_json::from_str(&input).unwrap();
+  let mus_info: SetMusArgs = serde_json::from_str(&input).unwrap();
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
   let mongodb_database = mongodb_client.database("attractions-db");
-  let mongodb_collection = mongodb_database.collection::<Restaurant>("restaurants");
+  let mongodb_collection = mongodb_database.collection::<Museum>("museums");
 
-  let new_rest = Restaurant {
-    restaurant_id: rest_info.restaurant_id,
-    latitude: rest_info.latitude,
-    longitude: rest_info.longitude,
-    restaurant_name: rest_info.restaurant_name,
-    rating: rest_info.rating,
-    restaurant_type: rest_info.restaurant_type,
+  let new_mus = Museum {
+    museum_id: mus_info.museum_id,
+    latitude: mus_info.latitude,
+    longitude: mus_info.longitude,
+    museum_name: mus_info.museum_name,
+    museum_type: mus_info.museum_type,
   };
 
-  let mut cursor = mongodb_collection.insert_one(new_rest, None).unwrap();
+  let mut cursor = mongodb_collection.insert_one(new_mus, None).unwrap();
    
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
