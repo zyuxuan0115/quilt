@@ -21,7 +21,7 @@ fn main() {
     room_type: rate_info.room_type,
   };
 
-  let mut cursor = mongodb_collection.insert_one(new_profile, None).unwrap();
+  let mut cursor = mongodb_collection.insert_one(new_rate, None).unwrap();
    
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
