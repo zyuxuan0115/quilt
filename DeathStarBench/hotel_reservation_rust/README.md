@@ -33,3 +33,15 @@ curl localhost:8080/function/get-nearby-points-mus -d '{"latitude":32.7157, "lon
 ```bash
 curl localhost:8080/function/get-nearby-points-cinema -d '{"latitude":32.7157, "longitude":117.1611}'
 ```
+
+### nearby-hotel
+
+```bash
+curl localhost:8080/function/nearby-hotel -d '{"latitude":32.7157, "longitude":117.1611}'
+```
+
+### get-profiles
+
+```bash
+curl localhost:8080/function/get-profiles -d ''
+```
