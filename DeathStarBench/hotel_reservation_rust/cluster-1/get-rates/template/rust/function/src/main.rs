@@ -24,11 +24,11 @@ fn main() {
   let keys: &[&str] = &hotel_id_strslice;
   let results: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
-  let mut hotel_rates: Vec<Hotel> = Vec::new();
+  let mut hotel_rates: Vec<RatePlan> = Vec::new();
 
   for (key, value) in results {
     hotel_id_not_cached.remove(&key);
-    let rate: Hotel = serde_json::from_str(&value).unwrap();
+    let rate: RatePlan = serde_json::from_str(&value).unwrap();
     hotel_rates.push(rate);
   }
 
@@ -41,7 +41,7 @@ fn main() {
     let mongodb_uri = get_mongodb_uri();
     let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
     let mongodb_database = mongodb_client.database("rate-db");
-    let mongodb_collection = mongodb_database.collection::<Hotel>("inventory");
+    let mongodb_collection = mongodb_database.collection::<RatePlan>("inventory");
     let query = doc!{"id": doc!{"$in": &rate_not_cached}};
     let mut cursor = mongodb_collection.find(query, None).unwrap();
    
@@ -49,14 +49,14 @@ fn main() {
       let doc_ = doc.unwrap();
       // update memcached
       let mut key: String = doc_.id.to_owned();
-      key.push_str(":profile");
+      key.push_str(":rate");
       let value = serde_json::to_string(&doc_).unwrap();
       memcache_client.set(&key[..],&value[..],0).unwrap();
-      hotel_profiles.push(doc_);
+      hotel_rates.push(doc_);
     }
   }
 
-  let serialized = serde_json::to_string(&hotel_profiles).unwrap();
+  let serialized = serde_json::to_string(&hotel_rates).unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
