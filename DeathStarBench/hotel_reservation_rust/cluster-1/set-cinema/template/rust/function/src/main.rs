@@ -10,18 +10,18 @@ fn main() {
   let cinema_info: SetCinemaArgs = serde_json::from_str(&input).unwrap();
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("rate-db");
-  let mongodb_collection = mongodb_database.collection::<RatePlan>("inventory");
+  let mongodb_database = mongodb_client.database("attractions-db");
+  let mongodb_collection = mongodb_database.collection::<RatePlan>("cinemas");
 
-  let new_rate = RatePlan {
-    hotel_id: rate_info.hotel_id,
-    code: rate_info.code,
-    in_date: rate_info.in_date,
-    out_date: rate_info.out_date,
-    room_type: rate_info.room_type,
+  let new_cinema = Cinema {
+    cinema_id: cinema_info.cinema_id,
+    latitude: cinema_info.latitude,
+    longitude: cinema_info.longitude,
+    cinema_name: cinema_info.cinema_name,
+    cinema_type: cinema_info.cinema_type,
   };
 
-  let mut cursor = mongodb_collection.insert_one(new_profile, None).unwrap();
+  let mut cursor = mongodb_collection.insert_one(new_cinema, None).unwrap();
    
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
