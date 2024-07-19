@@ -8,17 +8,19 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let hotel_ids: Vec<String> = serde_json::from_str(&input).unwrap();
-  let mut hotel_id_not_cached: HashMap<String, bool> = HashMap::new();
+  let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut new_x = x.clone(); new_x.push_str(":profile"); new_x}).collect();
+  let mut hotel_id_not_cached: HashMap<String, String> = HashMap::new();
  
   for hotel_id in &hotel_ids {
-    let hotelid = hotel_id.to_owned();
-    hotel_id_not_cached.insert(hotelid, false);
+    let mut hotelid = hotel_id.to_owned();
+    hotelid.push_str(":profile");
+    hotel_id_not_cached.insert(hotelid, hotel_id.to_owned());
   }
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
-  let hotel_id_strslice: Vec<&str> = hotel_ids.iter().map(|x| &**x).collect();
+  let hotel_id_strslice: Vec<&str> = hotel_id_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_id_strslice;
   let results: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
@@ -31,8 +33,8 @@ fn main() {
   }
 
   let mut profile_not_cached: Vec<String> = Vec::new();
-  for (key, _) in &hotel_id_not_cached {
-    profile_not_cached.push(key.to_owned());
+  for (_, value) in &hotel_id_not_cached {
+    profile_not_cached.push(value.to_owned());
   }
 
   if profile_not_cached.len() != 0 {
@@ -46,9 +48,10 @@ fn main() {
     for doc in cursor {
       let doc_ = doc.unwrap();
       // update memcached
-      let key = &doc_.id[..];
+      let mut key: String = doc_.id.to_owned();
+      key.push_str(":profile");
       let value = serde_json::to_string(&doc_).unwrap();
-      memcache_client.set(key,&value[..],0).unwrap();
+      memcache_client.set(&key[..],&value[..],0).unwrap();
       hotel_profiles.push(doc_);
     }
   }
