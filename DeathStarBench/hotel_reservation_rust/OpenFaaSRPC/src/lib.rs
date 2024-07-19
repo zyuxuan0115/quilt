@@ -29,6 +29,25 @@ pub struct NearbyHotelArgs {
   pub longitude: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SetProfileArgs {
+  pub hotel_id: String,
+  pub name: String,
+  pub phone_number: String,
+  pub description: String,
+  pub address: Address,
+  pub images: Vec<Image>, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SetRateArgs {
+  pub hotel_id: String,
+  pub code: String,
+  pub in_date: String,
+  pub out_data: String,
+  pub room_type: RoomType,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
