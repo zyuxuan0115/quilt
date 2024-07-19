@@ -49,6 +49,16 @@ pub struct SetRateArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct SetReviewArgs {
+  pub review_id: String,
+  pub hotel_id: String,
+  pub name: String,
+  pub rating: f32,
+  pub description: String,
+  pub image: Image, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SetCinemaArgs {
   pub cinema_id: String,
   pub latitude: f64,
@@ -156,6 +166,16 @@ pub struct RoomType {
   pub code: String,
   pub currency: String,
   pub room_description: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ReviewComm {
+  pub review_id: String,
+  pub hotel_id: String,
+  pub name: String,
+  pub rating: f32,
+  pub description: String,
+  pub image: Image, 
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
