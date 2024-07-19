@@ -57,6 +57,25 @@ pub struct SetCinemaArgs {
   pub cinema_type: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SetRestArgs {
+  pub restaurant_id: String,
+  pub latitude: f64,
+  pub longitude: f64,
+  pub restaurant_name: String,
+  pub rating: f32,
+  pub restaurant_type: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SetMusArgs {
+  pub museum_id: String,
+  pub latitude: f64,
+  pub longitude: f64,
+  pub museum_name: String,
+  pub museum_type: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
