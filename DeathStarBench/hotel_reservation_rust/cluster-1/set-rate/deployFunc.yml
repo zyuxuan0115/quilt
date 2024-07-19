@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  set-rates:
+  set-rate:
     lang: rust
-    handler: ./set-rates
-    image: zyuxuan0115/hr-set-rates:latest
+    handler: ./set-rate
+    image: zyuxuan0115/hr-set-rate:latest
     secrets:
     - redis-password
     - mongodb-password
