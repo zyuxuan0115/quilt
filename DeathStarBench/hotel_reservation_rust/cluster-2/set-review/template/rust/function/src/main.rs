@@ -1,7 +1,7 @@
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
+use mongodb::{sync::Client};
 use std::collections::HashMap;
 
 fn main() {
@@ -22,7 +22,7 @@ fn main() {
     image: review_info.image, 
   };
 
-  let mut cursor = mongodb_collection.insert_one(new_profile, None).unwrap();
+  let _res = mongodb_collection.insert_one(new_review, None).unwrap();
    
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
