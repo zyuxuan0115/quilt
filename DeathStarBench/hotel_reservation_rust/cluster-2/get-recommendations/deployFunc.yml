@@ -1,0 +1,13 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  get-recommendations:
+    lang: rust
+    handler: ./get-recommendations
+    image: zyuxuan0115/hr-get-recommendations:latest
+    secrets:
+    - redis-password
+    - mongodb-password
+    - ingress-enable
