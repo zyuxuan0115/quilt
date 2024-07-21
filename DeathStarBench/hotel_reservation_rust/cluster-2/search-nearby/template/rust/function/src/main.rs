@@ -1,47 +1,37 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let hotel_id: String = input.clone();
-  let mut hotel_id_mmc: String = input.clone();
-  hotel_id_mmc.push_str(":review");
+  let args: SearchNearbyArgs = serde_json::from_str(&input).unwrap();
+  
+  let nearby_hotel_arg = NearbyHotelArgs {
+    latitude: args.latitude,
+    longitude: args.longitude,
+  };
+  let nearby_hotel_arg_str = serde_json::to_string(&nearby_hotel_arg).unwrap();
+  let nearby_hotel_str: String = make_rpc("nearby-hotel", nearby_hotel_arg_str);
+  let nearby_hotels = serde_json::from_str(&nearby_hotel_str).unwrap();
 
-  // connect to memcached
-  let memcache_uri = get_memcached_uri();
-  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
-  let result = memcache_client.get(&hotel_id_mmc[..]).unwrap();
+  let get_rates_arg = GetRatesArgs {
+    hotel_ids: nearby_hotels,
+    in_data: args.in_data,
+    out_data: args.out_data,
+  }; 
+ 
+  let get_rates_arg_str = serde_json::to_string(&get_rates_arg).unwrap();
+  let get_rates_str: String = make_rpc("get-rates", get_rates_arg_str);  
 
-  let mut review_str = String::new();
-  match result {
-    Some(x) => {
-      review_str = x;
-    },
-    None => { 
-      // fetch data from mongodb
-      let mongodb_uri = get_mongodb_uri();
-      let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-      let mongodb_database = mongodb_client.database("review-db");
-      let mongodb_collection = mongodb_database.collection::<ReviewComm>("reviews");
-      let query = doc!{"hotel_id": &hotel_id[..]};
-      let cursor = mongodb_collection.find(query, None).unwrap();
-      let mut reviews: Vec<ReviewComm> = Vec::new();
-      for doc in cursor {
-        let doc_ = doc.unwrap();
-        reviews.push(doc_.clone()); 
-      }
-      review_str = serde_json::to_string(&reviews).unwrap();
-      // update memcached
-      memcache_client.set(&hotel_id_mmc[..], &review_str[..], 0).unwrap();
-    }
-  }
+  let rate_plan: Vec<RatePlan> = serde_json::from_str(&get_rates_str).unwrap();
+  let hotel_ids: Vec<String> = rate_plan.iter().map(|x| x.hotel_id.clone()).collect();
 
-  //let new_now =  Instant::now();
+  let serialized = serde_json::to_string(&hotel_ids).unwrap();
+
+   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller(review_str);
+  send_return_value_to_caller(serialized);
 }
 
