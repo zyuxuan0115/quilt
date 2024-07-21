@@ -24,6 +24,13 @@ pub struct GetNearbyPointsCinemaArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct GetRecommendationsArgs {
+  pub require: String,
+  pub latitude: f64,
+  pub longitude: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct NearbyHotelArgs {
   pub latitude: f64,
   pub longitude: f64,
@@ -93,6 +100,22 @@ pub struct SetHotelArgs {
   pub longitude: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SetRecommendationArgs {
+  pub hotel_id: String,
+  pub latitude: f64,
+  pub longitude: f64,
+  pub rate: f64,
+  pub price: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetRecommendationsArgs {
+  pub require: String,
+  pub latitude: f64,
+  pub longitude: f64,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
@@ -147,6 +170,15 @@ pub struct HotelProfile {
   pub description: String,
   pub address: Address,
   pub images: Vec<Image>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct HotelRecomm {
+  pub hotel_id: String,
+  pub latitude: f64,
+  pub longitude: f64,
+  pub rate: f64,
+  pub price: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
