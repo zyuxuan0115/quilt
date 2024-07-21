@@ -109,6 +109,21 @@ pub struct GetRecommendationsArgs {
   pub longitude: f64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetRatesArgs {
+  pub hotel_ids: Vec<String>,
+  pub in_data: String,
+  pub out_data: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SearchNearbyArgs {
+  pub latitude: f64,
+  pub longitude: f64,
+  pub in_data: String,
+  pub out_data: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
