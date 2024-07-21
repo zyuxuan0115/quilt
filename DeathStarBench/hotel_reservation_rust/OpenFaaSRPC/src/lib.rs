@@ -24,13 +24,6 @@ pub struct GetNearbyPointsCinemaArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetRecommendationsArgs {
-  pub require: String,
-  pub latitude: f64,
-  pub longitude: f64,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 pub struct NearbyHotelArgs {
   pub latitude: f64,
   pub longitude: f64,
