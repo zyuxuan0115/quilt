@@ -7,7 +7,8 @@ use std::collections::HashMap;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let hotel_ids: Vec<String> = serde_json::from_str(&input).unwrap();
+  let args: GetRatesArgs = serde_json::from_str(&input).unwrap();
+  let hotel_ids: Vec<String> = args.hotel_ids;
   let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut new_x = x.clone(); new_x.push_str(":rate"); new_x}).collect();
   let mut hotel_id_not_cached: HashMap<String, String> = HashMap::new();
  
