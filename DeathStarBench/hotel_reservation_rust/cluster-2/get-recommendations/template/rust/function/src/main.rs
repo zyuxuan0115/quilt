@@ -31,7 +31,17 @@ fn main() {
   let mut hotel_ids: Vec<String> = Vec::new();
   match &request.require[..] {
     "price" => {
-      
+       let mut min_price = OrderedFloat(NAN);
+       for item in &hotel_info {
+         if OrderedFloat(item.price) < min_price {
+           min_price = OrderedFloat(item.price);
+         }
+       }
+       for item in hotel_info {
+         if OrderedFloat(item.price) == min_price {
+           hotel_ids.push(item.hotel_id.clone());
+         }
+       }
     },
     "rate" => {
 
