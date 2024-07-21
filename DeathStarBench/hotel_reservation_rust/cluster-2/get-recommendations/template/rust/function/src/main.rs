@@ -37,17 +37,41 @@ fn main() {
            min_price = OrderedFloat(item.price);
          }
        }
-       for item in hotel_info {
+       for item in &hotel_info {
          if OrderedFloat(item.price) == min_price {
            hotel_ids.push(item.hotel_id.clone());
          }
        }
     },
     "rate" => {
-
+      let mut max_rate = OrderedFloat(0.0);
+      for item in &hotel_info {
+        if OrderedFloat(item.rate) > max_rate {
+          max_rate = OrderedFloat(item.rate);
+        }
+      }
+      for item in &hotel_info {
+        if OrderedFloat(item.rate) == max_rate {
+          hotel_ids.push(item.hotel_id.clone());
+        }
+      }
     },
     "dis" => {
-
+      let mut min_dis = OrderedFloat(NAN);
+      for item in &hotel_info {
+        let dis = (request.latitude - item.latitude) * (request.latitude - item.latitude) 
+            + (request.longitude - item.longitude) * (request.longitude - item.longitude);
+        if OrderedFloat(dis) < min_dis {
+          min_dis = OrderedFloat(dis);
+        }
+      }
+      for item in &hotel_info {
+        let dis = (request.latitude - item.latitude) * (request.latitude - item.latitude) 
+            + (request.longitude - item.longitude) * (request.longitude - item.longitude);
+        if OrderedFloat(dis) == min_dis {
+          hotel_ids.push(item.hotel_id.clone());
+        }
+      }
     },
     _ => {
 
