@@ -1,0 +1,13 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  check-availability:
+    lang: rust
+    handler: ./check-availability
+    image: zyuxuan0115/hr-check-availability:latest
+    secrets:
+    - redis-password
+    - mongodb-password
+    - ingress-enable
