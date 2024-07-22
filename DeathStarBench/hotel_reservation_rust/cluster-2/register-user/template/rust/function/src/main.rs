@@ -5,23 +5,14 @@ use rand::{distributions::Alphanumeric, Rng};
 use sha256::digest;
 use std::time::{Duration, Instant};
 
-fn gen_random_string()->String{
-  let salt: String = rand::thread_rng()
-                        .sample_iter(&Alphanumeric)
-                        .take(32)
-                        .map(char::from)
-                        .collect();
-  salt
-}
- 
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let new_user_info: RegisterUserArgs = serde_json::from_str(&input).unwrap();
   let uri = get_mongodb_uri();
   let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("user");
-  let collection = database.collection::<UserEntry>("user");
+  let database = client.database("user-db");
+  let collection = database.collection::<User>("user");
 
   let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
 
@@ -34,20 +25,13 @@ fn main() {
   } 
 
   let mut pw_sha: String = String::from(&new_user_info.password[..]);
-  let salt: String = gen_random_string();
-  let uid: i64 = rand::thread_rng().gen();
-  pw_sha.push_str(&salt[..]);
   pw_sha = digest(pw_sha);
-  let user_info_entry = UserEntry {
-    user_id: uid,
-    first_name: new_user_info.first_name,
-    last_name: new_user_info.last_name,
-    username: new_user_info.username,
-    salt: salt,
+  let user_entry = User {
+    username: new_user_info.username.clone(),
     password: pw_sha, 
   };
 
-  collection.insert_one(user_info_entry, None).unwrap();
+  collection.insert_one(user_entry, None).unwrap();
 
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));

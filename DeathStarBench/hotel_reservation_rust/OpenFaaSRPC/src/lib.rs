@@ -124,6 +124,12 @@ pub struct SearchNearbyArgs {
   pub out_data: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RegisterUserArgs {
+  pub username: String,
+  pub password: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
@@ -216,6 +222,12 @@ pub struct ReviewComm {
   pub rating: f32,
   pub description: String,
   pub image: Image, 
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct User {
+  pub username: String,
+  pub password: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
