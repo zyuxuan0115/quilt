@@ -11,6 +11,43 @@ fn main() {
   let args: MakeReservationArgs = serde_json::from_str(&input).unwrap();
   let hotel_id: String = args.hotel_id.clone();
 
+  // get capacity
+  // (1) connect to memcached
+  let memcache_uri = get_memcached_uri();
+  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();
+  // (2) connect to mongodb
+  let mongodb_uri = get_mongodb_uri();
+  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
+  let mongodb_database = mongodb_client.database("reservation-db");
+
+  let hotel_id_cap_mmc:String = format!("{}_cap", hotel_id);
+  let result: Option<String> = memcache_client.get(&hotel_id_cap_mmc[..]).unwrap();
+  
+  let mut hotel_capacity: i32 = 0;
+  match result {
+    Some(x) => {
+      hotel_capacity = x.parse::<i32>().unwrap();
+    },
+    None => {
+      let mongodb_collection = mongodb_database.collection::<HotelCapacity>("number");
+
+      let query = doc!{"hotel_id":hotel_id.clone()};
+      let res = mongodb_collection.find_one(query, None).unwrap();
+
+      match res {
+        Some(x) => {
+          hotel_capacity = x.capacity;
+          memcache_client.set(&hotel_id[..], x.capacity.to_string(), 0).unwrap();
+        },
+        None => {
+          println!("Hotel {} is not found in MongoDB;", hotel_id);
+          panic!("Hotel {} is not found in MongoDB;", hotel_id);
+        },
+      }
+    },
+  } 
+ 
+
   let mut in_date = NaiveDate::parse_from_str(&args.in_date[..], "%Y-%m-%d").unwrap();
   let out_date = NaiveDate::parse_from_str(&args.out_date[..], "%Y-%m-%d").unwrap();
   let mut next_day = in_date.succ_opt().unwrap();
@@ -33,13 +70,10 @@ fn main() {
     let k = item.to_owned();
     hotel_ids_not_cached.insert(k, false);
   }
-  // connect to memcached
-  let memcache_uri = get_memcached_uri();
-  let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();
-  let result: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
+  let results: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
   let mut reservation_info: Vec<HotelReservation> = Vec::new();
-  for (key, value) in &result {
+  for (key, value) in &results {
     let room_num = value.parse::<i32>().unwrap();
     hotel_ids_not_cached.remove(key);
     let parts = key[..].split("_").collect::<Vec<&str>>();
