@@ -163,6 +163,13 @@ pub struct SetReservationArgs {
   pub number: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SetCapacityArgs {
+  pub hotel_id: String,
+  // available room number
+  pub capacity: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
