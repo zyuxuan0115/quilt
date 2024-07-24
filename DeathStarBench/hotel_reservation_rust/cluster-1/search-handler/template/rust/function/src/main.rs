@@ -20,7 +20,7 @@ fn main() {
   let search_nearby_ret: Vec<String> = serde_json::from_str(&search_nearby_ret_str).unwrap();
 
   let check_availability_args = CheckAvailabilityArgs {
-    custome_name: "".to_string(),
+    customer_name: "".to_string(),
     hotel_id: search_nearby_ret,
     in_date: search_info.in_date,
     out_date: search_info.out_date,

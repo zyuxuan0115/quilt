@@ -1,31 +1,40 @@
-use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
+use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{sync::Client};
+use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let review_info: SetReviewArgs = serde_json::from_str(&input).unwrap();
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("review-db");
-  let mongodb_collection = mongodb_database.collection::<ReviewComm>("reviews");
 
-  let new_review = ReviewComm {
-    review_id: review_info.review_id,
-    hotel_id: review_info.hotel_id,
-    name: review_info.name,
-    rating: review_info.rating,
-    description: review_info.description,
-    image: review_info.image, 
+  let resv_info: ReservationHandlerArgs = serde_json::from_str(&input).unwrap();
+
+  let check_user_args = CheckUserArgs {
+    username: resv_info.username,
+    password: resv_info.password,
   };
+  let check_user_args_str = serde_json::to_string(&check_user_args).unwrap();
+  let check_user_args_ret_str =  make_rpc("check-user", check_user_args_str);
 
-  let _res = mongodb_collection.insert_one(new_review, None).unwrap();
-   
+  let check_user_args_ret: bool = serde_json::from_str(&check_user_args_ret_str).unwrap();
+
+  let mut serialized: String = String::new();
+  if check_user_args_ret == true {
+    let make_resv_args = MakeReservationArgs {
+      customer_name: resv_info.customer_name,
+      hotel_id: resv_info.hotel_id,
+      in_date: resv_info.in_date,
+      out_date: resv_info.out_date,
+      room_number: resv_info.room_number,
+    };
+    let make_resv_args_str = serde_json::to_string(&make_resv_args).unwrap(); 
+    let make_resv_ret_str = make_rpc("make-reservation", make_resv_args_str);
+    serialized = make_resv_ret_str;
+  }
+    
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller(serialized);
 }
 

@@ -138,7 +138,7 @@ pub struct CheckUserArgs {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CheckAvailabilityArgs {
-  pub custome_name: String,
+  pub customer_name: String,
   pub hotel_id: Vec<String>,
   pub in_date: String,
   pub out_date: String,
@@ -147,7 +147,7 @@ pub struct CheckAvailabilityArgs {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MakeReservationArgs {
-  pub custome_name: String,
+  pub customer_name: String,
   pub hotel_id: String,
   pub in_date: String, 
   pub out_date: String,
@@ -183,6 +183,17 @@ pub struct RecommendationHandlerArgs {
   pub require: String,
   pub latitude: f64,
   pub longitude: f64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReservationHandlerArgs {
+  pub customer_name: String,
+  pub username: String,
+  pub password: String,
+  pub hotel_id: String,
+  pub in_date: String,
+  pub out_date: String,
+  pub room_number: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
