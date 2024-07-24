@@ -1,122 +1,106 @@
 [
     {
-      "function_name":"unique-id-service",
+      "function_name":"get-nearby-points-cinema",
       "cluster_id":1
     },
     {
-      "function_name":"register-movie-id",
+      "function_name":"get-nearby-points-mus",
       "cluster_id":1
     },
     {
-      "function_name":"update-movie-id",
+      "function_name":"get-nearby-points-rest",
       "cluster_id":1
     },
     {
-      "function_name":"rating-service",
+      "function_name":"get-profiles",
       "cluster_id":1
     },
     {
-      "function_name":"write-movie-info",
+      "function_name":"nearby-cinema",
       "cluster_id":1
     },
     {
-      "function_name":"read-movie-info",
+      "function_name":"nearby-hotel",
       "cluster_id":1
     },
     {
-      "function_name":"update-rating",
+      "function_name":"nearby-mus",
       "cluster_id":1
     },
     {
-      "function_name":"write-cast-info",
+      "function_name":"nearby-rest",
       "cluster_id":1
     },
     {
-      "function_name":"read-cast-info",
+      "function_name":"set-cinema",
       "cluster_id":1
     },
     {
-      "function_name":"write-plot",
+      "function_name":"set-hotel-point",
       "cluster_id":1
     },
     {
-      "function_name":"read-plot",
+      "function_name":"set-mus",
       "cluster_id":1
     },
     {
-      "function_name":"text-service",
+      "function_name":"set-profile",
       "cluster_id":1
     },
     {
-      "function_name":"page-service",
+      "function_name":"set-rest",
       "cluster_id":1
     },
     {
-      "function_name":"compose-review-upload-rating",
-      "cluster_id":1
+      "function_name":"check-availability",
+      "cluster_id":2
     },
     {
-      "function_name":"compose-and-upload",
-      "cluster_id":1
+      "function_name":"check-user",
+      "cluster_id":2
+    },
+    {
+      "function_name":"get-rates",
+      "cluster_id":2
+    },
+    {
+      "function_name":"get-recommendations",
+      "cluster_id":2
+    },
+    {
+      "function_name":"get-reviews",
+      "cluster_id":2
+    },
+    {
+      "function_name":"make-reservation",
+      "cluster_id":2
     },
     {
       "function_name":"register-user",
       "cluster_id":2
     },
     {
-      "function_name":"register-user-with-id",
+      "function_name":"search-nearby",
       "cluster_id":2
     },
     {
-      "function_name":"login",
+      "function_name":"set-capacity",
       "cluster_id":2
     },
     {
-      "function_name":"upload-user-with-username",
+      "function_name":"set-rate",
       "cluster_id":2
     },
     {
-      "function_name":"upload-user-with-userid",
+      "function_name":"set-recommendation",
       "cluster_id":2
     },
     {
-      "function_name":"upload-movie-review",
+      "function_name":"set-reservation",
       "cluster_id":2
     },
     {
-      "function_name":"read-movie-review",
-      "cluster_id":2
-    },
-    {
-      "function_name":"upload-user-review",
-      "cluster_id":2
-    },
-    {
-      "function_name":"read-user-review",
-      "cluster_id":2
-    },
-    {
-      "function_name":"store-review",
-      "cluster_id":2
-    },
-    {
-      "function_name":"read-reviews",
-      "cluster_id":2
-    },
-    {
-      "function_name":"compose-review-upload-movie-id",
-      "cluster_id":2
-    },
-    {
-      "function_name":"compose-review-upload-text",
-      "cluster_id":2
-    },
-    {
-      "function_name":"compose-review-upload-unique-id",
-      "cluster_id":2
-    },
-    {
-      "function_name":"compose-review-upload-user-id",
+      "function_name":"set-review",
       "cluster_id":2
     }
 ]
