@@ -30,7 +30,7 @@ fn main() {
 
   let serialized = serde_json::to_string(&hotel_ids).unwrap();
 
-   //let new_now =  Instant::now();
+  //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }

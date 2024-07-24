@@ -7,24 +7,33 @@ use std::collections::HashMap;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let mus_info: SetMusArgs = serde_json::from_str(&input).unwrap();
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("attractions-db");
-  let mongodb_collection = mongodb_database.collection::<Museum>("museums");
+  let search_info: SearchHandlerArgs = serde_json::from_str(&input).unwrap();
 
-  let new_mus = Museum {
-    museum_id: mus_info.museum_id,
-    latitude: mus_info.latitude,
-    longitude: mus_info.longitude,
-    museum_name: mus_info.museum_name,
-    museum_type: mus_info.museum_type,
+  let search_nearby_args = SearchNearbyArgs {
+    latitude: search_info.latitude,
+    longitude: search_info.longitude,
+    in_date: search_info.in_date,
+    out_date: search_info.out_date,
   };
+  let search_nearby_args_str = serde_json::to_string(&search_nearby_args).unwrap(); 
+  let search_nearby_ret_str = make_rpc("search-nearby", search_nearby_args_str);
+  let search_nearby_ret: Vec<String> = serde_json::from_str(&search_nearby_ret_str).unwrap();
 
-  let mut cursor = mongodb_collection.insert_one(new_mus, None).unwrap();
-   
+  let check_availability_args = CheckAvailabilityArgs {
+    custome_name: "".to_string(),
+    hotel_id: search_nearby_ret,
+    in_date: search_info.in_date,
+    out_date: search_info.out_date,
+    room_number: 1,
+  };
+  let check_availability_args_str = serde_json::to_string(&check_availability_args).unwrap();
+  let check_availability_ret_str = make_rpc("check-availability", check_availability_args_str);
+  let check_availability_ret: Vec<String> = serde_json::from_str(&check_availability_ret_str).unwrap();
+
+  let profiles_str =  make_rpc("get-profiles", check_availability_ret_str);
+    
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller(profiles_str);
 }
 

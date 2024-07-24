@@ -170,6 +170,14 @@ pub struct SetCapacityArgs {
   pub capacity: i32,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SearchHandlerArgs {
+  latitude: f64,
+  longitude: f64,
+  in_date: String,
+  out_date: String,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
