@@ -52,6 +52,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"search-handler",
+      "cluster_id":1
+    },
+    {
       "function_name":"check-availability",
       "cluster_id":2
     },
@@ -102,5 +106,14 @@
     {
       "function_name":"set-review",
       "cluster_id":2
+    },
+    {
+      "function_name":"recommendation-handler",
+      "cluster_id":2
+    },
+    {
+      "function_name":"reservation-handler",
+      "cluster_id":2
     }
+
 ]
