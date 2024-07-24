@@ -75,3 +75,69 @@ curl localhost:8080/function/set-profile -d ''
 ```bash
 curl localhost:8080/function/set-rest -d ''
 ```
+
+### check-availability
+
+```bash
+curl localhost:8081/function/check-availability -d ''
+```
+
+### check-user
+
+```bash
+curl localhost:8081/function/check-user -d ''
+```
+
+### get-rates
+
+```bash
+curl localhost:8081/function/get-rates -d ''
+```
+
+### get-recommendations
+
+```bash
+curl localhost:8081/function/get-recommendations -d ''
+```
+
+### get-reviews
+
+```bash
+curl localhost:8081/function/get-reviews -d ''
+```
+
+### make-reservation
+
+```bash
+curl localhost:8081/function/make-reservation -d ''
+```
+
+### register-user
+
+```bash
+curl localhost:8081/function/register-user -d ''
+```
+
+### search-nearby
+
+```bash
+curl localhost:8081/function/set-capacity -d ''
+```
+
+### set-rate
+
+```bash
+curl localhost:8081/function/set-recommendation -d ''
+```
+
+### set-reservation
+
+```bash
+curl localhost:8081/function/set-reservation -d ''
+```
+
+### set-review
+
+```bash
+curl localhost:8081/function/set-review -d ''
+```
