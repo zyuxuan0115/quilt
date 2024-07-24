@@ -23,16 +23,17 @@ fn main() {
   let hotel_id_cap_mmc:String = format!("{}_cap", hotel_id);
   let result: Option<String> = memcache_client.get(&hotel_id_cap_mmc[..]).unwrap();
   
+  // get the hotel capacity  
   let mut hotel_capacity: i32 = 0;
   match result {
     Some(x) => {
       hotel_capacity = x.parse::<i32>().unwrap();
     },
     None => {
-      let mongodb_collection = mongodb_database.collection::<HotelCapacity>("number");
+      let num_collection = mongodb_database.collection::<HotelCapacity>("number");
 
       let query = doc!{"hotel_id":hotel_id.clone()};
-      let res = mongodb_collection.find_one(query, None).unwrap();
+      let res = num_collection.find_one(query, None).unwrap();
 
       match res {
         Some(x) => {
@@ -47,7 +48,7 @@ fn main() {
     },
   } 
  
-
+  // create keys for memcached to get the reservation number for each date
   let mut in_date = NaiveDate::parse_from_str(&args.in_date[..], "%Y-%m-%d").unwrap();
   let out_date = NaiveDate::parse_from_str(&args.out_date[..], "%Y-%m-%d").unwrap();
   let mut next_day = in_date.succ_opt().unwrap();
@@ -64,7 +65,7 @@ fn main() {
   let hotel_ids_strslice: Vec<&str> = hotel_ids_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_ids_strslice;
 
-  // get the resv number of each hotel
+  // get the resv number of each date
   let mut hotel_ids_not_cached: HashMap<String, bool> = HashMap::new();
   for item in &hotel_ids_mmc {
     let k = item.to_owned();
@@ -89,29 +90,50 @@ fn main() {
     hotel_ids_not_cached.remove(key);
   } 
 
-  let mut hotel_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,_)| k).collect();
+  let mut hotel_resv_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,_)| k).collect();
 
-  if hotel_not_cached.len() != 0 {
-    // fetch data from mongodb
+  // fetch data from mongodb, if not present in memcached
+  if hotel_resv_not_cached.len() != 0 {
     let mongodb_uri = get_mongodb_uri();
     let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
     let mongodb_database = mongodb_client.database("reservation-db");
-    let num_collection = mongodb_database.collection::<HotelReservation>("reservation");
+    let resv_collection = mongodb_database.collection::<HotelReservation>("reservation");
 
-    for item in hotel_not_cached {
+    for item in hotel_resv_not_cached {
       let parts = item[..].split("_").collect::<Vec<&str>>();
       if parts.len() == 3 {
         let query = doc!{"hotel_id": &parts[0][..], "in_date": &parts[1][..], "out_date": &parts[2][..]};
-        let mut cursor = num_collection.find(query, None).unwrap();
+        let mut cursor = resv_collection.find(query, None).unwrap();
         for doc in cursor {
           let doc_ = doc.unwrap();
           // update memcached
-          let mut key: String = doc_.hotel_id.to_owned();
-          key.push_str("_cap");
-          let value = serde_json::to_string(&doc_).unwrap();
+          let key: String = item.clone();
+          let value = serde_json::to_string(&doc_.room_number).unwrap();
           memcache_client.set(&key[..],&value[..],0).unwrap();
+          reservation_info.push(doc_.clone());
         }
       }
+    }
+  }
+
+  let mut make_resv_successful = true;
+  for item in &reservation_info {
+    if item.room_number + args.room_number > hotel_capacity {
+      make_resv_successful = false;
+    }
+  }
+
+  // update memcached and mongodb
+  if make_resv_successful == true {
+    for item in &reservation_info {
+      let key_mmc: String = format!("{}_{}_{}", item.hotel_id, item.in_date, item.out_date);
+      let new_resv_num: i32 = item.room_number + args.room_number;
+      memcache_client.set(&key_mmc[..], new_resv_num.to_string(), 0).unwrap();
+      
+      let search_query = doc!{"hotel_id": &item.hotel_id[..], "in_date": &item.in_date[..], "out_date": &item.out_date[..]};
+      let update_query = doc!{"$set":doc!{"room_number":item.room_number + args.room_number}};
+      let resv_collection = mongodb_database.collection::<HotelReservation>("reservation"); 
+      let _ = resv_collection.update_one(search_query, update_query, None).unwrap(); 
     }
   }
   //let new_now =  Instant::now();
