@@ -130,6 +130,39 @@ pub struct RegisterUserArgs {
   pub password: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CheckUserArgs {
+  pub username: String,
+  pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CheckAvailabilityArgs {
+  pub custome_name: String,
+  pub hotel_id: Vec<String>,
+  pub in_date: String,
+  pub out_date: String,
+  pub room_number: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MakeReservationArgs {
+  pub custome_name: String,
+  pub hotel_id: String,
+  pub in_date: String, 
+  pub out_date: String,
+  pub room_number: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SetReservationArgs {
+  pub hotel_id: String,
+  pub in_date: String,
+  pub out_date: String,
+  // the number of rooms being reserved
+  pub number: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
@@ -228,6 +261,22 @@ pub struct ReviewComm {
 pub struct User {
   pub username: String,
   pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct HotelCapacity {
+  pub hotel_id: String,
+  // available room number
+  pub capacity: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct HotelReservation {
+  pub hotel_id: String,
+  pub in_date: String,
+  pub out_date: String,
+  // the number of rooms being reserved
+  pub number: i32, 
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
