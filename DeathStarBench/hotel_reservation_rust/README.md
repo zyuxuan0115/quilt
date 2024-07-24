@@ -45,3 +45,33 @@ curl localhost:8080/function/nearby-hotel -d '{"latitude":32.7157, "longitude":1
 ```bash
 curl localhost:8080/function/get-profiles -d ''
 ```
+
+### set-cinema
+
+```bash
+curl localhost:8080/function/set-cinema -d ''
+```
+
+### set-hotel-point
+
+```bash
+curl localhost:8080/function/set-hotel-point -d ''
+```
+
+### set-mus
+
+```bash
+curl localhost:8080/function/set-mus -d ''
+```
+
+### set-profile
+
+```bash
+curl localhost:8080/function/set-profile -d ''
+```
+
+### set-rest
+
+```bash
+curl localhost:8080/function/set-rest -d ''
+```
