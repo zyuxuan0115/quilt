@@ -83,14 +83,14 @@ fn main() {
         hotel_id: parts[0].to_owned(),
         in_date: parts[1].to_owned(),
         out_date: parts[2].to_owned(),
-        room_number: room_num,
+        number: room_num,
       };
       reservation_info.push(resv_info);
     }
     hotel_ids_not_cached.remove(key);
   } 
 
-  let mut hotel_resv_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,_)| k).collect();
+  let hotel_resv_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,_)| k).collect();
 
   // fetch data from mongodb, if not present in memcached
   if hotel_resv_not_cached.len() != 0 {
@@ -103,12 +103,12 @@ fn main() {
       let parts = item[..].split("_").collect::<Vec<&str>>();
       if parts.len() == 3 {
         let query = doc!{"hotel_id": &parts[0][..], "in_date": &parts[1][..], "out_date": &parts[2][..]};
-        let mut cursor = resv_collection.find(query, None).unwrap();
+        let cursor = resv_collection.find(query, None).unwrap();
         for doc in cursor {
           let doc_ = doc.unwrap();
           // update memcached
           let key: String = item.clone();
-          let value = serde_json::to_string(&doc_.room_number).unwrap();
+          let value = serde_json::to_string(&doc_.number).unwrap();
           memcache_client.set(&key[..],&value[..],0).unwrap();
           reservation_info.push(doc_.clone());
         }
@@ -118,26 +118,30 @@ fn main() {
 
   let mut make_resv_successful = true;
   for item in &reservation_info {
-    if item.room_number + args.room_number > hotel_capacity {
+    if item.number + args.room_number > hotel_capacity {
       make_resv_successful = false;
     }
   }
 
   // update memcached and mongodb
+  let mut hotel_id_ret: Vec<String> = Vec::new();
   if make_resv_successful == true {
+    hotel_id_ret.push(args.hotel_id.clone());
     for item in &reservation_info {
       let key_mmc: String = format!("{}_{}_{}", item.hotel_id, item.in_date, item.out_date);
-      let new_resv_num: i32 = item.room_number + args.room_number;
+      let new_resv_num: i32 = item.number + args.room_number;
       memcache_client.set(&key_mmc[..], new_resv_num.to_string(), 0).unwrap();
       
       let search_query = doc!{"hotel_id": &item.hotel_id[..], "in_date": &item.in_date[..], "out_date": &item.out_date[..]};
-      let update_query = doc!{"$set":doc!{"room_number":item.room_number + args.room_number}};
+      let update_query = doc!{"$set":doc!{"room_number":item.number + args.room_number}};
       let resv_collection = mongodb_database.collection::<HotelReservation>("reservation"); 
       let _ = resv_collection.update_one(search_query, update_query, None).unwrap(); 
     }
   }
+  
+  let serialized = serde_json::to_string(&hotel_id_ret).unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller(serialized);
 }
 
