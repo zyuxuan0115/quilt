@@ -12,8 +12,8 @@ fn main() {
   let search_nearby_args = SearchNearbyArgs {
     latitude: search_info.latitude,
     longitude: search_info.longitude,
-    in_date: search_info.in_date,
-    out_date: search_info.out_date,
+    in_date: search_info.in_date.clone(),
+    out_date: search_info.out_date.clone(),
   };
   let search_nearby_args_str = serde_json::to_string(&search_nearby_args).unwrap(); 
   let search_nearby_ret_str = make_rpc("search-nearby", search_nearby_args_str);

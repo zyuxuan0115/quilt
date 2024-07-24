@@ -120,8 +120,8 @@ pub struct GetRatesArgs {
 pub struct SearchNearbyArgs {
   pub latitude: f64,
   pub longitude: f64,
-  pub in_data: String,
-  pub out_data: String,
+  pub in_date: String,
+  pub out_date: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -172,10 +172,17 @@ pub struct SetCapacityArgs {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SearchHandlerArgs {
-  latitude: f64,
-  longitude: f64,
-  in_date: String,
-  out_date: String,
+  pub latitude: f64,
+  pub longitude: f64,
+  pub in_date: String,
+  pub out_date: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RecommendationHandlerArgs {
+  pub require: String,
+  pub latitude: f64,
+  pub longitude: f64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
