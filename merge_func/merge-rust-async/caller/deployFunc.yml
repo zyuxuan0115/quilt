@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8081
 functions:
-  compose-post:
+  caller-async:
     lang: rust
-    handler: ./compose-post
-    image: zyuxuan0115/sn-compose-post-async:latest
+    handler: ./caller-async
+    image: zyuxuan0115/caller-async:latest
     secrets:
     - redis-password
     - ingress-enable
