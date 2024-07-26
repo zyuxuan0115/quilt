@@ -8,5 +8,4 @@ functions:
     handler: ./caller-async
     image: zyuxuan0115/caller-async:latest
     secrets:
-    - redis-password
     - ingress-enable
