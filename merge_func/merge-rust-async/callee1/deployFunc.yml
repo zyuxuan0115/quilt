@@ -3,8 +3,9 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8080
 functions:
-  callee2-rust:
+  callee2-async:
     lang: rust
-    handler: ./callee2-rust
+    handler: ./callee2-async
     image: zyuxuan0115/callee2-async:latest
+    secrets:
     - ingress-enable
