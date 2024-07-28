@@ -7,12 +7,12 @@ use reqwest::Client;
 async fn main() {
   let client = reqwest::Client::new();
   let input: String = get_arg_from_caller();
-
+  println!("input: {}", input);
   let mut input_str: String = format!("Caller get: {}", input);
   let mut input_str2: String = format!("Caller get: {}", input);
   // call UniqueIdService
-  let future1 = make_rpc("callee1", input_str, &client);
-  let future2 = make_rpc("callee2", input_str2, &client);
+  let future1 = make_rpc("callee1-async", input_str, &client);
+  let future2 = make_rpc("callee2-async", input_str2, &client);
 
   let (ret1, ret2): (String, String) 
        = futures::join!(future1, future2);
