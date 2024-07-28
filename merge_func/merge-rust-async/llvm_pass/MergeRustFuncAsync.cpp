@@ -22,6 +22,115 @@ static cl::opt<std::string> CalleeName_rra(
 
 PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
+
+  if (!RenameCallee_rra) {
+    // get function::main::{{closure}}::{{closure}}
+    Function* mainClosureClosure = NULL;
+    Function* mainClosure = NULL;
+    for (Module::iterator f = M.begin(); f != M.end(); f++){
+      Function* func = dyn_cast<Function>(f);
+      std::string demangled = getDemangledRustFuncName(func->getName().str());
+      if (demangled == "function::main::{{closure}}::{{closure}}") {
+        mainClosureClosure = func;
+      }
+      else if (demangled == "function::main::{{closure}}") {
+        mainClosure = func;
+      }
+    }
+
+    // get futures_util::future::maybe_done::MaybeDone<Fut> function 
+    std::vector<CallInst*> call_future_funcs;
+    for (Function::iterator BBB = mainClosureClosure->begin(), BBE = mainClosureClosure->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if (isa<CallInst>(IB)){
+          CallInst *ci = dyn_cast<CallInst>(IB);
+          Function* CalledFunc = ci->getCalledFunction();
+          if (CalledFunc) {
+            std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
+
+            if (demangled == "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll"){
+              call_future_funcs.push_back(ci);
+            }
+          }
+        }
+      }
+    }
+   
+    // copy this function
+    std::vector<Value*> arguments;
+    std::vector<Type*> argumentTypes;
+    CallInst* call = call_future_funcs[0];
+    for (unsigned i=0; i<call->getNumOperands()-1; i++){
+      Value* arg = call->getOperand(i);
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+    }
+
+//    FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), argumentTypes, false);
+    FunctionType* FuncType = call->getCalledFunction()->getFunctionType();
+    Function * NewFutureMaybeDoneFunc = Function::Create(FuncType,  llvm::GlobalValue::ExternalLinkage, "new_future_maybe", M);
+    ValueToValueMapTy VMap;
+    SmallVector<ReturnInst*, 8> Returns;
+
+    Function::arg_iterator DestI = NewFutureMaybeDoneFunc->arg_begin();
+    for (const Argument &J : call->getCalledFunction()->args()) {
+      DestI->setName(J.getName());
+      VMap[&J] = &*DestI++;
+    }
+ 
+    CloneFunctionInto(NewFutureMaybeDoneFunc, call->getCalledFunction(), VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+    // set attributes for the new callee function's arguments
+    std::vector<AttributeSet> argumentAttrs;
+    Function* RPCFunction = call->getCalledFunction();
+    AttributeList AttrList = RPCFunction->getAttributes();
+    for (unsigned i=0; i<arguments.size(); i++){
+      argumentAttrs.push_back(AttrList.getParamAttrs(i));
+    }
+
+    AttributeList NewAttrList  = NewFutureMaybeDoneFunc->getAttributes();
+    AttributeSet returnAttr = NewAttrList.getRetAttrs();
+    AttributeSet funcAttr = NewAttrList.getFnAttrs();
+
+    NewFutureMaybeDoneFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+
+    // convert the RPC into normal function call 
+    CallInst* newCall = CallInst::Create(FuncType, NewFutureMaybeDoneFunc, arguments ,"", call);
+    AttributeList callInstAttr = call->getAttributes();
+    newCall->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+
+    // get the 
+    for (auto u = call->user_begin(); u!= call->user_end(); u++) {
+      llvm::errs()<<"##### "<<*dyn_cast<Instruction>(*u)<<"\n";
+    }
+//    call->eraseFromParent();
+
+
+
+
+  }
+  else {
+    Function *mainFunc = M.getFunction("main");
+    Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
+    renameCallee(mainFunc, "callee");
+    mainFunc->setName("main_callee_rust");
+    rustRTFunc->setName("_std_rt_lang_start_callee"); 
+    Function* mainClosure;
+    for (Module::iterator f = M.begin(); f != M.end(); f++){
+      Function* func = dyn_cast<Function>(f);
+      std::string demangled = getDemangledRustFuncName(func->getName().str());
+      if (demangled == "function::main::{{closure}}") {
+        mainClosure = func;
+      }
+    }
+    if (mainClosure) {
+      mainClosure->setName("main_closure_callee");
+    }
+  }
+
+//  std::string real_name(real_n);
+//  llvm::errs()<<real_name<<"\n";
+/*
   // merge
   if (!RenameCallee_rra) {
     if (CalleeName_rra == "") {
@@ -73,11 +182,36 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     mainFunc->setName("main_callee_rust");
     rustRTFunc->setName("_std_rt_lang_start_callee");
   }
+*/
   return PreservedAnalyses::all();
+
 }
 
 
+std::string MergeRustFuncAsyncPass::getDemangledRustFuncName(std::string MangledFuncName) {
+   std::string command = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname \'" + MangledFuncName + "\'";
 
+  char* command_cstr = new char [command.length()+1];
+  strcpy (command_cstr, command.c_str());
+
+  FILE* fp1 = popen(command_cstr, "r");
+
+  if (fp1 == NULL){
+    printf("[tracer] fail to run demangle_rust_funcname\n" );
+    exit(-1);
+  }
+
+  char path1[3000];
+  std::vector<std::string> lines;
+  while (fgets(path1, sizeof(path1), fp1) != NULL) {
+    std::string line(path1);
+    lines.push_back(line);
+  }
+  if (lines.size()==1) { 
+    return lines[0];
+  }
+  return "";
+}
 
 
 
@@ -131,7 +265,9 @@ Function* MergeRustFuncAsyncPass::getRustRuntimeFunction(Function* mainFunc){
 // rename the callee function (main) to be "callee"
 
 void MergeRustFuncAsyncPass::renameCallee(Function* mainFunc, std::string newCalleeName){
+
   Function *rustRTFunc; 
+
   for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if(isa<CallInst>(IB)){
@@ -143,6 +279,7 @@ void MergeRustFuncAsyncPass::renameCallee(Function* mainFunc, std::string newCal
     }
   }
   return;    
+
 }
 
 

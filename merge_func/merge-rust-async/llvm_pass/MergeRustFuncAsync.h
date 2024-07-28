@@ -47,6 +47,7 @@ public:
   InvokeInst* findInvokeByCalleePrefix(Function* f, std::string prefix);
   CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
   InvokeInst* findRPCbyCalleeName(Function*, std::string);
+  std::string getDemangledRustFuncName(std::string);
 };
 
 } // namespace llvm
