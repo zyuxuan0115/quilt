@@ -20,13 +20,19 @@ RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 
 function merge {
+  OLD_PATH='/home/rust/OpenFaaSRPC/func_info.json'
+  NEW_PATH='/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json'
+
   cp -r OpenFaaSRPC caller/template/rust/ && cd caller/template/rust/function \
+  && sed -i -e  's%$OLD_PATH%$NEW_PATH%g' ../OpenFaaSRPC/src/lib.rs \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../.. \
   && cp -r OpenFaaSRPC callee1/template/rust/ && cd callee1/template/rust/function \
+  && sed -i -e  's%$OLD_PATH%$NEW_PATH%g' ../OpenFaaSRPC/src/lib.rs \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../.. \
   && cp -r OpenFaaSRPC callee2/template/rust/ && cd callee2/template/rust/function \
+  && sed -i -e  's%$OLD_PATH%$NEW_PATH%g' ../OpenFaaSRPC/src/lib.rs \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../..
 
@@ -55,7 +61,7 @@ function clean {
   rm -rf caller/template/rust/OpenFaaSRPC
   rm -rf callee1/template/rust/OpenFaaSRPC
   rm -rf callee2/template/rust/OpenFaaSRPC
-  rm *.ll *.o function
+  rm -rf *.ll *.o function
 }
 
 case "$1" in
