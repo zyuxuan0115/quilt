@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  caller-async:
+    lang: rust
+    handler: ./caller-async
+    image: zyuxuan0115/caller-async:latest
+    secrets:
+    - ingress-enable
