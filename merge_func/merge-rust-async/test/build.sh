@@ -20,29 +20,33 @@ RUST_LIBTEST_LINKER_FLAG=${RUST_LIBTEST_LINKER_FLAG%".so"}
 LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
 
 function merge {
-  OLD_PATH='/home/rust/OpenFaaSRPC/func_info.json'
-  NEW_PATH='/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json'
-
   cp -r OpenFaaSRPC caller/template/rust/ && cd caller/template/rust/function \
-  && sed -i -e  's%$OLD_PATH%$NEW_PATH%g' ../OpenFaaSRPC/src/lib.rs \
+  && sed -i 's%/home/rust/OpenFaaSRPC/func_info.json%/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json%g' ../OpenFaaSRPC/src/lib.rs \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../.. \
   && cp -r OpenFaaSRPC callee1/template/rust/ && cd callee1/template/rust/function \
-  && sed -i -e  's%$OLD_PATH%$NEW_PATH%g' ../OpenFaaSRPC/src/lib.rs \
+  && sed -i 's%/home/rust/OpenFaaSRPC/func_info.json%/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json%g' ../OpenFaaSRPC/src/lib.rs \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../.. \
   && cp -r OpenFaaSRPC callee2/template/rust/ && cd callee2/template/rust/function \
-  && sed -i -e  's%$OLD_PATH%$NEW_PATH%g' ../OpenFaaSRPC/src/lib.rs \
+  && sed -i 's%/home/rust/OpenFaaSRPC/func_info.json%/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json%g' ../OpenFaaSRPC/src/lib.rs \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../..
 
   CALLER_IR=$(ls caller/template/rust/function/target/debug/deps/function-*.ll)
   CALLEE_IR=$(ls callee1/template/rust/function/target/debug/deps/function-*.ll)
-  $LLVM_DIR/opt -S $CALLER_IR -strip-debug -o caller_no_debug.ll
-  $LLVM_DIR/opt -S caller_no_debug.ll -passes=merge-rust-func-async -o caller.ll
-  mv caller.ll $CALLER_IR
-  $LLVM_DIR/llvm-link caller/template/rust/function/target/debug/deps/*.ll -S -o caller_all.ll
-  $LLVM_DIR/llc -filetype=obj caller_all.ll -o function.o
+  mv $CALLER_IR caller_old.ll
+  mv $CALLEE_IR callee_old.ll
+  $LLVM_DIR/opt -S callee_old.ll -passes=merge-rust-func-async -rename-callee-rra -o callee_rename.ll
+  $LLVM_DIR/opt -S caller_old.ll -strip-debug -o caller_no_debug.ll
+  $LLVM_DIR/opt -S callee_rename.ll -strip-debug -o callee_no_debug.ll
+  $LLVM_DIR/llvm-link caller_no_debug.ll callee_no_debug.ll -S -o caller_callee.ll
+  $LLVM_DIR/opt -S caller_callee.ll -passes=merge-rust-func-async -o merged.ll
+  cp -r callee1/template/rust/function/target/debug/deps/*.ll caller/template/rust/function/target/debug/deps/
+  $LLVM_DIR/llvm-link caller/template/rust/function/target/debug/deps/*.ll -S -o lib.ll
+  $LLVM_DIR/opt -S lib.ll -strip-debug -o lib_no_debug.ll
+  $LLVM_DIR/llvm-link merged.ll lib_no_debug.ll -S -o function.ll
+  $LLVM_DIR/llc -filetype=obj function.ll -o function.o
   $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
 #  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -o callee_rename.ll
 #  cp callee_rename.ll caller/target/debug/deps/

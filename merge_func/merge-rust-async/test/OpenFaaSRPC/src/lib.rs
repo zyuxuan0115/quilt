@@ -27,7 +27,7 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 
 pub async fn make_rpc(func_name: &str, input: String, client: &reqwest::Client) -> String {
 
-  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
+  let func_vec = read_func_info_from_file("/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json").unwrap();
   let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
 
   let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
