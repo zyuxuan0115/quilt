@@ -47,7 +47,6 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
           Function* CalledFunc = ci->getCalledFunction();
           if (CalledFunc) {
             std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
-
             if (demangled == "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll"){
               call_future_funcs.push_back(ci);
             }
@@ -94,27 +93,116 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
 
     NewFutureMaybeDoneFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
 
-    // convert the RPC into normal function call 
+    // copy the old future_maybe function  
     CallInst* newCall = CallInst::Create(FuncType, NewFutureMaybeDoneFunc, arguments ,"", call);
     AttributeList callInstAttr = call->getAttributes();
     newCall->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
 
-    // get the 
+    // get the user of callInst for calling old future_maybe 
     for (auto u = call->user_begin(); u!= call->user_end(); u++) {
-      llvm::errs()<<"##### "<<*dyn_cast<Instruction>(*u)<<"\n";
+      User* user = dyn_cast<User>(*u);
+      for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+        Value *val = *oi;
+        Value *call_value = dyn_cast<Value>(call);
+        if (val == call_value){
+          *oi = dyn_cast<Value>(newCall);
+        }
+      }
     }
-//    call->eraseFromParent();
+    call->eraseFromParent();
 
+    // within the new function, find the call to OpenFaaSRPC::make_rpc::{{closure}}
+    CallInst* RPC_call;
+    for (Function::iterator BBB = NewFutureMaybeDoneFunc->begin(), BBE = NewFutureMaybeDoneFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if (isa<CallInst>(IB)){
+          CallInst *ci = dyn_cast<CallInst>(IB);
+          Function* CalledFunc = ci->getCalledFunction();
+          if (CalledFunc) {
+            std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
 
+            if (demangled == "OpenFaaSRPC::make_rpc::{{closure}}"){
+              RPC_call = ci;
+              llvm::errs()<<"### "<<*ci<<"\n";
+              break;
+            }
+          }
+        }
+      }
+      if (RPC_call) break;
+    }
+    
+    if (!RPC_call) PreservedAnalyses::all();
+ 
+    Function* make_rpc_closure = RPC_call->getCalledFunction();
+    make_rpc_closure->setName("make_rpc_closure");
 
+    // create a function that has the same arguments as `make_rpc_closure`
+    // but the function body is the callee function
+    Function* CalleeFunc = M.getFunction("callee_main_closure");
+
+    arguments.clear();
+    argumentTypes.clear();
+    for (unsigned i=0; i<RPC_call->getNumOperands(); i++){
+      Value* arg = RPC_call->getOperand(i);
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+      llvm::errs()<<"@@@@ "<<*arg<<"\n";
+    }
+
+    FuncType = make_rpc_closure->getFunctionType();
+    Function * NewCalleeFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, "new_callee", M);
+
+    ValueToValueMapTy VMap2;
+    Returns.clear();
+
+    DestI = NewCalleeFunc->arg_begin();
+    DestI++;
+    for (const Argument &J : CalleeFunc->args()) {
+      DestI->setName(J.getName());
+      VMap2[&J] = &*DestI++;
+    }
+ 
+    CloneFunctionInto(NewCalleeFunc, CalleeFunc, VMap2, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+    llvm::errs()<<"clone is done. next we need to change the return inst\n";
+
+    std::vector<Instruction*> returnInsts;
+    for (Function::iterator BBB = NewCalleeFunc->begin(), BBE = NewCalleeFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if (isa<ReturnInst>(IB)){
+          Instruction* ri = dyn_cast<Instruction>(IB);
+          returnInsts.push_back(ri);
+          llvm::errs()<<"### "<<*ri<<"\n";
+        }
+      }
+    }
+
+    for (Instruction* ri: returnInsts) {
+      ReturnInst* new_ri = ReturnInst::Create(M.getContext(), NULL, ri);
+      llvm::errs()<<*new_ri<<"\n";
+      new_ri->getNextNode()->eraseFromParent();
+    }
+    
+    // set attributes for the new callee function's arguments
+    argumentAttrs.clear();
+    AttributeList NewCalleeAttrList = make_rpc_closure->getAttributes();
+    for (unsigned i=0; i<arguments.size(); i++){
+      argumentAttrs.push_back(NewCalleeAttrList.getParamAttrs(i));
+    }
+    returnAttr = NewCalleeAttrList.getRetAttrs();
+    funcAttr = NewCalleeAttrList.getFnAttrs();
+
+    NewCalleeFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+
+    llvm::errs()<<*make_rpc_closure<<"\n";
 
   }
   else {
     Function *mainFunc = M.getFunction("main");
     Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
     renameCallee(mainFunc, "callee");
-    mainFunc->setName("main_callee_rust");
-    rustRTFunc->setName("_std_rt_lang_start_callee"); 
+    mainFunc->setName("callee_main");
+    rustRTFunc->setName("callee_std_rt_lang_start"); 
     Function* mainClosure;
     for (Module::iterator f = M.begin(); f != M.end(); f++){
       Function* func = dyn_cast<Function>(f);
@@ -124,81 +212,27 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
       }
     }
     if (mainClosure) {
-      mainClosure->setName("main_closure_callee");
+      mainClosure->setName("callee_main_closure");
     }
   }
-
-//  std::string real_name(real_n);
-//  llvm::errs()<<real_name<<"\n";
-/*
-  // merge
-  if (!RenameCallee_rra) {
-    if (CalleeName_rra == "") {
-      llvm::errs()<<"Error: didn't specify callee function name\n";
-      return PreservedAnalyses::all();
-    }
-
-    Function* mainFunc = M.getFunction("main");
-    Function* CallerFunc = NULL;
-    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
-      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-        if (isa<CallInst>(IB)){
-          CallInst *ci = dyn_cast<CallInst>(IB);
-          CallerFunc = dyn_cast<Function>(ci->getArgOperand(0));
-          break;
-        }
-      }
-    }
-
-    if (!CallerFunc) {
-      llvm::errs()<<"Error: cannot find main function\n";
-      return PreservedAnalyses::all();
-    }
-
-    Function *CalleeFunc = M.getFunction("callee");
-
-    InvokeInst* RPCInst = findRPCbyCalleeName(CallerFunc, CalleeName_rra);
-    if (!RPCInst) {
-      llvm::errs()<<"Error: no RPC callee find in the caller function\n";
-      return PreservedAnalyses::all();
-    }
-
-    std::string CalleeName = getRPCCalleeName(RPCInst);
-
-    Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst, CalleeName_rra);
-    deleteCalleeInputOutputFunc(NewCalleeFunc);
-    
-    Function* f1 = M.getFunction("main_callee_rust");
-    Function* f2 = M.getFunction("_std_rt_lang_start_callee");
-    f1->eraseFromParent();
-    f2->eraseFromParent();
-    CalleeFunc->eraseFromParent();
-  }
-  // rename callee
-  else {
-    Function *mainFunc = M.getFunction("main");
-    Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
-    renameCallee(mainFunc, "callee");
-    mainFunc->setName("main_callee_rust");
-    rustRTFunc->setName("_std_rt_lang_start_callee");
-  }
-*/
   return PreservedAnalyses::all();
 
 }
 
 
 std::string MergeRustFuncAsyncPass::getDemangledRustFuncName(std::string MangledFuncName) {
-   std::string command = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname \'" + MangledFuncName + "\'";
+  std::string command = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname \'" + MangledFuncName + "\'";
 
   char* command_cstr = new char [command.length()+1];
   strcpy (command_cstr, command.c_str());
 
   FILE* fp1 = popen(command_cstr, "r");
 
-  if (fp1 == NULL){
-    printf("[tracer] fail to run demangle_rust_funcname\n" );
-    exit(-1);
+  while (fp1 == NULL){
+    sleep(1);
+    fp1 = popen(command_cstr, "r");
+    llvm::errs()<<"[tracer] fail to run demangle_rust_funcname\n";
+    llvm::errs()<<command<<"\n";
   }
 
   char path1[3000];
@@ -207,6 +241,7 @@ std::string MergeRustFuncAsyncPass::getDemangledRustFuncName(std::string Mangled
     std::string line(path1);
     lines.push_back(line);
   }
+  pclose(fp1);
   if (lines.size()==1) { 
     return lines[0];
   }
