@@ -33,6 +33,7 @@
 #include "llvm/Support/CommandLine.h"
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 
 namespace llvm {
 
@@ -48,6 +49,7 @@ public:
   CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
   InvokeInst* findRPCbyCalleeName(Function*, std::string);
   std::string getDemangledRustFuncName(std::string);
+  void searchAndRemoveDeps(Value*, StoreInst*);
 };
 
 } // namespace llvm
