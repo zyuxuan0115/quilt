@@ -41,13 +41,8 @@ class MergeRustFuncAsyncPass : public PassInfoMixin<MergeRustFuncAsyncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   std::string getRPCCalleeName(InvokeInst* RPCInst);
-  Function* createRustNewCallee(Function* CalleeFunc, InvokeInst* call, std::string newName);
   Function* getRustRuntimeFunction(Function* mainFunc);
   void renameCallee(Function* mainFunc, std::string newCalleeName);
-  void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
-  InvokeInst* findInvokeByCalleePrefix(Function* f, std::string prefix);
-  CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
-  InvokeInst* findRPCbyCalleeName(Function*, std::string);
   std::string getDemangledRustFuncName(std::string);
   void searchAndRemoveDeps(Value*, StoreInst*);
 };
