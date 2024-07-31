@@ -1,4 +1,4 @@
-//===-- HelloWorld.cpp - Example Transformations --------------------------===//
+  //===-- HelloWorld.cpp - Example Transformations --------------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -214,7 +214,7 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     for (unsigned i=0; i<send_return_value_call->getNumOperands(); i++) {
       Value* op = send_return_value_call->getOperand(i);
     } 
-
+////////////////
     // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
     //                                         ptr align 8 %buffer, 
     //                                         i64 24, i1 false)
@@ -227,8 +227,8 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     IntrinTypes.push_back(Type::getInt64Ty(M.getContext()));
 
 
-    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24/*value*/, true);
-    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0/*value*/, true);
+    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24, true);
+    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0, true);
     Function* llvmMemcpyFunc = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes);
 
     std::vector<Value*> IntrinsicArguments;
@@ -248,6 +248,30 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     if (nextBBofsend_ret_value_call)
       BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
     send_return_value_call->eraseFromParent();
+///////////////
+/*
+    Instruction* switchInst;
+    for (Function::iterator BBB = NewCalleeFunc->begin(), BBE = NewCalleeFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if (isa<SwitchInst>(IB)){
+          switchInst = dyn_cast<Instruction>(IB);
+          for (unsigned i=0; i<switchInst->getNumOperands(); i++){
+            llvm::errs()<<"#### "<<*switchInst->getOperand(i)<<"\n";
+          }
+        }
+      }
+    }
+
+    Type* i32 = IntegerType::getInt32Ty(M.getContext());
+    AllocaInst* alloca_i32 = new AllocaInst(i32,NULL, "", switchInst);
+    Constant* i32_0 = llvm::ConstantInt::get(Type::getInt32Ty(M.getContext()), 0, true);
+    StoreInst* store_new = new StoreInst(i32_0, alloca_i32, switchInst);
+    LoadInst* load_new = new LoadInst(i32, alloca_i32, "", switchInst);
+
+    auto oi = switchInst->op_begin();
+    *oi = load_new;
+*/
+///////////////
 
     // in the new function, also need to change the way of how input arguments are get
     // (1) first need to check the user of the existing function arguments
@@ -273,13 +297,39 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     StoreInst* store = dyn_cast<StoreInst>(store_of_arg);
     searchAndRemoveDeps(alloc_of_arg, store);
 
+
+
     // (3) insert a LoadInst before the get_arg_call
     LoadInst* newload = new LoadInst(arg_matters->getType(), alloc_of_arg, "", get_arg_call);
 
-    for (unsigned i=0; i<get_arg_call->getNumOperands(); i++) {
-      llvm::errs()<<"i: "<<*(get_arg_call->getOperand(i))<<"\n";
+    /////////
+//    IRBuilder<> Builder(M.getContext());
+//    std::vector<Type*> IntrinTypes;
+//    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24, true);
+//    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0, true);
+//    std::vector<Value*> IntrinsicArguments;
+    /////////
+
+    Value* arg_input = get_arg_call->getOperand(0);
+    Instruction* arg_input2 = dyn_cast<Instruction>(arg_input)->clone();
+    arg_input2->insertBefore(dyn_cast<Instruction>(arg_input));
+    for (auto u = arg_input->user_begin(); u!= arg_input->user_end(); u++) {
+      Value* user = dyn_cast<User>(*u);
+      if (isa<InvokeInst>(user)) {
+        llvm::errs()<<*user<<"\n";
+        InvokeInst* invoke = dyn_cast<InvokeInst>(user);
+        std::string demangled = getDemangledRustFuncName(invoke->getCalledFunction()->getName().str());
+        if (demangled=="core::ptr::drop_in_place<alloc::string::String>") {
+          for (auto oi = invoke->op_begin(); oi!=invoke->op_end(); oi++){
+            Value* operand = dyn_cast<Value>(*oi);
+            if (operand == arg_input) {
+              *oi = dyn_cast<Value>(arg_input2);
+            }
+          } 
+        }
+      }
     }
- 
+
     IntrinTypes.clear();
     IntrinTypes.push_back(get_arg_call->getOperand(0)->getType());
     IntrinTypes.push_back(newload->getType());
@@ -299,9 +349,20 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
 
     BasicBlock* nextBB2 = dyn_cast<BasicBlock>(get_arg_call->getOperand(1));
     if (nextBB2) {
+      llvm::errs()<<"########################\n";
       BranchInst * jumpInst = llvm::BranchInst::Create(nextBB2, get_arg_call); 
       get_arg_call->eraseFromParent();
     }
+
+    // create a call before the OpenFaaS::make_rpc
+    FuncType = NewCalleeFunc->getFunctionType();
+    arguments.clear();
+    for (unsigned i=0; i<RPC_call->getNumOperands()-1; i++) {
+      arguments.push_back(RPC_call->getOperand(i));
+    }
+    CallInst* newCall2 = CallInst::Create(FuncType, NewCalleeFunc, arguments ,"", RPC_call);
+    newCall2->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+    RPC_call->eraseFromParent();
 
   }
   else {
