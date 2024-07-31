@@ -32,63 +32,10 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     std::vector<CallInst*> call_future_funcs = getCallsByDemangledName(mainClosureClosure, 
        "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll");
 
-    // copy this function
-    std::vector<Value*> arguments;
-    std::vector<Type*> argumentTypes;
-    CallInst* call = call_future_funcs[0];
-    for (unsigned i=0; i<call->getNumOperands()-1; i++){
-      Value* arg = call->getOperand(i);
-      arguments.push_back(arg);
-      argumentTypes.push_back(arg->getType());
-    }
-
-    FunctionType* FuncType = call->getCalledFunction()->getFunctionType();
-    Function * NewFutureMaybeDoneFunc = Function::Create(FuncType,  llvm::GlobalValue::ExternalLinkage, "new_future_maybe", M);
-    ValueToValueMapTy VMap;
-    SmallVector<ReturnInst*, 8> Returns;
-
-    Function::arg_iterator DestI = NewFutureMaybeDoneFunc->arg_begin();
-    for (const Argument &J : call->getCalledFunction()->args()) {
-      DestI->setName(J.getName());
-      VMap[&J] = &*DestI++;
-    }
- 
-    CloneFunctionInto(NewFutureMaybeDoneFunc, call->getCalledFunction(), VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
-
-    // set attributes for the new callee function's arguments
-    std::vector<AttributeSet> argumentAttrs;
-    Function* RPCFunction = call->getCalledFunction();
-    AttributeList AttrList = RPCFunction->getAttributes();
-    for (unsigned i=0; i<arguments.size(); i++){
-      argumentAttrs.push_back(AttrList.getParamAttrs(i));
-    }
-
-    AttributeList NewAttrList  = NewFutureMaybeDoneFunc->getAttributes();
-    AttributeSet returnAttr = NewAttrList.getRetAttrs();
-    AttributeSet funcAttr = NewAttrList.getFnAttrs();
-
-    NewFutureMaybeDoneFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
-
-    // copy the old future_maybe function  
-    CallInst* newCall = CallInst::Create(FuncType, NewFutureMaybeDoneFunc, arguments ,"", call);
-    AttributeList callInstAttr = call->getAttributes();
-    newCall->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
-
-    // get the user of callInst for calling old future_maybe 
-    for (auto u = call->user_begin(); u!= call->user_end(); u++) {
-      User* user = dyn_cast<User>(*u);
-      for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
-        Value *val = *oi;
-        Value *call_value = dyn_cast<Value>(call);
-        if (val == call_value){
-          *oi = dyn_cast<Value>(newCall);
-        }
-      }
-    }
-    call->eraseFromParent();
+    Function* newFutureMaybeDoneFunc = cloneAndReplaceFunc(call_future_funcs[0], "new_future_maybe");
 
     // within the new function, find the call to OpenFaaSRPC::make_rpc::{{closure}}
-    CallInst* RPC_call = getCallByDemangledName(NewFutureMaybeDoneFunc, 
+    CallInst* RPC_call = getCallByDemangledName(newFutureMaybeDoneFunc, 
        "OpenFaaSRPC::make_rpc::{{closure}}");
     
     if (!RPC_call) PreservedAnalyses::all();
@@ -100,21 +47,22 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     // but the function body is the callee function
     Function* CalleeFunc = M.getFunction("callee_main_closure");
 
-    arguments.clear();
-    argumentTypes.clear();
+    std::vector<Value*> arguments;
+    std::vector<Type*> argumentTypes;
+
     for (unsigned i=0; i<RPC_call->getNumOperands(); i++){
       Value* arg = RPC_call->getOperand(i);
       arguments.push_back(arg);
       argumentTypes.push_back(arg->getType());
     }
 
-    FuncType = make_rpc_closure->getFunctionType();
+    FunctionType* FuncType = make_rpc_closure->getFunctionType();
     Function * NewCalleeFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, "new_callee", M);
 
     ValueToValueMapTy VMap2;
-    Returns.clear();
+    SmallVector<ReturnInst*, 8> Returns;
 
-    DestI = NewCalleeFunc->arg_begin();
+    Function::arg_iterator DestI = NewCalleeFunc->arg_begin();
     DestI++;
     for (const Argument &J : CalleeFunc->args()) {
       DestI->setName(J.getName());
@@ -139,13 +87,13 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     }
     
     // set attributes for the new callee function's arguments
-    argumentAttrs.clear();
+    std::vector<AttributeSet> argumentAttrs;
     AttributeList NewCalleeAttrList = make_rpc_closure->getAttributes();
     for (unsigned i=0; i<arguments.size(); i++){
       argumentAttrs.push_back(NewCalleeAttrList.getParamAttrs(i));
     }
-    returnAttr = NewCalleeAttrList.getRetAttrs();
-    funcAttr = NewCalleeAttrList.getFnAttrs();
+    AttributeSet returnAttr = NewCalleeAttrList.getRetAttrs();
+    AttributeSet funcAttr = NewCalleeAttrList.getFnAttrs();
 
     NewCalleeFunc->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
 
@@ -299,7 +247,7 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
   }
   else {
     Function *mainFunc = M.getFunction("main");
-    Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
+    Function *rustRTFunc = getFunctionByDemangledName(&M, "std::rt::lang_start");
     renameCallee(mainFunc, "callee");
     mainFunc->setName("callee_main");
     rustRTFunc->setName("callee_std_rt_lang_start"); 
@@ -372,7 +320,6 @@ std::string MergeRustFuncAsyncPass::getDemangledRustFuncName(std::string Mangled
 
 std::string MergeRustFuncAsyncPass::getRPCCalleeName(InvokeInst* RPCInst){
   Value* funcNameValue = RPCInst->getOperand(1);
-  //llvm::outs()<<*funcNameValue;
 
   std::error_code EC;
   llvm::raw_fd_ostream output("tmp.txt", EC, sys::fs::OF_Text);
@@ -392,25 +339,6 @@ std::string MergeRustFuncAsyncPass::getRPCCalleeName(InvokeInst* RPCInst){
   }
   std::string fname = content.substr(idxs[0]+1,idxs[1]-idxs[0]-1); 
   return fname;
-}
-
-
-
-
-
-
-
-Function* MergeRustFuncAsyncPass::getRustRuntimeFunction(Function* mainFunc){
-  Function *rustRTFunc; 
-  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if(isa<CallInst>(IB)){
-        CallInst *ci = dyn_cast<CallInst>(IB);
-        rustRTFunc = ci->getCalledFunction();
-      }
-    }
-  }
-  return rustRTFunc;    
 }
 
 
@@ -494,3 +422,68 @@ void MergeRustFuncAsyncPass::renameCallee(Function* mainFunc, std::string newCal
   return;    
 }
 
+
+
+Function* MergeRustFuncAsyncPass::cloneAndReplaceFunc(CallInst* callOfTargetFunc, std::string newFuncName) {
+  // copy this function
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+  CallInst* call = callOfTargetFunc;
+  Function* targetFunc = call->getCalledFunction();
+  Module* M = targetFunc->getParent();
+
+  // the last argument of a CallInst is the called function
+  // so we don't need to include it in the arguments.
+  for (unsigned i=0; i<call->getNumOperands()-1; i++){
+    Value* arg = call->getOperand(i);
+    arguments.push_back(arg);
+    argumentTypes.push_back(arg->getType());
+  }
+
+  FunctionType* FuncType = targetFunc->getFunctionType();
+  Function * newFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, newFuncName, M);
+  ValueToValueMapTy VMap;
+  SmallVector<ReturnInst*, 8> Returns;
+
+  Function::arg_iterator DestI = newFunc->arg_begin();
+  for (const Argument &J : targetFunc->args()) {
+    DestI->setName(J.getName());
+    VMap[&J] = &*DestI++;
+  }
+ 
+  CloneFunctionInto(newFunc, targetFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+  // set attributes for the new callee function's arguments
+  std::vector<AttributeSet> argumentAttrs;
+  AttributeList AttrList = targetFunc->getAttributes();
+  for (unsigned i=0; i<arguments.size(); i++){
+    argumentAttrs.push_back(AttrList.getParamAttrs(i));
+  }
+
+  AttributeList newAttrList = targetFunc->getAttributes();
+  AttributeSet returnAttr = newAttrList.getRetAttrs();
+  AttributeSet funcAttr = newAttrList.getFnAttrs();
+
+  newFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+
+  // copy the old future_maybe function  
+  CallInst* newCall = CallInst::Create(FuncType, newFunc, arguments ,"", call);
+  AttributeList callInstAttr = call->getAttributes();
+  newCall->setAttributes(callInstAttr);
+//  newCall->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+
+  // get the user of callInst for calling old future_maybe 
+  for (auto u = call->user_begin(); u!= call->user_end(); u++) {
+    User* user = dyn_cast<User>(*u);
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(call);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(newCall);
+      }
+    }
+  }
+  call->eraseFromParent();
+  
+  return newFunc;
+}

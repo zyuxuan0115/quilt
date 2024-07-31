@@ -45,10 +45,10 @@ public:
   std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
   Function* getFunctionByDemangledName(Module*, std::string);
-  Function* getRustRuntimeFunction(Function* mainFunc);
   void renameCallee(Function* mainFunc, std::string newCalleeName);
   std::string getDemangledRustFuncName(std::string);
   void searchAndRemoveDeps(Value*, StoreInst*);
+  Function* cloneAndReplaceFunc(CallInst*, std::string);
 };
 
 } // namespace llvm
