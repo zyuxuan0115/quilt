@@ -41,6 +41,10 @@ class MergeRustFuncAsyncPass : public PassInfoMixin<MergeRustFuncAsyncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   std::string getRPCCalleeName(InvokeInst* RPCInst);
+  CallInst* getCallByDemangledName(Function*, std::string);
+  std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
+  InvokeInst* getInvokeByDemangledName(Function*, std::string);
+//  Function* getFunctionByDemangledName(Module*, std::string);
   Function* getRustRuntimeFunction(Function* mainFunc);
   void renameCallee(Function* mainFunc, std::string newCalleeName);
   std::string getDemangledRustFuncName(std::string);
