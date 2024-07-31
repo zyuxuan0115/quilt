@@ -25,19 +25,12 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
 
   if (!RenameCallee_rra) {
     // get function::main::{{closure}}::{{closure}}
-    Function* mainClosureClosure = NULL;
-    for (Module::iterator f = M.begin(); f != M.end(); f++){
-      Function* func = dyn_cast<Function>(f);
-      std::string demangled = getDemangledRustFuncName(func->getName().str());
-      if (demangled == "function::main::{{closure}}::{{closure}}") {
-        mainClosureClosure = func;
-        break;
-      }
-    }
+    Function* mainClosureClosure = getFunctionByDemangledName(&M, 
+       "function::main::{{closure}}::{{closure}}");
 
     // get futures_util::future::maybe_done::MaybeDone<Fut> function 
     std::vector<CallInst*> call_future_funcs = getCallsByDemangledName(mainClosureClosure, 
-        "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll");
+       "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll");
 
     // copy this function
     std::vector<Value*> arguments;
@@ -95,7 +88,8 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     call->eraseFromParent();
 
     // within the new function, find the call to OpenFaaSRPC::make_rpc::{{closure}}
-    CallInst* RPC_call = getCallByDemangledName(NewFutureMaybeDoneFunc, "OpenFaaSRPC::make_rpc::{{closure}}");
+    CallInst* RPC_call = getCallByDemangledName(NewFutureMaybeDoneFunc, 
+       "OpenFaaSRPC::make_rpc::{{closure}}");
     
     if (!RPC_call) PreservedAnalyses::all();
  
@@ -309,14 +303,7 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     renameCallee(mainFunc, "callee");
     mainFunc->setName("callee_main");
     rustRTFunc->setName("callee_std_rt_lang_start"); 
-    Function* mainClosure;
-    for (Module::iterator f = M.begin(); f != M.end(); f++){
-      Function* func = dyn_cast<Function>(f);
-      std::string demangled = getDemangledRustFuncName(func->getName().str());
-      if (demangled == "function::main::{{closure}}") {
-        mainClosure = func;
-      }
-    }
+    Function* mainClosure = getFunctionByDemangledName(&M, "function::main::{{closure}}");
     if (mainClosure) {
       mainClosure->setName("callee_main_closure");
     }
@@ -430,17 +417,13 @@ Function* MergeRustFuncAsyncPass::getRustRuntimeFunction(Function* mainFunc){
 
 
 CallInst* MergeRustFuncAsyncPass::getCallByDemangledName(Function* f, std::string fname) {
-  CallInst* call=NULL;
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if (isa<CallInst>(IB)){
         CallInst *ci = dyn_cast<CallInst>(IB);
         Function* CalledFunc = ci->getCalledFunction();
         std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
-        if (demangled == fname){
-          call = ci;
-          return call;
-        }
+        if (demangled == fname) return ci;
       }
     }
   }
@@ -457,9 +440,7 @@ std::vector<CallInst*> MergeRustFuncAsyncPass::getCallsByDemangledName(Function*
         CallInst *ci = dyn_cast<CallInst>(IB);
         Function* CalledFunc = ci->getCalledFunction();
         std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
-        if (demangled == fname){
-          calls.push_back(ci);
-        }
+        if (demangled == fname) calls.push_back(ci);
       }
     }
   } 
@@ -469,16 +450,12 @@ std::vector<CallInst*> MergeRustFuncAsyncPass::getCallsByDemangledName(Function*
 
 
 InvokeInst* MergeRustFuncAsyncPass::getInvokeByDemangledName(Function* f, std::string fname) {
-  InvokeInst* invoke = NULL;
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if (isa<InvokeInst>(IB)) {
         InvokeInst* ii = dyn_cast<InvokeInst>(IB);
         std::string demangled = getDemangledRustFuncName(ii->getCalledFunction()->getName().str());
-        if (demangled == fname) {
-          invoke = ii;
-          return invoke; 
-        }
+        if (demangled == fname) return ii; 
       } 
     }
   }
@@ -487,8 +464,20 @@ InvokeInst* MergeRustFuncAsyncPass::getInvokeByDemangledName(Function* f, std::s
 
 
 
-// rename the callee function (main) to be "callee"
 
+Function* MergeRustFuncAsyncPass::getFunctionByDemangledName(Module* M, std::string fname) {
+  for (Module::iterator f = M->begin(); f != M->end(); f++){
+    Function* func = dyn_cast<Function>(f);
+    std::string demangled = getDemangledRustFuncName(func->getName().str());
+    if (demangled == fname) return func;
+  }
+  return NULL;
+}
+
+
+
+
+// rename the callee function (main) to be "callee"
 void MergeRustFuncAsyncPass::renameCallee(Function* mainFunc, std::string newCalleeName){
   Function *rustRTFunc; 
 
