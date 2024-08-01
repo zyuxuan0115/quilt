@@ -49,6 +49,8 @@ public:
   std::string getDemangledRustFuncName(std::string);
   void searchAndRemoveDeps(Value*, StoreInst*);
   Function* cloneAndReplaceFunc(CallInst*, std::string);
+  Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
+
 };
 
 } // namespace llvm
