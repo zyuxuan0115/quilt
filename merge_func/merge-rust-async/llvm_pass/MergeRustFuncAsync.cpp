@@ -1,4 +1,4 @@
-  //===-- HelloWorld.cpp - Example Transformations --------------------------===//
+//===-- MergeRustFuncAsync.cpp - Transformations --------------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -48,11 +48,8 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     Function* CalleeFunc = M.getFunction("callee_main_closure");
     Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(RPC_inst, CalleeFunc, "new_callee");
     // in the new callee function, need to change the return value
-
     changeNewCalleeOutput(newCalleeFunc);
-
-    InvokeInst* get_arg_call = getInvokeByDemangledName(newCalleeFunc,
-       "OpenFaaSRPC::get_arg_from_caller");
+    changeNewCalleeInput(newCalleeFunc);
 
 ///////////////
 /*
@@ -78,84 +75,6 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     *oi = load_new;
 */
 ///////////////
-
-    // in the new function, also need to change the way of how input arguments are get
-    // (1) first need to check the user of the existing function arguments
-    //     and delete all instructions that depends on these arguments
-    std::vector<Value*> args_of_new_callee;
-    for (Argument &ag : newCalleeFunc->args()) {
-      args_of_new_callee.push_back(&ag);
-    }
-    Value* arg_matters = args_of_new_callee[1];
-    Value* alloc_of_arg;
-    Value* store_of_arg;
-    for (auto u = arg_matters->user_begin(); u!= arg_matters->user_end(); u++) {
-      Instruction* user = dyn_cast<Instruction>(*u);
-      if (isa<StoreInst>(user)) {
-        alloc_of_arg = user->getOperand(1);
-        store_of_arg = dyn_cast<StoreInst>(user);
-      }
-    }
-
-    // (2) DFS for all instructions that depends on the last_arg
-    //     and remove them, except for the store instruction that 
-    //     stores the this argument
-    StoreInst* store = dyn_cast<StoreInst>(store_of_arg);
-    searchAndRemoveDeps(alloc_of_arg, store);
-
-
-
-    // (3) insert a LoadInst before the get_arg_call
-    LoadInst* newload = new LoadInst(arg_matters->getType(), alloc_of_arg, "", get_arg_call);
-
-    Value* arg_input = get_arg_call->getOperand(0);
-    Instruction* arg_input2 = dyn_cast<Instruction>(arg_input)->clone();
-    arg_input2->insertBefore(dyn_cast<Instruction>(arg_input));
-    for (auto u = arg_input->user_begin(); u!= arg_input->user_end(); u++) {
-      Value* user = dyn_cast<User>(*u);
-      if (isa<InvokeInst>(user)) {
-        llvm::errs()<<*user<<"\n";
-        InvokeInst* invoke = dyn_cast<InvokeInst>(user);
-        std::string demangled = getDemangledRustFuncName(invoke->getCalledFunction()->getName().str());
-        if (demangled=="core::ptr::drop_in_place<alloc::string::String>") {
-          for (auto oi = invoke->op_begin(); oi!=invoke->op_end(); oi++){
-            Value* operand = dyn_cast<Value>(*oi);
-            if (operand == arg_input) {
-              *oi = dyn_cast<Value>(arg_input2);
-            }
-          } 
-        }
-      }
-    }
-
-    IRBuilder<> Builder(M.getContext());
-
-    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24, true);
-    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0, true);
-
-    std::vector<Type*> IntrinTypes2;
-    IntrinTypes2.push_back(get_arg_call->getOperand(0)->getType());
-    IntrinTypes2.push_back(newload->getType());
-    IntrinTypes2.push_back(Type::getInt64Ty(M.getContext()));
-
-    Function* llvmMemcpyFunc2 = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes2);
-
-    std::vector<Value*> IntrinsicArguments2;
-    IntrinsicArguments2.push_back(get_arg_call->getOperand(0));
-    IntrinsicArguments2.push_back(newload);
-    IntrinsicArguments2.push_back(dyn_cast<Value>(i64_24));
-    IntrinsicArguments2.push_back(dyn_cast<Value>(i1_false));
-    ArrayRef<Value*> IntrinsicArgs2(IntrinsicArguments2);
-
-    CallInst* llvmMemcpyCall2 = Builder.CreateCall(llvmMemcpyFunc2, IntrinsicArgs2);
-    llvmMemcpyCall2->insertBefore(get_arg_call);
-
-    BasicBlock* nextBB2 = dyn_cast<BasicBlock>(get_arg_call->getOperand(1));
-    if (nextBB2) {
-      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB2, get_arg_call); 
-      get_arg_call->eraseFromParent();
-    }
-
     // create a call before the OpenFaaS::make_rpc
     FunctionType* FuncType = newCalleeFunc->getFunctionType();
     std::vector<Value*> arguments;
@@ -510,5 +429,88 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   if (nextBBofsend_ret_value_call)
     BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
   send_return_value_call->eraseFromParent();
-
 } 
+
+
+
+
+void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
+  Module* M = newCalleeFunc->getParent();
+  InvokeInst* get_arg_call = getInvokeByDemangledName(newCalleeFunc,
+     "OpenFaaSRPC::get_arg_from_caller");
+
+  // in the new function, also need to change the way of how input arguments are get
+  // (1) first need to check the user of the existing function arguments
+  //     and delete all instructions that depends on these arguments
+  std::vector<Value*> args_of_new_callee;
+  for (Argument &ag : newCalleeFunc->args()) {
+    args_of_new_callee.push_back(&ag);
+  }
+  Value* arg_matters = args_of_new_callee[1];
+  Value* alloc_of_arg;
+  Value* store_of_arg;
+  for (auto u = arg_matters->user_begin(); u!= arg_matters->user_end(); u++) {
+    Instruction* user = dyn_cast<Instruction>(*u);
+    if (isa<StoreInst>(user)) {
+      alloc_of_arg = user->getOperand(1);
+      store_of_arg = dyn_cast<StoreInst>(user);
+    }
+  }
+
+  // (2) DFS for all instructions that depends on the last_arg
+  //     and remove them, except for the store instruction that 
+  //     stores the this argument
+  StoreInst* store = dyn_cast<StoreInst>(store_of_arg);
+  searchAndRemoveDeps(alloc_of_arg, store);
+
+  // (3) insert a LoadInst before the get_arg_call
+  LoadInst* newload = new LoadInst(arg_matters->getType(), alloc_of_arg, "", get_arg_call);
+
+  Value* arg_input = get_arg_call->getOperand(0);
+  Instruction* arg_input2 = dyn_cast<Instruction>(arg_input)->clone();
+  arg_input2->insertBefore(dyn_cast<Instruction>(arg_input));
+  for (auto u = arg_input->user_begin(); u!= arg_input->user_end(); u++) {
+    Value* user = dyn_cast<User>(*u);
+    if (isa<InvokeInst>(user)) {
+      llvm::errs()<<*user<<"\n";
+      InvokeInst* invoke = dyn_cast<InvokeInst>(user);
+      std::string demangled = getDemangledRustFuncName(invoke->getCalledFunction()->getName().str());
+      if (demangled=="core::ptr::drop_in_place<alloc::string::String>") {
+        for (auto oi = invoke->op_begin(); oi!=invoke->op_end(); oi++){
+          Value* operand = dyn_cast<Value>(*oi);
+          if (operand == arg_input) {
+            *oi = dyn_cast<Value>(arg_input2);
+          }
+        } 
+      }
+    }
+  }
+
+  IRBuilder<> Builder(M->getContext());
+
+  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
+  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0, true);
+
+  std::vector<Type*> IntrinTypes;
+  IntrinTypes.push_back(get_arg_call->getOperand(0)->getType());
+  IntrinTypes.push_back(newload->getType());
+  IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
+
+  Function* llvmMemcpyFunc2 = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes); 
+
+  std::vector<Value*> IntrinsicArguments2;
+  IntrinsicArguments2.push_back(get_arg_call->getOperand(0));
+  IntrinsicArguments2.push_back(newload);
+  IntrinsicArguments2.push_back(dyn_cast<Value>(i64_24));
+  IntrinsicArguments2.push_back(dyn_cast<Value>(i1_false));
+  ArrayRef<Value*> IntrinsicArgs2(IntrinsicArguments2);
+
+  CallInst* llvmMemcpyCall2 = Builder.CreateCall(llvmMemcpyFunc2, IntrinsicArgs2);
+  llvmMemcpyCall2->insertBefore(get_arg_call);
+
+  BasicBlock* nextBB2 = dyn_cast<BasicBlock>(get_arg_call->getOperand(1));
+  if (nextBB2) {
+    BranchInst * jumpInst = llvm::BranchInst::Create(nextBB2, get_arg_call); 
+    get_arg_call->eraseFromParent();
+  }
+}

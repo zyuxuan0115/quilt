@@ -1,4 +1,4 @@
-//===-- HelloWorld.h - Example Transformations ------------------*- C++ -*-===//
+//===-- MergeRustFuncAsync.h - Transformations ------------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -51,6 +51,7 @@ public:
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
   void changeNewCalleeOutput(Function*);
+  void changeNewCalleeInput(Function*);
 };
 
 } // namespace llvm
