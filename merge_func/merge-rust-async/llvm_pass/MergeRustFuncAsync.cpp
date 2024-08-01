@@ -51,40 +51,6 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     changeNewCalleeOutput(newCalleeFunc);
     changeNewCalleeInput(newCalleeFunc);
 
-///////////////
-/*
-    Instruction* switchInst;
-    for (Function::iterator BBB = NewCalleeFunc->begin(), BBE = NewCalleeFunc->end(); BBB != BBE; ++BBB){
-      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-        if (isa<SwitchInst>(IB)){
-          switchInst = dyn_cast<Instruction>(IB);
-          for (unsigned i=0; i<switchInst->getNumOperands(); i++){
-            llvm::errs()<<"#### "<<*switchInst->getOperand(i)<<"\n";
-          }
-        }
-      }
-    }
-
-    Type* i32 = IntegerType::getInt32Ty(M.getContext());
-    AllocaInst* alloca_i32 = new AllocaInst(i32,NULL, "", switchInst);
-    Constant* i32_0 = llvm::ConstantInt::get(Type::getInt32Ty(M.getContext()), 0, true);
-    StoreInst* store_new = new StoreInst(i32_0, alloca_i32, switchInst);
-    LoadInst* load_new = new LoadInst(i32, alloca_i32, "", switchInst);
-
-    auto oi = switchInst->op_begin();
-    *oi = load_new;
-*/
-///////////////
-    // create a call before the OpenFaaS::make_rpc
-    FunctionType* FuncType = newCalleeFunc->getFunctionType();
-    std::vector<Value*> arguments;
-    for (unsigned i=0; i<RPC_inst->getNumOperands()-1; i++) {
-      arguments.push_back(RPC_inst->getOperand(i));
-    }
-    CallInst* newCall2 = CallInst::Create(FuncType, newCalleeFunc, arguments ,"", RPC_inst);
-    //newCall2->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
-    RPC_inst->eraseFromParent();
-
   }
   else {
     Function *mainFunc = M.getFunction("main");
@@ -130,7 +96,7 @@ void MergeRustFuncAsyncPass::searchAndRemoveDeps(Value* v, StoreInst* store){
 
 
 std::string MergeRustFuncAsyncPass::getDemangledRustFuncName(std::string MangledFuncName) {
-  std::string command = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname \'" + MangledFuncName + "\'";
+  std::string command = demangle_bin + " \'" + MangledFuncName + "\'";
 
   char* command_cstr = new char [command.length()+1];
   strcpy (command_cstr, command.c_str());
@@ -386,6 +352,20 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
   newCalleeFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
 
+
+  // create a new before the OpenFaaS::make_rpc (call) that 
+  // points to the new function
+  //FunctionType* FuncType = newCalleeFunc->getFunctionType();
+  //std::vector<Value*> arguments;
+  //for (unsigned i=0; i<call->getNumOperands()-1; i++) {
+  //  arguments.push_back(call->getOperand(i));
+ // }
+  CallInst* newCall = CallInst::Create(FuncType, newCalleeFunc, arguments ,"", call);
+  AttributeList attr = call->getAttributes();
+  newCall->setAttributes(attr);
+  //newCall2->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
+  call->eraseFromParent();
+
   return newCalleeFunc;
 }
 
@@ -496,17 +476,17 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   IntrinTypes.push_back(newload->getType());
   IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
 
-  Function* llvmMemcpyFunc2 = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes); 
+  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes); 
 
-  std::vector<Value*> IntrinsicArguments2;
-  IntrinsicArguments2.push_back(get_arg_call->getOperand(0));
-  IntrinsicArguments2.push_back(newload);
-  IntrinsicArguments2.push_back(dyn_cast<Value>(i64_24));
-  IntrinsicArguments2.push_back(dyn_cast<Value>(i1_false));
-  ArrayRef<Value*> IntrinsicArgs2(IntrinsicArguments2);
+  std::vector<Value*> IntrinsicArguments;
+  IntrinsicArguments.push_back(get_arg_call->getOperand(0));
+  IntrinsicArguments.push_back(newload);
+  IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
+  IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
+  ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
 
-  CallInst* llvmMemcpyCall2 = Builder.CreateCall(llvmMemcpyFunc2, IntrinsicArgs2);
-  llvmMemcpyCall2->insertBefore(get_arg_call);
+  CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
+  llvmMemcpyCall->insertBefore(get_arg_call);
 
   BasicBlock* nextBB2 = dyn_cast<BasicBlock>(get_arg_call->getOperand(1));
   if (nextBB2) {
