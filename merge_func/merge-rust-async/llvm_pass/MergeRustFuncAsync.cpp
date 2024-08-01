@@ -355,15 +355,9 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
   // create a new before the OpenFaaS::make_rpc (call) that 
   // points to the new function
-  //FunctionType* FuncType = newCalleeFunc->getFunctionType();
-  //std::vector<Value*> arguments;
-  //for (unsigned i=0; i<call->getNumOperands()-1; i++) {
-  //  arguments.push_back(call->getOperand(i));
- // }
   CallInst* newCall = CallInst::Create(FuncType, newCalleeFunc, arguments ,"", call);
   AttributeList attr = call->getAttributes();
   newCall->setAttributes(attr);
-  //newCall2->setAttributes(AttributeList::get(M.getContext(), funcAttr, returnAttr, argumentAttrs));
   call->eraseFromParent();
 
   return newCalleeFunc;
