@@ -1,0 +1,13 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  register-movie-id:
+    lang: rust
+    handler: ./register-movie-id
+    image: zyuxuan0115/mm-register-movie-id:latest
+    secrets:
+    - redis-password
+    - mongodb-password
+    - ingress-enable
