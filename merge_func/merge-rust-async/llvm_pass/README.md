@@ -8,17 +8,17 @@
 > make -j
 ```
 
-### add MergeRustFunc pass
+### add MergeRustFuncAsync pass
 ```bash
-> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeRustFunc.h
-> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeRustFunc.cpp
+> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeRustFuncAsync.h
+> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeRustFuncAsync.cpp
 ```
 
-- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeRustFunc.cpp` & `RenameFunc.cpp`
-- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-rust-func", MergeRustFuncPass())` 
-- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeRustFunc.h"`
+- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeRustFuncAsync.cpp`
+- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-rust-func-async", MergeRustFuncAsyncPass())` 
+- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeRustFuncAsync.h"`
 
 ### to run the optimization pass
 ```bash
-> llvm-project/build/bin/opt -disable-output main.ll -passes=merge-rust-func
+> llvm-project/build/bin/opt -disable-output main.ll -passes=merge-rust-func-async
 ```
