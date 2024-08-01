@@ -50,7 +50,7 @@ public:
   void searchAndRemoveDeps(Value*, StoreInst*);
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
-
+  void changeNewCalleeOutput(Function*);
 };
 
 } // namespace llvm

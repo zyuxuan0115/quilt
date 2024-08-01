@@ -48,44 +48,12 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     Function* CalleeFunc = M.getFunction("callee_main_closure");
     Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(RPC_inst, CalleeFunc, "new_callee");
     // in the new callee function, need to change the return value
-    InvokeInst* send_return_value_call = getInvokeByDemangledName(newCalleeFunc, 
-       "OpenFaaSRPC::send_return_value_to_caller");
+
+    changeNewCalleeOutput(newCalleeFunc);
+
     InvokeInst* get_arg_call = getInvokeByDemangledName(newCalleeFunc,
        "OpenFaaSRPC::get_arg_from_caller");
 
-    // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
-    //                                         ptr align 8 %buffer, 
-    //                                         i64 24, i1 false)
-    // the is the LLVM Intrinsc. The way to create such a call 
-    // is different from normal CallInst create 
-
-    std::vector<Type*> IntrinTypes;
-    IntrinTypes.push_back(newCalleeFunc->getArg(0)->getType());
-    IntrinTypes.push_back(send_return_value_call->getOperand(0)->getType());
-    IntrinTypes.push_back(Type::getInt64Ty(M.getContext()));
-
-
-    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24, true);
-    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0, true);
-    Function* llvmMemcpyFunc = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes);
-
-    std::vector<Value*> IntrinsicArguments;
-    IntrinsicArguments.push_back(newCalleeFunc->getArg(0));
-    IntrinsicArguments.push_back(send_return_value_call->getOperand(0));
-    IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
-    IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
-    ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
-
-
-    IRBuilder<> Builder(M.getContext());
-    CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
-    llvmMemcpyCall->insertBefore(send_return_value_call);
-
-    // since the instruction is a InvokeInst, also needs to create a branch instruction
-    BasicBlock* nextBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(1));
-    if (nextBBofsend_ret_value_call)
-      BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
-    send_return_value_call->eraseFromParent();
 ///////////////
 /*
     Instruction* switchInst;
@@ -160,19 +128,24 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
       }
     }
 
-    IntrinTypes.clear();
-    IntrinTypes.push_back(get_arg_call->getOperand(0)->getType());
-    IntrinTypes.push_back(newload->getType());
-    IntrinTypes.push_back(Type::getInt64Ty(M.getContext()));
+    IRBuilder<> Builder(M.getContext());
 
-    Function* llvmMemcpyFunc2 = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes);
+    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M.getContext()), 24, true);
+    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M.getContext()), 0, true);
 
-    IntrinsicArguments.clear();
-    IntrinsicArguments.push_back(get_arg_call->getOperand(0));
-    IntrinsicArguments.push_back(newload);
-    IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
-    IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
-    ArrayRef<Value*> IntrinsicArgs2(IntrinsicArguments);
+    std::vector<Type*> IntrinTypes2;
+    IntrinTypes2.push_back(get_arg_call->getOperand(0)->getType());
+    IntrinTypes2.push_back(newload->getType());
+    IntrinTypes2.push_back(Type::getInt64Ty(M.getContext()));
+
+    Function* llvmMemcpyFunc2 = Intrinsic::getDeclaration(&M, Intrinsic::memcpy, IntrinTypes2);
+
+    std::vector<Value*> IntrinsicArguments2;
+    IntrinsicArguments2.push_back(get_arg_call->getOperand(0));
+    IntrinsicArguments2.push_back(newload);
+    IntrinsicArguments2.push_back(dyn_cast<Value>(i64_24));
+    IntrinsicArguments2.push_back(dyn_cast<Value>(i1_false));
+    ArrayRef<Value*> IntrinsicArgs2(IntrinsicArguments2);
 
     CallInst* llvmMemcpyCall2 = Builder.CreateCall(llvmMemcpyFunc2, IntrinsicArgs2);
     llvmMemcpyCall2->insertBefore(get_arg_call);
@@ -495,4 +468,47 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
   newCalleeFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
 
   return newCalleeFunc;
+}
+
+
+
+
+void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
+  Module* M = newCalleeFunc->getParent();
+  InvokeInst* send_return_value_call = getInvokeByDemangledName(newCalleeFunc, 
+       "OpenFaaSRPC::send_return_value_to_caller");
+
+  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+  //                                         ptr align 8 %buffer, 
+  //                                         i64 24, i1 false)
+  // the is the LLVM Intrinsc. The way to create such a call 
+  // is different from normal CallInst create 
+
+  std::vector<Type*> IntrinTypes;
+  IntrinTypes.push_back(newCalleeFunc->getArg(0)->getType());
+  IntrinTypes.push_back(send_return_value_call->getOperand(0)->getType());
+  IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
+
+  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
+  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0, true);
+  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
+
+  std::vector<Value*> IntrinsicArguments;
+  IntrinsicArguments.push_back(newCalleeFunc->getArg(0));
+  IntrinsicArguments.push_back(send_return_value_call->getOperand(0));
+  IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
+  IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
+  ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
+
+
+  IRBuilder<> Builder(M->getContext());
+  CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
+  llvmMemcpyCall->insertBefore(send_return_value_call);
+
+  // since the instruction is a InvokeInst, also needs to create a branch instruction
+  BasicBlock* nextBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(1));
+  if (nextBBofsend_ret_value_call)
+    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
+  send_return_value_call->eraseFromParent();
+
 } 
