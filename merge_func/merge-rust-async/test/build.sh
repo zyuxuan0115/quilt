@@ -48,13 +48,6 @@ function merge {
   $LLVM_DIR/llvm-link merged.ll lib_no_debug.ll -S -o function.ll
   $LLVM_DIR/llc -filetype=obj function.ll -o function.o
   $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
-#  $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -o callee_rename.ll
-#  cp callee_rename.ll caller/target/debug/deps/
-#  $LLVM_DIR/llvm-link caller.ll callee_rename.ll -S -o merge.ll
-#  $LLVM_DIR/opt merge.ll -strip-debug -o merge_nodebug.ll -S
-#  $LLVM_DIR/opt -S merge_nodebug.ll -passes=merge-rust-func -o merge_new.ll
-#  $LLVM_DIR/llc -filetype=obj merge_new.ll -o function.o
-#  $LLVM_DIR/clang -no-pie -L$RUST_LIB  function.o -o function $LINKER_FLAGS
 }
 
 function clean {
