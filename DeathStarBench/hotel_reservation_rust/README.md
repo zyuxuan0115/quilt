@@ -119,7 +119,7 @@ curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347234","name":"Hilt
 ```
 
 ```bash
-curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347235","name":"Youth Hotel","phone_number":"734-888-2345","description":"No description","address":"2886 Spruce Street, Philadelphia, PA","images":[]}'
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347235","name":"Youth Hotel","phone_number":"734-888-2345","description":"No description","address":{"street_number":"4107","street_name":"Spruce Street","city":"Philadelphia","state":"PA","country":"USA","postal_code":"19104","latitude":34.897,"longitude":119.625},"images":[]}'
 ```
 
 ```bash
