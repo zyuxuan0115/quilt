@@ -49,19 +49,59 @@ curl localhost:8080/function/get-profiles -d ''
 ### set-cinema
 
 ```bash
-curl localhost:8080/function/set-cinema -d ''
+curl localhost:8080/function/set-cinema -d '{"cinema_id":"c66778","latitude":33.1456,"longitude":115.7421,"cinema_name":"NorthCin","cinema_type":"HD"}'
+```
+
+```bash
+curl localhost:8080/function/set-cinema -d '{"cinema_id":"c66779","latitude":34.795,"longitude":116.9102,"cinema_name":"KKK house","cinema_type":"XScreen"}'
+```
+
+```bash
+curl localhost:8080/function/set-cinema -d '{"cinema_id":"c66780","latitude":30.56,"longitude":119.278,"cinema_name":"LastDays","cinema_type":"HD"}'
 ```
 
 ### set-hotel-point
 
 ```bash
-curl localhost:8080/function/set-hotel-point -d ''
+curl localhost:8080/function/set-hotel-point -d '{"id":"h1347234","latitude":33.565,"longitude":117.641}'
+```
+
+```bash
+curl localhost:8080/function/set-hotel-point -d '{"id":"h1347233","latitude":34.897,"longitude":119.625}'
+```
+
+```bash
+curl localhost:8080/function/set-hotel-point -d '{"id":"h1347232","latitude":31.424,"longitude":113.771}'
+```
+
+```bash
+curl localhost:8080/function/set-hotel-point -d '{"id":"h1347235","latitude":30.123,"longitude":114.733}'
+```
+
+```bash
+curl localhost:8080/function/set-hotel-point -d '{"id":"h1347237","latitude":39.565,"longitude":115.131}'
 ```
 
 ### set-mus
 
 ```bash
-curl localhost:8080/function/set-mus -d ''
+curl localhost:8080/function/set-mus -d '{"museum_id":"m73415", "latitude":33.117,"longitude":118.233,"museum_name":"National Museum", "museum_type":"history"}'
+```
+
+```bash
+curl localhost:8080/function/set-mus -d '{"museum_id":"m73416", "latitude":31.137,"longitude":114.223,"museum_name":"Art Museum", "museum_type":"art"}'
+```
+
+```bash
+curl localhost:8080/function/set-mus -d '{"museum_id":"m73417", "latitude":35.298,"longitude":113.713,"museum_name":"History Museum", "museum_type":"history"}'
+```
+
+```bash
+curl localhost:8080/function/set-mus -d '{"museum_id":"m73418", "latitude":39.215,"longitude":120.788,"museum_name":"Science Museum", "museum_type":"science"}'
+```
+
+```bash
+curl localhost:8080/function/set-mus -d '{"museum_id":"m73415", "latitude":34.464,"longitude":115.579,"museum_name":"Natural Museum", "museum_type":"nature"}'
 ```
 
 ### set-profile
@@ -73,7 +113,23 @@ curl localhost:8080/function/set-profile -d ''
 ### set-rest
 
 ```bash
-curl localhost:8080/function/set-rest -d ''
+curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537242","latitude":33.112,"longitude":115.744,"restaurant_name":"abc","rating":4,"restaurant_type":"fast food"}'
+```
+
+```bash
+curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537244","latitude":36.112,"longitude":111.143,"restaurant_name":"def","rating":3,"restaurant_type":"fast food"}'
+```
+
+```bash
+curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537245","latitude":35.971,"longitude":117.617,"restaurant_name":"terakawa","rating":4,"restaurant_type":"japanese food"}'
+```
+
+```bash
+curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537247","latitude":39.235,"longitude":114.871,"restaurant_name":"sankee","rating":4,"restaurant_type":"chinese food"}'
+```
+
+```bash
+curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537243","latitude":32.679,"longitude":110.221,"restaurant_name":"apple bee","rating":5,"restaurant_type":"western food"}'
 ```
 
 ### check-availability
