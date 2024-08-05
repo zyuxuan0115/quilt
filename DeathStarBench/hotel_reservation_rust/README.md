@@ -115,7 +115,23 @@ curl localhost:8080/function/set-mus -d '{"museum_id":"m73419", "latitude":34.46
 ### set-profile
 
 ```bash
-curl localhost:8080/function/set-profile -d ''
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347234","name":"Hilton","phone_number":"800-789-2345","description":"No description","address":"3590 Chestnut Street, Philadelphia, PA","images":[]}'
+```
+
+```bash
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347235","name":"Youth Hotel","phone_number":"734-888-2345","description":"No description","address":"2886 Spruce Street, Philadelphia, PA","images":[]}'
+```
+
+```bash
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347237","name":"Hope Hotel","phone_number":"245-189-7768","description":"No description","address":"1003 Walnut Street, Philadelphia, PA","images":[]}'
+```
+
+```bash
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347232","name":"Campus Hotel","phone_number":"122-761-9981","description":"No description","address":"8557 Market Street, Philadelphia, PA","images":[]}'
+```
+
+```bash
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347233","name":"In&Out Hotel","phone_number":"771-761-9981","description":"No description","address":"8557 Bishop Ave, Philadelphia, PA","images":[]}'
 ```
 
 ### set-rest
