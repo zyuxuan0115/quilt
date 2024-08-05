@@ -190,7 +190,7 @@ curl localhost:8081/function/get-recommendations -d ''
 ### get-reviews
 
 ```bash
-curl localhost:8081/function/get-reviews -d ''
+curl localhost:8081/function/get-reviews -d 'h1347234'
 ```
 
 ### make-reservation
@@ -226,5 +226,13 @@ curl localhost:8081/function/set-reservation -d ''
 ### set-review
 
 ```bash
-curl localhost:8081/function/set-review -d ''
+curl localhost:8081/function/set-review -d '{"review_id":"rr1112","hotel_id":"h1347234","name":"Kate Zhang","rating":4,"description":"good hotel","image":{"url":"http://yahoo.com/abc.png","default":true}}'
+```
+
+```bash
+curl localhost:8081/function/set-review -d '{"review_id":"rr1179","hotel_id":"h1347234","name":"Hikaru Naruto","rating":3,"description":"bad hotel","image":{"url":"http://yahoo.com/ccc.png","default":true}}'
+```
+
+```bash
+curl localhost:8081/function/set-review -d '{"review_id":"rr1248","hotel_id":"h1347234","name":"Ken Tanaka","rating":3,"description":"bad hotel","image":{"url":"http://yahoo.com/1j2hc2H.png","default":true}}'
 ```
