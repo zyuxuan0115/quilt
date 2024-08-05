@@ -112,8 +112,8 @@ pub struct GetRecommendationsArgs {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GetRatesArgs {
   pub hotel_ids: Vec<String>,
-  pub in_data: String,
-  pub out_data: String,
+  pub in_date: String,
+  pub out_date: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

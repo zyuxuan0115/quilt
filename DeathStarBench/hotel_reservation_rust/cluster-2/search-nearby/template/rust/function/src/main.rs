@@ -18,8 +18,8 @@ fn main() {
 
   let get_rates_arg = GetRatesArgs {
     hotel_ids: nearby_hotels,
-    in_data: args.in_data,
-    out_data: args.out_data,
+    in_date: args.in_date,
+    out_date: args.out_date,
   }; 
  
   let get_rates_arg_str = serde_json::to_string(&get_rates_arg).unwrap();
