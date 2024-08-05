@@ -156,6 +156,13 @@ curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537247","latitude"
 curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537243","latitude":32.679,"longitude":110.221,"restaurant_name":"apple bee","rating":5,"restaurant_type":"western food"}'
 ```
 
+### search-handler
+
+```bash
+curl localhost:8080/function/search-handler -d ''
+```
+
+
 ### check-availability
 
 ```bash
