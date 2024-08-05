@@ -6,14 +6,14 @@ use mongodb::{bson::doc,sync::Client};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let cinema_id: String = input; 
+  let hotel_id: String = input; 
 
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("attractions-db");
-  let mongodb_collection = mongodb_database.collection::<Cinema>("cinemas");
+  let mongodb_database = mongodb_client.database("geo-db");
+  let mongodb_collection = mongodb_database.collection::<Point>("geo");
 
-  let res = mongodb_collection.find_one(doc! { "id": &cinema_id[..] }, None).unwrap();
+  let res = mongodb_collection.find_one(doc! { "id": &hotel_id[..] }, None).unwrap();
 
   let mut cinema_pids: Vec<String> = Vec::new(); 
   match res {
@@ -29,8 +29,8 @@ fn main() {
       cinema_pids = cinema_points.iter().map(|x| x.id.clone()).collect();
     },
     None => {
-      println!("Cinema {} does not exist", cinema_id);
-      panic!("Cinema {} does not exist", cinema_id);
+      println!("Hotel {} does not exist", hotel_id);
+      panic!("Hotel {} does not exist", hotel_id);
     }
   }
   let cinema_pids_str = serde_json::to_string(&cinema_pids).unwrap();
