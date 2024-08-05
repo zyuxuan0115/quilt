@@ -115,7 +115,7 @@ curl localhost:8080/function/set-mus -d '{"museum_id":"m73419", "latitude":34.46
 ### set-profile
 
 ```bash
-curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347234","name":"Hilton","phone_number":"800-789-2345","description":"No description","address":"3590 Chestnut Street, Philadelphia, PA","images":[]}'
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347234","name":"Hilton","phone_number":"800-789-2345","description":"No description","address":{"street_number":"3590","street_name":"Chestnut Street","city":"Philadelphia","state":"PA","country":"USA","post_code":"19104","latitude":33.565,"longitude":117.641}"images":[]}'
 ```
 
 ```bash
