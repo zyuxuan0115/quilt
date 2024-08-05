@@ -109,7 +109,7 @@ curl localhost:8080/function/set-mus -d '{"museum_id":"m73418", "latitude":39.21
 ```
 
 ```bash
-curl localhost:8080/function/set-mus -d '{"museum_id":"m73415", "latitude":34.464,"longitude":115.579,"museum_name":"Natural Museum", "museum_type":"nature"}'
+curl localhost:8080/function/set-mus -d '{"museum_id":"m73419", "latitude":34.464,"longitude":115.579,"museum_name":"Natural Museum", "museum_type":"nature"}'
 ```
 
 ### set-profile
