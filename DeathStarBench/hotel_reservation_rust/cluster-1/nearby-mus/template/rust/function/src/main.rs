@@ -10,8 +10,8 @@ fn main() {
 
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("attractions-db");
-  let mongodb_collection = mongodb_database.collection::<Point>("hotels");
+  let mongodb_database = mongodb_client.database("geo-db");
+  let mongodb_collection = mongodb_database.collection::<Point>("geo");
 
   let res = mongodb_collection.find_one(doc! { "id": &hotel_id[..] }, None).unwrap();
 
