@@ -123,15 +123,15 @@ curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347235","name":"Yout
 ```
 
 ```bash
-curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347237","name":"Hope Hotel","phone_number":"245-189-7768","description":"No description","address":"1003 Walnut Street, Philadelphia, PA","images":[]}'
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347237","name":"Hope Hotel","phone_number":"245-189-7768","description":"No description","address":{"street_number":"4107","street_name":"Spruce Street","city":"Philadelphia","state":"PA","country":"USA","postal_code":"19104","latitude":35.298,"longitude":113.713},"images":[]}'
 ```
 
 ```bash
-curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347232","name":"Campus Hotel","phone_number":"122-761-9981","description":"No description","address":"8557 Market Street, Philadelphia, PA","images":[]}'
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347232","name":"Campus Hotel","phone_number":"122-761-9981","description":"No description","address":{"street_number":"4107","street_name":"Spruce Street","city":"Philadelphia","state":"PA","country":"USA","postal_code":"19104","latitude":39.215,"longitude":120.788},"images":[]}'
 ```
 
 ```bash
-curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347233","name":"In&Out Hotel","phone_number":"771-761-9981","description":"No description","address":"8557 Bishop Ave, Philadelphia, PA","images":[]}'
+curl localhost:8080/function/set-profile -d '{"hotel_id":"h1347233","name":"In&Out Hotel","phone_number":"771-761-9981","description":"No description","address":{"street_number":"4107","street_name":"Spruce Street","city":"Philadelphia","state":"PA","country":"USA","postal_code":"19104","latitude":34.464,"longitude":115.579},"images":[]}'
 ```
 
 ### set-rest
