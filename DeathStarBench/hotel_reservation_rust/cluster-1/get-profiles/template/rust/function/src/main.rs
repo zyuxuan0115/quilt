@@ -17,6 +17,9 @@ fn main() {
     hotel_id_not_cached.insert(hotelid, hotel_id.to_owned());
   }
 
+  println!("{:?}", hotel_id_mmc);
+  println!("{:?}", hotel_id_not_cached);
+
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
@@ -37,12 +40,14 @@ fn main() {
     profile_not_cached.push(value.to_owned());
   }
 
+  println!("{:?}", profile_not_cached);
+
   if profile_not_cached.len() != 0 {
     let mongodb_uri = get_mongodb_uri();
     let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
     let mongodb_database = mongodb_client.database("profile-db");
     let mongodb_collection = mongodb_database.collection::<HotelProfile>("hotels");
-    let query = doc!{"id": doc!{"$in": &profile_not_cached}};
+    let query = doc!{"hotel_id": doc!{"$in": &profile_not_cached}};
     let mut cursor = mongodb_collection.find(query, None).unwrap();
    
     for doc in cursor {
