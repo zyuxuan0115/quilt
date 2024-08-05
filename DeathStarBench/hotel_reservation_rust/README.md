@@ -60,6 +60,14 @@ curl localhost:8080/function/set-cinema -d '{"cinema_id":"c66779","latitude":34.
 curl localhost:8080/function/set-cinema -d '{"cinema_id":"c66780","latitude":30.56,"longitude":119.278,"cinema_name":"LastDays","cinema_type":"HD"}'
 ```
 
+```bash
+curl localhost:8080/function/set-cinema -d '{"cinema_id":"c66782","latitude":39.795,"longitude":112.9102,"cinema_name":"KKK house","cinema_type":"XScreen"}'
+```
+
+```bash
+curl localhost:8080/function/set-cinema -d '{"cinema_id":"c66781","latitude":31.441,"longitude":115.236,"cinema_name":"LastDays","cinema_type":"HD"}'
+```
+
 ### set-hotel-point
 
 ```bash
