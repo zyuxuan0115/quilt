@@ -17,9 +17,6 @@ fn main() {
     hotel_id_not_cached.insert(hotelid, hotel_id.to_owned());
   }
 
-  println!("{:?}", hotel_id_mmc);
-  println!("{:?}", hotel_id_not_cached);
-
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
@@ -39,8 +36,6 @@ fn main() {
   for (_, value) in &hotel_id_not_cached {
     profile_not_cached.push(value.to_owned());
   }
-
-  println!("{:?}", profile_not_cached);
 
   if profile_not_cached.len() != 0 {
     let mongodb_uri = get_mongodb_uri();
