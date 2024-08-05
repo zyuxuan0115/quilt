@@ -29,8 +29,8 @@ fn main() {
       cinema_pids = cinema_points.iter().map(|x| x.id.clone()).collect();
     },
     None => {
-      println!("Hotel {} already existed", hotel_id);
-      panic!("Hotel {} already existed", hotel_id);
+      println!("Hotel {} does not exist", hotel_id);
+      panic!("Hotel {} does not exist", hotel_id);
     }
   }
   let cinema_pids_str = serde_json::to_string(&cinema_pids).unwrap();

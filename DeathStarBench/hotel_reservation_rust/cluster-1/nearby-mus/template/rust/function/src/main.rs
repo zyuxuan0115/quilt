@@ -29,8 +29,8 @@ fn main() {
       mus_pids = mus_points.iter().map(|x| x.id.clone()).collect();
     },
     None => {
-      println!("Hotel {} already existed", hotel_id);
-      panic!("Hotel {} already existed", hotel_id);
+      println!("Hotel {} does not exist", hotel_id);
+      panic!("Hotel {} does not exist", hotel_id);
     }
   }
   let mus_pids_str = serde_json::to_string(&mus_pids).unwrap();
