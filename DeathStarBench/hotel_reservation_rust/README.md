@@ -178,7 +178,7 @@ curl localhost:8081/function/check-user -d ''
 ### get-rates
 
 ```bash
-curl localhost:8081/function/get-rates -d ''
+curl localhost:8081/function/get-rates -d '{"hotel_ids":["h1347234","h1347233","h1347232"],"in_date":"2025-05-17","out_date":"2025-05-19"}'
 ```
 
 ### get-recommendations
@@ -214,7 +214,15 @@ curl localhost:8081/function/set-capacity -d ''
 ### set-rate
 
 ```bash
-curl localhost:8081/function/set-recommendation -d ''
+curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347234","code":"","in_date":"2025-05-17","out_date":"2025-05-20","room_type":"double"}'
+```
+
+```bash
+curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347233","code":"","in_date":"2025-05-19","out_date":"2025-05-21","room_type":"single"}'
+```
+
+```bash
+curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347232","code":"","in_date":"2025-05-16","out_date":"2025-05-19","room_type":"single"}'
 ```
 
 ### set-reservation
