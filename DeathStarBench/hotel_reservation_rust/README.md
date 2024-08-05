@@ -43,7 +43,7 @@ curl localhost:8080/function/nearby-hotel -d '{"latitude":32.7157, "longitude":1
 ### get-profiles
 
 ```bash
-curl localhost:8080/function/get-profiles -d ''
+curl localhost:8080/function/get-profiles -d '["h1347234","h1347233","h1347234"]'
 ```
 
 ### set-cinema
