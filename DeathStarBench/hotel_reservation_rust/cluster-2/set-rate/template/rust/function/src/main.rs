@@ -22,7 +22,6 @@ fn main() {
   };
 
   let mut cursor = mongodb_collection.insert_one(new_rate, None).unwrap();
-   
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());

@@ -43,7 +43,7 @@ fn main() {
     let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
     let mongodb_database = mongodb_client.database("rate-db");
     let mongodb_collection = mongodb_database.collection::<RatePlan>("inventory");
-    let query = doc!{"id": doc!{"$in": &rate_not_cached}};
+    let query = doc!{"hotel_id": doc!{"$in": &rate_not_cached}};
     let mut cursor = mongodb_collection.find(query, None).unwrap();
    
     for doc in cursor {
