@@ -177,6 +177,10 @@ curl localhost:8081/function/check-availability -d ''
 curl localhost:8081/function/check-user -d '{"username":"zyuxuan","password":"123456"}'
 ```
 
+```bash
+curl localhost:8081/function/check-user -d '{"username":"sga001","password":"123456"}'
+```
+
 ### get-rates
 
 ```bash
