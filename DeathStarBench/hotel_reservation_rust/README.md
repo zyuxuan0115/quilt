@@ -193,6 +193,12 @@ curl localhost:8081/function/get-rates -d '{"hotel_ids":["h1347234","h1347233","
 curl localhost:8081/function/get-recommendations -d ''
 ```
 
+### set-recommendation
+
+```bash
+curl localhost:8081/function/set-recommendation -d ''
+```
+
 ### get-reviews
 
 ```bash
