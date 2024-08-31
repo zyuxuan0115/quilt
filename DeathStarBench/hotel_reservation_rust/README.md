@@ -202,7 +202,15 @@ curl localhost:8081/function/make-reservation -d ''
 ### register-user
 
 ```bash
-curl localhost:8081/function/register-user -d ''
+curl localhost:8081/function/register-user -d '{"username":"zyuxuan","password":"123456"}'
+```
+
+```bash
+curl localhost:8081/function/register-user -d '{"username":"twenisch","password":"456789"}'
+```
+
+```bash
+curl localhost:8081/function/register-user -d '{"username":"sga001","password":"001001"}'
 ```
 
 ### search-nearby
