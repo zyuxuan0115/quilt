@@ -9,7 +9,7 @@ use std::collections::HashMap;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let request: GetRecommendationsArgs = serde_json::from_str(&input).unwrap();
+  let request: GetRecommendationArgs = serde_json::from_str(&input).unwrap();
   let mut hotel_id_mmc: String = input.clone();
   hotel_id_mmc.push_str(":review");
 
