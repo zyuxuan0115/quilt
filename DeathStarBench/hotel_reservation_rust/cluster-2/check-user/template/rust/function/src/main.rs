@@ -6,9 +6,7 @@ use sha256::digest;
 
 fn main() {
   let input: String = get_arg_from_caller();
-  println!("{}", input);
   let user_info: CheckUserArgs = serde_json::from_str(&input).unwrap();
-
   let username = user_info.username;
   let mut password = user_info.password;
   let mut pw_sha: String = String::from(&password[..]);
