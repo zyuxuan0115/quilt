@@ -187,16 +187,16 @@ curl localhost:8081/function/check-user -d '{"username":"sga001","password":"123
 curl localhost:8081/function/get-rates -d '{"hotel_ids":["h1347234","h1347233","h1347232"],"in_date":"2025-05-17","out_date":"2025-05-19"}'
 ```
 
-### get-recommendations
+### get-recommendation
 
 ```bash
-curl localhost:8081/function/get-recommendations -d ''
+curl localhost:8081/function/get-recommendation -d ''
 ```
 
 ### set-recommendation
 
 ```bash
-curl localhost:8081/function/set-recommendation -d ''
+curl localhost:8081/function/set-recommendation -d '{"hotel_id":"h1347232","latitude":31.424,"longitude":113.771,"rate":149.5,"price":200.5}'
 ```
 
 ### get-reviews
