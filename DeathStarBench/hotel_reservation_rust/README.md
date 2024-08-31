@@ -190,7 +190,7 @@ curl localhost:8081/function/get-rates -d '{"hotel_ids":["h1347234","h1347233","
 ### get-recommendation
 
 ```bash
-curl localhost:8081/function/get-recommendation -d ''
+curl localhost:8081/function/get-recommendation -d '{"require":"price","latitude":32.113,"longitude":116.211}'
 ```
 
 ### set-recommendation
