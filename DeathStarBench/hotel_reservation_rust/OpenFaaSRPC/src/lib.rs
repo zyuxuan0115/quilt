@@ -103,7 +103,7 @@ pub struct SetRecommendationArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetRecommendationsArgs {
+pub struct GetRecommendationArgs {
   pub require: String,
   pub latitude: f64,
   pub longitude: f64,
