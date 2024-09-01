@@ -168,7 +168,7 @@ curl localhost:8080/function/search-handler -d ''
 ### check-availability
 
 ```bash
-curl localhost:8081/function/check-availability -d ''
+curl localhost:8081/function/check-availability -d '{"customer_name":"Yuxuan Zhang","hotel_id":"h1347232","in_date":"2024-09-01","out_date":"2024-09-05","room_number":60}'
 ```
 
 ### check-user
@@ -220,7 +220,11 @@ curl localhost:8081/function/get-reviews -d 'h1347234'
 ### make-reservation
 
 ```bash
-curl localhost:8081/function/make-reservation -d ''
+curl localhost:8081/function/make-reservation -d '{"customer_name":"Yuxuan Zhang","hotel_id":"h1347232","in_date":"2024-09-01","out_date":"2024-09-05","room_number":50}'
+```
+
+```bash
+curl localhost:8081/function/make-reservation -d '{"customer_name":"Yuxuan Zhang","hotel_id":"h1347232","in_date":"2024-09-01","out_date":"2024-09-05","room_number":60}'
 ```
 
 ### register-user
