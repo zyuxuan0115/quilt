@@ -3,7 +3,7 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use mongodb::{bson::doc,sync::Client};
 use ordered_float::OrderedFloat;
-use std::f64::NAN;
+use std::f64::MAX;
 use std::collections::HashMap;
 
 fn main() {
@@ -17,7 +17,7 @@ fn main() {
   let mongodb_uri = get_mongodb_uri();
   let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
   let mongodb_database = mongodb_client.database("recommendation-db");
-  let mongodb_collection = mongodb_database.collection::<HotelRecomm>("recommendations");
+  let mongodb_collection = mongodb_database.collection::<HotelRecomm>("recommendation");
 
   let cursor = mongodb_collection.find(doc!{}, None).unwrap();
 
@@ -31,12 +31,13 @@ fn main() {
   let mut hotel_ids: Vec<String> = Vec::new();
   match &request.require[..] {
     "price" => {
-       let mut min_price = OrderedFloat(NAN);
+       let mut min_price = OrderedFloat(MAX);
        for item in &hotel_info {
          if OrderedFloat(item.price) < min_price {
            min_price = OrderedFloat(item.price);
          }
        }
+
        for item in &hotel_info {
          if OrderedFloat(item.price) == min_price {
            hotel_ids.push(item.hotel_id.clone());
@@ -57,7 +58,7 @@ fn main() {
       }
     },
     "dis" => {
-      let mut min_dis = OrderedFloat(NAN);
+      let mut min_dis = OrderedFloat(MAX);
       for item in &hotel_info {
         let dis = (request.latitude - item.latitude) * (request.latitude - item.latitude) 
             + (request.longitude - item.longitude) * (request.longitude - item.longitude);
