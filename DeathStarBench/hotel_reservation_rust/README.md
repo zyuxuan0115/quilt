@@ -227,6 +227,20 @@ curl localhost:8081/function/make-reservation -d '{"customer_name":"Yuxuan Zhang
 curl localhost:8081/function/make-reservation -d '{"customer_name":"Yuxuan Zhang","hotel_id":"h1347232","in_date":"2024-09-01","out_date":"2024-09-05","room_number":60}'
 ```
 
+### set-capacity
+
+```bash
+curl localhost:8081/function/set-capacity -d '{"hotel_id":"h1347232","capacity":100}'
+```
+
+```bash
+curl localhost:8081/function/set-capacity -d '{"hotel_id":"h1347233","capacity":200}'
+```
+
+```bash
+curl localhost:8081/function/set-capacity -d '{"hotel_id":"h1347233","capacity":150}'
+```
+
 ### register-user
 
 ```bash
