@@ -260,7 +260,15 @@ curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347232","code":"","in_d
 ### set-reservation
 
 ```bash
-curl localhost:8081/function/set-reservation -d ''
+curl localhost:8081/function/set-reservation -d '{"hotel_id":"h1347232","in_date":"2024-09-01","out_date":"2024-09-30","number":100}'
+```
+
+```bash
+curl localhost:8081/function/set-reservation -d '{"hotel_id":"h1347233","in_date":"2024-09-01","out_date":"2024-09-30","number":100}'
+```
+
+```bash
+curl localhost:8081/function/set-reservation -d '{"hotel_id":"h1347234","in_date":"2024-09-01","out_date":"2024-09-30","number":100}'
 ```
 
 ### set-review
