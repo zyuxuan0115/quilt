@@ -261,20 +261,6 @@ curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347233","code":"","in_d
 curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347232","code":"","in_date":"2025-05-16","out_date":"2025-05-19","room_type":{"bookable_rate":149.5,"total_rate":149.5,"total_rate_inclusive":149.5,"code":"F143","currency":"USD","room_description":"double"}}'
 ```
 
-### set-reservation
-
-```bash
-curl localhost:8081/function/set-reservation -d '{"hotel_id":"h1347232","in_date":"2024-09-01","out_date":"2024-09-30","number":100}'
-```
-
-```bash
-curl localhost:8081/function/set-reservation -d '{"hotel_id":"h1347233","in_date":"2024-09-01","out_date":"2024-09-30","number":100}'
-```
-
-```bash
-curl localhost:8081/function/set-reservation -d '{"hotel_id":"h1347234","in_date":"2024-09-01","out_date":"2024-09-30","number":100}'
-```
-
 ### set-review
 
 ```bash
