@@ -238,7 +238,7 @@ curl localhost:8081/function/set-capacity -d '{"hotel_id":"h1347233","capacity":
 ```
 
 ```bash
-curl localhost:8081/function/set-capacity -d '{"hotel_id":"h1347233","capacity":150}'
+curl localhost:8081/function/set-capacity -d '{"hotel_id":"h1347234","capacity":150}'
 ```
 
 ### register-user
@@ -258,7 +258,7 @@ curl localhost:8081/function/register-user -d '{"username":"sga001","password":"
 ### search-nearby
 
 ```bash
-curl localhost:8081/function/set-capacity -d ''
+curl localhost:8081/function/search-nearby -d ''
 ```
 
 ### set-rate
