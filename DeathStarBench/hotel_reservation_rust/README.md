@@ -193,6 +193,14 @@ curl localhost:8081/function/get-rates -d '{"hotel_ids":["h1347234","h1347233","
 curl localhost:8081/function/get-recommendation -d '{"require":"price","latitude":32.113,"longitude":116.211}'
 ```
 
+```bash
+curl localhost:8081/function/get-recommendation -d '{"require":"rate","latitude":32.113,"longitude":116.211}'
+```
+
+```bash
+curl localhost:8081/function/get-recommendation -d '{"require":"dis","latitude":32.113,"longitude":116.211}'
+```
+
 ### set-recommendation
 
 ```bash
