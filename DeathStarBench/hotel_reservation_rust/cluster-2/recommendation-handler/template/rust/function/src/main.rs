@@ -9,7 +9,7 @@ fn main() {
   //let now = Instant::now();
   let recommendation_info: RecommendationHandlerArgs = serde_json::from_str(&input).unwrap();
 
-  let get_recommendation_args = GetRecommendationsArgs {
+  let get_recommendation_args = GetRecommendationArgs {
     require: recommendation_info.require.clone(),
     latitude: recommendation_info.latitude,
     longitude: recommendation_info.longitude,
