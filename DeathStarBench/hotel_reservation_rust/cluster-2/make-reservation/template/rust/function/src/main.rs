@@ -62,6 +62,8 @@ fn main() {
     in_date = next_day;
     next_day = next_day.succ_opt().unwrap();
   }
+  println!("{:?}",hotel_ids_mmc);
+
   let hotel_ids_strslice: Vec<&str> = hotel_ids_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_ids_strslice;
 
@@ -103,14 +105,24 @@ fn main() {
       let parts = item[..].split("_").collect::<Vec<&str>>();
       if parts.len() == 3 {
         let query = doc!{"hotel_id": &parts[0][..], "in_date": &parts[1][..], "out_date": &parts[2][..]};
-        let cursor = resv_collection.find(query, None).unwrap();
-        for doc in cursor {
-          let doc_ = doc.unwrap();
-          // update memcached
-          let key: String = item.clone();
-          let value = serde_json::to_string(&doc_.number).unwrap();
-          memcache_client.set(&key[..],&value[..],0).unwrap();
-          reservation_info.push(doc_.clone());
+        let result = resv_collection.find_one(query, None).unwrap();
+        match result {
+          Some(x) => {
+            // update memcached
+            let key: String = item.clone();
+            let value = serde_json::to_string(&x.number).unwrap();
+            memcache_client.set(&key[..],&value[..],0).unwrap();
+            reservation_info.push(x.clone());
+          },
+          None => {
+            let resv_info = HotelReservation {
+              hotel_id:  (&parts[0][..]).to_string(),
+              in_date: (&parts[1][..]).to_string(),
+              out_date: (&parts[2][..]).to_string(),
+              number: 0,
+            };
+            reservation_info.push(resv_info);
+          }
         }
       }
     }

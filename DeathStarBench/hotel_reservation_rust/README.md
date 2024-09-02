@@ -164,6 +164,17 @@ curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537243","latitude"
 curl localhost:8080/function/search-handler -d ''
 ```
 
+### recommendation-handler
+
+```bash
+curl localhost:8081/function/recommendation-handler -d ''
+```
+
+### reservation-handler
+
+```bash
+curl localhost:8081/function/reservation-handler -d ''
+```
 
 ### check-availability
 
@@ -185,6 +196,20 @@ curl localhost:8081/function/check-user -d '{"username":"sga001","password":"123
 
 ```bash
 curl localhost:8081/function/get-rates -d '{"hotel_ids":["h1347234","h1347233","h1347232"],"in_date":"2025-05-17","out_date":"2025-05-19"}'
+```
+
+### set-rate
+
+```bash
+curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347234","code":"","in_date":"2025-05-17","out_date":"2025-05-20","room_type":{"bookable_rate":149.5,"total_rate":149.5,"total_rate_inclusive":149.5,"code":"F143","currency":"USD","room_description":"double"}}'
+```
+
+```bash
+curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347233","code":"","in_date":"2025-05-19","out_date":"2025-05-21","room_type":{"bookable_rate":149.5,"total_rate":149.5,"total_rate_inclusive":149.5,"code":"F143","currency":"USD","room_description":"double"}}'
+```
+
+```bash
+curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347232","code":"","in_date":"2025-05-16","out_date":"2025-05-19","room_type":{"bookable_rate":149.5,"total_rate":149.5,"total_rate_inclusive":149.5,"code":"F143","currency":"USD","room_description":"double"}}'
 ```
 
 ### get-recommendation
@@ -215,6 +240,20 @@ curl localhost:8081/function/set-recommendation -d '{"hotel_id":"h1347234","lati
 
 ```bash
 curl localhost:8081/function/get-reviews -d 'h1347234'
+```
+
+### set-review
+
+```bash
+curl localhost:8081/function/set-review -d '{"review_id":"rr1112","hotel_id":"h1347234","name":"Kate Zhang","rating":4,"description":"good hotel","image":{"url":"http://yahoo.com/abc.png","default":true}}'
+```
+
+```bash
+curl localhost:8081/function/set-review -d '{"review_id":"rr1179","hotel_id":"h1347234","name":"Hikaru Naruto","rating":3,"description":"bad hotel","image":{"url":"http://yahoo.com/ccc.png","default":true}}'
+```
+
+```bash
+curl localhost:8081/function/set-review -d '{"review_id":"rr1248","hotel_id":"h1347234","name":"Ken Tanaka","rating":3,"description":"bad hotel","image":{"url":"http://yahoo.com/1j2hc2H.png","default":true}}'
 ```
 
 ### make-reservation
@@ -259,32 +298,4 @@ curl localhost:8081/function/register-user -d '{"username":"sga001","password":"
 
 ```bash
 curl localhost:8081/function/search-nearby -d ''
-```
-
-### set-rate
-
-```bash
-curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347234","code":"","in_date":"2025-05-17","out_date":"2025-05-20","room_type":{"bookable_rate":149.5,"total_rate":149.5,"total_rate_inclusive":149.5,"code":"F143","currency":"USD","room_description":"double"}}'
-```
-
-```bash
-curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347233","code":"","in_date":"2025-05-19","out_date":"2025-05-21","room_type":{"bookable_rate":149.5,"total_rate":149.5,"total_rate_inclusive":149.5,"code":"F143","currency":"USD","room_description":"double"}}'
-```
-
-```bash
-curl localhost:8081/function/set-rate -d '{"hotel_id":"h1347232","code":"","in_date":"2025-05-16","out_date":"2025-05-19","room_type":{"bookable_rate":149.5,"total_rate":149.5,"total_rate_inclusive":149.5,"code":"F143","currency":"USD","room_description":"double"}}'
-```
-
-### set-review
-
-```bash
-curl localhost:8081/function/set-review -d '{"review_id":"rr1112","hotel_id":"h1347234","name":"Kate Zhang","rating":4,"description":"good hotel","image":{"url":"http://yahoo.com/abc.png","default":true}}'
-```
-
-```bash
-curl localhost:8081/function/set-review -d '{"review_id":"rr1179","hotel_id":"h1347234","name":"Hikaru Naruto","rating":3,"description":"bad hotel","image":{"url":"http://yahoo.com/ccc.png","default":true}}'
-```
-
-```bash
-curl localhost:8081/function/set-review -d '{"review_id":"rr1248","hotel_id":"h1347234","name":"Ken Tanaka","rating":3,"description":"bad hotel","image":{"url":"http://yahoo.com/1j2hc2H.png","default":true}}'
 ```
