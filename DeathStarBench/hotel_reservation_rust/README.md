@@ -161,7 +161,7 @@ curl localhost:8080/function/set-rest -d '{"restaurant_id":"r1537243","latitude"
 ### search-handler
 
 ```bash
-curl localhost:8080/function/search-handler -d ''
+curl localhost:8080/function/search-handler -d '{"latitude":32.7157,"longitude":117.1611,"in_date":"2024-09-01","out_date":"2024-09-05"}'
 ```
 
 ### recommendation-handler
