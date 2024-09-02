@@ -32,6 +32,10 @@ fn main() {
     let make_resv_ret_str = make_rpc("make-reservation", make_resv_args_str);
     serialized = make_resv_ret_str;
   }
+  else {
+    let vec: Vec<String> = Vec::new();
+    serialized = serde_json::to_string(&vec).unwrap();
+  }
     
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
