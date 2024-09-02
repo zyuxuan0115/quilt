@@ -176,6 +176,12 @@ curl localhost:8081/function/recommendation-handler -d ''
 curl localhost:8081/function/reservation-handler -d ''
 ```
 
+### search-nearby
+
+```bash
+curl localhost:8081/function/search-nearby -d ''
+```
+
 ### check-availability
 
 ```bash
@@ -294,8 +300,4 @@ curl localhost:8081/function/register-user -d '{"username":"twenisch","password"
 curl localhost:8081/function/register-user -d '{"username":"sga001","password":"001001"}'
 ```
 
-### search-nearby
 
-```bash
-curl localhost:8081/function/search-nearby -d ''
-```
