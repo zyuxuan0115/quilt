@@ -179,7 +179,7 @@ curl localhost:8081/function/reservation-handler -d ''
 ### search-nearby
 
 ```bash
-curl localhost:8081/function/search-nearby -d ''
+curl localhost:8081/function/search-nearby -d '{"latitude":32.7157,"longitude":117.1611,"in_date":"2024-09-01","out_date":"2024-09-01"}'
 ```
 
 ### check-availability
