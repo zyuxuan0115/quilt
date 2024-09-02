@@ -62,7 +62,6 @@ fn main() {
     in_date = next_day;
     next_day = next_day.succ_opt().unwrap();
   }
-  println!("{:?}",hotel_ids_mmc);
 
   let hotel_ids_strslice: Vec<&str> = hotel_ids_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_ids_strslice;

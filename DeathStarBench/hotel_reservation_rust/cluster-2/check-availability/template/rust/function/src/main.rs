@@ -9,7 +9,6 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let args: CheckAvailabilityArgs = serde_json::from_str(&input).unwrap();
-  println!("{:?}", args);
 
   let hotel_ids: Vec<String> = args.hotel_id;
   let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut y = x.clone(); y.push_str("_cap"); y}).collect();
@@ -59,16 +58,12 @@ fn main() {
 
   let mut capacity_info_hash: HashMap<String, HotelCapacity> = capacity_info.iter().map(|x| (x.hotel_id.clone(), x.to_owned() )).collect::<HashMap<_, _>>();
 
-  println!("{:?}", capacity_info_hash);
-
   let mut hotel_ids_return: Vec<String> = Vec::new();
   for hotel_id in &hotel_ids {
     // get reservation info and then check if the hotel is available
     let mut in_date = NaiveDate::parse_from_str(&args.in_date[..], "%Y-%m-%d").unwrap();
     let out_date = NaiveDate::parse_from_str(&args.out_date[..], "%Y-%m-%d").unwrap();
     let mut next_day = in_date.succ_opt().unwrap();
-    println!("in_date:{:?}", in_date);
-    println!("out_date:{:?}", out_date);
 
     let mut hotel_ids_mmc: Vec<String> = Vec::new();
 
@@ -80,7 +75,6 @@ fn main() {
       in_date = next_day;
       next_day = next_day.succ_opt().unwrap();
     }
-    println!("{:?}", hotel_ids_mmc);
     let hotel_ids_strslice: Vec<&str> = hotel_ids_mmc.iter().map(|x| &**x).collect();
     let keys: &[&str] = &hotel_ids_strslice;
 
@@ -104,7 +98,6 @@ fn main() {
           out_date: parts[2].to_owned(),
           number: room_num,
         };
-        println!("{:?}",resv_info);
         reservation_info.push(resv_info);
       }
       hotel_ids_not_cached.remove(key);
@@ -123,14 +116,24 @@ fn main() {
         let parts = item[..].split("_").collect::<Vec<&str>>();
         if parts.len() == 3 {
           let query = doc!{"hotel_id": &parts[0][..], "in_date": &parts[1][..], "out_date": &parts[2][..]};
-          let cursor = resv_collection.find(query, None).unwrap();
-          for doc in cursor {
-            let doc_ = doc.unwrap();
-            // update memcached
-            let key: String = item.clone();
-            let value = serde_json::to_string(&doc_.number).unwrap();
-            memcache_client.set(&key[..],&value[..],0).unwrap();
-            reservation_info.push(doc_.clone());
+          let result = resv_collection.find_one(query, None).unwrap();
+          match result {
+            Some(x) => {
+              // update memcached
+              let key: String = item.clone();
+              let value = serde_json::to_string(&x.number).unwrap();
+              memcache_client.set(&key[..],&value[..],0).unwrap();
+              reservation_info.push(x.clone()); 
+            },
+            None => {
+              let resv_info = HotelReservation {
+                hotel_id: (&parts[0][..]).to_owned(),
+                in_date: (&parts[1][..]).to_owned(),
+                out_date: (&parts[2][..]).to_owned(),
+                number: 0,
+              };
+              reservation_info.push(resv_info);
+            }
           }
         }
       }
@@ -149,7 +152,7 @@ fn main() {
     }
   }
   //let new_now =  Instant::now();
-  //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+  //println!("check-availability: {:?}", new_now.duration_since(now));
   let serialized = serde_json::to_string(&hotel_ids_return).unwrap();
   send_return_value_to_caller(serialized);
 }
