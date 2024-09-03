@@ -6,7 +6,8 @@ use redis::{Commands, RedisResult};
 use memcache::Client;
 //use std::time::{Duration, Instant};
 
-fn main() {
+#[tokio::main]
+async fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let user_id: i64 = serde_json::from_str(&input).unwrap();

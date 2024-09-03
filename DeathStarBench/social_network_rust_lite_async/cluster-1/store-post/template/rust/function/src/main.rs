@@ -4,7 +4,8 @@ use DbInterface::*;
 use redis::Commands;
 //use std::time::{Duration, Instant};
 
-fn main() {
+#[tokio::main]
+async fn main() {
   let input: String = get_arg_from_caller();
   //let time_0 = Instant::now();
   let new_post: Post = serde_json::from_str(&input).unwrap();
