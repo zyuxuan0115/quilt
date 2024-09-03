@@ -13,7 +13,8 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let mut username = String::from(&input[..]);

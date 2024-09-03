@@ -15,7 +15,8 @@ fn gen_short_url()->String{
   short_url
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let urls: Vec<String> = serde_json::from_str(&input).unwrap();

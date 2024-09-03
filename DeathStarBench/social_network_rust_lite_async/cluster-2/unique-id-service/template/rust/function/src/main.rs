@@ -2,7 +2,8 @@ use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller};
 use rand::Rng;
 //use std::time::{Duration, Instant};
 
-fn main() {
+#[tokio::main]
+async fn main() {
   let _input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let mut uuid:i64 = rand::thread_rng().gen();
