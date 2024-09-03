@@ -24,8 +24,7 @@ def move_functions(json_file):
         os.system(cmd)
 
 
-def merge():
-  f_name = sys.argv[2]
+def merge(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
  
@@ -81,7 +80,7 @@ def main():
   arg = sys.argv[1]
   if arg == "merge":
     move_functions("../OpenFaaSRPC/func_info.json")
-    merge()
+    merge(sys.argv[2])
   elif arg == "clean":
     clean()    
   else:
