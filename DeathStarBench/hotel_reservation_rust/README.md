@@ -167,7 +167,7 @@ curl localhost:8080/function/search-handler -d '{"latitude":32.7157,"longitude":
 ### recommendation-handler
 
 ```bash
-curl localhost:8081/function/recommendation-handler -d ''
+curl localhost:8081/function/recommendation-handler -d '{"require":"price","latitude":32.113,"longitude":116.211}'
 ```
 
 ### reservation-handler
