@@ -15,12 +15,13 @@ fn main() {
     longitude: recommendation_info.longitude,
   };
   let get_recommendation_args_str = serde_json::to_string(&get_recommendation_args).unwrap(); 
-  let get_recommendation_ret_str = make_rpc("get-recommendations", get_recommendation_args_str);
+
+  let get_recommendation_ret_str = make_rpc("get-recommendation", get_recommendation_args_str);
 
   let profiles_str =  make_rpc("get-profiles", get_recommendation_ret_str);
-    
+   
   //let new_now =  Instant::now();
-  //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+  //println!("recommendation-handler: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(profiles_str);
 }
 

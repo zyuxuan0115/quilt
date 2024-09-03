@@ -68,7 +68,7 @@
       "cluster_id":2
     },
     {
-      "function_name":"get-recommendations",
+      "function_name":"get-recommendation",
       "cluster_id":2
     },
     {
