@@ -22,11 +22,11 @@ async fn main() {
   let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
   let urls_serialized = serde_json::to_string(&urls).unwrap();
   let time_1 = Instant::now();
-  let future = make_rpc("user-mention-service", mentioned_usernames_serialized, &client);
+  let future_user_mention = make_rpc("user-mention-service", mentioned_usernames_serialized, &client);
   let time_2 = Instant::now();
-  let future1 = make_rpc("url-shorten-service", urls_serialized, &client);
+  let future_url_shorten = make_rpc("url-shorten-service", urls_serialized, &client);
   let time_3 = Instant::now();
-  let (user_mentions_str, urls_str): (String, String) = futures::join!(future, future1);
+  let (user_mentions_str, urls_str): (String, String) = futures::join!(future_user_mention, future_url_shorten);
   let time_4 = Instant::now();
   let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
   let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
