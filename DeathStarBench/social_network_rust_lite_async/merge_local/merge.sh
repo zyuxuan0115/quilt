@@ -43,7 +43,6 @@ function merge {
   # prepare for merging
   CALLER_IR=$(ls $CALLER_FUNC/template/rust/function/target/debug/deps/function-*.ll)
   echo $CALLER_IR
-  echo "@@@@@@@@@"
   mv $CALLER_IR caller.ll
   cp caller.ll merged.ll
 
