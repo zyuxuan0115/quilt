@@ -52,6 +52,10 @@ public:
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
   void changeNewCalleeOutput(Function*);
   void changeNewCalleeInput(Function*);
+  std::vector<CallInst*> getCallFutureMaybeDone(Function*);  
+  bool IsStringStartWith(std::string, std::string);
+  std::unordered_map<std::string, InvokeInst*> getCalleeName4RPC(Function*);
+  unsigned getRPCIdx(InvokeInst*); 
 
 private:
   std::string demangle_bin = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";

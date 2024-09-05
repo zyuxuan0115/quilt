@@ -27,12 +27,19 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     // get function::main::{{closure}}::{{closure}}
     Function* mainClosureClosure = getFunctionByDemangledName(&M, 
        "function::main::{{closure}}::{{closure}}");
+    Function* mainClosure = getFunctionByDemangledName(&M, 
+       "function::main::{{closure}}");
 
+    std::unordered_map<std::string, InvokeInst*> fname2RPC = getCalleeName4RPC(mainClosure);
+    InvokeInst* firstRPC = fname2RPC[CalleeName_rra];  
+    int RPCidx = getRPCIdx(firstRPC);
+
+    llvm::errs()<<"@@@ RPCidx = "<<RPCidx<<"\n";
+ 
     // get futures_util::future::maybe_done::MaybeDone<Fut> function 
-    std::vector<CallInst*> call_future_funcs = getCallsByDemangledName(mainClosureClosure, 
-       "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll");
+    std::vector<CallInst*> call_future_funcs = getCallFutureMaybeDone(mainClosureClosure); 
 
-    Function* newFutureMaybeDoneFunc = cloneAndReplaceFunc(call_future_funcs[0], "new_future_maybe");
+    Function* newFutureMaybeDoneFunc = cloneAndReplaceFunc(call_future_funcs[RPCidx], "new_future_maybe_for"+CalleeName_rra);
 
     // within the new function, find the call to OpenFaaSRPC::make_rpc::{{closure}}
     CallInst* RPC_inst = getCallByDemangledName(newFutureMaybeDoneFunc, 
@@ -42,7 +49,6 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
  
     Function* make_rpc_closure = RPC_inst->getCalledFunction();
     make_rpc_closure->setName("make_rpc_closure");
-
     // create a function that has the same arguments as `make_rpc_closure`
     // but the function body is the callee function
     Function* CalleeFunc = M.getFunction("callee_main_closure");
@@ -66,6 +72,93 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
   return PreservedAnalyses::all();
 
 }
+
+
+std::unordered_map<std::string, InvokeInst*> MergeRustFuncAsyncPass::getCalleeName4RPC(Function* f){
+  std::unordered_map<std::string, InvokeInst*> funcName2call;
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<InvokeInst>(IB)){
+        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
+        Function* CalledFunc = ii->getCalledFunction();
+        if (getDemangledRustFuncName(CalledFunc->getName().str()) ==
+            "OpenFaaSRPC::make_rpc") {
+          std::string funcName = getRPCCalleeName(ii);
+          funcName2call[funcName] = ii;
+          getRPCIdx(ii);
+        }
+      } 
+    }
+  }
+  return funcName2call; 
+}
+
+unsigned MergeRustFuncAsyncPass::getRPCIdx(InvokeInst* rpc){
+  Function* f = rpc->getFunction();
+  Value* arg_future = rpc->getOperand(0);
+  CallInst* llvm_memcpy;
+  for (auto u = arg_future->user_begin(); u!= arg_future->user_end(); u++) {
+    if (isa<CallInst>(*u)){
+      CallInst* ci = dyn_cast<CallInst>(*u);
+      if (ci->getCalledFunction()->getName().str()=="llvm.memcpy.p0.p0.i64"){
+        llvm_memcpy = ci;
+        break;
+      }
+    }
+  } 
+  Value* llvm_memcpy_target = llvm_memcpy->getOperand(0);
+  InvokeInst* future_maybe_done_func;
+  for (auto u = llvm_memcpy_target->user_begin(); u != llvm_memcpy_target->user_end(); u++){
+    Value* v = dyn_cast<Value>(*u);
+    if (isa<InvokeInst>(v)){
+      InvokeInst* ii = dyn_cast<InvokeInst>(v);
+      std::string demangledCalleeName = getDemangledRustFuncName(ii->getCalledFunction()->getName().str());
+      if (demangledCalleeName=="futures_util::future::maybe_done::maybe_done"){
+        future_maybe_done_func = ii;
+        break;
+      }
+    }
+  }
+  Value* getElemPtrV = future_maybe_done_func->getOperand(0);
+  Instruction* inst = dyn_cast<Instruction>(getElemPtrV);
+  int idx = 0;
+  if (ConstantInt* CI = dyn_cast<ConstantInt>(inst->getOperand(2))) {
+    if (CI->getBitWidth() <= 32) {
+      idx = CI->getSExtValue();
+    }
+  }
+  return idx-2;
+}
+
+
+
+std::vector<CallInst*> MergeRustFuncAsyncPass::getCallFutureMaybeDone(Function* f){
+  std::vector<CallInst*> calls;
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)){
+        CallInst* ci = dyn_cast<CallInst>(IB);
+        Function* CalledFunc = ci->getCalledFunction();
+        if (IsStringStartWith(CalledFunc->getName().str(), "new_future_maybe_for")) {
+          calls.push_back(ci);
+        }
+        else if (getDemangledRustFuncName(CalledFunc->getName().str()) == 
+          "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll") {
+          calls.push_back(ci);
+        }            
+      }
+    }
+  }
+  return calls;
+}
+
+
+bool MergeRustFuncAsyncPass::IsStringStartWith(std::string str, std::string substr_start){
+  if (str.size()<substr_start.size()) return false;
+  if (str.rfind(substr_start, 0) == 0) return true;
+  else return false;
+}
+
 
 void MergeRustFuncAsyncPass::searchAndRemoveDeps(Value* v, StoreInst* store){
   std::vector<Value*> vs;
@@ -308,10 +401,8 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
     arguments.push_back(arg);
     argumentTypes.push_back(arg->getType());
   }
-
   FunctionType* FuncType = originalCalledFunc->getFunctionType();
   Function * newCalleeFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, newFuncName, M);
-
   // update VMap, the targetFunc has less args than the original callee function
   // so we need to remap the arguments
   ValueToValueMapTy VMap;
@@ -322,7 +413,6 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
     DestI->setName(J.getName());
     VMap[&J] = &*DestI++;
   }
- 
   CloneFunctionInto(newCalleeFunc, targetFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
 
   // update the return instructions
@@ -351,7 +441,6 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
   AttributeSet funcAttr = newCalleeAttrList.getFnAttrs();
 
   newCalleeFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
-
 
   // create a new before the OpenFaaS::make_rpc (call) that 
   // points to the new function
@@ -446,7 +535,7 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   for (auto u = arg_input->user_begin(); u!= arg_input->user_end(); u++) {
     Value* user = dyn_cast<User>(*u);
     if (isa<InvokeInst>(user)) {
-      llvm::errs()<<*user<<"\n";
+      //llvm::errs()<<*user<<"\n";
       InvokeInst* invoke = dyn_cast<InvokeInst>(user);
       std::string demangled = getDemangledRustFuncName(invoke->getCalledFunction()->getName().str());
       if (demangled=="core::ptr::drop_in_place<alloc::string::String>") {
