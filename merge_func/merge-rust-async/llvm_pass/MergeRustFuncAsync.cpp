@@ -22,6 +22,10 @@ static cl::opt<std::string> CalleeName_rra(
 
 PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
+  if (CalleeName_rra=="") {
+    llvm::errs()<<"[Error] Please set the callee function name\n";
+    return PreservedAnalyses::all();
+  }
 
   if (!RenameCallee_rra) {
     // get function::main::{{closure}}::{{closure}}
@@ -39,20 +43,19 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     // get futures_util::future::maybe_done::MaybeDone<Fut> function 
     std::vector<CallInst*> call_future_funcs = getCallFutureMaybeDone(mainClosureClosure); 
 
-    Function* newFutureMaybeDoneFunc = cloneAndReplaceFunc(call_future_funcs[RPCidx], "new_future_maybe_for"+CalleeName_rra);
+    Function* newFutureMaybeDoneFunc = cloneAndReplaceFunc(call_future_funcs[RPCidx], "new_future_maybe_for_"+CalleeName_rra);
 
     // within the new function, find the call to OpenFaaSRPC::make_rpc::{{closure}}
     CallInst* RPC_inst = getCallByDemangledName(newFutureMaybeDoneFunc, 
        "OpenFaaSRPC::make_rpc::{{closure}}");
     
-    if (!RPC_inst) PreservedAnalyses::all();
+    if (!RPC_inst) return PreservedAnalyses::all();
  
     Function* make_rpc_closure = RPC_inst->getCalledFunction();
-    make_rpc_closure->setName("make_rpc_closure");
     // create a function that has the same arguments as `make_rpc_closure`
     // but the function body is the callee function
-    Function* CalleeFunc = M.getFunction("callee_main_closure");
-    Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(RPC_inst, CalleeFunc, "new_callee");
+    Function* CalleeFunc = M.getFunction("callee_main_closure_for_"+CalleeName_rra);
+    Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(RPC_inst, CalleeFunc, "new_callee_"+CalleeName_rra);
     // in the new callee function, need to change the return value
     changeNewCalleeOutput(newCalleeFunc);
     changeNewCalleeInput(newCalleeFunc);
@@ -61,12 +64,12 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
   else {
     Function *mainFunc = M.getFunction("main");
     Function *rustRTFunc = getFunctionByDemangledName(&M, "std::rt::lang_start");
-    renameCallee(mainFunc, "callee");
-    mainFunc->setName("callee_main");
-    rustRTFunc->setName("callee_std_rt_lang_start"); 
+    renameCallee(mainFunc, "main_2nd_for_"+CalleeName_rra);
+    mainFunc->setName("main_for_"+CalleeName_rra);
+    rustRTFunc->setName("std_rt_lang_start_for_"+CalleeName_rra); 
     Function* mainClosure = getFunctionByDemangledName(&M, "function::main::{{closure}}");
     if (mainClosure) {
-      mainClosure->setName("callee_main_closure");
+      mainClosure->setName("callee_main_closure_for_"+CalleeName_rra);
     }
   }
   return PreservedAnalyses::all();

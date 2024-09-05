@@ -50,7 +50,7 @@ function merge {
   do
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(ls $CALLEE_FUNC/template/rust/function/target/debug/deps/function-*.ll)
-    $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -o callee.ll
+    $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.ll
     mv $CALLEE_IR $CALLEE_FUNC.ll
     $LLVM_DIR/llvm-link merged.ll callee.ll -S -o caller_and_callee.ll
     $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
