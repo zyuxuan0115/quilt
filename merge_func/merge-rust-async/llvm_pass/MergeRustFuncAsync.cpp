@@ -31,12 +31,15 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     // get function::main::{{closure}}::{{closure}}
     Function* mainClosureClosure = getFunctionByDemangledName(&M, 
        "function::main::{{closure}}::{{closure}}");
+
+    // get function::main::{{closure}}
     Function* mainClosure = getFunctionByDemangledName(&M, 
        "function::main::{{closure}}");
-
+    // in function::main::{{closure}}, we can tell the order of each 
+    // RPCs
     std::unordered_map<std::string, InvokeInst*> fname2RPC = getCalleeName4RPC(mainClosure);
     InvokeInst* firstRPC = fname2RPC[CalleeName_rra];  
-    int RPCidx = getRPCIdx(firstRPC);
+    int RPCidx = getRPCIdx(firstRPC, fname2RPC);
 
     llvm::errs()<<"@@@ RPCidx = "<<RPCidx<<"\n";
  
@@ -88,7 +91,6 @@ std::unordered_map<std::string, InvokeInst*> MergeRustFuncAsyncPass::getCalleeNa
             "OpenFaaSRPC::make_rpc") {
           std::string funcName = getRPCCalleeName(ii);
           funcName2call[funcName] = ii;
-          getRPCIdx(ii);
         }
       } 
     }
@@ -96,7 +98,24 @@ std::unordered_map<std::string, InvokeInst*> MergeRustFuncAsyncPass::getCalleeNa
   return funcName2call; 
 }
 
-unsigned MergeRustFuncAsyncPass::getRPCIdx(InvokeInst* rpc){
+int MergeRustFuncAsyncPass::getRPCIdx(InvokeInst* RPC, std::unordered_map<std::string, InvokeInst*> fname2RPC){
+  Function* f = RPC->getFunction();
+
+  std::map<int, InvokeInst*> idx2Inst;
+
+  for (auto it = fname2RPC.begin(); it != fname2RPC.end(); it++) {
+    InvokeInst* rpc = it->second;
+    int offset = getRPCOffset(rpc);
+    idx2Inst[offset] = rpc;
+  }
+
+  int smallest_offset = idx2Inst.begin()->first;
+  return getRPCOffset(RPC) - smallest_offset;
+}
+
+
+
+int MergeRustFuncAsyncPass::getRPCOffset(InvokeInst* rpc) {
   Function* f = rpc->getFunction();
   Value* arg_future = rpc->getOperand(0);
   CallInst* llvm_memcpy;
@@ -124,13 +143,13 @@ unsigned MergeRustFuncAsyncPass::getRPCIdx(InvokeInst* rpc){
   }
   Value* getElemPtrV = future_maybe_done_func->getOperand(0);
   Instruction* inst = dyn_cast<Instruction>(getElemPtrV);
-  int idx = 0;
+  int offset = 0;
   if (ConstantInt* CI = dyn_cast<ConstantInt>(inst->getOperand(2))) {
     if (CI->getBitWidth() <= 32) {
-      idx = CI->getSExtValue();
+      offset = CI->getSExtValue();
     }
   }
-  return idx;
+  return offset;
 }
 
 

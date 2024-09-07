@@ -55,7 +55,8 @@ public:
   std::vector<CallInst*> getCallFutureMaybeDone(Function*);  
   bool IsStringStartWith(std::string, std::string);
   std::unordered_map<std::string, InvokeInst*> getCalleeName4RPC(Function*);
-  unsigned getRPCIdx(InvokeInst*); 
+  int getRPCIdx(InvokeInst*, std::unordered_map<std::string, InvokeInst*>); 
+  int getRPCOffset(InvokeInst*);
   SwitchInst* dfsForSwitchInst(Value*);
 
 private:
