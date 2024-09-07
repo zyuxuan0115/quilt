@@ -130,7 +130,7 @@ unsigned MergeRustFuncAsyncPass::getRPCIdx(InvokeInst* rpc){
       idx = CI->getSExtValue();
     }
   }
-  return idx-2;
+  return idx;
 }
 
 
@@ -457,7 +457,6 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
 
 
-
 void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   Module* M = newCalleeFunc->getParent();
   InvokeInst* send_return_value_call = getInvokeByDemangledName(newCalleeFunc, 
@@ -498,6 +497,24 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
 } 
 
 
+SwitchInst* MergeRustFuncAsyncPass::dfsForSwitchInst(Value* start) {
+  SwitchInst* si = NULL;
+  for (auto u = start->user_begin(); u!= start->user_end(); u++) {
+    Value* v = dyn_cast<Value>(*u);
+    if ((isa<LoadInst>(v)) || (isa<ZExtInst>(v))) {
+      SwitchInst* tmp = dfsForSwitchInst(v);
+      if (tmp) {
+        si = tmp;
+        return si;
+      }
+    }
+    else if (isa<SwitchInst>(v)) {
+      si = dyn_cast<SwitchInst>(v);
+      return si;
+    }
+  }
+  return si;
+}
 
 
 void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
@@ -527,7 +544,15 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   //     and remove them, except for the store instruction that 
   //     stores the this argument
   StoreInst* store = dyn_cast<StoreInst>(store_of_arg);
-  searchAndRemoveDeps(alloc_of_arg, store);
+  SwitchInst* si = dfsForSwitchInst(alloc_of_arg);
+  Value *newvalue = ConstantInt::get(Type::getInt32Ty(M->getContext()), 0); 
+  
+  for (auto oi = si->op_begin(); oi != si->op_end(); oi++){
+    Value* operand = dyn_cast<Value>(*oi);
+    if (isa<ZExtInst>(operand)) {
+      *oi = dyn_cast<Value>(newvalue);
+    }
+  } 
 
   // (3) insert a LoadInst before the get_arg_call
   LoadInst* newload = new LoadInst(arg_matters->getType(), alloc_of_arg, "", get_arg_call);
@@ -535,20 +560,24 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   Value* arg_input = get_arg_call->getOperand(0);
   Instruction* arg_input2 = dyn_cast<Instruction>(arg_input)->clone();
   arg_input2->insertBefore(dyn_cast<Instruction>(arg_input));
+
+  std::vector<InvokeInst*> invokesToBeEliminated;
   for (auto u = arg_input->user_begin(); u!= arg_input->user_end(); u++) {
     Value* user = dyn_cast<User>(*u);
     if (isa<InvokeInst>(user)) {
-      //llvm::errs()<<*user<<"\n";
       InvokeInst* invoke = dyn_cast<InvokeInst>(user);
       std::string demangled = getDemangledRustFuncName(invoke->getCalledFunction()->getName().str());
       if (demangled=="core::ptr::drop_in_place<alloc::string::String>") {
-        for (auto oi = invoke->op_begin(); oi!=invoke->op_end(); oi++){
-          Value* operand = dyn_cast<Value>(*oi);
-          if (operand == arg_input) {
-            *oi = dyn_cast<Value>(arg_input2);
-          }
-        } 
+        invokesToBeEliminated.push_back(invoke);
       }
+    }
+  }
+
+  for (unsigned i=0; i<invokesToBeEliminated.size(); i++) {
+    BasicBlock* nextBB3 = dyn_cast<BasicBlock>(dyn_cast<Instruction>(invokesToBeEliminated[i])->getOperand(1));
+    if (nextBB3) {
+      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB3, invokesToBeEliminated[i]); 
+      invokesToBeEliminated[i]->eraseFromParent();
     }
   }
 
@@ -580,3 +609,4 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
     get_arg_call->eraseFromParent();
   }
 }
+
