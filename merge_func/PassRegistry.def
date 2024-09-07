@@ -129,10 +129,6 @@ MODULE_PASS("poison-checking", PoisonCheckingPass())
 MODULE_PASS("pseudo-probe-update", PseudoProbeUpdatePass())
 MODULE_PASS("merge-rust-func", MergeRustFuncPass())
 MODULE_PASS("merge-rust-func-async", MergeRustFuncAsyncPass())
-MODULE_PASS("rename-func", RenameFuncPass())
-MODULE_PASS("merge-rust-c-func", MergeRustCFuncPass())
-MODULE_PASS("merge-c-rust-func", MergeCRustFuncPass())
-MODULE_PASS("remove-redundant", RemoveRedundantPass())
 
 #undef MODULE_PASS
 

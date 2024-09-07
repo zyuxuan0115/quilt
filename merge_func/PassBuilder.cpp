@@ -264,10 +264,6 @@
 
 #include "llvm/Transforms/Utils/MergeRustFunc.h"
 #include "llvm/Transforms/Utils/MergeRustFuncAsync.h"
-#include "llvm/Transforms/Utils/RenameFunc.h"
-#include "llvm/Transforms/Utils/MergeRustCFunc.h"
-#include "llvm/Transforms/Utils/MergeCRustFunc.h"
-#include "llvm/Transforms/Utils/RemoveRedundant.h"
 
 using namespace llvm;
 
