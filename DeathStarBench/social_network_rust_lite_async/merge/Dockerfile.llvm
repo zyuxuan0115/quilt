@@ -31,6 +31,8 @@ RUN cd /llvm-project \
 RUN cd /llvm-project/build \
     && rm -rf docs emamples cmake benchmarks test tnittests projects third-party
 
+ENV PATH="/root/.cargo/bin:${PATH}"
+
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | bash -s -- -y
 
 RUN cd /faas-test/merge_func/merge-rust-async/demangle_rust_funcname \
