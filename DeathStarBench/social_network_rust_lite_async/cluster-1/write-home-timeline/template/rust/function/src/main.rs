@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use redis::Commands;
 use DbInterface::*;
 use memcache::Client;
-use futures::executor::block_on;
+//use futures::executor::block_on;
 
 //use std::time::{Duration, Instant}};
 
@@ -17,8 +17,9 @@ async fn main() {
   let user_id_str: String = timeline_info.user_id.to_string();
   let future =  make_rpc("social-graph-get-followers", user_id_str, &client);
 
-  let followers_str: String = block_on(future);
- 
+//  let followers_str: String = block_on(future);
+  let (followers_str, ) = futures::join!(future);
+
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
   let mut followers_set: HashMap<i64,bool> = followers.iter().map(|x| (*x, false) ).collect::<HashMap<_, _>>();
   for follower in timeline_info.user_mentions_id {
