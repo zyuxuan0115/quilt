@@ -64,7 +64,6 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     Function* make_rpc_closure = RPC_inst->getCalledFunction();
     // create a function that has the same arguments as `make_rpc_closure`
     // but the function body is the callee function
-    llvm::errs()<<"nnnnnnnnnnnnnnnnn\n";
     Function* CalleeFunc = M.getFunction("callee_main_closure_for_"+CalleeName_rra);
     Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(RPC_inst, CalleeFunc, "new_callee_"+CalleeName_rra);
     // in the new callee function, need to change the return value
