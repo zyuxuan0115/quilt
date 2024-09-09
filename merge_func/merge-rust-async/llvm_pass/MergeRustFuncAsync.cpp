@@ -29,8 +29,7 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
 
   if (!RenameCallee_rra) {
     // get function::main::{{closure}}::{{closure}}
-    Function* mainClosureClosure = getFunctionByDemangledName(&M, 
-       "function::main::{{closure}}::{{closure}}");
+    Function* mainClosureClosure = getRealMainClosureClosure(&M);
 
     // get function::main::{{closure}}
     Function* mainClosure = getFunctionByDemangledName(&M, 
@@ -46,17 +45,26 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     // get futures_util::future::maybe_done::MaybeDone<Fut> function 
     std::vector<CallInst*> call_future_funcs = getCallFutureMaybeDone(mainClosureClosure); 
 
+    llvm::errs()<<"the size of call_future_funcs: "<< call_future_funcs.size()<<"\n";
+    for (unsigned i = 0; i<call_future_funcs.size(); i++) {
+      llvm::errs()<<*call_future_funcs[i]<<"\n";
+    }
+
     Function* newFutureMaybeDoneFunc = cloneAndReplaceFunc(call_future_funcs[RPCidx], "new_future_maybe_for_"+CalleeName_rra);
+
 
     // within the new function, find the call to OpenFaaSRPC::make_rpc::{{closure}}
     CallInst* RPC_inst = getCallByDemangledName(newFutureMaybeDoneFunc, 
        "OpenFaaSRPC::make_rpc::{{closure}}");
     
+
     if (!RPC_inst) return PreservedAnalyses::all();
  
+
     Function* make_rpc_closure = RPC_inst->getCalledFunction();
     // create a function that has the same arguments as `make_rpc_closure`
     // but the function body is the callee function
+    llvm::errs()<<"nnnnnnnnnnnnnnnnn\n";
     Function* CalleeFunc = M.getFunction("callee_main_closure_for_"+CalleeName_rra);
     Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(RPC_inst, CalleeFunc, "new_callee_"+CalleeName_rra);
     // in the new callee function, need to change the return value
@@ -160,6 +168,7 @@ std::vector<CallInst*> MergeRustFuncAsyncPass::getCallFutureMaybeDone(Function* 
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if (isa<CallInst>(IB)){
         CallInst* ci = dyn_cast<CallInst>(IB);
+        llvm::errs()<<"@@@"<<*ci<<"\n";
         Function* CalledFunc = ci->getCalledFunction();
         if (IsStringStartWith(CalledFunc->getName().str(), "new_future_maybe_for")) {
           calls.push_back(ci);
@@ -322,6 +331,37 @@ Function* MergeRustFuncAsyncPass::getFunctionByDemangledName(Module* M, std::str
     if (demangled == fname) return func;
   }
   return NULL;
+}
+
+
+
+Function* MergeRustFuncAsyncPass::getRealMainClosureClosure(Module* M) {
+  std::vector<Function*> functions;
+  for (Module::iterator f = M->begin(); f != M->end(); f++){
+    Function* func = dyn_cast<Function>(f);
+    std::string demangled = getDemangledRustFuncName(func->getName().str());
+    if (demangled == "function::main::{{closure}}::{{closure}}") 
+      functions.push_back(func);
+  }
+  Function* mainClosureClosure = NULL;
+  for (Function* f: functions) {
+    for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if(isa<CallInst>(IB)){
+          CallInst *ci = dyn_cast<CallInst>(IB);
+          Function* func = ci->getCalledFunction();
+          std::string demangled = getDemangledRustFuncName(func->getName().str());
+          if ( demangled ==
+              "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll") {
+            mainClosureClosure = f;
+          }
+        }
+        if (mainClosureClosure) break;
+      }
+      if (mainClosureClosure) break;
+    }
+  } 
+  return mainClosureClosure; 
 }
 
 

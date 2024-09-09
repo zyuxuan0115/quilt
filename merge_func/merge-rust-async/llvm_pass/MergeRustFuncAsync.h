@@ -42,6 +42,7 @@ public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   std::string getRPCCalleeName(InvokeInst* RPCInst);
   CallInst* getCallByDemangledName(Function*, std::string);
+  Function* getRealMainClosureClosure(Module*);
   std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
   Function* getFunctionByDemangledName(Module*, std::string);
