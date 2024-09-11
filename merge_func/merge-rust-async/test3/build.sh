@@ -31,6 +31,14 @@ function merge {
   && cp -r OpenFaaSRPC callee2/template/rust/ && cp -r DbInterface callee2/template/rust/ && cd callee2/template/rust/function \
   && sed -i 's%/home/rust/OpenFaaSRPC/func_info.json%/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json%g' ../OpenFaaSRPC/src/lib.rs \
   && RUSTFLAGS="--emit=llvm-ir" cargo build \
+  && cd ../../../.. \
+  && cp -r OpenFaaSRPC callee3/template/rust/ && cp -r DbInterface callee3/template/rust/ && cd callee3/template/rust/function \
+  && sed -i 's%/home/rust/OpenFaaSRPC/func_info.json%/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json%g' ../OpenFaaSRPC/src/lib.rs \
+  && RUSTFLAGS="--emit=llvm-ir" cargo build \
+  && cd ../../../.. \
+  && cp -r OpenFaaSRPC callee4/template/rust/ && cp -r DbInterface callee4/template/rust/ && cd callee4/template/rust/function \
+  && sed -i 's%/home/rust/OpenFaaSRPC/func_info.json%/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/test/OpenFaaSRPC/func_info.json%g' ../OpenFaaSRPC/src/lib.rs \
+  && RUSTFLAGS="--emit=llvm-ir" cargo build \
   && cd ../../../..
 
   CALLER_IR=$(ls caller/template/rust/function/target/debug/deps/function-*.ll)
@@ -65,11 +73,15 @@ function clean {
   cd caller/template/rust/function && cargo clean \
   && cd ../../../../callee1/template/rust/function && cargo clean && rm -rf Cargo.lock \
   && cd ../../../../callee2/template/rust/function && cargo clean && rm -rf Cargo.lock \
+  && cd ../../../../callee3/template/rust/function && cargo clean && rm -rf Cargo.lock \
+  && cd ../../../../callee4/template/rust/function && cargo clean && rm -rf Cargo.lock \
   && cd ../../../../
   rm -rf caller/template/rust/OpenFaaSRPC
   rm -rf callee1/template/rust/OpenFaaSRPC
   rm -rf callee2/template/rust/OpenFaaSRPC
-  rm -rf *.ll *.o function
+  rm -rf callee3/template/rust/OpenFaaSRPC
+  rm -rf callee4/template/rust/OpenFaaSRPC
+  rm -rf *.ll *.o function *.txt
 }
 
 case "$1" in
