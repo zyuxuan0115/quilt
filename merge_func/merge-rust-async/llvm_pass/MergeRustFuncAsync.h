@@ -53,12 +53,14 @@ public:
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
   void changeNewCalleeOutput(Function*);
   void changeNewCalleeInput(Function*);
-  std::vector<CallInst*> getCallFutureMaybeDone(Function*);  
+  std::vector<std::vector<CallInst*>> getCallFutureMaybeDone(std::vector<Function*>);  
+  CallInst* getCallBasedOnIdx(std::vector<std::vector<CallInst*>>, int idx);
   bool IsStringStartWith(std::string, std::string);
   std::unordered_map<std::string, InvokeInst*> getCalleeName4RPC(Function*);
   int getRPCIdx(InvokeInst*, std::unordered_map<std::string, InvokeInst*>); 
   int getRPCOffset(InvokeInst*);
   SwitchInst* dfsForSwitchInst(Value*);
+  std::vector<Function*> getMainClosureClosuresInOrder(Function*);
 
 private:
   std::string demangle_bin = "/llvm/demangle_rust_funcname";
