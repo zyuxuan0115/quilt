@@ -664,6 +664,10 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   //     and remove them, except for the store instruction that 
   //     stores the this argument
   StoreInst* store = dyn_cast<StoreInst>(store_of_arg);
+  searchAndRemoveDeps(alloc_of_arg, store);
+
+/*
+  StoreInst* store = dyn_cast<StoreInst>(store_of_arg);
   SwitchInst* si = dfsForSwitchInst(alloc_of_arg);
   Value *newvalue = ConstantInt::get(Type::getInt32Ty(M->getContext()), 0); 
   
@@ -673,6 +677,7 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
       *oi = dyn_cast<Value>(newvalue);
     }
   } 
+*/
 
   // (3) insert a LoadInst before the get_arg_call
   LoadInst* newload = new LoadInst(arg_matters->getType(), alloc_of_arg, "", get_arg_call);
