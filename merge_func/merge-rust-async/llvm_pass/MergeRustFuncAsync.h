@@ -51,7 +51,7 @@ public:
   void searchAndRemoveDeps(Value*, StoreInst*);
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
-  void changeNewCalleeOutput(Function*);
+  void changeNewCalleeOutput(Function*, Function*);
   void changeNewCalleeInput(Function*);
   std::vector<std::vector<CallInst*>> getCallFutureMaybeDone(std::vector<Function*>);  
   CallInst* getCallBasedOnIdx(std::vector<std::vector<CallInst*>>, int idx);
@@ -59,7 +59,6 @@ public:
   std::unordered_map<std::string, InvokeInst*> getCalleeName4RPC(Function*);
   int getRPCIdx(InvokeInst*, std::unordered_map<std::string, InvokeInst*>); 
   int getRPCOffset(InvokeInst*);
-  SwitchInst* dfsForSwitchInst(Value*);
   std::vector<Function*> getMainClosureClosuresInOrder(Function*);
 
 private:
