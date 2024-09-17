@@ -50,7 +50,7 @@ public:
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
   void changeNewCalleeOutput(Function*, Function*, std::string);
-  void changeNewCalleeInput(Function*);
+  void changeNewCalleeInput(Function*, Function*, std::string);
   std::vector<std::vector<CallInst*>> getCallFutureMaybeDone(std::vector<Function*>);  
   CallInst* getCallBasedOnIdx(std::vector<std::vector<CallInst*>>, int idx);
   bool IsStringStartWith(std::string, std::string);
