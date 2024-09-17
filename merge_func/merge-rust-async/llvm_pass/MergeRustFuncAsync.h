@@ -42,13 +42,11 @@ public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   std::string getRPCCalleeName(InvokeInst* RPCInst);
   CallInst* getCallByDemangledName(Function*, std::string);
-  Function* getRealMainClosureClosure(Module*);
   std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
   Function* getFunctionByDemangledName(Module*, std::string);
   void renameCallee(Function* mainFunc, std::string newCalleeName);
   std::string getDemangledRustFuncName(std::string);
-  void searchAndRemoveDeps(Value*, StoreInst*);
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
   void changeNewCalleeOutput(Function*, Function*, std::string);

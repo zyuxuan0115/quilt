@@ -197,6 +197,7 @@ std::vector<Function*> MergeRustFuncAsyncPass::getMainClosureClosuresInOrder(Fun
 }
 
 
+
 std::unordered_map<std::string, InvokeInst*> MergeRustFuncAsyncPass::getCalleeName4RPC(Function* f){
   std::unordered_map<std::string, InvokeInst*> funcName2call;
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
@@ -324,39 +325,13 @@ std::vector<std::vector<CallInst*>> MergeRustFuncAsyncPass::getCallFutureMaybeDo
 }
 
 
+
 bool MergeRustFuncAsyncPass::IsStringStartWith(std::string str, std::string substr_start){
   if (str.size()<substr_start.size()) return false;
   if (str.rfind(substr_start, 0) == 0) return true;
   else return false;
 }
 
-
-void MergeRustFuncAsyncPass::searchAndRemoveDeps(Value* v, StoreInst* store){
-  std::vector<Value*> vs;
-  for (auto u = v->user_begin(); u!= v->user_end(); u++) {
-    Value* user = dyn_cast<User>(*u);
-    if (isa<SwitchInst>(user)) {
-      Instruction* si = dyn_cast<Instruction>(user);
-      // the 4th BB is the basic block we are going to jump to
-      BasicBlock* nextBB = dyn_cast<BasicBlock>(si->getOperand(3));
-      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, si);
-      si->eraseFromParent();
-      break;
-    }
-    else {
-      searchAndRemoveDeps(user, store);
-      vs.push_back(user);
-    }
-  }
-  for (auto v: vs) {
-    if (isa<Instruction>(v)){
-      Instruction* i = dyn_cast<Instruction>(v);
-      StoreInst* si = dyn_cast<StoreInst>(i);
-      if (si != store)
-        i->eraseFromParent(); 
-    }
-  }
-}
 
 
 std::string MergeRustFuncAsyncPass::getDemangledRustFuncName(std::string MangledFuncName) {
@@ -471,37 +446,6 @@ Function* MergeRustFuncAsyncPass::getFunctionByDemangledName(Module* M, std::str
     if (demangled == fname) return func;
   }
   return NULL;
-}
-
-
-
-Function* MergeRustFuncAsyncPass::getRealMainClosureClosure(Module* M) {
-  std::vector<Function*> functions;
-  for (Module::iterator f = M->begin(); f != M->end(); f++){
-    Function* func = dyn_cast<Function>(f);
-    std::string demangled = getDemangledRustFuncName(func->getName().str());
-    if (demangled == "function::main::{{closure}}::{{closure}}") 
-      functions.push_back(func);
-  }
-  Function* mainClosureClosure = NULL;
-  for (Function* f: functions) {
-    for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
-      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-        if(isa<CallInst>(IB)){
-          CallInst *ci = dyn_cast<CallInst>(IB);
-          Function* func = ci->getCalledFunction();
-          std::string demangled = getDemangledRustFuncName(func->getName().str());
-          if ( demangled ==
-              "<futures_util::future::maybe_done::MaybeDone<Fut> as core::future::future::Future>::poll") {
-            mainClosureClosure = f;
-          }
-        }
-        if (mainClosureClosure) break;
-      }
-      if (mainClosureClosure) break;
-    }
-  } 
-  return mainClosureClosure; 
 }
 
 
