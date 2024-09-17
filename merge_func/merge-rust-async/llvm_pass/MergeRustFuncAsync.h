@@ -51,7 +51,7 @@ public:
   void searchAndRemoveDeps(Value*, StoreInst*);
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
-  void changeNewCalleeOutput(Function*, Function*);
+  void changeNewCalleeOutput(Function*, Function*, std::string);
   void changeNewCalleeInput(Function*);
   std::vector<std::vector<CallInst*>> getCallFutureMaybeDone(std::vector<Function*>);  
   CallInst* getCallBasedOnIdx(std::vector<std::vector<CallInst*>>, int idx);
@@ -62,7 +62,7 @@ public:
   std::vector<Function*> getMainClosureClosuresInOrder(Function*);
 
 private:
-  std::string demangle_bin = "/llvm/demangle_rust_funcname";
+  std::string demangle_bin = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
 };
 
 } // namespace llvm

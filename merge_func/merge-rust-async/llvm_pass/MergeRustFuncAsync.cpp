@@ -78,7 +78,7 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     Constant *NullPtr = ConstantPointerNull::get(InputPtrType);
     GlobalVariable* globalInput = new GlobalVariable(M,input->getType(),false,
                                          GlobalValue::ExternalLinkage,NullPtr,
-                                         "input_rust_string");
+                                         "input_rust_string_for_"+CalleeName_rra);
 
     std::vector<Value*> newCalleeFuncArgs;
     for (Argument &ag : newCalleeFunc->args()) {
@@ -144,8 +144,7 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
       get_arg_call->eraseFromParent();
     }
 
-
-    changeNewCalleeOutput(calleeMainClosure, newCalleeFunc);
+    changeNewCalleeOutput(calleeMainClosure, newCalleeFunc, CalleeName_rra);
  //   changeNewCalleeInput(newCalleeFunc);
 
   }
@@ -651,7 +650,7 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
 
 
-void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* OpenFaaSRPCClosure, Function* newCalleeFunc) {
+void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* OpenFaaSRPCClosure, Function* newCalleeFunc, std::string callee_name) {
   Module* M = newCalleeFunc->getParent();
   InvokeInst* send_return_value_call = getInvokeByDemangledName(OpenFaaSRPCClosure, 
        "OpenFaaSRPC::send_return_value_to_caller");
@@ -666,7 +665,7 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* OpenFaaSRPCClosure,
   Constant *NullPtr = ConstantPointerNull::get(OutputPtrType);
   GlobalVariable* globalOutput = new GlobalVariable(*M,output->getType(),false,
                                          GlobalValue::ExternalLinkage,NullPtr,
-                                         "output_rust_string");
+                                         "output_rust_string_for"+callee_name);
 
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
