@@ -2,7 +2,8 @@ use rand::{distributions::Alphanumeric, Rng}; // 0.8
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use redis::Commands;
-//use std::time::{Duration, Instant};
+use std::time::{Duration, Instant};
+use futures::executor::block_on;
 
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");
@@ -15,10 +16,13 @@ fn gen_short_url()->String{
   short_url
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
+  block_on(faas_function());
+}
+
+async fn faas_function() {
   let input: String = get_arg_from_caller();
-//  let now = Instant::now();
+  let now = Instant::now();
   let urls: Vec<String> = serde_json::from_str(&input).unwrap();
 
   let redis_uri = get_redis_rw_uri();
@@ -37,8 +41,18 @@ async fn main() {
     docs.push(new_pair);
   }
   let serialized = serde_json::to_string(&docs).unwrap();
-//  let new_now =  Instant::now();
+  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 
+
+/*
+#[tokio::main]
+async fn main() {
+  let input: String = get_arg_from_caller();
+  let mut res: String = "url-shorten-service: ".to_string();
+  res.push_str(&input[..]); 
+  send_return_value_to_caller(res);
+}
+*/

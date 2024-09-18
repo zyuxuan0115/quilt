@@ -2,11 +2,15 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use regex::Regex;
 use futures::executor::block_on;
 use std::time::{Duration, Instant};
-use reqwest::Client;
+use std::thread;
 
-#[tokio::main]
-async fn main() {
-  let client = reqwest::Client::new();
+fn main() {
+  block_on(faas_function());
+}
+
+async fn faas_function() {
+  let time_0 = Instant::now();
+//  println!("before rpcs: {:?}", time_1.duration_since(time_0));
   let input: String = get_arg_from_caller();
   let mut text = input;
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
@@ -21,13 +25,21 @@ async fn main() {
   }
   let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
   let urls_serialized = serde_json::to_string(&urls).unwrap();
+
   let time_1 = Instant::now();
-  let future_user_mention = make_rpc("user-mention-service", mentioned_usernames_serialized, &client);
+  let handle = thread::spawn(move || {
+    make_rpc("user-mention-service", mentioned_usernames_serialized)
+  });
   let time_2 = Instant::now();
-  let future_url_shorten = make_rpc("url-shorten-service", urls_serialized, &client);
+  let handle2 = thread::spawn(move || {
+    make_rpc("url-shorten-service", urls_serialized)
+  });
+
   let time_3 = Instant::now();
-  let (user_mentions_str, urls_str): (String, String) = futures::join!(future_user_mention, future_url_shorten);
+  let user_mentions_str = handle.join().unwrap();
+  let urls_str = handle2.join().unwrap();
   let time_4 = Instant::now();
+
   let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
   let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
   for item in &url_pairs {
@@ -40,9 +52,12 @@ async fn main() {
     text: text,
   };
   let serialized = serde_json::to_string(&return_value).unwrap();
-  //println!("1st make_rpc: {:?}", time_2.duration_since(time_1));
-  //println!("2nd make_rpc: {:?}", time_3.duration_since(time_2));
-  //println!("concurrent exec time: {:?}", time_4.duration_since(time_3));
+  let time_5 = Instant::now();
+  println!("before rpcs: {:?}", time_1.duration_since(time_0));
+  println!("1st make_rpc: {:?}", time_2.duration_since(time_1));
+  println!("2nd make_rpc: {:?}", time_3.duration_since(time_2));
+  println!("concurrent exec time: {:?}", time_4.duration_since(time_3));
+  println!("after rpcs: {:?}", time_5.duration_since(time_4));
+
   send_return_value_to_caller(serialized);
 }
-
