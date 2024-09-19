@@ -1,7 +1,7 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -19,22 +19,40 @@ fn main() {
       movie_info = x;
     },
     None => {
-      let mongodb_uri = get_mongodb_uri();
-      let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-      let mongodb_database = mongodb_client.database("movie-info");
-      let mongodb_collection = mongodb_database.collection::<MovieInfoEntry>("movie-info");
+      let redis_uri = get_redis_rw_uri();
+      let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+      let mut con = redis_client.get_connection().unwrap();
 
-      let query = doc!{"movie_id":movie_id.clone()};
-      let res = mongodb_collection.find_one(query, None).unwrap();
+      let mut movie_id_str: String = "movie_info:".to_string();
+      movie_id_str.push_str(&movie_id[..]);
 
-      match res {
-        Some(x) => {
-          movie_info = serde_json::to_string(&x).unwrap();
-          memcache_client.set(&movie_id[..], &movie_info[..], 0).unwrap();
+      let result: redis::RedisResult<(String,String,i64,f64,i32,String,String,String,String)>
+          = redis::cmd("HMGET").arg(&movie_id_str[..]).arg("movie_id").arg("title").arg("plot_id")
+                               .arg("avg_rating").arg("num_rating").arg("casts").arg("thumbnail_ids")
+                               .arg("photo_ids").arg("video_ids").query(&mut con);
+
+      match result {
+        Ok((movie_id_, title, plot_id, avg_rating, num_rating, casts, thumbnail_ids, photo_ids, video_ids)) => {
+          let real_casts: Vec<Cast> = serde_json::from_str(&casts).unwrap();
+          let real_thumbnail: Vec<String> = serde_json::from_str(&thumbnail_ids).unwrap();
+          let real_photo: Vec<String> = serde_json::from_str(&photo_ids).unwrap();
+          let real_video: Vec<String> = serde_json::from_str(&video_ids).unwrap();
+          let real_movie_info = MovieInfoEntry {
+            movie_id: movie_id_,
+            title: title,
+            plot_id: plot_id,
+            avg_rating: avg_rating,
+            num_rating: num_rating,
+            casts: real_casts,
+            thumbnail_ids: real_thumbnail,
+            photo_ids: real_photo,
+            video_ids: real_video,
+          };
+          movie_info = serde_json::to_string(&real_movie_info).unwrap();
         },
-        None => {
-          println!("Movie {} is not found in MongoDB;", movie_id);
-          panic!("Movie {} is not found in MongoDB;", movie_id);
+        Err(_) => {
+          println!("error: cannot find the movie: {} in redis", movie_id);
+          panic!("error: cannot find the movie: {} in redis", movie_id);
         },
       }
     },
