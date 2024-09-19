@@ -1,8 +1,8 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -18,6 +18,10 @@ fn main() {
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
+
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
   let cast_id_strslice: Vec<&str> = cast_id_strs.iter().map(|x| &**x).collect();
   let keys: &[&str] = &cast_id_strslice;
@@ -37,21 +41,29 @@ fn main() {
   }
 
   if cast_not_cached.len() != 0 {
-    let mongodb_uri = get_mongodb_uri();
-    let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-    let mongodb_database = mongodb_client.database("cast-info");
-    let mongodb_collection = mongodb_database.collection::<CastInfoEntry>("cast-info");
-    let query = doc!{"cast_info_id": doc!{"$in": &cast_not_cached}};
-    let mut cursor = mongodb_collection.find(query, None).unwrap(); 
-    for doc in cursor {
-      let doc_ = doc.unwrap();
-      
-      // update memcached
-      let key = doc_.cast_info_id.to_string();
-      let value = serde_json::to_string(&doc_).unwrap();
-      memcache_client.set(&key[..],&value[..],0).unwrap();
-
-      cast_infos.push(doc_);    
+    for item in &cast_not_cached {
+      let mut cast_id_str: String = "cast_info:".to_string();
+      cast_id_str.push_str(&(item.to_string())[..]);
+      let result: redis::RedisResult<(i64, String, bool, String)> = redis::cmd("HMGET").arg(&cast_id_str[..]).arg("cast_info_id").arg("name").arg("gender").arg("intro").query(&mut con);
+      match result {
+        Ok((cast_info_id,name,gender,intro)) => {
+          let cast_info = CastInfoEntry {
+            cast_info_id: cast_info_id,
+            name: name,
+            gender: gender,
+            intro: intro,
+          };
+          // update memcached
+          let key = cast_info_id.to_string();
+          let value = serde_json::to_string(&cast_info).unwrap(); 
+          memcache_client.set(&key[..],&value[..],0).unwrap();
+          cast_infos.push(cast_info);
+        },
+        Err(_) => {
+          println!("error in loading cast info, with id: {}", item);
+          panic!("error in loading cast info, with id: {}", item);
+        }
+      }
     }
   }
   let serialized = serde_json::to_string(&cast_infos).unwrap();
