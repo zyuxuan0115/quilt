@@ -20,15 +20,15 @@ fn main() {
   let photos_str: String = serde_json::to_string(&movie_info.photo_ids).unwrap();
   let videos_str: String = serde_json::to_string(&movie_info.video_ids).unwrap();
 
-  let _: isize = con.hset(&movie_id[..], "movie_id", &movie_info.movie_id[..]);
-  let _: isize = con.hset(&movie_id[..], "title", &movie_info.title[..]);
-  let _: isize = con.hset(&movie_id[..], "plot_id", &movie_info.plot_id.to_string()[..]);
-  let _: isize = con.hset(&movie_id[..], "avg_rating", movie_info.avg_rating);
-  let _: isize = con.hset(&movie_id[..], "num_rating", movie_info.num_rating);
-  let _: isize = con.hset(&movie_id[..], "casts", &casts_str[..]);
-  let _: isize = con.hset(&movie_id[..], "thumbnail_ids", &thumbnails_str[..]);
-  let _: isize = con.hset(&movie_id[..], "photo_ids", &photos_str[..]);
-  let _: isize = con.hset(&movie_id[..], "video_ids", &videos_str[..]);
+  let _: isize = con.hset(&movie_id[..], "movie_id", &movie_info.movie_id[..]).unwrap();
+  let _: isize = con.hset(&movie_id[..], "title", &movie_info.title[..]).unwrap();
+  let _: isize = con.hset(&movie_id[..], "plot_id", &movie_info.plot_id.to_string()[..]).unwrap();
+  let _: isize = con.hset(&movie_id[..], "avg_rating", movie_info.avg_rating).unwrap();
+  let _: isize = con.hset(&movie_id[..], "num_rating", movie_info.num_rating).unwrap();
+  let _: isize = con.hset(&movie_id[..], "casts", &casts_str[..]).unwrap();
+  let _: isize = con.hset(&movie_id[..], "thumbnail_ids", &thumbnails_str[..]).unwrap();
+  let _: isize = con.hset(&movie_id[..], "photo_ids", &photos_str[..]).unwrap();
+  let _: isize = con.hset(&movie_id[..], "video_ids", &videos_str[..]).unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
