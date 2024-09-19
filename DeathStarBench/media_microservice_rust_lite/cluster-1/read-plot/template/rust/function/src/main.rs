@@ -1,7 +1,7 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -19,20 +19,22 @@ fn main() {
       plot = x;
     },
     None => {
-      let mongodb_uri = get_mongodb_uri();
-      let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-      let mongodb_database = mongodb_client.database("plot");
-      let mongodb_collection = mongodb_database.collection::<PlotEntry>("plot");
+      let redis_uri = get_redis_rw_uri();
+      let redis_client = redis::Client::open(&redis_uri[..]).unwrap(); 
+      let mut con = redis_client.get_connection().unwrap();
+
+      let mut plot_id_str: String = "plot:".to_string();
+      plot_id_str.push_str(&plot_id[..]);
+
+      let res: redis::RedisResult<String> = con.get(&plot_id_str[..]);
 
       let plot_id_num: i64 = plot_id[..].parse::<i64>().unwrap();
-      let query = doc!{"plot_id": plot_id_num};
-      let res = mongodb_collection.find_one(query, None).unwrap();
       match res {
-        Some(x) => {
-          plot = x.plot;
+        Ok(x) => {
+          plot = x;
           memcache_client.set(&plot_id[..], &plot[..], 0).unwrap();
         },
-        None => {
+        Err(_) => {
           println!("Plot {} is not found in MongoDB;", plot_id);
           panic!("Plot {} is not found in MongoDB;", plot_id);
         },

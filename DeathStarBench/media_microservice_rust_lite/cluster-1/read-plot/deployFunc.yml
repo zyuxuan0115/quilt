@@ -9,5 +9,4 @@ functions:
     image: zyuxuan0115/mm-read-plot:latest
     secrets:
     - redis-password
-    - mongodb-password
     - ingress-enable
