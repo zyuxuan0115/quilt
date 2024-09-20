@@ -10,7 +10,7 @@ fn main() {
 
 async fn faas_function() {
   let time_0 = Instant::now();
-//  println!("before rpcs: {:?}", time_1.duration_since(time_0));
+  println!("@@@@@@@");
   let input: String = get_arg_from_caller();
   let mut text = input;
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
@@ -34,6 +34,8 @@ async fn faas_function() {
   let handle2 = thread::spawn(move || {
     make_rpc("url-shorten-service", urls_serialized)
   });
+
+  println!("#############");
 
   let time_3 = Instant::now();
   let user_mentions_str = handle.join().unwrap();

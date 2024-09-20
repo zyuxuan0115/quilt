@@ -13,15 +13,6 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     }
 }
 
-/*
-#[tokio::main]
-async fn main() {
-  let input: String = get_arg_from_caller();
-  let mut res: String = "user-mention-service: ".to_string();
-  res.push_str(&input[..]); 
-  send_return_value_to_caller(res);
-}
-*/
 
 fn main(){
   block_on(faas_function());

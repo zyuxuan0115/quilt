@@ -22,6 +22,8 @@ fn main() {
 
 async fn faas_function() {
   let input: String = get_arg_from_caller();
+
+//  println!("url input:{}", input);
   let now = Instant::now();
   let urls: Vec<String> = serde_json::from_str(&input).unwrap();
 
