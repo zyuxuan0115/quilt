@@ -40,7 +40,7 @@ namespace llvm {
 class MergeRustFuncAsyncPass : public PassInfoMixin<MergeRustFuncAsyncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
-  std::string getRPCCalleeName(InvokeInst* RPCInst);
+  std::string getRPCCalleeName(CallInst* RPCInst);
   CallInst* getCallByDemangledName(Function*, std::string);
   std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
@@ -51,16 +51,12 @@ public:
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
   void changeNewCalleeOutput(Function*, Function*, std::string);
   void changeNewCalleeInput(Function*, Function*, std::string);
-  std::vector<std::vector<CallInst*>> getCallFutureMaybeDone(std::vector<Function*>);  
-  CallInst* getCallBasedOnIdx(std::vector<std::vector<CallInst*>>, int idx);
   bool IsStringStartWith(std::string, std::string);
-  std::unordered_map<std::string, InvokeInst*> getCalleeName4RPC(Function*);
-  int getRPCIdx(InvokeInst*, std::unordered_map<std::string, InvokeInst*>); 
-  int getRPCOffset(InvokeInst*);
-  std::vector<Function*> getMainClosureClosuresInOrder(Function*);
-
+  Function* getFaasFunc(Module*, std::string);
+  CallInst* getRPCinst(Function*, std::string);
+  Function* getFaaSClousure(Module*);
 private:
-  std::string demangle_bin = "/llvm/demangle_rust_funcname";
+  std::string demangle_bin = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
 };
 
 } // namespace llvm
