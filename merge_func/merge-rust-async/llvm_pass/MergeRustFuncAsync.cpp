@@ -29,11 +29,15 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     // get function::main::{{closure}}
     // because it contains RPC (OpenFaaSRPC::make_rpc())
     Function* mainClosure = getMainClosure(&M, CalleeName_rra);
+
+    llvm::errs()<<"### "<<*mainClosure<<"\n";    
+
     CallInst* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
 
     // create a function that has the same arguments as `make_rpc`
     // but the function body is the callee function
     Function* CalleeFunc = M.getFunction("main_2nd_for_"+CalleeName_rra);
+
     Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcInst, CalleeFunc, 
                                          "new_callee_"+CalleeName_rra);
 
@@ -113,7 +117,9 @@ Function* MergeRustFuncAsyncPass::getMainClosure(Module* M, std::string callee_n
           std::string calledFuncName = calledFunc->getName().str();
           std::string demangledName = getDemangledRustFuncName(calledFuncName);
           if (demangledName == "OpenFaaSRPC::make_rpc") {
-            return f;
+            if (getRPCCalleeName(ci) == callee_name) {
+              return f;
+            }
           } 
         }
       }
@@ -445,6 +451,8 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   CallInst* get_arg_call = getCallByDemangledName(newCalleeFunc,
      "OpenFaaSRPC::get_arg_from_caller");
 
+  llvm::errs()<<"### get_arg_call: "<<*get_arg_call<<"\n";
+
   // in the new function, also need to change the way of how input arguments are get
   // (1) first need to check the user of the existing function arguments
   //     and delete all instructions that depends on these arguments
@@ -510,9 +518,5 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(get_arg_call);
 
-  BasicBlock* nextBB2 = dyn_cast<BasicBlock>(get_arg_call->getOperand(1));
-  if (nextBB2) {
-    BranchInst * jumpInst = llvm::BranchInst::Create(nextBB2, get_arg_call); 
-    get_arg_call->eraseFromParent();
-  }
+  get_arg_call->eraseFromParent();
 }
