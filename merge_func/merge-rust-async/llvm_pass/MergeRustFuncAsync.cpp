@@ -18,8 +18,6 @@ static cl::opt<std::string> CalleeName_rra(
                                      cl::desc("callee function name"),
                                      cl::init(""));
 
-
-
 PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
   if (CalleeName_rra=="") {
@@ -28,9 +26,10 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
   }
 
   if (!RenameCallee_rra) {
-    // get function::faas_function::{{closure}}::{{closure}}
-    Function* faasFunc = getFaasFunc(&M, CalleeName_rra);
-    CallInst* rpcInst = getRPCinst(faasFunc, CalleeName_rra);
+    // get function::main::{{closure}}
+    // because it contains RPC (OpenFaaSRPC::make_rpc())
+    Function* mainClosure = getMainClosure(&M, CalleeName_rra);
+    CallInst* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
 
     // create a function that has the same arguments as `make_rpc`
     // but the function body is the callee function
@@ -38,26 +37,27 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcInst, CalleeFunc, 
                                          "new_callee_"+CalleeName_rra);
 
+    llvm::errs()<<"@@@@@@@@@@@\n";
+
     // get the callee function contains OpenFaaSRPC::get_arg_from_caller
-    Function* CalleeFaaSClosure = M.getFunction("faas_closure_for_"+CalleeName_rra);
+    //Function* CalleeFaaSClosure = M.getFunction("faas_closure_for_"+CalleeName_rra);
 
-    changeNewCalleeInput(CalleeFaaSClosure, newCalleeFunc, CalleeName_rra);
-
-    changeNewCalleeOutput(CalleeFaaSClosure, newCalleeFunc, CalleeName_rra);
+    changeNewCalleeInput(newCalleeFunc);
+    changeNewCalleeOutput(newCalleeFunc);
 
   }
   else {
     Function *mainFunc = M.getFunction("main");
     Function *rustRTFunc = getFunctionByDemangledName(&M, "std::rt::lang_start");
-    Function *faasClosure = getFaaSClousure(&M);
+    //Function *faasClosure = getFaaSClousure(&M);
     renameCallee(mainFunc, "main_2nd_for_"+CalleeName_rra);
     mainFunc->setName("main_for_"+CalleeName_rra);
     rustRTFunc->setName("std_rt_lang_start_for_"+CalleeName_rra); 
-    faasClosure->setName("faas_closure_for_"+CalleeName_rra);
-    Function* mainClosure = getFunctionByDemangledName(&M, "function::main::{{closure}}");
-    if (mainClosure) {
-      mainClosure->setName("callee_main_closure_for_"+CalleeName_rra);
-    }
+    //faasClosure->setName("faas_closure_for_"+CalleeName_rra);
+    //Function* mainClosure = getFunctionByDemangledName(&M, "function::main::{{closure}}");
+    //if (mainClosure) {
+    //  mainClosure->setName("callee_main_closure_for_"+CalleeName_rra);
+    //}
   }
   return PreservedAnalyses::all();
 
@@ -69,7 +69,7 @@ Function* MergeRustFuncAsyncPass::getFaaSClousure(Module* M) {
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string demangled = getDemangledRustFuncName(func->getName().str());
-    if (demangled == "function::faas_function::{{closure}}") {
+    if (demangled == "function::main") {
       funcs.push_back(func);
       llvm::errs()<<"@@@ "<<func->getName()<<"\n";
     }
@@ -78,9 +78,9 @@ Function* MergeRustFuncAsyncPass::getFaaSClousure(Module* M) {
   for (auto f: funcs){
     for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
       for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-        if (isa<InvokeInst>(IB)) {
-          InvokeInst* ii = dyn_cast<InvokeInst>(IB);
-          Function* calledFunc = ii->getCalledFunction();
+        if (isa<CallInst>(IB)) {
+          CallInst* ci = dyn_cast<CallInst>(IB);
+          Function* calledFunc = ci->getCalledFunction();
           std::string calledFuncName = calledFunc->getName().str();
           std::string demangledName = getDemangledRustFuncName(calledFuncName);
           if (demangledName == "OpenFaaSRPC::get_arg_from_caller") {
@@ -95,16 +95,16 @@ Function* MergeRustFuncAsyncPass::getFaaSClousure(Module* M) {
 
 
 
-Function* MergeRustFuncAsyncPass::getFaasFunc(Module* M, std::string callee_name){
-  std::vector<Function*> faas_funcs;
+Function* MergeRustFuncAsyncPass::getMainClosure(Module* M, std::string callee_name){
+  std::vector<Function*> main_funcs;
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string demangled = getDemangledRustFuncName(func->getName().str());
-    if (demangled == "function::faas_function::{{closure}}::{{closure}}") {
-      faas_funcs.push_back(func);
+    if (demangled == "function::main::{{closure}}") {
+      main_funcs.push_back(func);
     }
   }
-  for (auto f: faas_funcs) {
+  for (auto f: main_funcs) {
     for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
       for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
         if (isa<CallInst>(IB)) {
@@ -397,22 +397,11 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
 
 
-void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* OpenFaaSRPCClosure, Function* newCalleeFunc, std::string callee_name) {
-  Module* M = newCalleeFunc->getParent();
-  InvokeInst* send_return_value_call = getInvokeByDemangledName(OpenFaaSRPCClosure, 
-       "OpenFaaSRPC::send_return_value_to_caller");
 
-  Value* output = send_return_value_call->getOperand(0);
-  // create the global variable that is used for store 
-  // the input value
-  // note: the global variable must be initialized, 
-  //       otherwise the linker will report error.
-  PointerType *OutputPtrType = output->getType()->getPointerTo();
-  // Create a null pointer 
-  Constant *NullPtr = ConstantPointerNull::get(OutputPtrType);
-  GlobalVariable* globalOutput = new GlobalVariable(*M,output->getType(),false,
-                                         GlobalValue::ExternalLinkage,NullPtr,
-                                         "output_rust_string_for"+callee_name);
+void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
+  Module* M = newCalleeFunc->getParent();
+  InvokeInst* send_return_value_call = getInvokeByDemangledName(newCalleeFunc, 
+       "OpenFaaSRPC::send_return_value_to_caller");
 
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
@@ -421,8 +410,8 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* OpenFaaSRPCClosure,
   // is different from normal CallInst create 
 
   std::vector<Type*> IntrinTypes;
-  IntrinTypes.push_back(globalOutput->getValueType());
-  IntrinTypes.push_back(output->getType());
+  IntrinTypes.push_back(newCalleeFunc->getArg(0)->getType());
+  IntrinTypes.push_back(send_return_value_call->getOperand(0)->getType());
   IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
 
   Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
@@ -430,104 +419,75 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* OpenFaaSRPCClosure,
   Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
 
   std::vector<Value*> IntrinsicArguments;
-  IntrinsicArguments.push_back(globalOutput);
-  IntrinsicArguments.push_back(output);
+  IntrinsicArguments.push_back(newCalleeFunc->getArg(0));
+  IntrinsicArguments.push_back(send_return_value_call->getOperand(0));
   IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
   IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
   ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
+
 
   IRBuilder<> Builder(M->getContext());
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(send_return_value_call);
 
   // since the instruction is a InvokeInst, also needs to create a branch instruction
-
   BasicBlock* nextBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(1));
-  if (nextBBofsend_ret_value_call) {
+  if (nextBBofsend_ret_value_call)
     BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
-    send_return_value_call->eraseFromParent();
-  }
-
-  ReturnInst* ret = NULL;
-  for (BasicBlock &BB : *newCalleeFunc) {
-    for (Instruction &I : BB) {
-      if (ReturnInst *RetInst = dyn_cast<ReturnInst>(&I)) {
-        ret = RetInst;
-        break;
-      }
-    }
-    if (ret) break;
-  }
-
-  std::vector<Value*> newCalleeFuncArgs;
-  for (Argument &ag : newCalleeFunc->args()) {
-    newCalleeFuncArgs.push_back(&ag);
-  }
-  Value* outputArg = newCalleeFuncArgs[0];
-
-
-  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
-  //                                         ptr align 8 %buffer, 
-  //                                         i64 24, i1 false)
-  // the is the LLVM Intrinsc. The way to create such a call 
-  // is different from normal CallInst create 
-
-  IntrinTypes.clear();
-  IntrinTypes.push_back(outputArg->getType());
-  IntrinTypes.push_back(globalOutput->getValueType());
-  IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
-
-  Function* llvmMemcpyFunc2 = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
-
-  IntrinsicArguments.clear();
-  IntrinsicArguments.push_back(outputArg);
-  IntrinsicArguments.push_back(globalOutput);
-  IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
-  IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
-  ArrayRef<Value*> IntrinsicArgs2(IntrinsicArguments);
-
-  IRBuilder<> Builder2(M->getContext());
-  CallInst* llvmMemcpyCall2 = Builder2.CreateCall(llvmMemcpyFunc2, IntrinsicArgs2);
-  llvmMemcpyCall2->insertBefore(ret);
+  send_return_value_call->eraseFromParent();
 } 
 
 
 
-void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* calleeMainClosure, Function* newCalleeFunc, std::string CalleeName_rra) {
+
+void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   Module* M = newCalleeFunc->getParent();
+  CallInst* get_arg_call = getCallByDemangledName(newCalleeFunc,
+     "OpenFaaSRPC::get_arg_from_caller");
 
-  InvokeInst* get_arg_call = getInvokeByDemangledName(calleeMainClosure,
-                                         "OpenFaaSRPC::get_arg_from_caller");
-
-  
-  Value* input = get_arg_call->getOperand(0);
-  // create the global variable that is used for store 
-  // the input value
-  // note: the global variable must be initialized, 
-  //       otherwise the linker will report error.
-  PointerType *InputPtrType = input->getType()->getPointerTo();
-  // Create a null pointer 
-  Constant *NullPtr = ConstantPointerNull::get(InputPtrType);
-  GlobalVariable* globalInput = new GlobalVariable(*M,input->getType(),false,
-                                         GlobalValue::ExternalLinkage,NullPtr,
-                                         "input_rust_string_for_"+CalleeName_rra);
-
-  std::vector<Value*> newCalleeFuncArgs;
+  // in the new function, also need to change the way of how input arguments are get
+  // (1) first need to check the user of the existing function arguments
+  //     and delete all instructions that depends on these arguments
+  std::vector<Value*> args_of_new_callee;
   for (Argument &ag : newCalleeFunc->args()) {
-    newCalleeFuncArgs.push_back(&ag);
-    llvm::errs()<<"####### "<<ag<<"\n";
+    args_of_new_callee.push_back(&ag);
+    llvm::errs()<<"@@@ "<<ag<<"\n";
   }
-  Value* inputArg = newCalleeFuncArgs[3];
+  Value* func_arg = args_of_new_callee[3];
+/*
+  Value* alloc_of_arg;
+  for (auto u = arg_matters->user_begin(); u!= arg_matters->user_end(); u++) {
+    Instruction* user = dyn_cast<Instruction>(*u);
+    if (isa<StoreInst>(user)) {
+      alloc_of_arg = user->getOperand(1);
+    }
+  }
+*/
+  // (3) insert a LoadInst before the get_arg_call
+//  LoadInst* newload = new LoadInst(arg_matters->getType(), alloc_of_arg, "", get_arg_call);
 
-  BasicBlock &entryBlock = newCalleeFunc->getEntryBlock();
-  Instruction *firstInst = &*entryBlock.begin();
+  Value* arg_input = get_arg_call->getOperand(0);
+//  Instruction* arg_input2 = dyn_cast<Instruction>(arg_input)->clone();
+//  arg_input2->insertBefore(dyn_cast<Instruction>(arg_input));
 
-  StoreInst *Store = new StoreInst(inputArg, globalInput , false, firstInst);
-
-  // In real function::main::{{closure}}, load the gloable 
-  // variable. And use it as the real input. 
-  LoadInst* newload = new LoadInst(globalInput->getValueType(), globalInput, "real_input", get_arg_call);
-
+/*
+  for (auto u = arg_input->user_begin(); u!= arg_input->user_end(); u++) {
+    Value* user = dyn_cast<User>(*u);
+    if (isa<InvokeInst>(user)) {
+      llvm::errs()<<*user<<"\n";
+      InvokeInst* invoke = dyn_cast<InvokeInst>(user);
+      std::string demangled = getDemangledRustFuncName(invoke->getCalledFunction()->getName().str());
+      if (demangled=="core::ptr::drop_in_place<alloc::string::String>") {
+        for (auto oi = invoke->op_begin(); oi!=invoke->op_end(); oi++){
+          Value* operand = dyn_cast<Value>(*oi);
+          if (operand == arg_input) {
+            *oi = dyn_cast<Value>(arg_input2);
+          }
+        } 
+      }
+    }
+  }
+*/
   IRBuilder<> Builder(M->getContext());
 
   Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
@@ -535,14 +495,14 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* calleeMainClosure, F
 
   std::vector<Type*> IntrinTypes;
   IntrinTypes.push_back(get_arg_call->getOperand(0)->getType());
-  IntrinTypes.push_back(newload->getType());
+  IntrinTypes.push_back(func_arg->getType());
   IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
 
   Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes); 
 
   std::vector<Value*> IntrinsicArguments;
   IntrinsicArguments.push_back(get_arg_call->getOperand(0));
-  IntrinsicArguments.push_back(newload);
+  IntrinsicArguments.push_back(func_arg);
   IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
   IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
   ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
@@ -550,31 +510,9 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* calleeMainClosure, F
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(get_arg_call);
 
-
-  std::vector<InvokeInst*> invokesToBeEliminated;
-  for (auto u = input->user_begin(); u!= input->user_end(); u++) {
-    Value* user = dyn_cast<User>(*u);
-    if (isa<InvokeInst>(user)) {
-      InvokeInst* invoke = dyn_cast<InvokeInst>(user);
-      std::string demangled = getDemangledRustFuncName(invoke->getCalledFunction()->getName().str());
-      if (demangled=="core::ptr::drop_in_place<alloc::string::String>") {
-        invokesToBeEliminated.push_back(invoke);
-      }
-    }
-  }
-
-  for (unsigned i=0; i<invokesToBeEliminated.size(); i++) {
-    BasicBlock* nextBB3 = dyn_cast<BasicBlock>(dyn_cast<Instruction>(invokesToBeEliminated[i])->getOperand(1));
-    if (nextBB3) {
-      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB3, invokesToBeEliminated[i]); 
-      invokesToBeEliminated[i]->eraseFromParent();
-    }
-  }
-
   BasicBlock* nextBB2 = dyn_cast<BasicBlock>(get_arg_call->getOperand(1));
   if (nextBB2) {
     BranchInst * jumpInst = llvm::BranchInst::Create(nextBB2, get_arg_call); 
     get_arg_call->eraseFromParent();
   }
 }
-
