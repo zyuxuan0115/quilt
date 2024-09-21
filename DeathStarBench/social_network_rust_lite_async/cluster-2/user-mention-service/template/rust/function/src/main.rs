@@ -14,11 +14,7 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 }
 
 
-fn main(){
-  block_on(faas_function());
-}
-
-async fn faas_function() {
+fn main() {
   let input: String = get_arg_from_caller();
   let now = Instant::now();
   let usernames: Vec<String> = serde_json::from_str(&input).unwrap();
