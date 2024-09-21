@@ -3,6 +3,7 @@ use DbInterface::*;
 use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 use redis::{Commands, RedisResult};
+use std::thread;
 //use std::time::{Duration, Instant};
 
 fn gen_random_string()->String{
@@ -50,7 +51,10 @@ fn main() {
   let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  let future = make_rpc("social-graph-insert-user", user_id_str);
-  block_on(future);
+  let handle = thread::spawn(move || {
+    make_rpc("social-graph-insert-user", user_id_str)
+  });
+  let result = handle.join().unwrap();
+
   send_return_value_to_caller("".to_string());
 }
