@@ -3,22 +3,21 @@ use std::collections::HashMap;
 use redis::Commands;
 use DbInterface::*;
 use memcache::Client;
-//use futures::executor::block_on;
-
+use std::thread;
 //use std::time::{Duration, Instant}};
 
-#[tokio::main]
-async fn main() {
-//  let time_0 = Instant::now();
-  let client = reqwest::Client::new();
+fn main() {
+  let time_0 = Instant::now();
   let input: String = get_arg_from_caller();
 
   let mut timeline_info: WriteHomeTimelineArgs = serde_json::from_str(&input).unwrap();
   let user_id_str: String = timeline_info.user_id.to_string();
-  let future =  make_rpc("social-graph-get-followers", user_id_str, &client);
 
-//  let followers_str: String = block_on(future);
-  let (followers_str, ) = futures::join!(future);
+  let handle = thread::spawn(move || {
+    make_rpc("social-graph-get-followers", user_id_str)
+  });
+
+  let followers_str = handle.join().unwrap();
 
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
   let mut followers_set: HashMap<i64,bool> = followers.iter().map(|x| (*x, false) ).collect::<HashMap<_, _>>();
@@ -39,8 +38,8 @@ async fn main() {
     let post_id_str: String = timeline_info.post_id.to_string();
     let _: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   }
-//  let time_1 = Instant::now();
-//  println!("{:?}", time_1.duration_since(time_0));
+  let time_1 = Instant::now();
+  println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller("".to_string());
 }
 

@@ -5,8 +5,7 @@ use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, 
 use redis::{Commands};
 use memcache::Client as memcached_client;
 
-#[tokio::main]
-async fn main() {
+fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let follow_info: SocialGraphFollowArgs = serde_json::from_str(&input).unwrap();

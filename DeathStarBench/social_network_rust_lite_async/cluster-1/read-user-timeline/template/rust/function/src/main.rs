@@ -1,12 +1,11 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use redis::{Commands};
-use futures::executor::block_on;
+use std::thread;
+
 //use std::time::{Duration,Instant};
 
-#[tokio::main]
-async fn main() {
-  let http_client = reqwest::Client::new();
+fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let timeline_info: ReadTimelineArgs = serde_json::from_str(&input).unwrap();
@@ -24,8 +23,10 @@ async fn main() {
   let serialized = serde_json::to_string(&post_ids).unwrap(); 
 //  let new_now = Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  let future = make_rpc("read-posts", serialized, &http_client); 
-  let posts = block_on(future);
+  let handle = thread::spawn(move || {
+    make_rpc("read-posts", serialized)
+  });
+  let posts = handle.join().unwrap();
   send_return_value_to_caller(posts);
 }
 

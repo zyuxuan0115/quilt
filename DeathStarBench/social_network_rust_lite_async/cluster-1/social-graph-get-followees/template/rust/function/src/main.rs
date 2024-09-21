@@ -5,8 +5,7 @@ use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration,
 use redis::{Commands, RedisResult};
 use memcache::Client as memcached_client;
 
-#[tokio::main]
-async fn main() {
+fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let user_id: i64 = serde_json::from_str(&input).unwrap();
