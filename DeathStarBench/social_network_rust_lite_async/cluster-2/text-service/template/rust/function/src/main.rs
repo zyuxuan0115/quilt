@@ -1,16 +1,10 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use regex::Regex;
-use futures::executor::block_on;
 use std::time::{Duration, Instant};
 use std::thread;
 
 fn main() {
-  block_on(faas_function());
-}
-
-async fn faas_function() {
   let time_0 = Instant::now();
-  println!("@@@@@@@");
   let input: String = get_arg_from_caller();
   let mut text = input;
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
@@ -34,8 +28,6 @@ async fn faas_function() {
   let handle2 = thread::spawn(move || {
     make_rpc("url-shorten-service", urls_serialized)
   });
-
-  println!("#############");
 
   let time_3 = Instant::now();
   let user_mentions_str = handle.join().unwrap();

@@ -3,7 +3,6 @@ use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use redis::Commands;
 use std::time::{Duration, Instant};
-use futures::executor::block_on;
 
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");
@@ -17,10 +16,6 @@ fn gen_short_url()->String{
 }
 
 fn main() {
-  block_on(faas_function());
-}
-
-async fn faas_function() {
   let input: String = get_arg_from_caller();
 
 //  println!("url input:{}", input);
