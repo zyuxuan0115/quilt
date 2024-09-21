@@ -6,6 +6,7 @@ use std::thread;
 fn main() {
   let time_0 = Instant::now();
   let input: String = get_arg_from_caller();
+  println!("input:{}", input);
   let mut text = input;
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
   let mut mentioned_usernames: Vec<String> = Vec::new();
@@ -28,6 +29,8 @@ fn main() {
   let handle2 = thread::spawn(move || {
     make_rpc("url-shorten-service", urls_serialized)
   });
+
+  println!("@@@@@@@@@@@@@@@");
 
   let time_3 = Instant::now();
   let user_mentions_str = handle.join().unwrap();

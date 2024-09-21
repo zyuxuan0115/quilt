@@ -1,4 +1,3 @@
-use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
@@ -19,8 +18,7 @@ fn jwt_encode(secret: &str, payload: &str) -> String {
   encoded.into_data()
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let user_info: UserLoginArgs = serde_json::from_str(&input).unwrap();

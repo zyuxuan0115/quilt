@@ -18,7 +18,6 @@ fn gen_short_url()->String{
 fn main() {
   let input: String = get_arg_from_caller();
 
-//  println!("url input:{}", input);
   let now = Instant::now();
   let urls: Vec<String> = serde_json::from_str(&input).unwrap();
 
@@ -42,14 +41,3 @@ fn main() {
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
-
-
-/*
-#[tokio::main]
-async fn main() {
-  let input: String = get_arg_from_caller();
-  let mut res: String = "url-shorten-service: ".to_string();
-  res.push_str(&input[..]); 
-  send_return_value_to_caller(res);
-}
-*/

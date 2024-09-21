@@ -4,7 +4,6 @@ use DbInterface::*;
 use std::collections::HashMap;
 use memcache::Client;
 use std::time::{Duration, Instant};
-use futures::executor::block_on;
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {
@@ -12,7 +11,6 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
         None => s
     }
 }
-
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -54,7 +52,6 @@ fn main() {
   }
   let uname_not_cached_array: &[&str] = &uname_not_cached;
   for uname in unames_not_cached {
-//    let (name, id): (String, i64) 
     let res: Result<(String, i64), redis::RedisError>= redis::cmd("HMGET").arg(&uname[..]).arg("username").arg("user_id").query(&mut con); 
     match res {
       Ok((name, id)) => {
