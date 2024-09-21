@@ -4,7 +4,7 @@ use redis::Commands;
 use DbInterface::*;
 use memcache::Client;
 use std::thread;
-//use std::time::{Duration, Instant}};
+use std::time::{Duration, Instant};
 
 fn main() {
   let time_0 = Instant::now();

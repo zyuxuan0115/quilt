@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std:: time::{SystemTime, Duration, Instant};
 use redis::Commands;
+use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -26,7 +27,7 @@ fn main() {
   let handle = thread::spawn(move || {
     make_rpc("read-posts", serialized)
   });
-  let posts = = handle.join().unwrap();
+  let posts = handle.join().unwrap();
   send_return_value_to_caller(posts);
 }
 
