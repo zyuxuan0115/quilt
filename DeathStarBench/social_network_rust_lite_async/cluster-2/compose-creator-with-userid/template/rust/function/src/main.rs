@@ -1,8 +1,7 @@
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller, *};
 //use std::time::{Duration, Instant};
 
-#[tokio::main]
-async fn main() {
+fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let user_info: ComposeCreatorWithUseridArgs = serde_json::from_str(&input).unwrap();

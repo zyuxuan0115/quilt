@@ -2,17 +2,16 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use std::time::SystemTime;
 use std::time::{Duration, Instant};
-use futures::executor::block_on;
-use reqwest::Client;
+use std::thread;
 
-#[tokio::main]
-async fn main() {
-  let client = reqwest::Client::new();
+fn main() {
   let input: String = get_arg_from_caller();
 
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
   // call UniqueIdService
-  let future_uuid = make_rpc("unique-id-service", "".to_string(), &client);
+  let handle_uuid = thread::spawn(move || {
+    make_rpc("unique-id-service", "".to_string())
+  });
 
   // call ComposerCreatorWithUserId
   let compose_creator_with_userid_arg = ComposeCreatorWithUseridArgs {
@@ -20,10 +19,15 @@ async fn main() {
     username: input_info.username, 
   };
   let compose_creator_with_userid_arg_str = serde_json::to_string(&compose_creator_with_userid_arg).unwrap();
-  let future_creator_str = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str, &client);
+
+  let handle_compose_creator = thread::spawn(move || {
+    make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str)
+  });
 
   // call TextService
-  let future_text_str = make_rpc("text-service", input_info.text, &client);
+  let handle_text = thread::spawn(move || {
+    make_rpc("text-service", input_info.text)
+  });
 
   // call MediaService
   let media_arg = MediaServiceArgs {
@@ -32,15 +36,16 @@ async fn main() {
   };
 
   let media_arg_str: String = serde_json::to_string(&media_arg).unwrap();
-  let future_media_return = make_rpc("media-service", media_arg_str, &client);
+  let handle_media = thread::spawn(move || {
+    make_rpc("media-service", media_arg_str)
+  });
 
   let time_0 = Instant::now();
 
-  let (uuid, creator_str, text_str, media_return): (String, String, String, String) 
-       = futures::join!(future_uuid, 
-                        future_creator_str,
-                        future_text_str,
-                        future_media_return);
+  let uuid = handle_uuid.join().unwrap();
+  let creator_str = handle_compose_creator.join().unwrap();
+  let text_str = handle_text.join().unwrap();
+  let media_return = handle_media.join().unwrap();
 
   let time_1 = Instant::now();
 
@@ -60,7 +65,9 @@ async fn main() {
   };
   // call StorePost
   let post_str: String = serde_json::to_string(&post).unwrap(); 
-  let future_store_post = make_rpc("store-post", post_str, &client);
+  let handle_store_post = thread::spawn(move || {
+    make_rpc("store-post", post_str)
+  });
 
   // call WriteUserTimeline
   let write_u_tl_arg =  WriteUserTimelineArgs {
@@ -69,7 +76,9 @@ async fn main() {
     timestamp: post.timestamp,
   };
   let write_u_tl_arg_str: String = serde_json::to_string(&write_u_tl_arg).unwrap();
-  let future_write_user_timeline = make_rpc("write-user-timeline", write_u_tl_arg_str, &client);
+  let handle_write_user_timeline = thread::spawn(move || {
+    make_rpc("write_user_timeline", write_u_tl_arg_str)
+  });
 
   // call WriteHomeTimeline
   let write_h_tl_arg = WriteHomeTimelineArgs {
@@ -79,14 +88,16 @@ async fn main() {
     user_mentions_id: post.user_mentions.iter().map(|x| x.user_id).collect(),
   };
   let write_h_tl_arg_str: String = serde_json::to_string(&write_h_tl_arg).unwrap();
-  let future_write_h_tl_ret_str = make_rpc("write-home-timeline", write_h_tl_arg_str, &client); 
+  let handle_write_h_tl = thread::spawn(move || {
+    make_rpc("write_home_timeline", write_h_tl_arg_str)
+  });
+
 
   let time_2 = Instant::now();
 
-  let (_, _, _): (String, String, String) 
-       = futures::join!(future_store_post, 
-                        future_write_user_timeline,
-                        future_write_h_tl_ret_str);
+  let _ = handle_store_post.join().unwrap();
+  let _ = handle_write_user_timeline.join().unwrap();
+  let _ = handle_write_h_tl.join().unwrap();
 
   let time_3 = Instant::now();
 
