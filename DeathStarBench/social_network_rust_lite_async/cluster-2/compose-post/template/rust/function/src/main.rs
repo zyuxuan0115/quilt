@@ -77,7 +77,7 @@ fn main() {
   };
   let write_u_tl_arg_str: String = serde_json::to_string(&write_u_tl_arg).unwrap();
   let handle_write_user_timeline = thread::spawn(move || {
-    make_rpc("write_user_timeline", write_u_tl_arg_str)
+    make_rpc("write-user-timeline", write_u_tl_arg_str)
   });
 
   // call WriteHomeTimeline
@@ -89,7 +89,7 @@ fn main() {
   };
   let write_h_tl_arg_str: String = serde_json::to_string(&write_h_tl_arg).unwrap();
   let handle_write_h_tl = thread::spawn(move || {
-    make_rpc("write_home_timeline", write_h_tl_arg_str)
+    make_rpc("write-home-timeline", write_h_tl_arg_str)
   });
 
 
