@@ -6,7 +6,7 @@ functions:
   write-home-timeline-merged:
     lang: rust
     handler: ./write-home-timeline-merged
-    image: zyuxuan0115/sn-write-home-timeline-merged:latest
+    image: zyuxuan0115/sn-write-home-timeline-async-merged:latest
     secrets:
     - redis-password
     - ingress-enable

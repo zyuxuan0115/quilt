@@ -6,7 +6,7 @@ functions:
   compose-post-merged:
     lang: rust
     handler: ./compose-post-merged
-    image: zyuxuan0115/sn-compose-post-merged:latest
+    image: zyuxuan0115/sn-compose-post-async-merged:latest
     secrets:
     - redis-password
     - ingress-enable

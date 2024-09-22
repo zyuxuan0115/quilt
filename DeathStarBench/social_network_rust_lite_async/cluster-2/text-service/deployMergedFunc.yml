@@ -6,7 +6,7 @@ functions:
   text-service-merged:
     lang: rust
     handler: ./text-service-merged
-    image: zyuxuan0115/sn-text-service-merged:latest
+    image: zyuxuan0115/sn-text-service-async-merged:latest
     secrets:
     - redis-password
     - ingress-enable
