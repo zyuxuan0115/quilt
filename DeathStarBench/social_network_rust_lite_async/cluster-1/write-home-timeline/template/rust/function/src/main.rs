@@ -39,7 +39,7 @@ fn main() {
     let _: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   }
   let time_1 = Instant::now();
-  println!("{:?}", time_1.duration_since(time_0));
+  //println!("{:?}", time_1.duration_since(time_0));
   send_return_value_to_caller("".to_string());
 }
 

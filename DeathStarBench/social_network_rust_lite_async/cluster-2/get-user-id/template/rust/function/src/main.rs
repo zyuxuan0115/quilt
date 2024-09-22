@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{Duration, Instant}};
-use mongodb::{bson::doc,sync::Client};
 use memcache::Client as memcached_client;
 use redis::{Commands, RedisResult};
 
@@ -13,8 +12,7 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     }
 }
 
-#[tokio::main]
-async fn main() {
+fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let mut username = String::from(&input[..]);

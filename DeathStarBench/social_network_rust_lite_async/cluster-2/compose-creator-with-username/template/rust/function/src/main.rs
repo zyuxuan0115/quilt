@@ -5,8 +5,7 @@ use std::{collections::HashMap, time::{Duration, Instant}};
 use memcache::Client as memcached_client;
 use redis::{Commands, RedisResult};
 
-#[tokio::main]
-async fn main() {
+fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
   let mut username = String::from(&input[..]);

@@ -9,7 +9,7 @@ ARGS=("$@")
 CALLER=${ARGS[1]}
 
 function build_llvm {
-  sudo docker build -t zyuxuan0115/llvm-17:latest \
+  sudo docker build --no-cache -t zyuxuan0115/llvm-17:latest \
        -f Dockerfile.llvm \
        .
   sudo docker push zyuxuan0115/llvm-17:latest
