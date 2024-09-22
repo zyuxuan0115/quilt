@@ -1,1 +1,0 @@
-@alloc_f626776df3e139ca072a17cd274fef42 = private unnamed_addr constant <{ [10 x i8] }> <{ [10 x i8] c"store-post" }>, align 1
