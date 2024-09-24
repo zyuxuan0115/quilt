@@ -8,6 +8,4 @@ functions:
     handler: ./page-service
     image: zyuxuan0115/mm-page-service:latest
     secrets:
-    - redis-password
-    - mongodb-password
     - ingress-enable
