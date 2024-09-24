@@ -81,7 +81,7 @@ fn main() {
 
     let res: redis::RedisResult<String> = con.hget(&uname[..], "user_id");
     let res: redis::RedisResult<(i64,String,String,String)>
-          = redis::cmd("HMGET").arg(&movie_id_str[..]).arg("user_id").arg("username").arg("salt")
+          = redis::cmd("HMGET").arg(&user_user_id[..]).arg("user_id").arg("username").arg("salt")
                                .arg("password").query(&mut con);
 
     match res {
@@ -92,8 +92,8 @@ fn main() {
         user_id_str = user_id.to_string();
       },
       Err(_) => {
-        println!("User {} already existed", new_user_info.username);
-        panic!("User {} already existed", new_user_info.username);
+        println!("User {} already existed", username);
+        panic!("User {} already existed", username);
       },
     } 
   }
