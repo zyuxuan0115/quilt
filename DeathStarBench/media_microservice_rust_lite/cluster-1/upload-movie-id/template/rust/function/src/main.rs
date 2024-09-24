@@ -1,7 +1,7 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
-use mongodb::{bson::doc,sync::Client};
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -20,21 +20,23 @@ fn main() {
       movie_id = id;
     },
     None => {
-      let mongodb_uri = get_mongodb_uri();
-      let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-      let mongodb_database = mongodb_client.database("movie-id");
-      let mongodb_collection = mongodb_database.collection::<MovieIdEntry>("movie-id");
+      let redis_uri = get_redis_rw_uri();
+      let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+      let mut con = redis_client.get_connection().unwrap();
 
-      let query = doc!{"title":movie_info.title.clone()};
-      let result = mongodb_collection.find_one(query, None).unwrap();
-      match result {
-        Some(x) => {
-          movie_id = x.movie_id;
+      let mut mtitle: String = "movie-id:".to_string();
+      mtitle.push_str(&movie_info.title[..]);
+
+      let res: redis::RedisResult<String> = con.hget(&mtitle[..], "movie_id");
+
+      match res {
+        Ok(x) => {
+          movie_id = x;
           memcache_client.set(&movie_info.title[..], &movie_id[..], 0).unwrap();
         },
-        None => {
-          println!("Movie {} is not found in MongoDB;", movie_info.title);
-          panic!("Movie {} is not found in MongoDB;", movie_info.title);
+        Err(_) => {
+          println!("Movie {} is not found in redis;", movie_info.title);
+          panic!("Movie {} is not found in redis;", movie_info.title);
         },
       }
     },
