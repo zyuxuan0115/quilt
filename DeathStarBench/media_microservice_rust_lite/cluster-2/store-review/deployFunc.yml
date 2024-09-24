@@ -8,6 +8,5 @@ functions:
     handler: ./store-review
     image: zyuxuan0115/mm-store-review:latest
     secrets:
-    - mongodb-password
     - ingress-enable
     - redis-password
