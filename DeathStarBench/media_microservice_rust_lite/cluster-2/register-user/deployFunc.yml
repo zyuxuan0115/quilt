@@ -8,6 +8,5 @@ functions:
     handler: ./register-user
     image: zyuxuan0115/mm-register-user:latest
     secrets:
-    - mongodb-password
     - ingress-enable
     - redis-password
