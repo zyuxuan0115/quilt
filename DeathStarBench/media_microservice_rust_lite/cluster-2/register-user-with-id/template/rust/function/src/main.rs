@@ -1,9 +1,9 @@
-use mongodb::{bson::doc,sync::Client};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 use std::time::{Duration, Instant};
+use redis::Commands;
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
@@ -19,35 +19,33 @@ fn main() {
 //  let now = Instant::now();
   let new_user_info: RegisterUserWithIdArgs = serde_json::from_str(&input).unwrap();
 
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("user");
-  let collection = database.collection::<UserEntry>("user");
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
-  let result = collection.find_one(doc! { "username": &new_user_info.username[..] }, None).unwrap();
+  let mut uname: String = "user:".to_string();
+  uname.push_str(&new_user_info.username[..]);
 
-  match result {
-    Some(_) => {
+  let res: redis::RedisResult<String> = con.hget(&uname[..], "user_id");
+  match res {
+    Ok(x) => {
       println!("User {} already existed", new_user_info.username);
       panic!("User {} already existed", new_user_info.username);
     },
-    None => (),
+    Err(_) => {
+      let mut pw_sha: String = String::from(&new_user_info.password[..]);
+      let salt: String = gen_random_string();
+      pw_sha.push_str(&salt[..]);
+      pw_sha = digest(pw_sha);
+
+      let _: isize = con.hset(&uname[..], "user_id", new_user_info.user_id).unwrap();
+      let _: isize = con.hset(&uname[..], "first_name", &new_user_info.first_name[..]).unwrap();
+      let _: isize = con.hset(&uname[..], "last_name", &new_user_info.last_name[..]).unwrap();
+      let _: isize = con.hset(&uname[..], "username", &new_user_info.username[..]).unwrap();
+      let _: isize = con.hset(&uname[..], "salt", &salt[..]).unwrap();
+      let _: isize = con.hset(&uname[..], "password", &pw_sha[..]).unwrap();
+    },
   } 
-
-  let mut pw_sha: String = String::from(&new_user_info.password[..]);
-  let salt: String = gen_random_string();
-  pw_sha.push_str(&salt[..]);
-  pw_sha = digest(pw_sha);
-  let user_info_entry = UserEntry {
-    user_id: new_user_info.user_id,
-    first_name: new_user_info.first_name,
-    last_name: new_user_info.last_name,
-    username: new_user_info.username,
-    salt: salt,
-    password: pw_sha, 
-  };
-
-  collection.insert_one(user_info_entry, None).unwrap();
 
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
