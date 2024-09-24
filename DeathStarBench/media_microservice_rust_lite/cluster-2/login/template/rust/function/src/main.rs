@@ -1,4 +1,4 @@
-use mongodb::{bson::doc,sync::Client};
+use redis::Commands;
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
@@ -20,7 +20,6 @@ fn jwt_encode(secret: &str, payload: &str) -> String {
 
 fn main() {
   let input: String = get_arg_from_caller();
-  println!("{}", input);
   let user_info: LoginArgs = serde_json::from_str(&input).unwrap();
 
   let username = user_info.username;
@@ -73,22 +72,28 @@ fn main() {
   }
 
   if !(mmc_has_user_id && mmc_has_salt && mmc_has_pw) {
-    let uri = get_mongodb_uri();
-    let client = Client::with_uri_str(&uri[..]).unwrap();
-    let database = client.database("user");
-    let collection = database.collection::<UserEntry>("user");
-    let mongodb_result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
+    let redis_uri = get_redis_rw_uri();
+    let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+    let mut con = redis_client.get_connection().unwrap();
 
-    match mongodb_result {
-      Some(y) => {
-        password_stored = y.password;
-        salt = y.salt;
-        user_id = y.user_id;
+    let mut uname = "user:".to_string();
+    uname.push_str(&username[..]);
+
+    let res: redis::RedisResult<String> = con.hget(&uname[..], "user_id");
+    let res: redis::RedisResult<(i64,String,String,String)>
+          = redis::cmd("HMGET").arg(&movie_id_str[..]).arg("user_id").arg("username").arg("salt")
+                               .arg("password").query(&mut con);
+
+    match res {
+      Ok((id, name, s, pw)) => {
+        user_id = id;
+        password_stored = pw;
+        salt = s;
         user_id_str = user_id.to_string();
       },
-      None => {
-        println!("User: {} doesn't exist in MongoDB", username);
-        panic!("User: {} doesn't exist in MongoDB", username);
+      Err(_) => {
+        println!("User {} already existed", new_user_info.username);
+        panic!("User {} already existed", new_user_info.username);
       },
     } 
   }

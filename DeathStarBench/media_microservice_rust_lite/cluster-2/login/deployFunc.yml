@@ -8,6 +8,5 @@ functions:
     handler: ./login
     image: zyuxuan0115/mm-login:latest
     secrets:
-    - mongodb-password
     - redis-password
     - ingress-enable
