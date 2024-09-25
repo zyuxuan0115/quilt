@@ -1,7 +1,7 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
-use mongodb::{bson::doc,sync::Client};
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -20,22 +20,22 @@ fn main() {
       user_id_str = id;
     },
     None => {
-      let mongodb_uri = get_mongodb_uri();
-      let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-      let mongodb_database = mongodb_client.database("user");
-      let mongodb_collection = mongodb_database.collection::<UserEntry>("user");
+      let redis_uri = get_redis_rw_uri();
+      let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+      let mut con = redis_client.get_connection().unwrap();
 
-      let query = doc!{"username":&user_info.username[..]};
-      let result = mongodb_collection.find_one(query, None).unwrap();
+      let uname: String = format!("user:{}",user_info.username);
+
+      let result: redis::RedisResult<(i64, String)> = redis::cmd("HMGET").arg(&uname[..]).arg("user_id").arg("username").query(&mut con);
       match result {
-        Some(x) => {
-          user_id_str = x.user_id.to_string();
+        Ok((name, id)) => {
+          user_id_str = id.to_string();
           memcache_client.set(&username_uid[..], &user_id_str[..], 0).unwrap();
         },
-        None => {
-          println!("User {} is not found in MongoDB;", user_info.username);
-          panic!("User {} is not found in MongoDB;", user_info.username);
-        },
+        Err(_) => {
+          println!("User {} is not found in redis;", user_info.username);
+          panic!("User {} is not found in redis;", user_info.username);
+        }
       }
     },
   }; 
