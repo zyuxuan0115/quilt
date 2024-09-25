@@ -8,6 +8,5 @@ functions:
     handler: ./read-movie-reviews
     image: zyuxuan0115/mm-read-movie-reviews:latest
     secrets:
-    - mongodb-password
     - redis-password
     - ingress-enable
