@@ -8,6 +8,5 @@ functions:
     handler: ./upload-movie-review
     image: zyuxuan0115/mm-upload-movie-review:latest
     secrets:
-    - mongodb-password
     - redis-password
     - ingress-enable
