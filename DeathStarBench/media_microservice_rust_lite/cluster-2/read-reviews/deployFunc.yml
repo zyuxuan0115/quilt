@@ -9,5 +9,4 @@ functions:
     image: zyuxuan0115/mm-read-reviews:latest
     secrets:
     - redis-password
-    - mongodb-password
     - ingress-enable

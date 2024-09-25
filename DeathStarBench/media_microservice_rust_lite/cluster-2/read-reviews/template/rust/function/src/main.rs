@@ -1,8 +1,8 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -36,15 +36,31 @@ fn main() {
   }
 
   if review_not_cached.len() != 0 {
-    let mongodb_uri = get_mongodb_uri();
-    let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-    let mongodb_database = mongodb_client.database("review");
-    let mongodb_collection = mongodb_database.collection::<ReviewEntry>("review");
-    let query = doc!{"review_id": doc!{"$in": &review_not_cached}};
-    let mut cursor = mongodb_collection.find(query, None).unwrap(); 
-    for doc in cursor {
-      let doc_ = doc.unwrap();
-      reviews.push(doc_);    
+    let redis_uri = get_redis_rw_uri();
+    let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+    let mut con = redis_client.get_connection().unwrap();
+
+    for item in &review_not_cached {
+      let rid: String = format!("review:{}",item);
+      let result: redis::RedisResult<(i64, i64, i64, String, String, i32, i64)> = redis::cmd("HMGET").arg(&rid[..]).arg("review_id").arg("user_id").arg("req_id").arg("text").arg("movie_id").arg("rating").arg("timestamp").query(&mut con);
+      match result {
+        Ok((r_id, uid, reqid, txt, mid, r, t)) => {
+          let new_review = ReviewEntry {
+            review_id: r_id,
+            user_id: uid,
+            req_id: reqid,
+            text: txt,
+            movie_id: mid,
+            rating: r,
+            timestamp: t,
+          };
+          reviews.push(new_review); 
+        },
+        Err(_) => {
+          println!("review: {} doesn't exist in redis", item);
+          panic!("review: {} doesn't exist in redis", item);
+        }
+      };
     }
   }
   let serialized = serde_json::to_string(&reviews).unwrap();
