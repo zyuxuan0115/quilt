@@ -27,6 +27,11 @@
 > rustup default nightly
 ```
 
+### install libcurl
+```bash
+> sudo apt-get install libcurl4-openssl-dev
+```
+
 ### add MergeRustFuncAsync pass
 ```bash
 > cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeRustFuncAsync.h
