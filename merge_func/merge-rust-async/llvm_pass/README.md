@@ -18,6 +18,13 @@
 > make -j
 ```
 
+### install rust and switch to +nightly
+```bash
+> curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+> rustup toolchain install nightly
+> rustup default nightly
+```
+
 ### add MergeRustFuncAsync pass
 ```bash
 > cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeRustFuncAsync.h
