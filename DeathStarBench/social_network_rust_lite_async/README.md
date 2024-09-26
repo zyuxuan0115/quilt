@@ -140,26 +140,26 @@ curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"us
 curl 127.0.0.1:8080/function/read-post -d "1723"
 ```
 
-#### ReadPosts
+### ReadPosts
 
 ```bash
 curl 127.0.0.1:8080/function/read-posts -d "[1722,1723]"
 ```
 
-#### WriteHomeTimeline
+### WriteHomeTimeline
   + I was thinking of using redis pipe to insert data, but it doesn't work (for now)
 
 ```bash
 curl 127.0.0.1:8080/function/write-home-timeline -d "{\"post_id\":1722,\"user_id\":11029,\"timestamp\":12343242,\"user_mentions_id\":[11028]}"
 ```
 
-#### ReadHomeTimeline
+### ReadHomeTimeline
 
 ```bash
 curl 127.0.0.1:8080/function/read-home-timeline -d "{\"user_id\":11028,\"start\":0,\"stop\":1}"
 ```
 
-#### WriteUserTimeline
+### WriteUserTimeline
 
 ```bash
 curl 127.0.0.1:8080/function/write-user-timeline -d "{\"post_id\":1722,\"user_id\":11029,\"timestamp\":12343242}"
@@ -169,13 +169,13 @@ curl 127.0.0.1:8080/function/write-user-timeline -d "{\"post_id\":1722,\"user_id
 curl 127.0.0.1:8080/function/write-user-timeline -d "{\"post_id\":1723,\"user_id\":11028,\"timestamp\":12343249}"
 ```
 
-#### ReadUserTimeline
+### ReadUserTimeline
 
 ```bash
 curl 127.0.0.1:8080/function/read-user-timeline -d "{\"user_id\":11029,\"start\":0,\"stop\":1}"
 ```
 
-#### ComposePost
+### ComposePost
 
 ```bash
 curl 127.0.0.1:8081/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
