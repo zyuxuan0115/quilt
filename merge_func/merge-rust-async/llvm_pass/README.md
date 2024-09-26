@@ -15,7 +15,8 @@
 > mv llvm-project-llvmorg-19.1.0 llvm-project-19 && cd llvm-project-19
 > mkdir build && cd build
 > cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_PROJECTS="clang;compiler-rt" \
-  CMAKE_CXX_COMPILER=/proj/zyuxuan0115/llvm-project-17/build/bin/clang CMAKE_C_COMPILER=/proj/zyuxuan0115/llvm-project-17/build/bin/clang++ ../llvm
+  CMAKE_CXX_COMPILER=/proj/zyuxuan0115/llvm-project-17/build/bin/clang \
+  CMAKE_C_COMPILER=/proj/zyuxuan0115/llvm-project-17/build/bin/clang++ ../llvm
 > make -j
 ```
 
