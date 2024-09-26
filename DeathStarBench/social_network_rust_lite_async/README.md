@@ -1,40 +1,40 @@
-### The call graph of social network
+## The call graph of social network
 
 ![cg](call-graph.png)
 
-### Rest API interface for each function
+## Rest API interface for each function
 
-#### UniqueIdService
+### UniqueIdService
 
 ```bash
 curl 127.0.0.1:8081/function/unique-id-service -d ""
 ```
 
-#### UrlShortenService
+### UrlShortenService
 
 ```bash
 curl 127.0.0.1:8081/function/url-shorten-service -d "[\"http://google.com\",\"http://kate0115.net\"]"
 ```
 
-#### serMentionService
+### serMentionService
 
 ```bash
 curl 127.0.0.1:8081/function/user-mention-service -d "[\"Alice\",\"Bob\"]"
 ```
 
-#### TextService
+### TextService
 
 ```bash
 curl 127.0.0.1:8081/function/text-service -d "Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"
 ```
 
-#### MediaService
+### MediaService
 
 ```bash
 curl 127.0.0.1:8081/function/media-service -d "{\"media_id\":[111,222],\"media_type\":[\"png\",\"jpg\"]}"
 ```
 
-#### RegisterUserWithId
+### RegisterUserWithId
 
 ```bash
 curl 127.0.0.1:8081/function/register-user-with-id -d "{\"first_name\":\"Tom\",\"last_name\":\"Wenisch\",\"username\":\"twenisch\",\"password\":\"umichandgoogle\",\"user_id\":11028}"
@@ -44,37 +44,37 @@ curl 127.0.0.1:8081/function/register-user-with-id -d "{\"first_name\":\"Tom\",\
 curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Todd\",\"last_name\":\"Austin\",\"username\":\"todda\",\"password\":\"uwandupenn\",\"user_id\":11029}"
 ```
 
-#### RegisterUser
+### RegisterUser
 
 ```bash
 curl 127.0.0.1:8081/function/register-user -d "{\"first_name\":\"Yuxuan\",\"last_name\":\"Zhang\",\"username\":\"zyuxuan\",\"password\":\"umichandupenn\"}"
 ```
 
-#### ComposeCreatorWithUsername
+### ComposeCreatorWithUsername
 
 ```bash
 curl 127.0.0.1:8081/function/compose-creator-with-username -d "zyuxuan"
 ```
 
-- <strong>ComposeCreatorWithUserId</strong>
+### ComposeCreatorWithUserId
 
 ```bash
 curl 127.0.0.1:8081/function/compose-creator-with-userid -d "{\"user_id\":11028,\"username\":\"twenisch\"}"
 ```
 
-- <strong>GetUserId</strong>
+### GetUserId
 
 ```bash
 curl 127.0.0.1:8081/function/get-user-id -d "zyuxuan"
 ```
 
-- <strong>UserLogin</strong>
+### UserLogin
 
 ```bash
 curl 127.0.0.1:8081/function/user-login -d "{\"username\":\"zyuxuan\",\"password\":\"umichandupenn\",\"secret\":\"idon'tknowwhatshouldbesecret\"}"
 ```
 
-- <strong>SocialGraphInsertUser</strong>
+### SocialGraphInsertUser
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-insert-user -d "11028"
@@ -84,47 +84,47 @@ curl 127.0.0.1:8080/function/social-graph-insert-user -d "11028"
 curl 127.0.0.1:8080/function/social-graph-insert-user -d "11029"
 ```
 
-- <strong>SocialGraphFollow</strong>
+### SocialGraphFollow
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-follow -d "{\"user_id\":11028,\"followee_id\":11029}"
 ```
 
-- <strong>SocialGraphUnfollow</strong>
+### SocialGraphUnfollow
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-unfollow -d "{\"user_id\":11028,\"followee_id\":11029}"
 ```
 
-- <strong>SocialGraphFollowWithUsername</strong>
+### SocialGraphFollowWithUsername
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-follow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"todda\"}"
 ```
 
-- <strong>SocialGraphUnfollowWithUsername</strong>
+### SocialGraphUnfollowWithUsername
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"todda\"}"
 ```
 
-- <strong>SocialGraphGetFollowers</strong>
+### SocialGraphGetFollowers
   + didn't test writing mongodb's data back to redis part
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-get-followers -d "11029"
 ```
 
-- <strong>SocialGraphGetFollowees</strong>
+### SocialGraphGetFollowees
   + didn't test writing mongodb's data back to redis part
 
 ```bash
 curl 127.0.0.1:8080/function/social-graph-get-followees -d "11028"
 ```
 
-- <strong>StorePost</strong>
+### StorePost
 
 ```bash
 curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"yesterday once more \",\"user_mentions\": [],\"media\":[],\"urls\":[],\"timestamp\":12343249,\"post_type\":\"POST\"}"
@@ -134,7 +134,7 @@ curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"us
 curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"user_id\":11029,\"username\":\"todda\"},\"req_id\":7798,\"text\":\"Hey, this is @todda! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"todda\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[],\"timestamp\":12343242,\"post_type\":\"POST\"}"
 ```
 
-- <strong>ReadPost</strong>
+### ReadPost
 
 ```bash
 curl 127.0.0.1:8080/function/read-post -d "1723"
