@@ -69,7 +69,7 @@ def clean():
   for key in functions:
     cmd = cmd + key + " "
   os.system(cmd)
-  cmd = "rm -rf *.ll *.bc *.o function Implib.so"
+  cmd = "rm -rf *.ll *.bc *.o *.txt function Implib.so"
   os.system(cmd)
 
 
