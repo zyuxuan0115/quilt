@@ -1,10 +1,8 @@
-FROM zyuxuan0115/llvm-17:latest as builder
+FROM zyuxuan0115/llvm-19:latest as builder
 
 # Copy all the sources
 WORKDIR /home/rust
 COPY . .
-
-RUN rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
 
 # build function.o
 RUN chmod 777 merge_tree.py
