@@ -19,10 +19,6 @@ fn main() {
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
-  let redis_uri = get_redis_rw_uri();
-  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
-  let mut con = redis_client.get_connection().unwrap();
-
   let cast_id_strslice: Vec<&str> = cast_id_strs.iter().map(|x| &**x).collect();
   let keys: &[&str] = &cast_id_strslice;
   let result: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
@@ -34,13 +30,16 @@ fn main() {
     cast_infos.push(cast);
   }
 
-
   let mut cast_not_cached: Vec<i64> = Vec::new();
   for (key, _) in &cast_info_ids_not_cached {
     cast_not_cached.push(key[..].parse::<i64>().unwrap());
   }
 
   if cast_not_cached.len() != 0 {
+    let redis_uri = get_redis_rw_uri();
+    let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+    let mut con = redis_client.get_connection().unwrap();
+
     for item in &cast_not_cached {
       let mut cast_id_str: String = "cast_info:".to_string();
       cast_id_str.push_str(&(item.to_string())[..]);
