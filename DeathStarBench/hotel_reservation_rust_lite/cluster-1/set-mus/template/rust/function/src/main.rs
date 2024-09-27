@@ -13,7 +13,7 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let mid: String = format!("attraction-db:{}",mus_info.museum_id);
+  let mid: String = format!("museum:{}",mus_info.museum_id);
   let _: isize = con.hset(&mid[..], "museum_id", mus_info.museum_id).unwrap();
   let _: isize = con.hset(&mid[..], "latitude", mus_info.latitude).unwrap();
   let _: isize = con.hset(&mid[..], "longitude", mus_info.longitude).unwrap();
