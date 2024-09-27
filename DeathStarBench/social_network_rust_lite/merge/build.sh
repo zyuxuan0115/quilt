@@ -9,10 +9,10 @@ ARGS=("$@")
 CALLER=${ARGS[1]}
 
 function build_llvm {
-  sudo docker build -t zyuxuan0115/llvm-17:latest \
+  sudo docker build --no-cache -t zyuxuan0115/llvm-19:latest \
        -f Dockerfile.llvm \
        .
-  sudo docker push zyuxuan0115/llvm-17:latest
+  sudo docker push zyuxuan0115/llvm-19:latest
 }
 
 function build_merge {
@@ -20,14 +20,15 @@ function build_merge {
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
+  cp rm_redundant_bc.py temp
   cp merge.sh temp
   cp merge_tree.py temp
   cp funcTree temp
-  sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/sn-$CALLER-merged:latest \
+  sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/sn-$CALLER-async-merged:latest \
     -f Dockerfile \
     temp
   rm -rf temp
-  sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
+  sudo docker push zyuxuan0115/sn-$CALLER-async-merged:latest
 }
 
 
