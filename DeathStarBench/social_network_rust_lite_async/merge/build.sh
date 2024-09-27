@@ -20,6 +20,7 @@ function build_merge {
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
   cp -r ../OpenFaaSRPC temp
   cp -r ../DbInterface temp
+  cp rm_redundant_bc.py temp
   cp merge.sh temp
   cp merge_tree.py temp
   cp funcTree temp

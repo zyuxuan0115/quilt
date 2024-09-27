@@ -32,8 +32,8 @@ function compile_to_ir {
 
 function merge {
   # prepare for merging
-  rm $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
-  rm $CALLER_FUNC/$WORK_DIR/*no-opt*
+  rm -rf $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
+  rm -rf $CALLER_FUNC/$WORK_DIR/*no-opt*
   ./rm_redundant_bc.py $CALLER_FUNC/$WORK_DIR
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
   mv $CALLER_IR caller.bc
@@ -43,10 +43,10 @@ function merge {
   do
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-    rm $CALLEE_FUNC/$WORK_DIR/std-*.bc
-    rm $CALLEE_FUNC/$WORK_DIR/panic_abort-*.bc
-    rm $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
-    rm $CALLEE_FUNC/$WORK_DIR/*no-opt*
+    rm -rf $CALLEE_FUNC/$WORK_DIR/std-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_abort-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
     ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
     $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.ll
     mv $CALLEE_IR $CALLEE_FUNC.bc
