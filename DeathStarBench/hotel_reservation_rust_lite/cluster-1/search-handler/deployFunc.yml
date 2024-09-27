@@ -8,6 +8,4 @@ functions:
     handler: ./search-handler
     image: zyuxuan0115/hr-search-handler:latest
     secrets:
-    - redis-password
-    - mongodb-password
     - ingress-enable
