@@ -1,6 +1,7 @@
 #!/bin/bash
 LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-19/build/bin
 RUST_LIB=/users/zyuxuan/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
+C_LIB=/lib/x86_64-linux-gnu
 WORK_DIR=template/rust/function/target/x86_64-unknown-linux-gnu/debug/deps
 
 RUST_LIBRUSTC_PATH=$(ls $RUST_LIB/librustc_driver-*.so)
@@ -9,7 +10,6 @@ RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_NAME#"librustc_driver"}
 RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_LINKER_FLAG%".so"}
 
 #LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -ldl"
-#LINKER_FLAGS="-lcurl -lcrypto -lm -lssl -lz -ldl -lpthread"
 LINKER_FLAGS="-lm -lz -ldl -lpthread"
 
 ARGS=("$@")
@@ -65,11 +65,11 @@ function wrap_shared_lib {
   git clone https://github.com/yugr/Implib.so.git
   cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py /lib/x86_64-linux-gnu/libcrypto.so.1.1 2>/dev/null \
+  && ./implib-gen.py $C_LIB/libcrypto.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py /lib/x86_64-linux-gnu/libcurl.so.4 2>/dev/null \
+  && ./implib-gen.py $C_LIB/libcurl.so.4 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py /lib/x86_64-linux-gnu/libssl.so.1.1 2>/dev/null \
+  && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c 
 
   cd .. && cp Implib.so/*.o .  && rm -rf Implib.so
