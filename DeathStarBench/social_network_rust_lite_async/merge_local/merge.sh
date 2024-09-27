@@ -10,7 +10,7 @@ RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_LINKER_FLAG%".so"}
 
 #LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -ldl"
 #LINKER_FLAGS="-lcurl -lcrypto -lm -lssl -lz -ldl -lpthread"
-LINKER_FLAGS="-lcurl -lm -lssl -lz -ldl -lpthread"
+LINKER_FLAGS="-lm -lz -ldl -lpthread"
 
 ARGS=("$@")
 NUM_ARGS=$#
@@ -66,7 +66,12 @@ function wrap_shared_lib {
   cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py /lib/x86_64-linux-gnu/libcrypto.so.1.1 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
+  && ./implib-gen.py /lib/x86_64-linux-gnu/libcurl.so.4 2>/dev/null \
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
+  && ./implib-gen.py /lib/x86_64-linux-gnu/libssl.so.1.1 2>/dev/null \
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c 
+
   cd .. && cp Implib.so/*.o .  && rm -rf Implib.so
 }
 
