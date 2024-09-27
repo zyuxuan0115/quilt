@@ -1,28 +1,25 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
-use std::collections::HashMap;
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let profile_info: SetProfileArgs = serde_json::from_str(&input).unwrap();
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("profile-db");
-  let mongodb_collection = mongodb_database.collection::<HotelProfile>("hotels");
 
-  let new_profile = HotelProfile {
-    hotel_id: profile_info.hotel_id,
-    name: profile_info.name,
-    phone_number: profile_info.phone_number,
-    description: profile_info.description,
-    address: profile_info.address,
-    images: profile_info.images,
-  };
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
-  let mut cursor = mongodb_collection.insert_one(new_profile, None).unwrap();
+  let hid: String = format!("profile:{}",profile_info.hotel_id);
+  let _: isize = con.hset(&hid[..], "hotel_id", hotel_info.hotel_id).unwrap();
+  let _: isize = con.hset(&hid[..], "name", hotel_info.name).unwrap();
+  let _: isize = con.hset(&hid[..], "phone_number", hotel_info.phone_number).unwrap();
+  let _: isize = con.hset(&hid[..], "description", hotel_info.description).unwrap();
+  let _: isize = con.hset(&hid[..], "address", serde_json::to_string(&hotel_info.address).unwrap()).unwrap();
+  let _: isize = con.hset(&hid[..], "images", serde_json::to_string(&hotel_info.images).unwrap()).unwrap();
+
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
