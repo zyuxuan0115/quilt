@@ -16,8 +16,8 @@ fn main() {
   let _: isize = con.hset(&cid[..], "cinema_id", cinema_info.cinema_id).unwrap();
   let _: isize = con.hset(&cid[..], "latitude", cinema_info.latitude).unwrap();
   let _: isize = con.hset(&cid[..], "longitude", cinema_info.longitude).unwrap();
-  let _: isize = con.hset(&cid[..], "cinema_name", mus_info.cinema_name).unwrap();
-  let _: isize = con.hset(&cid[..], "cinema_type", mus_info.cinema_type).unwrap();
+  let _: isize = con.hset(&cid[..], "cinema_name", cinema_info.cinema_name).unwrap();
+  let _: isize = con.hset(&cid[..], "cinema_type", cinema_info.cinema_type).unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
