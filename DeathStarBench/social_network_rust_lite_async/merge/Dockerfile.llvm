@@ -10,10 +10,6 @@ RUN wget https://github.com/Kitware/CMake/releases/download/v3.29.3/cmake-3.29.3
     && tar -vxf cmake-3.29.3-linux-x86_64.tar.gz \
     && mv cmake-3.29.3-linux-x86_64 cmake-3.29  
 
-#RUN wget https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-17.0.5.tar.gz \
-#    && tar -vxf llvmorg-17.0.5.tar.gz \
-#    && mv llvm-project-llvmorg-17.0.5 llvm-project
-
 RUN wget https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-19.1.0.tar.gz \
     && tar -vxf llvmorg-19.1.0.tar.gz \
     && mv llvm-project-llvmorg-19.1.0 llvm-project
