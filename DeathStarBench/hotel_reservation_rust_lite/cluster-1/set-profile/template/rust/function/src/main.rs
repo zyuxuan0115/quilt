@@ -13,12 +13,12 @@ fn main() {
   let mut con = redis_client.get_connection().unwrap();
 
   let hid: String = format!("profile:{}",profile_info.hotel_id);
-  let _: isize = con.hset(&hid[..], "hotel_id", hotel_info.hotel_id).unwrap();
-  let _: isize = con.hset(&hid[..], "name", hotel_info.name).unwrap();
-  let _: isize = con.hset(&hid[..], "phone_number", hotel_info.phone_number).unwrap();
-  let _: isize = con.hset(&hid[..], "description", hotel_info.description).unwrap();
-  let _: isize = con.hset(&hid[..], "address", serde_json::to_string(&hotel_info.address).unwrap()).unwrap();
-  let _: isize = con.hset(&hid[..], "images", serde_json::to_string(&hotel_info.images).unwrap()).unwrap();
+  let _: isize = con.hset(&hid[..], "hotel_id", profile_info.hotel_id).unwrap();
+  let _: isize = con.hset(&hid[..], "name", profile_info.name).unwrap();
+  let _: isize = con.hset(&hid[..], "phone_number", profile_info.phone_number).unwrap();
+  let _: isize = con.hset(&hid[..], "description", profile_info.description).unwrap();
+  let _: isize = con.hset(&hid[..], "address", serde_json::to_string(&profile_info.address).unwrap()).unwrap();
+  let _: isize = con.hset(&hid[..], "images", serde_json::to_string(&profile_info.images).unwrap()).unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
