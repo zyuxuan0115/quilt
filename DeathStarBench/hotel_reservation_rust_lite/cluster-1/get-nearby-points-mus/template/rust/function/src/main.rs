@@ -1,25 +1,56 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use knn::PointCloud;
 use std::collections::HashMap;
+use redis::{Commands, Iter};
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let hotel_loc: GetNearbyPointsMusArgs = serde_json::from_str(&input).unwrap();
 
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("attractions-db");
-  let mongodb_collection = mongodb_database.collection::<Museum>("museums");
-  let cursor = mongodb_collection.find(doc!{}, None).unwrap();
   let mut museums: Vec<Museum> = Vec::new();
-  for doc in cursor {
-    let doc_ = doc.unwrap();
-    museums.push(doc_.clone());
-  } 
+
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
+
+  // Start scanning for keys with a specific prefix
+  let mut cursor: u64 = 0;
+  let prefix = "museum:*"; // Change to your actual prefix
+
+  // Use SCAN command to get matching keys
+  let result: redis::RedisResult<Iter<String>> = con.scan_match(prefix);
+  let mut keys: Vec<String> = Vec::new();
+  match result {
+    Ok(iter) => {
+      keys = iter.map(|x| x).collect();
+    },
+    Err(err) => {
+      println!("Error: finding any of the museum record");
+      panic!("Error: finding any of the museum record");
+    },
+  }
+  for key in keys {
+    let result: redis::RedisResult<(String, f64, f64, String, String)> = redis::cmd("HMGET").arg(&key[..]).arg("museum_id").arg("latitude").arg("longitude").arg("museum_name").arg("museum_type").query(&mut con);
+    match result {
+      Ok((id,lat,long,name,mtype)) => {
+        let mus_info = Museum {
+            museum_id: id,
+            latitude: lat,
+            longitude: long,
+            museum_name: name,
+            museum_type: mtype,
+        };
+        museums.push(mus_info);
+      },
+      Err(_) => {
+        println!("error in loading museum info, with id: {}", key);
+        panic!("error in loading museum info, with id: {}", key);
+      }
+    }
+  }
 
   let museum_hashmap: HashMap<String, String> = museums.iter().map(|x| {
     let new_p: (f64,f64) = (x.latitude, x.longitude); 
