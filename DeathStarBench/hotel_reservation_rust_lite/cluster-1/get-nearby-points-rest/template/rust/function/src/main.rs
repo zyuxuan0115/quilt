@@ -1,25 +1,54 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use knn::PointCloud;
 use std::collections::HashMap;
+use redis::{Commands, Iter};
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let hotel_loc: GetNearbyPointsRestArgs = serde_json::from_str(&input).unwrap();
+  let mut restaurants: Vec<Restaurant> = Vec::new(); 
 
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("attractions-db");
-  let mongodb_collection = mongodb_database.collection::<Restaurant>("restaurants");
-  let cursor = mongodb_collection.find(doc!{}, None).unwrap();
-  let mut restaurants: Vec<Restaurant> = Vec::new();
-  for doc in cursor {
-    let doc_ = doc.unwrap();
-    restaurants.push(doc_.clone());
-  } 
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
+
+  let prefix = "restaurant:*";
+
+  // Use SCAN command to get matching keys
+  let result: redis::RedisResult<Iter<String>> = con.scan_match(prefix);
+  let mut keys: Vec<String> = Vec::new();
+  match result {
+    Ok(iter) => {
+      keys = iter.map(|x| x).collect();
+    },
+    Err(err) => {
+      println!("Error: finding any of the restaurant record");
+      panic!("Error: finding any of the restaurant record");
+    },
+  }
+  for key in keys {
+    let result: redis::RedisResult<(String, f64, f64, String, f32, String)> = redis::cmd("HMGET").arg(&key[..]).arg("restaurant_id").arg("latitude").arg("longitude").arg("restaurant_name").arg("rating").arg("restaurant_type").query(&mut con);
+    match result {
+      Ok((id,lat,long,name,r,rtype)) => {
+        let rest_info = Restaurant {
+            restaurant_id: id,
+            latitude: lat,
+            longitude: long,
+            restaurant_name: name,
+            rating: r,
+            restaurant_type: rtype,
+        };
+        restaurants.push(rest_info);
+      },
+      Err(_) => {
+        println!("error in loading restaurant info, with id: {}", key);
+        panic!("error in loading restaurant info, with id: {}", key);
+      }
+    }
+  }
 
   let restaurant_hashmap: HashMap<String, String> = restaurants.iter().map(|x| {
     let new_p: (f64,f64) = (x.latitude, x.longitude); 
