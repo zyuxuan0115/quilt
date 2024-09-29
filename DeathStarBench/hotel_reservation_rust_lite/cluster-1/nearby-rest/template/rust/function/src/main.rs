@@ -10,6 +10,10 @@ fn main() {
   let mut hid = format!("geo:{}", hotel_id);
   let mut rest_pids: Vec<String> = Vec::new(); 
 
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
+
   let result: redis::RedisResult<(f64, f64)> = redis::cmd("HMGET").arg(&hid[..]).arg("latitude").arg("longitude").query(&mut con);
   match result {
     Ok((lat,long)) => {
