@@ -147,6 +147,7 @@ MODULE_PASS("wholeprogramdevirt", WholeProgramDevirtPass())
 
 MODULE_PASS("merge-rust-func-async", MergeRustFuncAsyncPass())
 MODULE_PASS("merge-rust-func", MergeRustFuncPass())
+MODULE_PASS("remove-redundant", RemoveRedundantPass())
 #undef MODULE_PASS
 
 #ifndef MODULE_PASS_WITH_PARAMS

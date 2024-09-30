@@ -320,6 +320,7 @@
 
 #include "llvm/Transforms/Utils/MergeRustFuncAsync.h"
 #include "llvm/Transforms/Utils/MergeRustFunc.h"
+#include "llvm/Transforms/Utils/RemoveRedundant.h"
 
 using namespace llvm;
 
