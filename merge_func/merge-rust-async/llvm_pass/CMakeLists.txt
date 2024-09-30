@@ -85,6 +85,7 @@ add_llvm_component_library(LLVMTransformUtils
   VNCoercion.cpp
   MergeRustFunc.cpp
   MergeRustFuncAsync.cpp
+  RemoveRedundant.cpp
 
   ADDITIONAL_HEADER_DIRS
   ${LLVM_MAIN_INCLUDE_DIR}/llvm/Transforms
