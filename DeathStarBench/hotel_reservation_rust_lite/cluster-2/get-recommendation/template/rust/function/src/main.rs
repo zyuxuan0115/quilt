@@ -1,31 +1,56 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use ordered_float::OrderedFloat;
 use std::f64::MAX;
 use std::collections::HashMap;
+use redis::{Iter,Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let request: GetRecommendationArgs = serde_json::from_str(&input).unwrap();
   let mut hotel_id_mmc: String = input.clone();
-  hotel_id_mmc.push_str(":review");
+  hotel_id_mmc.push_str(":recommendation");
 
-  // fetch data from mongodb
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("recommendation-db");
-  let mongodb_collection = mongodb_database.collection::<HotelRecomm>("recommendation");
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
-  let cursor = mongodb_collection.find(doc!{}, None).unwrap();
+  let prefix = "recommendation:*";
+
+  // Use SCAN command to get matching keys
+  let result: redis::RedisResult<Iter<String>> = con.scan_match(prefix);
+  let mut keys: Vec<String> = Vec::new();
+  match result {
+    Ok(iter) => {
+      keys = iter.map(|x| x).collect();
+    },
+    Err(err) => {
+      println!("Error: finding any of the recommendation record");
+      panic!("Error: finding any of the recommendation record");
+    },
+  }
 
   let mut hotel_info: Vec<HotelRecomm> = Vec::new();
-
-  for doc in cursor {
-    let doc_ = doc.unwrap();
-    hotel_info.push(doc_.clone());
+  for key in keys {
+    let result: redis::RedisResult<(String,f64,f64,f64,f64)> = redis::cmd("HMGET").arg(&key[..]).arg("hotel_id").arg("latitude").arg("longitude").arg("rate").arg("price").query(&mut con);
+    match result {
+      Ok((id, lat,long,r,p)) => {
+        let new_recomm = HotelRecomm {
+          hotel_id: id,
+          latitude: lat,
+          longitude: long,
+          rate: r,
+          price: p,
+        };
+        hotel_info.push(new_recomm);
+      },
+      Err(_) => {
+        println!("error in loading hotel info, with id: {}", key);
+        panic!("error in loading hotel info, with id: {}", key);
+      }
+    }
   }
 
   let mut hotel_ids: Vec<String> = Vec::new();
