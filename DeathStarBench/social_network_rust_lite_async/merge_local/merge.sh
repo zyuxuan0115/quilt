@@ -67,10 +67,11 @@ function wrap_shared_lib {
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libcrypto.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py $C_LIB/libcurl.so.4 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c 
+
+#  && ./implib-gen.py $C_LIB/libcurl.so.4 2>/dev/null \
+#  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
 
   cd .. && cp Implib.so/*.o .  && rm -rf Implib.so
 }
@@ -79,10 +80,12 @@ function wrap_shared_lib {
 function link {
   $LLVM_DIR/llvm-link $CALLER_FUNC/$WORK_DIR/*.bc -o lib_with_debug_info.bc
   $LLVM_DIR/opt lib_with_debug_info.bc -strip-debug -o lib.bc
-  $LLVM_DIR/opt lib.bc -passes=strip-dead-prototypes -o function.bc
+  $LLVM_DIR/opt lib.bc -passes=strip-dead-prototypes -o func.bc
+  $LLVM_DIR/opt func.bc -passes=remove-redundant -o function.bc
   $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.bc -o function.o
   wrap_shared_lib
-  gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
+  #gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
+  gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
 }
 
 
