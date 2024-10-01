@@ -1,29 +1,29 @@
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{sync::Client};
 use std::collections::HashMap;
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let review_info: SetReviewArgs = serde_json::from_str(&input).unwrap();
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("review-db");
-  let mongodb_collection = mongodb_database.collection::<ReviewComm>("reviews");
 
-  let new_review = ReviewComm {
-    review_id: review_info.review_id,
-    hotel_id: review_info.hotel_id,
-    name: review_info.name,
-    rating: review_info.rating,
-    description: review_info.description,
-    image: review_info.image, 
-  };
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
-  let _res = mongodb_collection.insert_one(new_review, None).unwrap();
-   
+  let key = format!("review:{}",review_info.review_id);
+
+  let img = serde_json::to_string(&review_info.image).unwrap();
+
+  let _: isize = con.hset(&key[..], "review_id", review_info.review_id).unwrap();
+  let _: isize = con.hset(&key[..], "hotel_id", review_info.hotel_id).unwrap();
+  let _: isize = con.hset(&key[..], "name", review_info.name).unwrap();
+  let _: isize = con.hset(&key[..], "rating", review_info.rating).unwrap();
+  let _: isize = con.hset(&key[..], "description", review_info.description).unwrap();
+  let _: isize = con.hset(&key[..], "image", img).unwrap();
+
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
