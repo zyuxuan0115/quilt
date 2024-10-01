@@ -11,7 +11,7 @@ fn main() {
   //let now = Instant::now();
   let request: GetRecommendationArgs = serde_json::from_str(&input).unwrap();
   let mut hotel_id_mmc: String = input.clone();
-  hotel_id_mmc.push_str(":review");
+  hotel_id_mmc.push_str(":recommendation");
 
   // fetch data from mongodb
   let mongodb_uri = get_mongodb_uri();
