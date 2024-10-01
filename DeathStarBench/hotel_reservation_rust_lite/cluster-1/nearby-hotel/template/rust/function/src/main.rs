@@ -1,10 +1,10 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use kdtree::KdTree;
 use kdtree::ErrorKind;
 use kdtree::distance::squared_euclidean;
+use redis::{Iter,Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -14,16 +14,38 @@ fn main() {
   let dimensions = 2;
   let mut kdtree = KdTree::new(dimensions);
 
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("geo-db");
-  let mongodb_collection = mongodb_database.collection::<Point>("geo");
-  let cursor = mongodb_collection.find(doc!{}, None).unwrap();
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
+
+  let prefix = "geo:*";
+
+  // Use SCAN command to get matching keys
+  let result: redis::RedisResult<Iter<String>> = con.scan_match(prefix);
+  let mut keys: Vec<String> = Vec::new();
+  match result {
+    Ok(iter) => {
+      keys = iter.map(|x| x).collect();
+    },
+    Err(err) => {
+      println!("Error: finding any of the hotel record");
+      panic!("Error: finding any of the hotel record");
+    },
+  }
+
   let mut hotels: Vec<([f64;2], String)> = Vec::new();
-  for doc in cursor {
-    let doc_ = doc.unwrap();
-    let new_v: [f64;2] = [doc_.latitude, doc_.longitude];
-    hotels.push((new_v, doc_.id.clone()));
+  for key in keys {
+    let result: redis::RedisResult<(String,f64,f64)> = redis::cmd("HMGET").arg(&key[..]).arg("id").arg("latitude").arg("longitude").query(&mut con);
+    match result {
+      Ok((id, lat,long)) => {
+        let new_v: [f64;2] = [lat, long];
+        hotels.push((new_v,id));
+      },
+      Err(_) => {
+        println!("error in loading hotel info, with id: {}", key);
+        panic!("error in loading hotel info, with id: {}", key);
+      }
+    }
   }
 
   for i in 0..hotels.len() {
