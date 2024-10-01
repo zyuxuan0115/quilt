@@ -60,6 +60,7 @@ PreservedAnalyses RemoveRedundantPass::run(Module &M,
   }
   llvm::errs()<<functionCount<<"\n";
 
+  std::unordered_map<CallInst*, Function*> curl_call_and_func;
   CallInst* call_curl_init = NULL;
   Function* curl_init_func = NULL;
   for (auto f = M.begin(); f != M.end(); f++) {
@@ -71,21 +72,20 @@ PreservedAnalyses RemoveRedundantPass::run(Module &M,
           if (func){
             std::string demangledFuncName = getDemangledRustFuncName(func->getName().str());
             if (demangledFuncName == "curl::init::{{closure}}") {
-              call_curl_init = ci;
-              curl_init_func = func;
-              break;
+              curl_call_and_func[ci] = func;
             }
           }
         }
       }
-      if (curl_init_func) break;
     }
-    if (curl_init_func) break;
   }  
-  llvm::errs()<<"@@@ "<<*call_curl_init<<"\n";
 
-  call_curl_init->eraseFromParent();
-  curl_init_func->eraseFromParent();
+  for (auto it = curl_call_and_func.begin(); it != curl_call_and_func.end(); it++) {
+    llvm::errs()<<"@@@ "<<*it->first<<"\n";
+
+    it->first->eraseFromParent();
+    it->second->eraseFromParent();
+  }
 
   return PreservedAnalyses::all();
 }
