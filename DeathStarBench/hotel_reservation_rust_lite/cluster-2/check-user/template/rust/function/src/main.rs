@@ -1,8 +1,8 @@
-use mongodb::{bson::doc,sync::Client};
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
 use sha256::digest;
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -12,23 +12,24 @@ fn main() {
   let mut pw_sha: String = String::from(&password[..]);
   pw_sha = digest(pw_sha);
 
-  // connect to memcache
-  let uri = get_mongodb_uri();
-  let client = Client::with_uri_str(&uri[..]).unwrap();
-  let database = client.database("user-db");
-  let collection = database.collection::<User>("user");
-  let mongodb_result = collection.find_one(doc! { "username": &username[..] }, None).unwrap();
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
+
+  let key = format!("user:{}",username);
 
   let mut pw_correct = false;
-  match mongodb_result {
-    Some(x) => {
-      if x.password == pw_sha {
+
+  let res: redis::RedisResult<String> = con.hget(&key[..], "password");
+  match res {
+    Ok(x) => {
+      if x==pw_sha {
         pw_correct = true;
-      }    
+      }
     },
-    None => (),
-  };
- 
+    Err(_) => (),
+  }; 
+
   let serialized: String = serde_json::to_string(&pw_correct).unwrap();
 
   send_return_value_to_caller(serialized);

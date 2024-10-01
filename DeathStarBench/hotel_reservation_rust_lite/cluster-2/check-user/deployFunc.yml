@@ -8,6 +8,5 @@ functions:
     handler: ./check-user
     image: zyuxuan0115/hr-check-user:latest
     secrets:
-    - mongodb-password
     - redis-password
     - ingress-enable
