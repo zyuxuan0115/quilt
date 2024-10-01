@@ -1,8 +1,8 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -39,21 +39,34 @@ fn main() {
   }
 
   if rate_not_cached.len() != 0 {
-    let mongodb_uri = get_mongodb_uri();
-    let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-    let mongodb_database = mongodb_client.database("rate-db");
-    let mongodb_collection = mongodb_database.collection::<RatePlan>("inventory");
-    let query = doc!{"hotel_id": doc!{"$in": &rate_not_cached}};
-    let mut cursor = mongodb_collection.find(query, None).unwrap();
-   
-    for doc in cursor {
-      let doc_ = doc.unwrap();
-      // update memcached
-      let mut key: String = doc_.hotel_id.to_owned();
-      key.push_str(":rate");
-      let value = serde_json::to_string(&doc_).unwrap();
-      memcache_client.set(&key[..],&value[..],0).unwrap();
-      hotel_rates.push(doc_);
+    let redis_uri = get_redis_rw_uri();
+    let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+    let mut con = redis_client.get_connection().unwrap();
+
+    for item in &rate_not_cached {
+      let mut hotel_id_str: String = format!("rate:{}", item);
+      let result: redis::RedisResult<(String,String,String,String,String)> = redis::cmd("HMGET").arg(&hotel_id_str[..]).arg("hotel_id").arg("code").arg("in_date").arg("out_date").arg("room_type").query(&mut con);
+      match result {
+        Ok((hid,code,in_d,out_d,rtype)) => {
+          let r_type: RoomType = serde_json::from_str(&rtype).unwrap();
+          let rate_info = RatePlan {
+            hotel_id: hid,
+            code: code,
+            in_date: in_d,
+            out_date: out_d,
+            room_type: r_type,
+          };
+          // update memcached
+          let key = format!("{}:rate", rate_info.hotel_id);
+          let value = serde_json::to_string(&rate_info).unwrap(); 
+          memcache_client.set(&key[..],&value[..],0).unwrap();
+          hotel_rates.push(rate_info);
+        },
+        Err(_) => {
+          println!("error in loading rating info, with id: {}", item);
+          panic!("error in loading rating info, with id: {}", item);
+        }
+      }
     }
   }
 
