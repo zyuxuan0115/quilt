@@ -13,7 +13,7 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let key = format!("review:{}",review_info.review_id);
+  let key = format!("review:{}:{}",review_info.hotel_id, review_info.review_id);
 
   let img = serde_json::to_string(&review_info.image).unwrap();
 
