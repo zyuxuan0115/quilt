@@ -56,7 +56,6 @@ function merge {
     $LLVM_DIR/llvm-dis merged.bc -o merged.ll
     rm -rf $CALLEE_IR
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
-#    cp -r $CALLEE_FUNC/debug/build/* $CALLER_FUNC/debug/build/
   done
   
   mv merged.bc $CALLER_IR
@@ -66,7 +65,8 @@ function merge_with_lib {
   # merge the rest lib code 
   $LLVM_DIR/llvm-link $CALLER_FUNC/debug/deps/*.bc -o func_with_debug_info.bc
   $LLVM_DIR/opt func_with_debug_info.bc -strip-debug -o func.bc
-  $LLVM_DIR/opt func.bc -passes=strip-dead-prototypes -o function.bc
+  $LLVM_DIR/opt func.bc -passes=strip-dead-prototypes -o func2.bc
+  $LLVM_DIR/opt func2.bc -passes=remove-redundant -o function.bc
   $LLVM_DIR/llc -O3 --function-sections --data-sections -filetype=obj function.bc -o function.o
   wrap_lib
 }
@@ -96,7 +96,7 @@ function clean {
     FUNC_NAME=${ARGS[$i]}
     rm -rf $FUNC_NAME
   done
-  rm -rf *.ll
+  rm -rf *.ll *.bc
   rm -rf OpenFaaSRPC DbInterface
 }
 
