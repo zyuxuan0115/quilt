@@ -12,6 +12,7 @@ function build_rust_test {
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface
+    sudo docker system prune
 }
 
 function push_rust_test {

@@ -10,6 +10,7 @@ function build_rust_test {
         -f Dockerfile --no-cache \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
+    sudo docker system prune
 }
 
 function push_rust_test {

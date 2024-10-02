@@ -6,7 +6,7 @@ use std::thread;
 fn main() {
   let time_0 = Instant::now();
   let input: String = get_arg_from_caller();
-  //println!("input:{}", input);
+  println!("input:{}", input);
   let mut text = input;
   let re = Regex::new(r"@[a-zA-Z0-9-_]+").unwrap();
   let mut mentioned_usernames: Vec<String> = Vec::new();
@@ -25,6 +25,7 @@ fn main() {
   let handle = thread::spawn(move || {
     make_rpc("user-mention-service", mentioned_usernames_serialized)
   });
+
   let time_2 = Instant::now();
   let handle2 = thread::spawn(move || {
     make_rpc("url-shorten-service", urls_serialized)
@@ -48,12 +49,12 @@ fn main() {
   };
   let serialized = serde_json::to_string(&return_value).unwrap();
   let time_5 = Instant::now();
-/*
-  println!("before rpcs: {:?}", time_1.duration_since(time_0));
-  println!("1st make_rpc: {:?}", time_2.duration_since(time_1));
-  println!("2nd make_rpc: {:?}", time_3.duration_since(time_2));
-  println!("concurrent exec time: {:?}", time_4.duration_since(time_3));
-  println!("after rpcs: {:?}", time_5.duration_since(time_4));
-*/
+
+  //println!("before rpcs: {:?}", time_1.duration_since(time_0));
+  //println!("1st make_rpc: {:?}", time_2.duration_since(time_1));
+  //println!("2nd make_rpc: {:?}", time_3.duration_since(time_2));
+  //println!("concurrent exec time: {:?}", time_4.duration_since(time_3));
+  //println!("after rpcs: {:?}", time_5.duration_since(time_4));
+
   send_return_value_to_caller(serialized);
 }
