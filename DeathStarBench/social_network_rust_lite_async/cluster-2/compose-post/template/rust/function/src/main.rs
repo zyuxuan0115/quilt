@@ -100,7 +100,7 @@ fn main() {
   let time_3 = Instant::now();
 
   let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
-  let result2 = format!("{}μs", time_2.duration_since(time_1).subsec_nanos()/1000);
+  let result2 = format!("{}μs", time_3.duration_since(time_2).subsec_nanos()/1000);
 
   println!("{}", result);
   println!("{}", result2);
