@@ -4,6 +4,7 @@ use std::time::{SystemTime,Duration, Instant};
 use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
+use redis::{Iter,Commands};
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -33,26 +34,49 @@ fn main() {
     capacity_info.push(cap_info);
   } 
 
-  let mut hotel_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,v)| k).collect();
+  let hotel_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,v)| k).collect();
 
   if hotel_not_cached.len() != 0 {
-    // fetch data from mongodb
-    let mongodb_uri = get_mongodb_uri();
-    let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-    let mongodb_database = mongodb_client.database("reservation-db");
-    let num_collection = mongodb_database.collection::<HotelCapacity>("number");
+    // fetch data from redis
+    let redis_uri = get_redis_rw_uri();
+    let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+    let mut con = redis_client.get_connection().unwrap();
 
-    let query = doc!{"hotel_id": doc!{"$in": &hotel_not_cached}};
-    let mut cursor = num_collection.find(query, None).unwrap();
+    let prefix = "number:*";
 
-    for doc in cursor {
-      let doc_ = doc.unwrap();
-      // update memcached
-      let mut key: String = doc_.hotel_id.to_owned();
-      key.push_str("_cap");
-      let value = serde_json::to_string(&doc_).unwrap();
-      memcache_client.set(&key[..],&value[..],0).unwrap();
-      capacity_info.push(doc_);
+    let result: redis::RedisResult<Iter<String>> = con.scan_match(prefix);
+    let mut keys: Vec<String> = Vec::new();
+
+    match result {
+      Ok(iter) => {
+        keys = iter.map(|x| x).collect();
+      },
+      Err(err) => {
+        println!("Error: cannot find any hotel capacity record");
+        panic!("Error: cannot find any hotel capacity record");
+      },
+    }
+
+    for key in &keys {
+      let res: redis::RedisResult<i32> = con.get(&key[..]);
+      match res {
+        Ok(x) => {
+          let real_hid = key.strip_prefix("number:").unwrap().to_string();
+          let hotel_cap = HotelCapacity {
+            hotel_id: real_hid.clone(),
+            capacity:x, 
+          };
+          let key = format!("{}_cap",real_hid);
+          let value = serde_json::to_string(&hotel_cap).unwrap();
+          memcache_client.set(&key[..],&value[..],0).unwrap();
+          capacity_info.push(hotel_cap);
+        },
+        Err(_) => {
+          let real_hid = key.strip_prefix("number:").unwrap().to_string();
+          println!("Error: cannot find capacity record for hotel_id={}", real_hid);
+          panic!("Error: cannot find capacity record for hotel_id={}", real_hid);
+        }
+      }
     }
   }
 
@@ -107,25 +131,29 @@ fn main() {
     
     // fetch data from mongodb, if not present in memcached
     if hotel_resv_not_cached.len() != 0 {
-      let mongodb_uri = get_mongodb_uri();
-      let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-      let mongodb_database = mongodb_client.database("reservation-db");
-      let resv_collection = mongodb_database.collection::<HotelReservation>("reservation");
+      let redis_uri = get_redis_rw_uri();
+      let redis_client = redis::Client::open(&redis_uri[..]).unwrap(); 
+      let mut con = redis_client.get_connection().unwrap();
 
       for item in hotel_resv_not_cached {
         let parts = item[..].split("_").collect::<Vec<&str>>();
         if parts.len() == 3 {
-          let query = doc!{"hotel_id": &parts[0][..], "in_date": &parts[1][..], "out_date": &parts[2][..]};
-          let result = resv_collection.find_one(query, None).unwrap();
-          match result {
-            Some(x) => {
-              // update memcached
+          let key = format!("reservation:{}:{}:{}", &parts[0][..], &parts[1][..], &parts[2][..]);
+          let res: redis::RedisResult<i32> = con.get(&key[..]);
+          match res {
+            Ok(x) => {
+              let resv_info = HotelReservation {
+                hotel_id: (&parts[0][..]).to_owned(),
+                in_date: (&parts[1][..]).to_owned(),
+                out_date: (&parts[2][..]).to_owned(),
+                number: x,
+              };
               let key: String = item.clone();
-              let value = serde_json::to_string(&x.number).unwrap();
+              let value = serde_json::to_string(&resv_info).unwrap();
               memcache_client.set(&key[..],&value[..],0).unwrap();
-              reservation_info.push(x.clone()); 
+              reservation_info.push(resv_info); 
             },
-            None => {
+            Err(_) => {
               let resv_info = HotelReservation {
                 hotel_id: (&parts[0][..]).to_owned(),
                 in_date: (&parts[1][..]).to_owned(),
@@ -133,7 +161,7 @@ fn main() {
                 number: 0,
               };
               reservation_info.push(resv_info);
-            }
+            },
           }
         }
       }
