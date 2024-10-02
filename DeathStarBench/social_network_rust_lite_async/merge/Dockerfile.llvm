@@ -17,6 +17,8 @@ RUN wget https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-19.1.0.t
 RUN git clone https://github.com/zyuxuan0115/faas-test.git \
     && cp /faas-test/merge_func/merge-rust-async/llvm_pass/MergeRustFuncAsync.h   /llvm-project/llvm/include/llvm/Transforms/Utils/ \
     && cp /faas-test/merge_func/merge-rust-async/llvm_pass/MergeRustFuncAsync.cpp /llvm-project/llvm/lib/Transforms/Utils/ \
+    && cp /faas-test/merge_func/merge-rust-async/llvm_pass/RemoveRedundant.h   /llvm-project/llvm/include/llvm/Transforms/Utils/ \
+    && cp /faas-test/merge_func/merge-rust-async/llvm_pass/RemoveRedundant.cpp /llvm-project/llvm/lib/Transforms/Utils/ \
     && cp /faas-test/merge_func/merge-rust-func/llvm-pass/MergeRustFunc.h   /llvm-project/llvm/include/llvm/Transforms/Utils/ \
     && cp /faas-test/merge_func/merge-rust-func/llvm-pass/MergeRustFunc.cpp /llvm-project/llvm/lib/Transforms/Utils/ \
     && cp /faas-test/merge_func/CMakeLists.txt    /llvm-project/llvm/lib/Transforms/Utils/ \
