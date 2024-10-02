@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-mongodb = { version = "2.8.2", default-features = false, features = ["sync"] }
 memcache = "0.17.2"
 chrono = "0.4.38"
 serde = "1.0.197"
