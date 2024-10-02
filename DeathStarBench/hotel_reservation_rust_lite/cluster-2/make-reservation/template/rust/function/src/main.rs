@@ -1,9 +1,9 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
+use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -15,10 +15,10 @@ fn main() {
   // (1) connect to memcached
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();
-  // (2) connect to mongodb
-  let mongodb_uri = get_mongodb_uri();
-  let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-  let mongodb_database = mongodb_client.database("reservation-db");
+  // (2) connect to redis
+  let redis_uri = get_redis_rw_uri();
+  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+  let mut con = redis_client.get_connection().unwrap();
 
   let hotel_id_cap_mmc:String = format!("{}_cap", hotel_id);
   let result: Option<String> = memcache_client.get(&hotel_id_cap_mmc[..]).unwrap();
@@ -30,20 +30,18 @@ fn main() {
       hotel_capacity = x.parse::<i32>().unwrap();
     },
     None => {
-      let num_collection = mongodb_database.collection::<HotelCapacity>("number");
-
-      let query = doc!{"hotel_id":hotel_id.clone()};
-      let res = num_collection.find_one(query, None).unwrap();
+      let key = format!("number:{}",hotel_id);
+      let res: redis::RedisResult<i32> = con.get(&key[..]);
 
       match res {
-        Some(x) => {
-          hotel_capacity = x.capacity;
-          memcache_client.set(&hotel_id[..], x.capacity.to_string(), 0).unwrap();
+        Ok(x) => {
+          hotel_capacity = x;
+          memcache_client.set(&hotel_id[..], x.to_string(), 0).unwrap();
         },
-        None => {
+        Err(_) => {
           println!("Hotel {} is not found in MongoDB;", hotel_id);
           panic!("Hotel {} is not found in MongoDB;", hotel_id);
-        },
+        }
       }
     },
   } 
@@ -95,27 +93,27 @@ fn main() {
 
   // fetch data from mongodb, if not present in memcached
   if hotel_resv_not_cached.len() != 0 {
-    let mongodb_uri = get_mongodb_uri();
-    let mongodb_client = Client::with_uri_str(&mongodb_uri[..]).unwrap();
-    let mongodb_database = mongodb_client.database("reservation-db");
-    let resv_collection = mongodb_database.collection::<HotelReservation>("reservation");
-
     for item in hotel_resv_not_cached {
       let parts = item[..].split("_").collect::<Vec<&str>>();
       if parts.len() == 3 {
-        let query = doc!{"hotel_id": &parts[0][..], "in_date": &parts[1][..], "out_date": &parts[2][..]};
-        let result = resv_collection.find_one(query, None).unwrap();
-        match result {
-          Some(x) => {
-            // update memcached
-            let key: String = item.clone();
-            let value = serde_json::to_string(&x.number).unwrap();
-            memcache_client.set(&key[..],&value[..],0).unwrap();
-            reservation_info.push(x.clone());
-          },
-          None => {
+        let key = format!("reservation:{}:{}:{}", &parts[0][..],&parts[1][..],&parts[2][..]);
+        let res: redis::RedisResult<i32> = con.get(&key[..]);
+        match res {
+          Ok(x) => {
             let resv_info = HotelReservation {
-              hotel_id:  (&parts[0][..]).to_string(),
+              hotel_id: (&parts[0][..]).to_string(),
+              in_date: (&parts[1][..]).to_string(),
+              out_date: (&parts[2][..]).to_string(),
+              number: x,
+            };
+            let key: String = item.clone();
+            let value = serde_json::to_string(&x).unwrap();
+            memcache_client.set(&key[..],&value[..],0).unwrap();
+            reservation_info.push(resv_info);
+          },
+          Err(_) => {
+            let resv_info = HotelReservation {
+              hotel_id: (&parts[0][..]).to_string(),
               in_date: (&parts[1][..]).to_string(),
               out_date: (&parts[2][..]).to_string(),
               number: 0,
@@ -142,11 +140,9 @@ fn main() {
       let key_mmc: String = format!("{}_{}_{}", item.hotel_id, item.in_date, item.out_date);
       let new_resv_num: i32 = item.number + args.room_number;
       memcache_client.set(&key_mmc[..], new_resv_num.to_string(), 0).unwrap();
-      
-      let search_query = doc!{"hotel_id": &item.hotel_id[..], "in_date": &item.in_date[..], "out_date": &item.out_date[..]};
-      let update_query = doc!{"$set":doc!{"room_number":item.number + args.room_number}};
-      let resv_collection = mongodb_database.collection::<HotelReservation>("reservation"); 
-      let _ = resv_collection.update_one(search_query, update_query, None).unwrap(); 
+      // update redis  
+      let redis_key = format!("reservation:{}:{}:{}",&item.hotel_id[..],&item.in_date[..],&item.out_date[..]);
+      let _:isize = con.set(&redis_key[..], item.number + args.room_number).unwrap(); 
     }
   }
   
