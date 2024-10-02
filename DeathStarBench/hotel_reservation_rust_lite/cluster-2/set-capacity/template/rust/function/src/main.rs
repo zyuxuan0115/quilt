@@ -1,7 +1,6 @@
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use std::collections::HashMap;
 use redis::Commands;
 
 fn main() {
