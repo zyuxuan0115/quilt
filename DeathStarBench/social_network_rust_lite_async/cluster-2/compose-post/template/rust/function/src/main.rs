@@ -6,7 +6,6 @@ use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
-
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
   // call UniqueIdService
   let handle_uuid = thread::spawn(move || {
@@ -68,7 +67,7 @@ fn main() {
   let handle_store_post = thread::spawn(move || {
     make_rpc("store-post", post_str)
   });
-
+  
   // call WriteUserTimeline
   let write_u_tl_arg =  WriteUserTimelineArgs {
     post_id: post.post_id,
@@ -92,7 +91,6 @@ fn main() {
     make_rpc("write-home-timeline", write_h_tl_arg_str)
   });
 
-
   let time_2 = Instant::now();
 
   let _ = handle_store_post.join().unwrap();
@@ -101,8 +99,11 @@ fn main() {
 
   let time_3 = Instant::now();
 
-  println!("{:?}", time_1.duration_since(time_0));
-  println!("{:?}", time_3.duration_since(time_2));
+  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
+  let result2 = format!("{}μs", time_2.duration_since(time_1).subsec_nanos()/1000);
+
+  println!("{}", result);
+  println!("{}", result2);
   send_return_value_to_caller("".to_string());
 }
 
