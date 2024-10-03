@@ -1,17 +1,14 @@
-FROM zyuxuan0115/sn-rust-env as builder
+FROM zyuxuan0115/rust-env as builder
 # Copy all the sources
 COPY function ./function
 COPY OpenFaaSRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
  
-#ENV CARGO_TARGET_DIR=/home/rust/target
 WORKDIR /home/rust/function
 RUN cargo build --release 
 
 FROM ubuntu:focal as final
 
-#RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-# && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev zlib1g-dev
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev \
  && rm -rf /var/lib/apt/lists/*
