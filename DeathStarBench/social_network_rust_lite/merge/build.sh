@@ -28,7 +28,7 @@ function build_merge {
     -f Dockerfile \
     temp
   rm -rf temp
-#  sudo docker system prune -f
+  sudo docker system prune -f
   sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
 }
 
