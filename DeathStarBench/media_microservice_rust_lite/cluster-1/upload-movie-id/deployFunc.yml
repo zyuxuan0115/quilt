@@ -9,5 +9,4 @@ functions:
     image: zyuxuan0115/mm-upload-movie-id:latest
     secrets:
     - redis-password
-    - mongodb-password
     - ingress-enable
