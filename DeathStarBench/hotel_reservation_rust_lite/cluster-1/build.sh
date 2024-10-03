@@ -16,9 +16,9 @@ function build {
 }
 
 function build_0 {
-    sudo docker build -t zyuxuan0115/sn-rust-env:latest \
+    sudo docker build -t zyuxuan0115/rust-env:latest \
         -f Dockerfile .
-    sudo docker push zyuxuan0115/sn-rust-env:latest
+    sudo docker push zyuxuan0115/rust-env:latest
 }
 
 function deploy {

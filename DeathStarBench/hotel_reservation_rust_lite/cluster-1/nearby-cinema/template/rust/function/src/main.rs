@@ -15,7 +15,7 @@ fn main() {
   let mut hid = format!("geo:{}", hotel_id);
   let mut cinema_pids: Vec<String> = Vec::new(); 
 
-  let result: redis::RedisResult<(f64, f64)> = redis::cmd("HMGET").arg(&hid[..]).arg("latitude").arg("longititude").query(&mut con);
+  let result: redis::RedisResult<(f64, f64)> = redis::cmd("HMGET").arg(&hid[..]).arg("latitude").arg("longitude").query(&mut con);
   match result {
     Ok((lat,long)) => {
       let args = GetNearbyPointsCinemaArgs {
