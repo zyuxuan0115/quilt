@@ -4,19 +4,12 @@ RUST_LIB=/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
 C_LIB=/lib/x86_64-linux-gnu
 
 WORK_DIR=debug/deps
-#RUST_LIBSTD_PATH=$(ls $RUST_LIB/libstd-*.so)
-#RUST_LIBSTD_NAME=$(basename $RUST_LIBSTD_PATH)
-#RUST_LIBSTD_LINKER_FLAG=${RUST_LIBSTD_NAME#"libstd"}
-#RUST_LIBSTD_LINKER_FLAG=${RUST_LIBSTD_LINKER_FLAG%".so"}
 
 RUST_LIBRUSTC_PATH=$(ls $RUST_LIB/librustc_driver-*.so)
 RUST_LIBRUSTC_NAME=$(basename $RUST_LIBRUSTC_PATH)
 RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_NAME#"librustc_driver"}
 RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_LINKER_FLAG%".so"}
 
-#LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -lrustc_driver$RUST_LIBRUSTC_LINKER_FLAG -ltest$RUST_LIBTEST_LINKER_FLAG "
-#LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -lpthread -ldl"
-#LINKER_FLAGS="-lcurl -lcrypto -lm -lssl -lz -lpthread -ldl"
 LINKER_FLAGS="-lm -lz -lpthread -ldl"
 
 ARGS=("$@")
@@ -41,8 +34,8 @@ function compile_to_ir {
 
 function merge {
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  rm $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
-  rm $CALLER_FUNC/$WORK_DIR/*no-opt*
+  rm -rf $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
+  rm -rf $CALLER_FUNC/$WORK_DIR/*no-opt*
   ./rm_redundant_bc.py $CALLER_FUNC/$WORK_DIR
   mv $CALLER_IR caller.bc
   $LLVM_DIR/llvm-dis caller.bc -o merged.ll
@@ -51,19 +44,18 @@ function merge {
   do
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-    rm $CALLEE_FUNC/$WORK_DIR/std-*.bc
-    rm $CALLEE_FUNC/$WORK_DIR/panic_abort-*.bc
-    rm $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
-    rm $CALLEE_FUNC/$WORK_DIR/*no-opt*
+    rm -rf $CALLEE_FUNC/$WORK_DIR/std-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_abort-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
     ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
-    $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.ll
+    $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rra -o callee.ll
     $LLVM_DIR/llvm-link merged.ll callee.ll -S -o caller_and_callee.ll
     $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
-    $LLVM_DIR/opt caller_and_callee_nodebug.ll -passes=merge-rust-func-async -callee-name-rra=$CALLEE_FUNC -o merged.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.ll -passes=merge-rust-func -callee-name-rra=$CALLEE_FUNC -o merged.bc
     $LLVM_DIR/llvm-dis merged.bc -o merged.ll
-    rm $CALLEE_IR
+    rm -rf $CALLEE_IR
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
-#    cp -r $CALLEE_FUNC/debug/build/* $CALLER_FUNC/debug/build/
   done
   
   mv merged.bc $CALLER_IR
@@ -73,24 +65,10 @@ function merge_with_lib {
   # merge the rest lib code 
   $LLVM_DIR/llvm-link $CALLER_FUNC/debug/deps/*.bc -o func_with_debug_info.bc
   $LLVM_DIR/opt func_with_debug_info.bc -strip-debug -o func.bc
-  $LLVM_DIR/opt func.bc -passes=strip-dead-prototypes -o function.bc
+  $LLVM_DIR/opt func.bc -passes=strip-dead-prototypes -o func2.bc
+  $LLVM_DIR/opt func2.bc -passes=remove-redundant -o function.bc
   $LLVM_DIR/llc -O3 --function-sections --data-sections -filetype=obj function.bc -o function.o
-
   wrap_lib
-
-#  STATIC_RING_LIB_DIR=$(find $CALLER_FUNC/debug/build/ -type d -name ring-*)
-#  STATIC_RING_LIBS=""
-#  for entry in $STATIC_RING_LIB_DIR
-#  do 
-#    for dir in $entry/*
-#    do
-#      BASE_NAME=$(basename $dir)
-#      if [[ "$BASE_NAME" = "out" ]] ; then
-#        STATIC_RING_LIBS=$(ls $dir/libring_*.a)
-#      fi
-#    done
-#  done
-#  cp $STATIC_RING_LIBS .
 }
 
 
@@ -99,8 +77,6 @@ function wrap_lib {
   cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libcrypto.so.1.1 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py $C_LIB/libcurl.so.4 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
@@ -111,9 +87,7 @@ function wrap_lib {
 
 
 function link {
-#  STATIC_RING_LIBS=$(ls libring_*.a)
-#  g++ -no-pie -L$RUST_LIB function.o -o function $LINKER_FLAGS $STATIC_RING_LIBS
-  gcc -no-pie -Wl,--as-needed -Wl,--strip-debug -Wl,--gc-sections -L$RUST_LIB *.o -o function $LINKER_FLAGS
+  gcc -no-pie -Wl,--as-needed -Wl,--strip-debug -Wl,--gc-sections -Wl,-O2 -Wl,--strip-all *.o -o function $LINKER_FLAGS
 }
 
 function clean {
@@ -122,7 +96,7 @@ function clean {
     FUNC_NAME=${ARGS[$i]}
     rm -rf $FUNC_NAME
   done
-  rm -rf *.ll
+  rm -rf *.ll *.bc
   rm -rf OpenFaaSRPC DbInterface
 }
 

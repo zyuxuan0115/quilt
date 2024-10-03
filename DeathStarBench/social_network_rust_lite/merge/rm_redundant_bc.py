@@ -25,8 +25,8 @@ def main():
           print(file)
           os.system("mv "+file+" "+sys.argv[1]+"/function_keep.bc")
     
-    os.system("rm "+sys.argv[1]+"/*.rcgu.bc");
-    os.system("rm "+sys.argv[1]+"/*.rcgu.o");
+    os.system("rm -rf "+sys.argv[1]+"/*.rcgu.bc");
+    os.system("rm -rf "+sys.argv[1]+"/*.rcgu.o");
 
 
 if __name__ == "__main__":
