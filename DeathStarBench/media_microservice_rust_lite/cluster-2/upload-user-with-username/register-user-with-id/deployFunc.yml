@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  register-user-with-id:
+    lang: rust
+    handler: ./register-user-with-id
+    image: zyuxuan0115/mm-register-user-with-id:latest
+    secrets:
+    - ingress-enable
+    - redis-password
