@@ -10,8 +10,11 @@ RUN cargo build --release
 
 FROM ubuntu:focal as final
 
+#RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
+# && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev zlib1g-dev
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
- && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev zlib1g-dev
+ && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev \
+ && rm -rf /var/lib/apt/lists/*
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC addgroup --system app && adduser -system app
 
 ENV PATH="/users/root/.local/bin:${PATH}"
