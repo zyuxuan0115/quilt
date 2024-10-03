@@ -1,4 +1,4 @@
-FROM zyuxuan0115/sn-rust-env as builder
+FROM zyuxuan0115/rust-env as builder
 # Copy all the sources
 COPY function ./function
 COPY OpenFaaSRPC ./OpenFaaSRPC
