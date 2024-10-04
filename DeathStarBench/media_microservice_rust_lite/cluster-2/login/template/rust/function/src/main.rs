@@ -47,7 +47,6 @@ fn main() {
     },
     None => (),
   }
-
   let mut user_salt = username.clone();
   user_salt.push_str(":salt");
   let result = memcache_client.get(&user_salt[..]).unwrap();
@@ -58,10 +57,10 @@ fn main() {
     },
     None => (),
   }
-
   let mut user_user_id = username.clone();
   user_user_id.push_str(":user_id");
   let result = memcache_client.get(&user_user_id[..]).unwrap();
+
   match result {
     Some(x) => {
       user_id_str = x;
@@ -70,7 +69,6 @@ fn main() {
     },
     None => (),
   }
-
   if !(mmc_has_user_id && mmc_has_salt && mmc_has_pw) {
     let redis_uri = get_redis_rw_uri();
     let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
@@ -81,7 +79,7 @@ fn main() {
 
     let res: redis::RedisResult<String> = con.hget(&uname[..], "user_id");
     let res: redis::RedisResult<(i64,String,String,String)>
-          = redis::cmd("HMGET").arg(&user_user_id[..]).arg("user_id").arg("username").arg("salt")
+          = redis::cmd("HMGET").arg(&uname[..]).arg("user_id").arg("username").arg("salt")
                                .arg("password").query(&mut con);
 
     match res {
@@ -92,8 +90,8 @@ fn main() {
         user_id_str = user_id.to_string();
       },
       Err(_) => {
-        println!("User {} already existed", username);
-        panic!("User {} already existed", username);
+        println!("User {} doesn't existed", username);
+        panic!("User {} doesn't existed", username);
       },
     } 
   }
