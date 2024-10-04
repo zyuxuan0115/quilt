@@ -24,7 +24,7 @@ fn main() {
       let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
       let mut con = redis_client.get_connection().unwrap();
 
-      let mut mtitle: String = "movie-id:".to_string();
+      let mut mtitle: String = "movie_id:".to_string();
       mtitle.push_str(&movie_info.title[..]);
 
       let res: redis::RedisResult<String> = con.hget(&mtitle[..], "movie_id");
