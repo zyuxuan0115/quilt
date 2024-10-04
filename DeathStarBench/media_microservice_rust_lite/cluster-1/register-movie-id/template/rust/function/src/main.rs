@@ -19,8 +19,8 @@ fn main() {
 
   match res {
     Ok(x) => {
-      println!("Movie {} is already in reids;", movie_info.title);
-      panic!("Movie {} is already in reids;", movie_info.title);
+      println!("Movie {} is already in redis;", movie_info.title);
+      panic!("Movie {} is already in redis;", movie_info.title);
     },
     Err(_) => {
       let _: isize = con.hset(&mtitle[..], "movie_id", &movie_info.movie_id[..]).unwrap();
