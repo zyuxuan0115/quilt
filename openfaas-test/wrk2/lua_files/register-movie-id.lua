@@ -31,8 +31,9 @@ end
 request = function(req_id)
   counter = counter + 1
   local movie_idx = counter % 1000 + 5999000
-  local movie_id = "tt" .. tostring(user_index)
-  local title = stringRandom(20)
+  local title_idx = counter % 1000
+  local movie_id = "tt" .. tostring(movie_idx)
+  local title = "movie_" .. tostring(title_idx)
 
   content = '{"movie_id":"' .. movie_id .. '","title":"' .. title .. '"}' 
 
