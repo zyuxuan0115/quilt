@@ -48,15 +48,23 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
     Function *CalleeFunc = M.getFunction("callee");
 
-    InvokeInst* RPCInst = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
-    if (!RPCInst) {
+    Instruction* RPCInst_i = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
+    if (!RPCInst_i) {
       llvm::errs()<<"Error: no RPC callee find in the caller function\n";
       return PreservedAnalyses::all();
     }
 
-    std::string CalleeName = getRPCCalleeName(RPCInst);
+    std::string CalleeName = getRPCCalleeName(RPCInst_i);
+    Function* NewCalleeFunc;
 
-    Function* NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst, CalleeName_rr);
+    if (isa<InvokeInst>(RPCInst_i)) {
+      InvokeInst* RPCInst = dyn_cast<InvokeInst>(RPCInst_i);
+      NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst, CalleeName_rr);
+    }
+    else if (isa<CallInst>(RPCInst_i)) {
+      CallInst* RPCInst = dyn_cast<CallInst>(RPCInst_i);
+      NewCalleeFunc = createRustNewCallee2(CalleeFunc, RPCInst, CalleeName_rr);
+    }
     deleteCalleeInputOutputFunc(NewCalleeFunc);
     
     Function* f1 = M.getFunction("main_callee_rust");
@@ -81,7 +89,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
 
 
-std::string MergeRustFuncPass::getRPCCalleeName(InvokeInst* RPCInst){
+std::string MergeRustFuncPass::getRPCCalleeName(Instruction* RPCInst){
   Value* funcNameValue = RPCInst->getOperand(1);
   //llvm::outs()<<*funcNameValue;
 
@@ -207,6 +215,60 @@ Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeIns
 
 
 
+Function* MergeRustFuncPass::createRustNewCallee2(Function* CalleeFunc, CallInst* call, std::string CalleeName_rr){
+  std::string calleeName;
+  for (unsigned i=0; i<CalleeName_rr.size(); i++) {
+    if (CalleeName_rr[i]=='-')
+      calleeName.push_back('_');
+    else 
+      calleeName.push_back(CalleeName_rr[i]);
+  }
+
+  // based on the RPC and callee function, create a new callee
+  // function 
+  Module* M = CalleeFunc->getParent();
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+  for (unsigned i=0; i<call->getNumOperands(); i++){
+    Value* arg = call->getOperand(i);
+    if ((i==0) || (i==3) ){
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+    }
+  }
+
+  FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), argumentTypes, false);
+  Function * NewCalleeFunc = Function::Create(FuncType, CalleeFunc->getLinkage(), calleeName.c_str(), M);
+  ValueToValueMapTy VMap;
+  SmallVector<ReturnInst*, 8> Returns;
+  CloneFunctionInto(NewCalleeFunc, CalleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+  // set attributes for the new callee function's arguments
+  std::vector<AttributeSet> argumentAttrs;
+  Function* RPCFunction = call->getCalledFunction();
+  AttributeList AttrList = RPCFunction->getAttributes();
+  argumentAttrs.push_back(AttrList.getParamAttrs(0));
+  argumentAttrs.push_back(AttrList.getParamAttrs(3));
+
+  AttributeList NewCalleeAttrList  = NewCalleeFunc->getAttributes();
+  AttributeSet returnAttr = NewCalleeAttrList.getRetAttrs();
+  AttributeSet funcAttr = NewCalleeAttrList.getFnAttrs();
+
+  NewCalleeFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+
+  // convert the RPC into normal function call 
+  CallInst* newCall = CallInst::Create(FuncType, NewCalleeFunc, arguments ,"", call);
+  AttributeList callInstAttr = call->getAttributes();
+  newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+  call->eraseFromParent();
+
+  return NewCalleeFunc;
+}
+
+
+
+
+
 
 void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
   Module* M = NewCalleeFunc->getParent();
@@ -318,7 +380,7 @@ CallInst* MergeRustFuncPass::findCallByCalleePrefix(Function* f, std::string pre
 
 
 
-InvokeInst* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string calleeName){
+Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string calleeName){
   std::string prefix = "OpenFaaSRPC::make_rpc";
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
@@ -329,7 +391,15 @@ InvokeInst* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string call
           std::string CalleeName = getRPCCalleeName(invoke);
 //          llvm::errs()<<"arg: "<<calleeName<<"\n";
 //          llvm::errs()<<"from ir: "<< CalleeName<<"\n";
-          if (CalleeName == calleeName) return invoke;
+          if (CalleeName == calleeName) return dyn_cast<Instruction>(invoke);
+        }
+      }
+      else if (isa<CallInst>(IB)) {
+        CallInst* call = dyn_cast<CallInst>(IB);
+        std::string realname = demangle(call->getCalledFunction()->getName());
+        if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix)) {
+          std::string CalleeName = getRPCCalleeName(call);
+          if (CalleeName == calleeName) return dyn_cast<CallInst>(call);
         }
       }
     }
