@@ -13,6 +13,11 @@ using namespace llvm;
 static cl::opt<bool> RenameCallee_rr(
                                      "rename-callee-rr", cl::init(false),
                                      cl::desc("rename the rust callee functions"));
+
+static cl::opt<bool> MergeExistingCallee_rr(
+                                     "merge-existing-rr", cl::init(false),
+                                     cl::desc("merge with existing rust callee functions"));
+
 static cl::opt<std::string> CalleeName_rr(
                                      "callee-name-rr", cl::Hidden,
                                      cl::desc("callee function name"),
@@ -273,7 +278,7 @@ Function* MergeRustFuncPass::createRustNewCallee2(Function* CalleeFunc, CallInst
 void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
   Module* M = NewCalleeFunc->getParent();
    // In the new callee function, change the way to get input 
-  CallInst* InputFuncCall = findCallByCalleePrefix(NewCalleeFunc, "OpenFaaSRPC::get_arg_from_caller");
+  CallInst* InputFuncCall = getCallByDemangledName(NewCalleeFunc, "OpenFaaSRPC::get_arg_from_caller");
   Value* allocValue = InputFuncCall->getOperand(0);
   if (!InputFuncCall) return;
 
@@ -306,7 +311,7 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
 
   // In the new callee function, change the way to send output back to caller
-  InvokeInst* OutputFuncCall = findInvokeByCalleePrefix(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
+  InvokeInst* OutputFuncCall = getInvokeByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
 
   if (!OutputFuncCall) return;
 
@@ -341,45 +346,6 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
 
 
-
-InvokeInst* MergeRustFuncPass::findInvokeByCalleePrefix(Function* f, std::string prefix){
-  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if ( isa<InvokeInst>(IB) ){
-        InvokeInst* invoke = dyn_cast<InvokeInst>(IB);
-        std::string realname = demangle(invoke->getCalledFunction()->getName());
-        if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix))
-          return invoke;
-      }
-    }
-  }
-  return NULL;
-}
-
-
-
-
-
-
-CallInst* MergeRustFuncPass::findCallByCalleePrefix(Function* f, std::string prefix){
-  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if ( isa<CallInst>(IB) ){
-        CallInst* call = dyn_cast<CallInst>(IB);
-        std::string realname = demangle(call->getCalledFunction()->getName());
-        if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix))
-          return call;
-      }
-    }
-  }
-  return NULL;
-}
-
-
-
-
-
-
 Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string calleeName){
   std::string prefix = "OpenFaaSRPC::make_rpc";
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
@@ -389,8 +355,6 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
         std::string realname = demangle(invoke->getCalledFunction()->getName());
         if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix)) {
           std::string CalleeName = getRPCCalleeName(invoke);
-//          llvm::errs()<<"arg: "<<calleeName<<"\n";
-//          llvm::errs()<<"from ir: "<< CalleeName<<"\n";
           if (CalleeName == calleeName) return dyn_cast<Instruction>(invoke);
         }
       }
@@ -406,3 +370,84 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
   }
   return NULL; 
 }
+
+
+
+
+
+CallInst* MergeRustFuncPass::getCallByDemangledName(Function* f, std::string fname) {
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)){
+        CallInst *ci = dyn_cast<CallInst>(IB);
+        Function* CalledFunc = ci->getCalledFunction();
+        std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
+        if (demangled == fname) return ci;
+      }
+    }
+  }
+  return NULL; 
+}
+
+
+
+
+
+InvokeInst* MergeRustFuncPass::getInvokeByDemangledName(Function* f, std::string fname) {
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<InvokeInst>(IB)) {
+        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
+        std::string demangled = getDemangledRustFuncName(ii->getCalledFunction()->getName().str());
+        if (demangled == fname) return ii; 
+      } 
+    }
+  }
+  return NULL; 
+}
+
+
+
+Function* MergeRustFuncPass::getFunctionByDemangledName(Module* M, std::string fname) {
+  for (Module::iterator f = M->begin(); f != M->end(); f++){
+    Function* func = dyn_cast<Function>(f);
+    std::string demangled = getDemangledRustFuncName(func->getName().str());
+    if (demangled == fname) return func;
+  }
+  return NULL;
+}
+
+
+
+
+
+std::string MergeRustFuncPass::getDemangledRustFuncName(std::string MangledFuncName) {
+  std::string command = demangle_bin + " \'" + MangledFuncName + "\'";
+
+  char* command_cstr = new char [command.length()+1];
+  strcpy (command_cstr, command.c_str());
+
+  FILE* fp1 = popen(command_cstr, "r");
+
+  while (fp1 == NULL){
+    sleep(1);
+    fp1 = popen(command_cstr, "r");
+    llvm::errs()<<"[tracer] fail to run demangle_rust_funcname\n";
+    llvm::errs()<<command<<"\n";
+  }
+
+  char path1[3000];
+  std::vector<std::string> lines;
+  while (fgets(path1, sizeof(path1), fp1) != NULL) {
+    std::string line(path1);
+    lines.push_back(line);
+  }
+  pclose(fp1);
+  if (lines.size()==1) { 
+    return lines[0];
+  }
+  return "";
+}
+
+
+

@@ -33,6 +33,7 @@
 #include "llvm/Support/CommandLine.h"
 #include <fstream>
 #include <sstream>
+#include <unistd.h>
 
 namespace llvm {
 
@@ -45,9 +46,18 @@ public:
   Function* getRustRuntimeFunction(Function* mainFunc);
   void renameCallee(Function* mainFunc, std::string newCalleeName);
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
-  InvokeInst* findInvokeByCalleePrefix(Function* f, std::string prefix);
-  CallInst* findCallByCalleePrefix(Function* f, std::string prefix);
   Instruction* findRPCbyCalleeName(Function*, std::string);
+  bool IsStringStartWith(std::string,std::string);
+  CallInst* getRPCinst(Function*,std::string);
+
+  Function* getFunctionByDemangledName(Module*, std::string);
+  InvokeInst* getInvokeByDemangledName(Function*, std::string);
+  CallInst* getCallByDemangledName(Function*, std::string);
+  std::string getDemangledRustFuncName(std::string);
+
+private:
+  std::string demangle_bin = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
+
 };
 
 } // namespace llvm
