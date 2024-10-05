@@ -27,13 +27,56 @@ static cl::opt<std::string> CalleeName_rr(
 
 PreservedAnalyses MergeRustFuncPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
+  if (CalleeName_rr == "") {
+    llvm::errs()<<"Error: didn't specify callee function name\n";
+    return PreservedAnalyses::all();
+  }
+
   // merge
-  if (!RenameCallee_rr) {
-    if (CalleeName_rr == "") {
-      llvm::errs()<<"Error: didn't specify callee function name\n";
+  if (RenameCallee_rr) {
+    Function *mainFunc = M.getFunction("main");
+    Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
+    renameCallee(mainFunc, "callee_"+CalleeName_rr);
+    mainFunc->setName("main_callee_rust_"+CalleeName_rr);
+    rustRTFunc->setName("_std_rt_lang_start_callee_"+CalleeName_rr);
+  }
+  else if (MergeExistingCallee_rr) {
+    Function* mainFunc = M.getFunction("main");
+    Function* CallerFunc = NULL;
+    for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+      for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+        if (isa<CallInst>(IB)){
+          CallInst *ci = dyn_cast<CallInst>(IB);
+          CallerFunc = dyn_cast<Function>(ci->getArgOperand(0));
+          break;
+        }
+      }
+    }
+    if (!CallerFunc) {
+      llvm::errs()<<"Error: cannot find main function\n";
       return PreservedAnalyses::all();
     }
+    Function *CalleeFunc = M.getFunction("callee_"+CalleeName_rr);
+    Instruction* RPCInst_i = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
 
+    std::vector<Value*> arguments;
+    for (unsigned i=0; i<RPCInst_i->getNumOperands(); i++){
+      Value* arg = RPCInst_i->getOperand(i);
+      if ((i==0) || (i==3) ){
+        arguments.push_back(arg);
+      }
+    }
+
+    CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments ,"", RPCInst_i);
+    if (isa<InvokeInst>(RPCInst_i)) {
+      //newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+      BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst_i->getOperand(4));
+      if (nextBBofRPC)
+        BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, RPCInst_i);
+    }
+    RPCInst_i->eraseFromParent();
+  }
+  else {
     Function* mainFunc = M.getFunction("main");
     Function* CallerFunc = NULL;
     for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
@@ -51,7 +94,7 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
       return PreservedAnalyses::all();
     }
 
-    Function *CalleeFunc = M.getFunction("callee");
+    Function *CalleeFunc = M.getFunction("callee_"+CalleeName_rr);
 
     Instruction* RPCInst_i = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
     if (!RPCInst_i) {
@@ -72,20 +115,13 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
     }
     deleteCalleeInputOutputFunc(NewCalleeFunc);
     
-    Function* f1 = M.getFunction("main_callee_rust");
-    Function* f2 = M.getFunction("_std_rt_lang_start_callee");
+    Function* f1 = M.getFunction("main_callee_rust_"+CalleeName_rr);
+    Function* f2 = M.getFunction("_std_rt_lang_start_callee_"+CalleeName_rr);
     f1->eraseFromParent();
     f2->eraseFromParent();
     CalleeFunc->eraseFromParent();
   }
   // rename callee
-  else {
-    Function *mainFunc = M.getFunction("main");
-    Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
-    renameCallee(mainFunc, "callee");
-    mainFunc->setName("main_callee_rust");
-    rustRTFunc->setName("_std_rt_lang_start_callee");
-  }
   return PreservedAnalyses::all();
 }
 
