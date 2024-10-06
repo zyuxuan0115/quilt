@@ -40,11 +40,15 @@ namespace llvm {
 class MergeRustFuncPass : public PassInfoMixin<MergeRustFuncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
+  void renameCallee(Module*);
+  void mergeCallee(Module*);
+  void MergeExistingCallee(Module*);
+
   std::string getRPCCalleeName(Instruction* RPCInst);
   Function* createRustNewCallee(Function* CalleeFunc, InvokeInst* call, std::string newName);
   Function* createRustNewCallee2(Function* CalleeFunc, CallInst* call, std::string newName);
   Function* getRustRuntimeFunction(Function* mainFunc);
-  void renameCallee(Function* mainFunc, std::string newCalleeName);
+  void renameRealCallee(Function* mainFunc, std::string newCalleeName);
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
   Instruction* findRPCbyCalleeName(Function*, std::string);
   bool IsStringStartWith(std::string,std::string);
@@ -56,7 +60,7 @@ public:
   std::string getDemangledRustFuncName(std::string);
 
 private:
-  std::string demangle_bin = "/proj/zyuxuanssf-PG0/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
+  std::string demangle_bin = "/llvm/demangle_rust_funcname";
 
 };
 
