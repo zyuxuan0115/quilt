@@ -37,7 +37,8 @@ function merge {
   ./rm_redundant_bc.py $CALLER_FUNC/$WORK_DIR
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
   mv $CALLER_IR caller.bc
-  $LLVM_DIR/llvm-dis caller.bc -o merged.ll
+  cp caller.bc merged.bc
+#  $LLVM_DIR/llvm-dis caller.bc -o merged.ll
 
   for i in $(seq 2 $(($NUM_ARGS-1)) );
   do
@@ -48,13 +49,13 @@ function merge {
     rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
     rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
     ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
-    $LLVM_DIR/opt -S $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.ll
+    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
     mv $CALLEE_IR $CALLEE_FUNC.bc
-    $LLVM_DIR/llvm-link merged.ll callee.ll -S -o caller_and_callee.ll
-    $LLVM_DIR/opt caller_and_callee.ll -strip-debug -o caller_and_callee_nodebug.ll -S
-    $LLVM_DIR/opt caller_and_callee_nodebug.ll -passes=merge-rust-func -merge-callee-rr -callee-name-rr=$CALLEE_FUNC -o merged.bc
-    $LLVM_DIR/llvm-dis merged.bc -o merged.ll
+    $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
+    $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-callee-rr -callee-name-rr=$CALLEE_FUNC -o merged.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
+    mv $CALLEE_FUNC.bc $CALLEE_IR
   done
 
   mv merged.bc $CALLER_IR
@@ -69,9 +70,6 @@ function wrap_shared_lib {
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c 
-
-#  && ./implib-gen.py $C_LIB/libcurl.so.4 2>/dev/null \
-#  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
 
   cd .. && cp Implib.so/*.o .  && rm -rf Implib.so
 }
