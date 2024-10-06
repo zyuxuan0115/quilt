@@ -4,6 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-mongodb = { version = "2.8.2", default-features = false, features = ["sync"] }
 memcache = "0.17.2"
 redis = "0.25.3"
