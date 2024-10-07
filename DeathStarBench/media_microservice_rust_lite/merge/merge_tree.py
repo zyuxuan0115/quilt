@@ -71,8 +71,42 @@ def merge():
   # merge libs
   final_caller = Lines[len(Lines)-1].split()[0]
   print(final_caller)
+  cmd = "./merge.sh merge_with_lib "+final_caller
+  os.system(cmd)
   cmd = "./merge.sh link "+final_caller
   os.system(cmd)
+
+
+
+def clean():
+  f_name = sys.argv[2]
+  f = open(f_name, 'r')
+  Lines = f.readlines()
+ 
+  func_visited = {}
+  # merge functions 
+  for line in Lines:
+    words = line.split()
+    caller = words[0]
+    callees = {}
+    callees_str = ""
+    func_visited[caller] = 1
+    new_callee = ""
+    for word in words[1:]:
+      if word.startswith('#'):
+        callees[new_callee].append(word[1:])
+      else:
+        new_callee=word
+        callees[new_callee] = []
+        if new_callee not in func_visited:
+          callees_str = callees_str + new_callee + " "
+          func_visited[new_callee] = 1
+    cmd = "rm -rf "+caller+" "+callees_str
+    print(cmd)
+    os.system(cmd)
+  cmd = "rm -rf *.ll *.bc *.o *.txt function Implib.so"
+  os.system(cmd)
+
 
 
 def link():
@@ -85,25 +119,6 @@ def link():
   print(final_caller)
   cmd = "./merge.sh link "+final_caller
   os.system(cmd)
-
-
-def clean():
-  f_name = sys.argv[2]
-  f = open(f_name, 'r')
-  Lines = f.readlines()
-  functions = {}
-  for line in Lines:
-    line_0 = line.strip()
-    funcs = line_0.split()
-    for func in funcs:
-      functions[func] = 1
-  cmd = "./merge.sh clean "
-  cmd1 = "rm -rf "
-  for key in functions:
-    cmd = cmd + key + " "
-    cmd1 = cmd1 + key + " "
-  os.system(cmd)
-  os.system(cmd1)
 
 
 def main():

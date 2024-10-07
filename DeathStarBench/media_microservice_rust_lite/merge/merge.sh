@@ -53,7 +53,7 @@ function merge {
     $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
     $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
-    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -callee-name-rr=$CALLEE_FUNC -o merged.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-callee-rr -callee-name-rr=$CALLEE_FUNC -o merged.bc
     mv $CALLEE_IR $CALLEE_FUNC.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
     mv callee.bc $CALLEE_IR

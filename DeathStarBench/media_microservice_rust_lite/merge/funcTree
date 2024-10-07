@@ -1,3 +1,1 @@
-compose-and-upload store-review upload-user-review upload-movie-review
-compose-review-upload-unique-id compose-and-upload
-unique-id-service compose-review-upload-unique-id
+read-user-review read-reviews #read-reviews
