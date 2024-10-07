@@ -62,6 +62,68 @@ function merge {
 }
 
 
+function merge_existing {
+  # prepare for merging
+  rm -rf $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
+  rm -rf $CALLER_FUNC/$WORK_DIR/*no-opt*
+  ./rm_redundant_bc.py $CALLER_FUNC/$WORK_DIR
+  CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
+  mv $CALLER_IR caller.bc
+  cp caller.bc merged.bc
+
+  for i in $(2..$($NUM_ARGS)..2);
+  do
+    CALLEE_FUNC=${ARGS[$i]}
+    CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
+    mv $CALLEE_IR callee.bc
+    $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
+    $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
+    cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
+    mv callee.bc $CALLEE_IR
+  done
+
+  mv merged.bc $CALLER_IR
+}
+
+
+
+function merge_both {
+  # prepare for merging
+  rm -rf $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
+  rm -rf $CALLER_FUNC/$WORK_DIR/*no-opt*
+  ./rm_redundant_bc.py $CALLER_FUNC/$WORK_DIR
+  CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
+  mv $CALLER_IR caller.bc
+  cp caller.bc merged.bc
+#  $LLVM_DIR/llvm-dis caller.bc -o merged.ll
+
+  for i in $(2..$($NUM_ARGS)..2);
+  do
+    CALLEE_FUNC=${ARGS[$i]}
+    CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
+    rm -rf $CALLEE_FUNC/$WORK_DIR/std-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_abort-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
+    ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
+    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
+    mv $CALLEE_IR $CALLEE_FUNC.bc
+    $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
+    $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-callee-rr -callee-name-rr=$CALLEE_FUNC -o merged0.bc
+    $LLVM_DIR/opt merged0.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
+    cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
+    mv $CALLEE_FUNC.bc $CALLEE_IR
+  done
+
+  mv merged.bc $CALLER_IR
+}
+
+
+
+
+
 function wrap_shared_lib {
   git clone https://github.com/yugr/Implib.so.git
   cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH 2>/dev/null \
@@ -106,6 +168,12 @@ compile)
     ;;
 merge)
     merge
+    ;;
+merge_existing)
+    merge_existing
+    ;;
+merge_both)
+    merge_both
     ;;
 link)
     link

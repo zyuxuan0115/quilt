@@ -87,7 +87,7 @@ void MergeRustFuncPass::renameRealCallee(Function* mainFunc, std::string newCall
       }
     }
   }
-  return;    
+  return; 
 }
 
 
@@ -117,7 +117,6 @@ void MergeRustFuncPass::mergeCallee(Module* M) {
     return;
   }
 
-  std::string CalleeName = getRPCCalleeName(RPCInst_i);
   Function* NewCalleeFunc;
 
   if (isa<InvokeInst>(RPCInst_i)) {
@@ -157,25 +156,46 @@ void MergeRustFuncPass::MergeExistingCallee(Module* M) {
   }
 
   for (auto mergedCalleeName: CalleeFuncsToBeMerged_rr) {
-    Function *CalleeFunc = M->getFunction("NewCallee_"+mergedCalleeName);
     Instruction* RPCInst_i = findRPCbyCalleeName(CallerFunc, mergedCalleeName);
 
-    std::vector<Value*> arguments;
-    for (unsigned i=0; i<RPCInst_i->getNumOperands(); i++){
-      Value* arg = RPCInst_i->getOperand(i);
-      if ((i==0) || (i==3) ){
-        arguments.push_back(arg);
+    Function *CalleeFunc = M->getFunction("NewCallee_"+mergedCalleeName);
+    if (CalleeFunc) {
+      std::vector<Value*> arguments;
+      for (unsigned i=0; i<RPCInst_i->getNumOperands(); i++){
+        Value* arg = RPCInst_i->getOperand(i);
+        if ((i==0) || (i==3) ){
+          arguments.push_back(arg);
+        }
       }
-    }
 
-    CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments ,"", RPCInst_i);
-    if (isa<InvokeInst>(RPCInst_i)) {
-    //newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
-      BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst_i->getOperand(4));
-      if (nextBBofRPC)
-        BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, RPCInst_i);
+      CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments ,"", RPCInst_i);
+      if (isa<InvokeInst>(RPCInst_i)) {
+        //newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+        BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst_i->getOperand(4));
+        if (nextBBofRPC)
+          BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, RPCInst_i);
+      }
+      RPCInst_i->eraseFromParent();
     }
-    RPCInst_i->eraseFromParent();
+    else {
+      Function *OldCalleeFunc = M->getFunction("callee_"+mergedCalleeName);
+
+      if (isa<InvokeInst>(RPCInst_i)) {
+        InvokeInst* RPCInst = dyn_cast<InvokeInst>(RPCInst_i);
+        CalleeFunc = createRustNewCallee(OldCalleeFunc, RPCInst, mergedCalleeName);
+      }
+      else if (isa<CallInst>(RPCInst_i)) {
+        CallInst* RPCInst = dyn_cast<CallInst>(RPCInst_i);
+        CalleeFunc = createRustNewCallee2(OldCalleeFunc, RPCInst, mergedCalleeName);
+      }
+      deleteCalleeInputOutputFunc(CalleeFunc);
+    
+      Function* f1 = M->getFunction("main_callee_rust_"+mergedCalleeName);
+      Function* f2 = M->getFunction("_std_rt_lang_start_callee_"+mergedCalleeName);
+      f1->eraseFromParent();
+      f2->eraseFromParent();
+      OldCalleeFunc->eraseFromParent();
+    }
   }
 }
 
