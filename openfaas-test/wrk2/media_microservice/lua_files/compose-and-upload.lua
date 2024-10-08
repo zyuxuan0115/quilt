@@ -2,9 +2,6 @@
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
 
-request_id = 77891
-count = 0
-
 local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
   'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q',
   'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H',
@@ -28,6 +25,9 @@ local function decRandom(length)
     return ""
   end
 end
+
+request_id = 77891
+count = 0
 
 request = function(req_id)
   local user_index = math.random(1, 999)
