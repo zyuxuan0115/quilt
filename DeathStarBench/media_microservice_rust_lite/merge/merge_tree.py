@@ -73,8 +73,8 @@ def merge():
   print(final_caller)
   cmd = "./merge.sh merge_with_lib "+final_caller
   os.system(cmd)
-  cmd = "./merge.sh link "+final_caller
-  os.system(cmd)
+#  cmd = "./merge.sh link "+final_caller
+#  os.system(cmd)
 
 
 

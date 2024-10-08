@@ -84,7 +84,7 @@ function merge_existing {
     $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
     $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
-    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-existing-rr -merged-name-rr=${ARGS[$i+1]} -o merged.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
     mv $CALLEE_IR $CALLEE_FUNC.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
     mv $CALLEE_FUNC.bc $CALLEE_IR
@@ -95,6 +95,7 @@ function merge_existing {
 
 
 function merge_both {
+  echo "merge_both is running"
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
   rm -rf $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
   rm -rf $CALLER_FUNC/$WORK_DIR/*no-opt*
@@ -105,6 +106,7 @@ function merge_both {
 
   for i in $(seq 2 2 $(($NUM_ARGS-1)) );
   do
+    echo "in the for loop"
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
     rm -rf $CALLEE_FUNC/$WORK_DIR/std-*.bc
@@ -116,7 +118,7 @@ function merge_both {
     $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
     $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-callee-rr -callee-name-rr=$CALLEE_FUNC -o merged0.bc
-    $LLVM_DIR/opt merge0.bc -passes=merge-rust-func -merge-existing-rr -merged-name-rr=${ARGS[$i+1]} -o merged.bc
+    $LLVM_DIR/opt merged0.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
     mv $CALLEE_IR $CALLEE_FUNC.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
     mv $CALLEE_FUNC.bc $CALLEE_IR
@@ -134,7 +136,7 @@ function merge_with_lib {
   $LLVM_DIR/opt func.bc -passes=strip-dead-prototypes -o func2.bc
   $LLVM_DIR/opt func2.bc -passes=remove-redundant -o function.bc
   $LLVM_DIR/llc -O3 --function-sections --data-sections -filetype=obj function.bc -o function.o
-  wrap_lib
+#  wrap_lib
 }
 
 
@@ -175,6 +177,12 @@ compile)
     ;;
 merge_with_lib)
     merge_with_lib
+    ;;
+merge_both)
+    merge_both
+    ;;
+merge_existing)
+    merge_existing
     ;;
 link)
     link
