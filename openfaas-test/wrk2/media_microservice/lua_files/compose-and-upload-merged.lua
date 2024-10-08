@@ -46,19 +46,19 @@ request = function(req_id)
   count = count + 1
 
   if count % 4 == 1 then
-    path = "/function/unique-id-service"
+    path = "/function/unique-id-service-merged"
     local content =  tostring(request_id) 
     body = content
   elseif count % 4 == 2 then
-    path = "/function/text-service"
+    path = "/function/text-service-merged"
     local content = '{"req_id":' .. tostring(request_id) .. ',"text":"' .. text .. '"}'
     body = content
   elseif count % 4 == 3 then
-    path = "/function/upload-user-with-username"
+    path = "/function/upload-user-with-username-merged"
     local content = '{"username":"' .. username .. '","req_id":' .. tostring(request_id) .. '}'
     body = content
   else 
-    path = "/function/upload-movie-id"
+    path = "/function/upload-movie-id-merged"
     local content = '{"title":"' .. title .. '","rating":' .. rating .. ',"req_id":' .. tostring(request_id) .. '}'
     body = content
     request_id = request_id + 1
