@@ -95,7 +95,6 @@ function merge_existing {
 
 
 function merge_both {
-  echo "merge_both is running"
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
   rm -rf $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
   rm -rf $CALLER_FUNC/$WORK_DIR/*no-opt*
@@ -106,7 +105,6 @@ function merge_both {
 
   for i in $(seq 2 2 $(($NUM_ARGS-1)) );
   do
-    echo "in the for loop"
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
     rm -rf $CALLEE_FUNC/$WORK_DIR/std-*.bc
