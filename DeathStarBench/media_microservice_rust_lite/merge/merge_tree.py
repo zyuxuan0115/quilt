@@ -38,26 +38,20 @@ def merge():
     for callee, func_to_merge in callees.items():
       if callee not in func_to_merge:
         execute_merge_existing_cmd = True
-        print("@@@ execute_merge_existing_cmd")
         merge_existing_cmd = merge_existing_cmd + callee + " "
         for func in func_to_merge:
           merge_existing_cmd = merge_existing_cmd + func+"," 
         merge_existing_cmd =  merge_existing_cmd[:-1] + " "
       elif len(func_to_merge) == 1:
-        print("@@@ execute_merge_cmd")
         execute_merge_cmd = True
         merge_cmd = merge_cmd + func_to_merge[0] + " "
       else:
-        print("@@@ execute_merge_both_cmd")
         execute_merge_both_cmd = True
         merge_both_cmd = merge_both_cmd + callee + " "
         func_to_merge.remove(callee)
         for func in func_to_merge:
           merge_both_cmd = merge_both_cmd + func+"," 
         merge_both_cmd =  merge_both_cmd[:-1] + " "
-    print(merge_cmd)
-    print(merge_existing_cmd)
-    print(merge_both_cmd)
     if execute_merge_cmd == True:
       print(merge_cmd)
       os.system(merge_cmd)

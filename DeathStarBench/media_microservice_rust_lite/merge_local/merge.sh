@@ -86,7 +86,7 @@ function merge_existing {
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
     $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
-    mv callee.bc $CALLEE_IR
+    mv $CALLEE_IR.bc $CALLEE_IR
   done
 
   mv merged.bc $CALLER_IR
