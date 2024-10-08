@@ -134,7 +134,7 @@ function merge_with_lib {
   $LLVM_DIR/opt func.bc -passes=strip-dead-prototypes -o func2.bc
   $LLVM_DIR/opt func2.bc -passes=remove-redundant -o function.bc
   $LLVM_DIR/llc -O3 --function-sections --data-sections -filetype=obj function.bc -o function.o
-#  wrap_lib
+  wrap_lib
 }
 
 
