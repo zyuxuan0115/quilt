@@ -25,7 +25,7 @@
     },
     {
       "function_name":"update-rating",
-      "cluster_id":1
+      "cluster_id":2
     },
     {
       "function_name":"write-cast-info",
@@ -77,7 +77,7 @@
     },
     {
       "function_name":"upload-user-with-username",
-      "cluster_id":2
+      "cluster_id":1
     },
     {
       "function_name":"upload-user-with-userid",
