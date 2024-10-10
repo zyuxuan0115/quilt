@@ -6,7 +6,7 @@ functions:
   store-review:
     lang: rust
     handler: ./store-review
-    image: zyuxuan0115/mm-store-review:latest
+    image: zyuxuan0115/mm-store-review-async:latest
     secrets:
     - ingress-enable
     - redis-password
