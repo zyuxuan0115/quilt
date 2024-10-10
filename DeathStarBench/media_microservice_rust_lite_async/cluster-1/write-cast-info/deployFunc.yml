@@ -6,7 +6,7 @@ functions:
   write-cast-info:
     lang: rust
     handler: ./write-cast-info
-    image: zyuxuan0115/mm-write-cast-info:latest
+    image: zyuxuan0115/mm-write-cast-info-async:latest
     secrets:
     - redis-password
     - ingress-enable
