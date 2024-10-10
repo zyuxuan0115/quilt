@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{Duration, Instant};
 use std::time::SystemTime;
+use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -51,7 +52,10 @@ fn main() {
   new_review.timestamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64;
 
   let new_review_str: String = serde_json::to_string(&new_review).unwrap();
-  let _ = make_rpc("store-review", new_review_str);
+  
+  let handle_store_review = thread::spawn(move || {
+    make_rpc("store-review", new_review_str)
+  });
 
   let upload_user_review_args = UploadUserReviewArgs {
     user_id: new_review.user_id,
@@ -60,7 +64,9 @@ fn main() {
   };
   let upload_user_review_args_str = serde_json::to_string(&upload_user_review_args).unwrap();
 
-  let _ = make_rpc("upload-user-review", upload_user_review_args_str);
+  let handle_upload_user_review = thread::spawn(move || {
+    make_rpc("upload-user-review", upload_user_review_args_str)
+  });
 
   let upload_movie_review_args = UploadMovieReviewArgs {
     movie_id: new_review.movie_id.clone(),
@@ -69,8 +75,16 @@ fn main() {
   };
   let upload_movie_review_args_str = serde_json::to_string(&upload_movie_review_args).unwrap();
 
-  let _ = make_rpc("upload-movie-review", upload_movie_review_args_str);
+  let handle = thread::spawn(move || {
+    make_rpc("upload-movie-review", upload_movie_review_args_str)
+  });
+
+  let _ = handle_store_review.join().unwrap();
+  let _ = handle_upload_user_review.join().unwrap();
+  let _ = handle_upload_movie_review.join().unwrap();
+
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
+
   send_return_value_to_caller("".to_string());
 }

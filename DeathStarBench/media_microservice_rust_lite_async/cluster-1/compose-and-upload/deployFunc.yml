@@ -6,7 +6,7 @@ functions:
   compose-and-upload:
     lang: rust
     handler: ./compose-and-upload
-    image: zyuxuan0115/mm-compose-and-upload:latest
+    image: zyuxuan0115/mm-compose-and-upload-async:latest
     secrets:
     - ingress-enable
     - redis-password
