@@ -6,7 +6,7 @@ functions:
   upload-user-with-username:
     lang: rust
     handler: ./upload-user-with-username
-    image: zyuxuan0115/mm-upload-user-with-username:latest
+    image: zyuxuan0115/mm-upload-user-with-username-async:latest
     secrets:
     - redis-password
     - ingress-enable
