@@ -6,9 +6,9 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let args: PageServiceArgs = serde_json::from_str(&input).unwrap();
-
+  let movie_id_arg = args.movie_id.clone();
   let handle_read_movie_info = thread::spawn(move || {
-    make_rpc("read-movie-info", rgs.movie_id.clone())
+    make_rpc("read-movie-info", movie_id_arg)
   });
 
   let read_movie_reviews_args = ReadMovieReviewArgs {
