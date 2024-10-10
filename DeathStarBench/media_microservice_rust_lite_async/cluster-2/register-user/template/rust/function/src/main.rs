@@ -1,4 +1,4 @@
-use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
+use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use rand::{distributions::Alphanumeric, Rng};
 use sha256::digest;

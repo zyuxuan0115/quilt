@@ -6,7 +6,7 @@ functions:
   register-user:
     lang: rust
     handler: ./register-user
-    image: zyuxuan0115/mm-register-user:latest
+    image: zyuxuan0115/mm-register-user-async:latest
     secrets:
     - ingress-enable
     - redis-password
