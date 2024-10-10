@@ -6,7 +6,7 @@ functions:
   read-plot:
     lang: rust
     handler: ./read-plot
-    image: zyuxuan0115/mm-read-plot:latest
+    image: zyuxuan0115/mm-read-plot-async:latest
     secrets:
     - redis-password
     - ingress-enable
