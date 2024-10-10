@@ -28,7 +28,7 @@ fn main() {
 
       let result: redis::RedisResult<(i64, String)> = redis::cmd("HMGET").arg(&uname[..]).arg("user_id").arg("username").query(&mut con);
       match result {
-        Ok((name, id)) => {
+        Ok((id, name)) => {
           user_id_str = id.to_string();
           memcache_client.set(&username_uid[..], &user_id_str[..], 0).unwrap();
         },
@@ -44,7 +44,10 @@ fn main() {
     req_id: user_info.req_id,
     user_id: user_id_str.parse::<i64>().unwrap(),
   };
+
   let serialized = serde_json::to_string(&callee_args).unwrap();
+
+  println!("{}",serialized);
 
   let _ = make_rpc("compose-review-upload-user-id", serialized);
 
