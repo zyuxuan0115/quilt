@@ -6,7 +6,7 @@ functions:
   read-movie-info:
     lang: rust
     handler: ./read-movie-info
-    image: zyuxuan0115/mm-read-movie-info:latest
+    image: zyuxuan0115/mm-read-movie-info-async:latest
     secrets:
     - redis-password
     - ingress-enable
