@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
+use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -48,7 +49,9 @@ fn main() {
   };
   let serialized = serde_json::to_string(&args).unwrap();
 
-  let _ = make_rpc("compose-review-upload-movie-id", serialized);
+  let handle_upload_mid = thread::spawn(move || {
+    make_rpc("compose-review-upload-movie-id", serialized)
+  });
 
   let rating_svc_args = RatingServiceArgs {
     movie_id: movie_id,
@@ -58,8 +61,12 @@ fn main() {
 
   let rating_svc_args_str = serde_json::to_string(&rating_svc_args).unwrap();
 
-  let _ = make_rpc("rating-service", rating_svc_args_str);
+  let handle_rating = thread::spawn(move || {
+    make_rpc("rating-service", rating_svc_args_str)
+  });
 
+  handle_upload_mid.join().unwrap();
+  handle_rating.join().unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());

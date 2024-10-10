@@ -6,7 +6,7 @@ functions:
   upload-movie-id:
     lang: rust
     handler: ./upload-movie-id
-    image: zyuxuan0115/mm-upload-movie-id:latest
+    image: zyuxuan0115/mm-upload-movie-id-async:latest
     secrets:
     - redis-password
     - ingress-enable
