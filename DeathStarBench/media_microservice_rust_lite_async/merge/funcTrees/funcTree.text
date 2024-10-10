@@ -1,0 +1,3 @@
+compose-and-upload store-review #store-review upload-user-review #upload-user-review upload-movie-review #upload-movie-review
+compose-review-upload-text compose-and-upload #compose-and-upload
+text-service compose-review-upload-text #compose-review-upload-text
