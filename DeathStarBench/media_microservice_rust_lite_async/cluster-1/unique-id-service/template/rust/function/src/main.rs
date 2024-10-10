@@ -1,5 +1,6 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller, *};
 use rand::Rng;
+use std::thread;
 //use std::time::{Duration, Instant};
 
 fn main() {
