@@ -6,7 +6,7 @@ functions:
   read-reviews:
     lang: rust
     handler: ./read-reviews
-    image: zyuxuan0115/mm-read-reviews:latest
+    image: zyuxuan0115/mm-read-reviews-async:latest
     secrets:
     - redis-password
     - ingress-enable

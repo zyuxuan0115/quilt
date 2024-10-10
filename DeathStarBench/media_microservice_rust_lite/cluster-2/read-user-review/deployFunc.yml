@@ -8,6 +8,5 @@ functions:
     handler: ./read-user-review
     image: zyuxuan0115/mm-read-user-review:latest
     secrets:
-    - mongodb-password
     - redis-password
     - ingress-enable

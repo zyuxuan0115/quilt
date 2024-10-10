@@ -6,8 +6,7 @@ functions:
   read-user-review:
     lang: rust
     handler: ./read-user-review
-    image: zyuxuan0115/mm-read-user-review:latest
+    image: zyuxuan0115/mm-read-user-review-async:latest
     secrets:
-    - mongodb-password
     - redis-password
     - ingress-enable
