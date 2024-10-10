@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
+use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -13,8 +14,12 @@ fn main() {
     req_id: rating_info.req_id,
   };
   let compose_review_rating_str = serde_json::to_string(&compose_review_rating_info).unwrap();
+
+  let handle = thread::spawn(move || {
+    make_rpc("compose-review-upload-rating", compose_review_rating_str)
+  });
   
-  let _ = make_rpc("compose-review-upload-rating", compose_review_rating_str);
+  let _ = handle.join().unwrap();
 
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
