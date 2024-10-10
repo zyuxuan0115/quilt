@@ -6,7 +6,7 @@ functions:
   write-plot:
     lang: rust
     handler: ./write-plot
-    image: zyuxuan0115/mm-write-plot:latest
+    image: zyuxuan0115/mm-write-plot-async:latest
     secrets:
     - redis-password
     - ingress-enable
