@@ -6,7 +6,7 @@ functions:
   read-cast-info:
     lang: rust
     handler: ./read-cast-info
-    image: zyuxuan0115/mm-read-cast-info:latest
+    image: zyuxuan0115/mm-read-cast-info-async:latest
     secrets:
     - redis-password
     - ingress-enable
