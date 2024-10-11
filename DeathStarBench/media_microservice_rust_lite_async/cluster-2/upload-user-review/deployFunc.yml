@@ -6,7 +6,7 @@ functions:
   upload-user-review:
     lang: rust
     handler: ./upload-user-review
-    image: zyuxuan0115/mm-upload-user-review:latest
+    image: zyuxuan0115/mm-upload-user-review-async:latest
     secrets:
     - redis-password
     - ingress-enable

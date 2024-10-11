@@ -6,6 +6,6 @@ functions:
   upload-user-with-userid:
     lang: rust
     handler: ./upload-user-with-userid
-    image: zyuxuan0115/mm-upload-user-with-userid:latest
+    image: zyuxuan0115/mm-upload-user-with-userid-async:latest
     secrets:
     - ingress-enable
