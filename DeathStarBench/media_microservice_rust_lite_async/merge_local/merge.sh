@@ -49,11 +49,11 @@ function merge {
     rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
     rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
     ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
-    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
+    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.bc
     mv $CALLEE_IR $CALLEE_FUNC.bc
     $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
-    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-callee-rr -callee-name-rr=$CALLEE_FUNC -o merged.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func-async -merge-callee-rra -callee-name-rra=$CALLEE_FUNC -o merged.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
     mv $CALLEE_FUNC.bc $CALLEE_IR
   done
@@ -80,11 +80,11 @@ function merge_existing {
     rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
     rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
     ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
-    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
+    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.bc
     mv $CALLEE_IR $CALLEE_FUNC.bc
     $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
-    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func-async -merge-existing-rra -merged-names-rra=${ARGS[$i+1]} -o merged.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
     mv $CALLEE_IR.bc $CALLEE_IR
   done
@@ -113,12 +113,12 @@ function merge_both {
     rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
     rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
     ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
-    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
+    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.bc
     mv $CALLEE_IR $CALLEE_FUNC.bc
     $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
-    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-callee-rr -callee-name-rr=$CALLEE_FUNC -o merged0.bc
-    $LLVM_DIR/opt merged0.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
+    $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func-async -merge-callee-rra -callee-name-rra=$CALLEE_FUNC -o merged0.bc
+    $LLVM_DIR/opt merged0.bc -passes=merge-rust-func-async -merge-existing-rra -merged-names-rra=${ARGS[$i+1]} -o merged.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
     mv $CALLEE_FUNC.bc $CALLEE_IR
   done
