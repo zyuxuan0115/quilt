@@ -45,7 +45,7 @@ public:
   std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
   Function* getFunctionByDemangledName(Module*, std::string);
-  void renameCallee(Function* mainFunc, std::string newCalleeName);
+  void renameRealCallee(Function* mainFunc, std::string newCalleeName);
   std::string getDemangledRustFuncName(std::string);
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
@@ -54,6 +54,10 @@ public:
   bool IsStringStartWith(std::string, std::string);
   Function* getMainClosure(Module*, std::string);
   CallInst* getRPCinst(Function*, std::string);
+  void RenameCallee(Module*);
+  void MergeCallee(Module*);
+  void MergeExistingCallee(Module*);
+
 private:
   std::string demangle_bin = "/llvm/demangle_rust_funcname";
 };
