@@ -96,12 +96,7 @@ void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
   // because it contains RPC (OpenFaaSRPC::make_rpc())
   for (auto mergedCalleeName: CalleeFuncsToBeMerged_rra) {
     Function* mainClosure = getMainClosure(M, mergedCalleeName);
-    if (!mainClosure) llvm::errs()<<"@@@ main closure doesn't exist\n";
-
-
-    llvm::errs()<<"@@@ "<<mergedCalleeName<<"\n";
     CallInst* rpcInst = getRPCinst(mainClosure, mergedCalleeName);
-    if (!rpcInst) llvm::errs()<<"rpc doesn't exist!\n";
     Function *CalleeFunc = M->getFunction("new_callee_"+mergedCalleeName);
     if (CalleeFunc) {
       std::vector<Value*> arguments;
