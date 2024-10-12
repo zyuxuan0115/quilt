@@ -47,8 +47,6 @@ fn main() {
 
   let serialized = serde_json::to_string(&callee_args).unwrap();
 
-  println!("{}",serialized);
-
   let _ = make_rpc("compose-review-upload-user-id", serialized);
 
   //let new_now =  Instant::now();
