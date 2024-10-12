@@ -35,7 +35,10 @@ fn main() {
     Err(_) => {
       let mut pw_sha: String = String::from(&new_user_info.password[..]);
       let salt: String = gen_random_string();
-      let uid: i64 = rand::thread_rng().gen();
+      let mut uid: i64 = rand::thread_rng().gen();
+      if uid < 0 {
+        uid = 0-uid;
+      }
       pw_sha.push_str(&salt[..]);
       pw_sha = digest(pw_sha);
 
