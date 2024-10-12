@@ -19,9 +19,9 @@ fn main() {
  
   let mut review_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
   let serialized = serde_json::to_string(&review_ids).unwrap(); 
+
   let reviews = make_rpc("read-reviews", serialized);
 //  let new_now =  Instant::now();
 //  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(reviews);
 }
-

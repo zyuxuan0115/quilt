@@ -13,9 +13,9 @@ fn main() {
   let mut con = redis_client.get_connection().unwrap();
 
   let movie_id: String = format!("movie-review:{}", review_info.movie_id);
-
+  let review_id: String = review_info.review_id.to_string();
   // TODO set the options to be NX
-  let _: usize = con.zadd(&movie_id[..], review_info.review_id, review_info.timestamp).unwrap();
+  let _: usize = con.zadd(&movie_id[..], &review_id[..], review_info.timestamp).unwrap();
   
 //  let new_now =  Instant::now();
 //  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));

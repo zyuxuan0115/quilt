@@ -10,6 +10,8 @@ fn main() {
   if uuid < 0 {
     uuid = 0-uuid;
   }
+
+  println!("uuid: {}", uuid);
   let args = ComposeReviewUploadUniqueIdArgs {
     req_id: input.parse::<i64>().unwrap(),
     review_id: uuid,

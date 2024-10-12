@@ -170,7 +170,7 @@ pub struct ComposeReviewUploadRatingArgs {
   pub rating: i32,
 }
 
-
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComposeReviewArgs {
   pub req_id: i64,
   pub username: String,
