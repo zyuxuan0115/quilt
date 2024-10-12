@@ -141,6 +141,16 @@ pub struct PageServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeReviewArgs {
+  pub req_id: i64,I
+  pub username: String,
+  pub password: String,
+  pub title: String,
+  pub rating: i32,
+  pub text: String, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComposeReviewUploadMovieIdArgs {
   pub req_id: i64,
   pub movie_id: String,

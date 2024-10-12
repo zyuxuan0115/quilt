@@ -25,7 +25,7 @@ fn main() {
     make_rpc("read-reviews", serialized)
   });
 
-  let _ = handle.join().unwrap();
+  let reviews = handle.join().unwrap();
 //  let new_now =  Instant::now();
 //  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(reviews);

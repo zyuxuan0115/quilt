@@ -3,11 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8081
 functions:
-  update-rating:
+  compose-review:
     lang: rust
-    handler: ./update-rating
-    image: zyuxuan0115/mm-update-rating:latest
+    handler: ./compose-review
+    image: zyuxuan0115/mm-compose-review:latest
     secrets:
     - redis-password
-    - mongodb-password
     - ingress-enable

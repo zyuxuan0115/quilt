@@ -24,7 +24,7 @@
       "cluster_id":1
     },
     {
-      "function_name":"update-rating",
+      "function_name":"compose-review",
       "cluster_id":2
     },
     {

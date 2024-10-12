@@ -170,6 +170,16 @@ pub struct ComposeReviewUploadRatingArgs {
   pub rating: i32,
 }
 
+
+pub struct ComposeReviewArgs {
+  pub req_id: i64,
+  pub username: String,
+  pub password: String,
+  pub title: String,
+  pub rating: i32,
+  pub text: String,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
