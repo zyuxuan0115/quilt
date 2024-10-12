@@ -6,6 +6,6 @@ functions:
   unique-id-service-merged:
     lang: rust
     handler: ./unique-id-service-merged
-    image: zyuxuan0115/mm-unique-id-service-merged:latest
+    image: zyuxuan0115/mm-unique-id-service-async-merged:latest
     secrets:
     - ingress-enable

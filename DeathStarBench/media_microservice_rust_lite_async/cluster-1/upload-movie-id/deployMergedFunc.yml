@@ -6,7 +6,7 @@ functions:
   upload-movie-id-merged:
     lang: rust
     handler: ./upload-movie-id-merged
-    image: zyuxuan0115/mm-upload-movie-id-merged-async:latest
+    image: zyuxuan0115/mm-upload-movie-id-async-merged:latest
     secrets:
     - redis-password
     - ingress-enable

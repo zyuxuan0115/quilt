@@ -6,7 +6,7 @@ functions:
   upload-user-with-username-merged:
     lang: rust
     handler: ./upload-user-with-username-merged
-    image: zyuxuan0115/mm-upload-user-with-username-merged:latest
+    image: zyuxuan0115/mm-upload-user-with-username-async-merged:latest
     secrets:
     - redis-password
     - ingress-enable

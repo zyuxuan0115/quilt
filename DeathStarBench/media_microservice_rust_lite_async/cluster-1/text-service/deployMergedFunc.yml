@@ -6,6 +6,6 @@ functions:
   text-service-merged:
     lang: rust
     handler: ./text-service-merged
-    image: zyuxuan0115/mm-text-service-merged:latest
+    image: zyuxuan0115/mm-text-service-async-merged:latest
     secrets:
     - ingress-enable
