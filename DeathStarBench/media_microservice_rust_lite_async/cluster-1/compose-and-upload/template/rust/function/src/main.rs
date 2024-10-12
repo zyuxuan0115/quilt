@@ -75,7 +75,7 @@ fn main() {
   };
   let upload_movie_review_args_str = serde_json::to_string(&upload_movie_review_args).unwrap();
 
-  let handle = thread::spawn(move || {
+  let handle_upload_movie_review = thread::spawn(move || {
     make_rpc("upload-movie-review", upload_movie_review_args_str)
   });
 
