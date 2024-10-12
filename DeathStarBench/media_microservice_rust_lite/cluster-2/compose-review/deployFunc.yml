@@ -6,7 +6,7 @@ functions:
   compose-review:
     lang: rust
     handler: ./compose-review
-    image: zyuxuan0115/mm-compose-review-async:latest
+    image: zyuxuan0115/mm-compose-review:latest
     secrets:
     - redis-password
     - ingress-enable
