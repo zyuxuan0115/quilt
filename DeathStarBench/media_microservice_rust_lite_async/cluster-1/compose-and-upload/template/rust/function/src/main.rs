@@ -26,7 +26,7 @@ fn main() {
   let mut new_review = ReviewEntry {
     review_id: 0,
     user_id: 0,
-    req_id: 0,
+    req_id: req_id,
     text: String::new(),
     movie_id: String::new(),
     rating: 0,
