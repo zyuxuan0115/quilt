@@ -12,10 +12,10 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let review_id_str: String = format!("movie-review:{}", review_info.review_id);
+  let movie_id: String = format!("movie-review:{}", review_info.movie_id);
 
   // TODO set the options to be NX
-  let _: usize = con.zadd(&review_info.movie_id[..], &review_id_str[..], review_info.timestamp).unwrap();
+  let _: usize = con.zadd(&movie_id[..], review_info.review_id, review_info.timestamp).unwrap();
   
 //  let new_now =  Instant::now();
 //  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));
