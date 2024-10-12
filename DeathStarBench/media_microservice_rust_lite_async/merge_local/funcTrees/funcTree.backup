@@ -1,3 +1,0 @@
-write-home-timeline social-graph-get-followers
-text-service url-shorten-service user-mention-service
-compose-post unique-id-service media-service text-service write-home-timeline write-user-timeline compose-creator-with-userid store-post 
