@@ -40,10 +40,10 @@ curl localhost:8080/function/write-movie-info -d '{"movie_id":"tt1517268","title
 curl localhost:8080/function/read-movie-info -d 'tt1517268'
 ```
 
-### update-rating
+### compose-review
 
 ```bash
-curl localhost:8080/function/update-rating -d '{"movie_id":"tt1517268","sum_uncommitted_rating":477,"num_uncommitted_rating":100}'
+curl localhost:8080/function/compose-review -d '{"req_id":8037,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 ```
 
 ### write-cast-info
