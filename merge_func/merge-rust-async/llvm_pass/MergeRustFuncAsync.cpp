@@ -98,7 +98,6 @@ void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
     Function* mainClosure = getMainClosure(M, mergedCalleeName);
     CallInst* rpcInst = getRPCinst(mainClosure, mergedCalleeName);
     Function *CalleeFunc = M->getFunction("new_callee_"+mergedCalleeName);
-    llvm::errs()<<"@@@@ "<<mergedCalleeName<<"\n";
 
     if (CalleeFunc) {
       std::vector<Value*> arguments;
@@ -112,7 +111,6 @@ void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
     else {
       // create a function that has the same arguments as `make_rpc`
       // but the function body is the callee function
-      llvm::errs()<<"####\n";
       Function* oldCalleeFunc = M->getFunction("main_2nd_for_"+mergedCalleeName);
       CalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcInst, oldCalleeFunc, 
                                               "new_callee_"+mergedCalleeName);
