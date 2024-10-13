@@ -43,7 +43,7 @@ curl localhost:8080/function/read-movie-info -d 'tt1517268'
 ### compose-review
 
 ```bash
-curl localhost:8080/function/compose-review -d '{"req_id":8037,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
+curl localhost:8081/function/compose-review -d '{"req_id":8037,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 ```
 
 ### write-cast-info
