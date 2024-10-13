@@ -12,13 +12,13 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let user_id_str: String = format!("user-review:{}",review_info.user_id);
-
+  let user_id_str: String = format!("user_review:{}",review_info.user_id);
   // TODO set the options to be NX
   let res: Vec<String> = con.zrevrange(&user_id_str[..], review_info.start as isize, (review_info.stop-1) as isize).unwrap();
- 
+
   let mut review_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
   let serialized = serde_json::to_string(&review_ids).unwrap(); 
+
   let reviews = make_rpc("read-reviews", serialized);
 //  let new_now =  Instant::now();
 //  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));

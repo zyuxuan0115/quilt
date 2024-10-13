@@ -13,7 +13,7 @@ fn main() {
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
-  let user_id_str: String = format!("user-review:{}",review_info.user_id);
+  let user_id_str: String = format!("user_review:{}",review_info.user_id);
 
   // TODO set the options to be NX
   let res: Vec<String> = con.zrevrange(&user_id_str[..], review_info.start as isize, (review_info.stop-1) as isize).unwrap();
