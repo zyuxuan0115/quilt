@@ -98,6 +98,8 @@ void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
     Function* mainClosure = getMainClosure(M, mergedCalleeName);
     CallInst* rpcInst = getRPCinst(mainClosure, mergedCalleeName);
     Function *CalleeFunc = M->getFunction("new_callee_"+mergedCalleeName);
+    llvm::errs()<<"@@@@ "<<mergedCalleeName<<"\n";
+
     if (CalleeFunc) {
       std::vector<Value*> arguments;
       for (unsigned i=0; i<rpcInst->getNumOperands()-1; i++){
@@ -110,6 +112,7 @@ void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
     else {
       // create a function that has the same arguments as `make_rpc`
       // but the function body is the callee function
+      llvm::errs()<<"####\n";
       Function* oldCalleeFunc = M->getFunction("main_2nd_for_"+mergedCalleeName);
       CalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcInst, oldCalleeFunc, 
                                               "new_callee_"+mergedCalleeName);
@@ -424,15 +427,27 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
 void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   Module* M = newCalleeFunc->getParent();
-  InvokeInst* send_return_value_call = getInvokeByDemangledName(newCalleeFunc, 
+  Instruction* send_return_value_call;
+  InvokeInst* send_return_value_call_invoke = getInvokeByDemangledName(newCalleeFunc, 
        "OpenFaaSRPC::send_return_value_to_caller");
+
+  CallInst* send_return_value_call_call = getCallByDemangledName(newCalleeFunc, 
+       "OpenFaaSRPC::send_return_value_to_caller");
+
+  if ((!send_return_value_call_call) && (!send_return_value_call_invoke)) {
+    llvm::errs()<<"Function "<<newCalleeFunc->getName();
+    llvm::errs()<<" doesn't have the send_return_value_to_caller call\n";
+    return;
+  }
+
+  if (send_return_value_call_invoke) send_return_value_call = send_return_value_call_invoke;
+  else send_return_value_call = send_return_value_call_call;
 
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
   //                                         i64 24, i1 false)
   // the is the LLVM Intrinsc. The way to create such a call 
   // is different from normal CallInst create 
-
   std::vector<Type*> IntrinTypes;
   IntrinTypes.push_back(newCalleeFunc->getArg(0)->getType());
   IntrinTypes.push_back(send_return_value_call->getOperand(0)->getType());
@@ -441,7 +456,7 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
   Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0, true);
   Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
-
+  
   std::vector<Value*> IntrinsicArguments;
   IntrinsicArguments.push_back(newCalleeFunc->getArg(0));
   IntrinsicArguments.push_back(send_return_value_call->getOperand(0));
@@ -449,16 +464,17 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
   ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
 
-
   IRBuilder<> Builder(M->getContext());
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(send_return_value_call);
 
   // since the instruction is a InvokeInst, also needs to create a branch instruction
-  BasicBlock* nextBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(1));
-  if (nextBBofsend_ret_value_call)
-    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
-  send_return_value_call->eraseFromParent();
+  if (isa<InvokeInst>(send_return_value_call)) {
+    BasicBlock* nextBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(1));
+    if (nextBBofsend_ret_value_call)
+      BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
+    send_return_value_call->eraseFromParent();
+  }
 } 
 
 
