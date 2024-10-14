@@ -26,6 +26,10 @@ local function decRandom(length)
   end
 end
 
+local function random_float(min, max)
+    return min + (max - min) * math.random()
+end
+
 counter = 0
 
 request = function(req_id)
@@ -68,7 +72,7 @@ request = function(req_id)
   end
   photo_ids = photo_ids:sub(1, #photo_ids - 1) .. ']'
 
-  for i = 0, num_video, 1 do
+  for i = 0, num_videos, 1 do
     local v_id = stringRandom(8)
     video_ids = video_ids .. '"' .. v_id .. '",'
   end
