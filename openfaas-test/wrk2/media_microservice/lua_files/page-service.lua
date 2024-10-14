@@ -28,8 +28,8 @@ end
 
 
 request = function(req_id)
-  local movie_idx = math.random(1,999)
-  local movie_id = "movie_" .. tostring(movie_idx)
+  local movie_idx = math.random(1,999) + 5999000
+  local movie_id = 'tt' .. tostring(movie_idx)  
 
   local method = "POST"
   local path = "/function/page-service"
@@ -37,7 +37,7 @@ request = function(req_id)
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  body = '{"movie_id":"' .. movie_id .. '","review_start":0,"review_stop":1}'
+  body = '{"movie_id":"' .. tostring(movie_id) .. '","review_start":0,"review_stop":1}'
 
   file = io.open('req_data_log.txt', 'w')
   file:write(body)
