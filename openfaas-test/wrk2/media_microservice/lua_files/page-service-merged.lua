@@ -26,26 +26,18 @@ local function decRandom(length)
   end
 end
 
-counter = 0
 
 request = function(req_id)
-  counter = counter + 1
-  local req_id = counter
-  local user_index = math.random(1, 999)
-  local username = "username_" .. tostring(user_index)
-  local title = 'movie_' .. tostring(math.random(1,999))
-  local rating = math.random(1,5)
-  local text = stringRandom(100)
+  local movie_idx = math.random(1,999)
+  local movie_id = "movie_" .. tostring(movie_idx)
 
   local method = "POST"
-  local path = "/function/compose-review-merged"
+  local path = "/function/page-service-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  body = '{"req_id":' .. tostring(req_id) .. ',"title":"' .. title .. '","rating":'
-         .. rating .. ',"username":"' .. username .. '","password":"123456","text":"'
-         .. text .. '"}' 
+  body = '{"movie_id":"' .. movie_id .. '","review_start":0,"review_stop":1}'
 
   file = io.open('req_data_log.txt', 'w')
   file:write(body)
