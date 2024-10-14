@@ -26,30 +26,32 @@ local function decRandom(length)
   end
 end
 
-local function random_float(min, max)
-    return min + (max - min) * math.random()
-end
-
-counter = 0
-
 request = function(req_id)
-  counter = counter + 1 
-  local hotel_idx = counter % 1000
+  local hotel_idx = math.random(1,999)
   local hotel_id = "hotel_" .. tostring(hotel_idx)
+  local user_idx = math.random(1,999)
+  local username = "user_" .. tostring(user_idx)
+  local room_num = math.random(1,5)
 
-  local room_type = '{"bookable_rate":' .. tostring(random_float(100, 500)) .. '"total_rate":' 
-                    .. tostring(random_float(200, 600)) .. ',"total_rate_inclusive":' .. tostring(random_float(200, 600))
-                    ',"code":"' .. stringRandom(8) .. '","currency":"' .. stringRandom(3) .. ',"room_description":"' 
-                    .. stringRadnom(20) .. '"}'
+  local start_time = os.time{year=2024, month=11, day=1}
+  local end_time = os.time{year=2024, month=11, day=30}
+  local random_in_time = math.random(start_time, end_time)
+  local indate = os.date("%Y-%m-%d", random_in_time)
+  start_time = os.time{year=2024, month=12, day=1}
+  end_time = os.time{year=2024, month=12, day=31}
+  local random_out_time = math.random(start_time, end_time)
+  local outdate = os.date("%Y-%m-%d", random_out_time)
  
   local method = "POST"
-  local path = "/function/set-rate"
+  local path = "/function/reservation-handler"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  body = '{"hotel_id":"' .. hotel_id .. '","code":"' .. stringRandom(5) .. 
-         '","in_date":"2023-01-01","out_date":"2025-12-31","room_type":' .. room_type .. '}'
+  body = '{"customer_name":"' .. stringRandom(15) .. '","username":"' .. username 
+         .. '","password":"123456","hotel_id":"' .. hotel_id .. '","in_date":"' 
+         .. indate .. '","out_date":"' .. outdate .. '","room_number":' .. tostring(room_num)
+         .. '}'
 
   file = io.open('req_data_log.txt', 'w')
   file:write(body)
