@@ -1,0 +1,2 @@
+search-nearby get-rates #get-rates nearby-hotel #nearby-hotel
+search-handler search-nearby #search-nearby check-availability #check-availability get-profiles #get-profiles
