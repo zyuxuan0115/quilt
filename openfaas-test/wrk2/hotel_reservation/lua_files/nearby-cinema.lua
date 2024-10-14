@@ -30,22 +30,16 @@ local function random_float(min, max)
     return min + (max - min) * math.random()
 end
 
-counter = 0
 
 request = function(req_id)
-  counter = counter + 1
-  local lat = random_float(32,35)
-  local long = random_float(116,119)
-  local hotel_id = 'hotel_' .. tostring(counter%1000)
+  local hotel_id = 'hotel_' .. tostring(math.random(1,999))
+
 
   local method = "POST"
-  local path = "/function/set-hotel-point"
+  local path = "/function/nearby-cinema"
   local headers = {}
-  local body
+  local body = hotel_id
   headers["Content-Type"] = "application/x-www-form-urlencoded"
-
-  body = '{"latitude":' .. lat .. ',"longitude":' .. long .. ',"id":"' 
-         .. hotel_id .. '"}'
 
   file = io.open('req_data_log.txt', 'w')
   file:write(body)
