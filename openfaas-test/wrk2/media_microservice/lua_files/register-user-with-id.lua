@@ -2,6 +2,8 @@
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
 
+counter = 0
+
 local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
   'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q',
   'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H',
@@ -26,19 +28,23 @@ local function decRandom(length)
   end
 end
 
-
 request = function(req_id)
-  local user_idx = math.random(1,999)
-  local user_id = tostring(user_idx)
+  counter = counter + 1
+  local user_index = counter % 1000
+  local user_id = tostring(user_index)
+  local first_name = stringRandom(8)
+  local last_name = stringRandom(8)
+  local password = "123456"
+
+  content = '{"user_id":' .. user_id .. ',"first_name":"' .. first_name .. 
+            '","last_name":"' .. last_name .. '","password":"' .. password .. '"}' 
 
   local method = "POST"
-  local path = "/function/read-user-review"
+  local path = "/function/register-user"
   local headers = {}
-  local body
+  local body = content
+
   headers["Content-Type"] = "application/x-www-form-urlencoded"
-
-  body = '{"user_id":' .. user_id .. ',"review_start":0,"review_stop":1}'
-
   file = io.open('req_data_log.txt', 'w')
   file:write(body)
   file:close()
