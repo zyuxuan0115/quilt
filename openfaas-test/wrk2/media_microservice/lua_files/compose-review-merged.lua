@@ -38,7 +38,7 @@ request = function(req_id)
   local text = stringRandom(100)
 
   local method = "POST"
-  local path = "/function/compose-review"
+  local path = "/function/compose-review-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
