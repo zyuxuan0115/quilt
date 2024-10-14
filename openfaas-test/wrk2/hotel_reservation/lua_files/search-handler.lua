@@ -34,11 +34,13 @@ request = function(req_id)
   local lat = random_float(32,35)
   local long = random_float(116,119)
   local start_time = os.time{year=2024, month=11, day=1}
-  local end_time = os.time{year=2024, month=12, day=31}
+  local end_time = os.time{year=2024, month=11, day=30}
   local random_in_time = math.random(start_time, end_time)
   local indate = os.date("%Y-%m-%d", random_in_time)
+  start_time = os.time{year=2024, month=12, day=1}
+  end_time = os.time{year=2024, month=12, day=31}
   local random_out_time = math.random(start_time, end_time)
-  local indate = os.date("%Y-%m-%d", random_out_time)
+  local outdate = os.date("%Y-%m-%d", random_out_time)
  
   local method = "POST"
   local path = "/function/search-handler"
