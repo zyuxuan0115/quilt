@@ -44,8 +44,9 @@ request = function(req_id)
   body = '{"cast_info_id":' .. cast_info_id .. ',"name":"' .. name .. '","intro":"' 
         .. intro .. '"}'
  
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_write-cast-info.txt', 'a')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then

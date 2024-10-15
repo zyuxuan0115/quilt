@@ -40,8 +40,9 @@ request = function(req_id)
   headers["Content-Type"] = "application/x-www-form-urlencoded"
   body = '{"plot_id":' .. tostring(plot_id) .. ',"plot":"' .. text .. '"}' 
 
-  file = io.open('req_data_log.txt', 'a')
-  file:write(body)
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_write-plot.txt', 'a')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then

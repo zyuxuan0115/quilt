@@ -90,8 +90,9 @@ request = function(req_id)
          .. tostring(num_rating) .. '","casts":' .. casts .. ',"thumbnail_ids":' .. thumbnail_ids
          .. ',"photo_ids":' .. photo_ids .. ',"video_ids":' .. video_ids .. '}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_write-movie-info.txt', 'w')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then
