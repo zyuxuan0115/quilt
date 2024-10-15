@@ -382,9 +382,15 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
   InputFuncCall->eraseFromParent();
 
   // In the new callee function, change the way to send output back to caller
-  InvokeInst* OutputFuncCall = getInvokeByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
-
-  if (!OutputFuncCall) return;
+  InvokeInst* OutputFuncCall_i = getInvokeByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
+  CallInst* OutputFuncCall_c = getCallByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
+  if ((!OutputFuncCall_i) && (!OutputFuncCall_c)) {
+    llvm::errs()<<"Error: cannot find the OpenFaaSRPC::send_return_value_to_caller call\n";
+    return;
+  }
+  Instruction* OutputFuncCall;
+  if (OutputFuncCall_i) OutputFuncCall = dyn_cast<InvokeInst>(OutputFuncCall_i);
+  else OutputFuncCall = dyn_cast<CallInst>(OutputFuncCall_c);
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
   //                                         i64 24, i1 false)
@@ -404,10 +410,11 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
   // this function call is a invoke function, so we have to
   // first create a branch instruction as the terminator and 
   // then delete this call 
-  BasicBlock* nextBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(1));
-  if (nextBB)
-    BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
-
+  if (isa<InvokeInst>(OutputFuncCall)) {
+    BasicBlock* nextBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(1));
+    if (nextBB)
+      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
+  }
   OutputFuncCall->eraseFromParent();
 }
 
