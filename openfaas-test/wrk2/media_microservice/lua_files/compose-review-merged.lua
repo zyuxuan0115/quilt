@@ -47,8 +47,9 @@ request = function(req_id)
          .. rating .. ',"username":"' .. username .. '","password":"123456","text":"'
          .. text .. '"}' 
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_compose-review-merged.txt', 'a')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then
