@@ -41,7 +41,7 @@ request = function(req_id)
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  body = '{"cast_info_id":' .. cast_info_id .. ',"name":"' .. name .. '","intro":"' 
+  body = '{"cast_info_id":' .. cast_info_id .. ',"name":"' .. name .. '","gender":true,"intro":"' 
         .. intro .. '"}'
  
   local body_write = body .. '\n'

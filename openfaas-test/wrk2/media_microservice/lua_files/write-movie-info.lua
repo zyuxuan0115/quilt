@@ -86,12 +86,12 @@ request = function(req_id)
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
   body = '{"movie_id":"' .. tostring(movie_idx) .. '","title":"' .. title .. '","plot_id":'
-         .. tostring(plot_id) .. '","avg_rating":"' .. tostring(avg_rating) .. ',"num_rating":'
-         .. tostring(num_rating) .. '","casts":' .. casts .. ',"thumbnail_ids":' .. thumbnail_ids
+         .. tostring(plot_id) .. ',"avg_rating":' .. tostring(avg_rating) .. ',"num_rating":'
+         .. tostring(num_rating) .. ',"casts":' .. casts .. ',"thumbnail_ids":' .. thumbnail_ids
          .. ',"photo_ids":' .. photo_ids .. ',"video_ids":' .. video_ids .. '}'
 
-  local body_write = body .. '\n'
-  file = io.open('req_data_log_write-movie-info.txt', 'w')
+  local body_write = body .. '\n\n'
+  file = io.open('req_data_log_write-movie-info.txt', 'a')
   file:write(body_write)
   file:close()
 
