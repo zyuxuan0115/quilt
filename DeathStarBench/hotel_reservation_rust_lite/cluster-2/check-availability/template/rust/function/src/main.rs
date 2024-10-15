@@ -1,7 +1,6 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
-use mongodb::{bson::doc,sync::Client};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
 use redis::{Iter,Commands};
@@ -15,7 +14,6 @@ fn main() {
   let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut y = x.clone(); y.push_str("_cap"); y}).collect();
   let hotel_id_strslice: Vec<&str> = hotel_id_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_id_strslice;
-
   // get the capacity of each hotel
   let mut hotel_ids_not_cached: HashMap<String, bool> = HashMap::new();
   for item in &hotel_ids {
@@ -129,7 +127,7 @@ fn main() {
 
     let hotel_resv_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,_)| k).collect();
     
-    // fetch data from mongodb, if not present in memcached
+    // fetch data from redis, if not present in memcached
     if hotel_resv_not_cached.len() != 0 {
       let redis_uri = get_redis_rw_uri();
       let redis_client = redis::Client::open(&redis_uri[..]).unwrap(); 
