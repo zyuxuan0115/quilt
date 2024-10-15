@@ -40,8 +40,9 @@ request = function(req_id)
   local body = hotel_id
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  file = io.open('req_data_log_nearby-cinema.txt', 'w')
-  file:write(body .. '\n')
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_nearby-cinema.txt', 'a')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then

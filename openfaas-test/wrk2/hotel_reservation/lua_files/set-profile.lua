@@ -67,8 +67,9 @@ request = function(req_id)
          .. phone_num .. '","description":"' .. description .. '","address":' .. address 
          .. ',"images":' .. images .. '}'
 
+  local body_write = body .. '\n'
   file = io.open('req_data_log_set-profile.txt', 'a')
-  file:write(body .. '\n')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then

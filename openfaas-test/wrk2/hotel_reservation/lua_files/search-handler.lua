@@ -51,8 +51,9 @@ request = function(req_id)
   body = '{"latitude":' .. lat .. ',"longitude":' .. long .. ',"in_date":"' 
          .. indate .. '","out_date":"' .. outdate .. '"}'
 
+  local body_write = body .. '\n'
   file = io.open('req_data_log_search-handler.txt', 'a')
-  file:write(body .. '\n')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then
