@@ -34,15 +34,14 @@ end
 request = function(req_id)
   local hotel_id = 'hotel_' .. tostring(math.random(1,999))
 
-
   local method = "POST"
   local path = "/function/nearby-cinema"
   local headers = {}
   local body = hotel_id
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  file = io.open('req_data_log_nearby-cinema.txt', 'w')
+  file:write(body .. '\n')
   file:close()
 
   if req_id ~= "" then

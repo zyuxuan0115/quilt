@@ -42,7 +42,8 @@ request = function(req_id)
 
   body = '{"username":"' .. username .. '","password":"' .. password .. '"}'
 
-  file = io.open('req_data_log.txt', 'w')
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_register-user-hr.txt', 'a')
   file:write(body)
   file:close()
 

@@ -53,8 +53,8 @@ request = function(req_id)
          .. indate .. '","out_date":"' .. outdate .. '","room_number":' .. tostring(room_num)
          .. '}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  file = io.open('req_data_log_reservation-handler.txt', 'a')
+  file:write(body .. '\n')
   file:close()
 
   if req_id ~= "" then

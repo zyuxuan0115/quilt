@@ -48,8 +48,8 @@ request = function(req_id)
          .. cinema_id .. '","cinema_name":"' .. stringRandom(10) .. '","cinema_type":"'
          .. stringRandom(5)  .. '"}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  file = io.open('req_data_log.txt', 'a')
+  file:write(body .. '\n')
   file:close()
 
   if req_id ~= "" then

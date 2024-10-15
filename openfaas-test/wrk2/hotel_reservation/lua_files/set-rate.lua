@@ -51,8 +51,8 @@ request = function(req_id)
   body = '{"hotel_id":"' .. hotel_id .. '","code":"' .. stringRandom(5) .. 
          '","in_date":"2023-01-01","out_date":"2025-12-31","room_type":' .. room_type .. '}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  file = io.open('req_data_log_set-rate.txt', 'a')
+  file:write(body .. '\n')
   file:close()
 
   if req_id ~= "" then
