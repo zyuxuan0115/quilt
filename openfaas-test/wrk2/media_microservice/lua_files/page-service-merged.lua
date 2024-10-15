@@ -39,8 +39,9 @@ request = function(req_id)
 
   body = '{"movie_id":"' .. tostring(movie_id) .. '","review_start":0,"review_stop":1}'
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_page-service-merged.txt', 'a')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then

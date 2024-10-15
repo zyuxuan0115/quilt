@@ -39,7 +39,8 @@ request = function(req_id)
 
   body = '{"user_id":' .. user_id .. ',"review_start":0,"review_stop":1}'
 
-  file = io.open('req_data_log.txt', 'w')
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_read-user-review.txt', 'a')
   file:write(body)
   file:close()
 
