@@ -41,7 +41,7 @@ request = function(req_id)
 
   local body_write = body .. '\n'
   file = io.open('req_data_log_read-user-review.txt', 'a')
-  file:write(body)
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then

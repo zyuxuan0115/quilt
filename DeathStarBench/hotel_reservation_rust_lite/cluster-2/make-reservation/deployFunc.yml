@@ -9,5 +9,4 @@ functions:
     image: zyuxuan0115/hr-make-reservation:latest
     secrets:
     - redis-password
-    - mongodb-password
     - ingress-enable
