@@ -24,10 +24,6 @@
       "cluster_id":1
     },
     {
-      "function_name":"compose-review",
-      "cluster_id":2
-    },
-    {
       "function_name":"write-cast-info",
       "cluster_id":1
     },
@@ -122,5 +118,15 @@
     {
       "function_name":"compose-review-upload-user-id",
       "cluster_id":2
-    }
+    },
+    {
+      "function_name":"compose-review",
+      "cluster_id":3
+    },
+    {
+      "function_name":"compose-review-user-id",
+      "cluster_id":3
+    },
+
+
 ]
