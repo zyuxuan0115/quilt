@@ -5,7 +5,7 @@ use std::time::{SystemTime,Duration, Instant};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let new_review_info: ComposeReviewArgs = serde_json::from_str(&input).unwrap();
+  let new_review_info: ComposeReviewUserIdArgs = serde_json::from_str(&input).unwrap();
  
   let _ = make_rpc("unique-id-service", new_review_info.req_id.to_string());
 
@@ -16,12 +16,12 @@ fn main() {
   let text_service_arg_str = serde_json::to_string(&text_service_arg).unwrap();
   let _ = make_rpc("text-service", text_service_arg_str);
   
-  let upload_user_arg = UploadUserWithUsernameArgs {
+  let upload_user_arg = UploadUserWithUserIdArgs {
     req_id: new_review_info.req_id,
-    username: new_review_info.username,
+    user_id: new_review_info.user_id,
   };
   let upload_user_arg_str = serde_json::to_string(&upload_user_arg).unwrap();
-  let _ = make_rpc("upload-user-with-username", upload_user_arg_str);
+  let _ = make_rpc("upload-user-with-userid", upload_user_arg_str);
 
   let upload_movie_arg = UploadMovieIdArgs {
     req_id: new_review_info.req_id,

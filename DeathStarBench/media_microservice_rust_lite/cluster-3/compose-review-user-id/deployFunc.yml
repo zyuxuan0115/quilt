@@ -3,10 +3,10 @@ provider:
   name: openfaas
   gateway: http://127.0.0.1:8081
 functions:
-  compose-review:
+  compose-review-user-id:
     lang: rust
-    handler: ./compose-review
-    image: zyuxuan0115/mm-compose-review:latest
+    handler: ./compose-review-user-id
+    image: zyuxuan0115/mm-compose-review-user-id:latest
     secrets:
     - redis-password
     - ingress-enable
