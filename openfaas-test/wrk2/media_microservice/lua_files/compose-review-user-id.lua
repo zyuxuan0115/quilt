@@ -26,28 +26,30 @@ local function decRandom(length)
   end
 end
 
-counter = 0
+counter = 2000
 
 request = function(req_id)
   counter = counter + 1
-  local user_index = counter % 1000
+  local req_id = counter
+  local user_index = math.random(1, 999)
   local user_id = tostring(user_index)
-  local first_name = stringRandom(8)
-  local last_name = stringRandom(8)
-  local password = "123456"
-
-  content = '{"user_id":' .. user_id .. ',"first_name":"' .. first_name .. 
-            '","last_name":"' .. last_name .. '","password":"' .. password .. '"}' 
+  local title = 'movie_' .. tostring(math.random(1,999))
+  local rating = math.random(1,5)
+  local text = stringRandom(100)
 
   local method = "POST"
-  local path = "/function/register-user-with-id"
+  local path = "/function/compose-review-user-id"
   local headers = {}
-  local body = content
-
+  local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
+  body = '{"req_id":' .. tostring(req_id) .. ',"title":"' .. title .. '","rating":'
+         .. rating .. ',"user_id":"' .. user_id .. '","password":"123456","text":"'
+         .. text .. '"}' 
+
   local body_write = body .. '\n'
-  file = io.open('req_data_log_register-user-with-id.txt', 'a')
+
+  file = io.open('req_data_log_compose-review_user_id.txt', 'a')
   file:write(body_write)
   file:close()
 

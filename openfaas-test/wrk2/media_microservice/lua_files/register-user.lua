@@ -46,7 +46,7 @@ request = function(req_id)
 
   headers["Content-Type"] = "application/x-www-form-urlencoded"
   local body_write = body .. '\n'
-  file = io.open('req_data_log_register-user.log', 'a')
+  file = io.open('req_data_log_register-user.txt', 'a')
   file:write(body_write)
   file:close()
 
