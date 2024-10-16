@@ -44,7 +44,7 @@ request = function(req_id)
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
   body = '{"req_id":' .. tostring(req_id) .. ',"title":"' .. title .. '","rating":'
-         .. rating .. ',"user_id":"' .. user_id .. '","password":"123456","text":"'
+         .. rating .. ',"user_id":' .. user_id .. ',"password":"123456","text":"'
          .. text .. '"}' 
 
   local body_write = body .. '\n'

@@ -32,11 +32,13 @@ request = function(req_id)
   counter = counter + 1
   local user_index = counter % 1000
   local user_id = tostring(user_index)
+  local username = 'user_' .. user_id
   local first_name = stringRandom(8)
   local last_name = stringRandom(8)
   local password = "123456"
 
-  content = '{"user_id":' .. user_id .. ',"first_name":"' .. first_name .. 
+  content = '{"user_id":' .. user_id .. ',"username":"' .. username 
+            .. '","first_name":"' .. first_name .. 
             '","last_name":"' .. last_name .. '","password":"' .. password .. '"}' 
 
   local method = "POST"

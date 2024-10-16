@@ -32,7 +32,7 @@ request = function(req_id)
   local user_id = tostring(user_idx)
 
   local method = "POST"
-  local path = "/function/read-user-review"
+  local path = "/function/read-user-review-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -40,7 +40,7 @@ request = function(req_id)
   body = '{"user_id":' .. user_id .. ',"start":0,"stop":1}'
 
   local body_write = body .. '\n'
-  file = io.open('req_data_log_read-user-review.txt', 'a')
+  file = io.open('req_data_log_read-user-review-merged.txt', 'a')
   file:write(body_write)
   file:close()
 
