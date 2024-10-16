@@ -19,8 +19,6 @@ fn main() {
   memcache_client.add(&key_movie_id[..], args.movie_id.clone(), 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
-  println!("memcache successful");
-  println!("counter_value:{}", counter_value);
   if counter_value == NUM_COMPONENTS {
     make_rpc("compose-and-upload", args.req_id.to_string());
   }
