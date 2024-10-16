@@ -1,5 +1,5 @@
 #!/bin/bash
-
+rm -rf *.txt
 ./test.sh set-cinema
 ./test.sh set-capacity 2
 ./test.sh set-profile
