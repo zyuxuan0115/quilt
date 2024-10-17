@@ -34,7 +34,7 @@ counter = 0
 
 request = function(req_id)
   counter = counter + 1 
-  local hotel_idx = counter % 1000
+  local hotel_idx = counter % 100
   local hotel_id = "hotel_" .. tostring(hotel_idx)
 
   local room_type = '{"bookable_rate":' .. tostring(random_float(100, 500)) .. '"total_rate":' 
@@ -51,8 +51,10 @@ request = function(req_id)
   body = '{"hotel_id":"' .. hotel_id .. '","code":"' .. stringRandom(5) .. 
          '","in_date":"2023-01-01","out_date":"2025-12-31","room_type":' .. room_type .. '}'
 
+
+  local body_write = body .. '\n'
   file = io.open('req_data_log_set-rate.txt', 'a')
-  file:write(body .. '\n')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then

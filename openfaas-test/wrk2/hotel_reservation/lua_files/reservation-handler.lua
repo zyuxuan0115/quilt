@@ -27,10 +27,10 @@ local function decRandom(length)
 end
 
 request = function(req_id)
-  local hotel_idx = math.random(1,999)
+  local hotel_idx = math.random(1,99)
   local hotel_id = "hotel_" .. tostring(hotel_idx)
   local user_idx = math.random(1,999)
-  local username = "user_" .. tostring(user_idx)
+  local username = "username_" .. tostring(user_idx)
   local room_num = math.random(1,5)
 
   local start_time = os.time{year=2024, month=11, day=1}
@@ -66,13 +66,13 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
-  if status ~= 200 then
+--  if status ~= 200 then
       io.write("------------------------------\n")
       io.write("Response with status: ".. status .."\n")
       io.write("------------------------------\n")
       io.write("[response] Body:\n")
       io.write(body .. "\n")
-  end
+--  end
 end
 
 function init(rand_seed)
