@@ -36,11 +36,12 @@ request = function(req_id)
   counter = counter + 1 
   local hotel_idx = counter % 100
   local hotel_id = "hotel_" .. tostring(hotel_idx)
+  local total_rate = random_float(200, 600)
 
-  local room_type = '{"bookable_rate":' .. tostring(random_float(100, 500)) .. '"total_rate":' 
-                    .. tostring(random_float(200, 600)) .. ',"total_rate_inclusive":' .. tostring(random_float(200, 600))
-                    ',"code":"' .. stringRandom(8) .. '","currency":"' .. stringRandom(3) .. ',"room_description":"' 
-                    .. stringRadnom(20) .. '"}'
+  local room_type = '{"bookable_rate":' .. tostring(random_float(100, 500)) .. ',"total_rate":' 
+                    .. tostring(random_float(200, 600)) .. ',"total_rate_inclusive":' .. tostring(total_rate) ..
+                    ',"code":"' .. stringRandom(8) .. '","currency":"' .. stringRandom(3) .. '","room_description":"' 
+                    .. stringRandom(20) .. '"}'
  
   local method = "POST"
   local path = "/function/set-rate"
