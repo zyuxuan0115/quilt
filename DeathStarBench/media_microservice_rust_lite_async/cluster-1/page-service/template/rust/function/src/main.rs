@@ -10,7 +10,6 @@ fn main() {
   let handle_read_movie_info = thread::spawn(move || {
     make_rpc("read-movie-info", movie_id_arg)
   });
-
   let read_movie_reviews_args = ReadMovieReviewArgs {
     movie_id: args.movie_id.clone(),
     start: args.review_start,
@@ -31,15 +30,23 @@ fn main() {
   let cast_info_ids: Vec<i64> = movie_info.casts.iter().map(|x| x.cast_info_id).collect();
   let cast_info_id_str: String = serde_json::to_string(&cast_info_ids).unwrap();
 
+  println!("cast_info_id_str: {}", cast_info_id_str);
+
   let handle_read_cast_info = thread::spawn(move || {
     make_rpc("read-cast-info", cast_info_id_str)
   });
+
   let handle_read_plot = thread::spawn(move || {
     make_rpc("read-plot", movie_info.plot_id.to_string())
   });
 
+  println!("ddddddddddddddddddddddd\n");
+
   let cast_info_str = handle_read_cast_info.join().unwrap();
+  println!("cast: {}",cast_info_str);
+
   let plot = handle_read_plot.join().unwrap();
+  println!("plot: {}", plot);
 
   let cast_info: Vec<CastInfoEntry> = serde_json::from_str(&cast_info_str).unwrap();
 

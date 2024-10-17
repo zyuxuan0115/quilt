@@ -11,7 +11,8 @@ fn main() {
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
-  let result: Option<String> = memcache_client.get(&movie_id[..]).unwrap();
+  let movie_id_mmd = format!("movie_info:{}", movie_id);
+  let result: Option<String> = memcache_client.get(&movie_id_mmd[..]).unwrap();
 
   let mut movie_info = String::new();
   match result {
@@ -49,6 +50,8 @@ fn main() {
             video_ids: real_video,
           };
           movie_info = serde_json::to_string(&real_movie_info).unwrap();
+          let movie_id_mmd = format!("movie_info:{}",real_movie_info.movie_id);
+          memcache_client.set(&movie_id_mmd[..],&movie_info[..],0).unwrap();
         },
         Err(_) => {
           println!("error: cannot find the movie: {} in redis", movie_id);
