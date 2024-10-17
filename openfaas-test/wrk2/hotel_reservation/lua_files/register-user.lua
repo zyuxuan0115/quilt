@@ -40,7 +40,7 @@ request = function(req_id)
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  body = '{"username":"' .. username .. '","password":"' .. password .. '"}'
+  body = '{"username":"' .. username .. '","password":"123456"}'
 
   local body_write = body .. '\n'
   file = io.open('req_data_log_register-user-hr.txt', 'a')
