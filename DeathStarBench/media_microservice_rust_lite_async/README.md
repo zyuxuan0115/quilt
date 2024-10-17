@@ -49,7 +49,7 @@ curl localhost:8081/function/compose-review -d '{"req_id":8037,"username":"zyuxu
 ### compose-review-user-id
 
 ```bash
-curl localhost:8081/function/compose-review-user-id -d '{"req_id":8037,"user-id":11078,"password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
+curl localhost:8081/function/compose-review-user-id -d '{"req_id":8037,"user_id":11078,"password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 ```
 
 
