@@ -32,7 +32,7 @@ end
 
 
 request = function(req_id)
-  local hotel_id = 'hotel_' .. tostring(math.random(1,999))
+  local hotel_id = 'hotel_' .. tostring(math.random(1,99))
 
   local method = "POST"
   local path = "/function/nearby-cinema"
