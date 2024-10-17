@@ -19,7 +19,8 @@ fn main() {
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
-  let cast_id_strslice: Vec<&str> = cast_id_strs.iter().map(|x| &**x).collect();
+  let cast_id_str_mmd: Vec<String> = cast_id_strs.iter().map(|x|{let new_x = format!("cast_info:{}",x); new_x}).collect();
+  let cast_id_strslice: Vec<&str> = cast_id_str_mmd.iter().map(|x| &**x).collect();
   let keys: &[&str] = &cast_id_strslice;
   let result: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
@@ -53,7 +54,7 @@ fn main() {
             intro: intro,
           };
           // update memcached
-          let key = cast_info_id.to_string();
+          let key = format!("cast_info:{}",cast_info_id);
           let value = serde_json::to_string(&cast_info).unwrap(); 
           memcache_client.set(&key[..],&value[..],0).unwrap();
           cast_infos.push(cast_info);

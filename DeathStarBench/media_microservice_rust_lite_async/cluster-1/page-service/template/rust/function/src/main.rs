@@ -40,13 +40,8 @@ fn main() {
     make_rpc("read-plot", movie_info.plot_id.to_string())
   });
 
-  println!("ddddddddddddddddddddddd\n");
-
   let cast_info_str = handle_read_cast_info.join().unwrap();
-  println!("cast: {}",cast_info_str);
-
   let plot = handle_read_plot.join().unwrap();
-  println!("plot: {}", plot);
 
   let cast_info: Vec<CastInfoEntry> = serde_json::from_str(&cast_info_str).unwrap();
 
