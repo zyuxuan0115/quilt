@@ -34,7 +34,7 @@ counter = 0
 
 request = function(req_id)
   counter = counter + 1 
-  local hotel_idx =  math.random(1, 999)
+  local hotel_idx =  counter % 99
   local hotel_id = "hotel_" .. tostring(hotel_idx)
   local name = stringRandom(15)
   local phone_num = stringRandom(12)
