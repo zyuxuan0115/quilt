@@ -52,7 +52,7 @@ request = function(req_id)
   end
   images = images:sub(1, #images - 1) .. "]"
 
-  local address = '{"street_name":"' .. stringRandom(5) .. '","street_name":"' 
+  local address = '{"street_number":"' .. stringRandom(5) .. '","street_name":"' 
                   .. stringRandom(8) .. '","city":"' .. stringRandom(10) .. '","state":"'
                   .. stringRandom(2) .. '","country":"' .. stringRandom(10) .. '","postal_code":"'
                   .. stringRandom(6) .. '","latitude":' .. lat .. ',"longitude":' .. long .. '}'
