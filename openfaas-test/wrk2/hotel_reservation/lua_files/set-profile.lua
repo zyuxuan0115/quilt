@@ -43,7 +43,7 @@ request = function(req_id)
   local long = random_float(116,119)
 
   local num_images = math.random(0, 4)
-  local imagess = '['
+  local images = '['
 
   for i = 0, num_images, 1 do
     local url = 'http://' .. stringRandom(10) .. '.png'
