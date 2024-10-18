@@ -9,3 +9,4 @@ functions:
     image: zyuxuan0115/hr-search-handler-merged:latest
     secrets:
     - ingress-enable
+    - redis-password
