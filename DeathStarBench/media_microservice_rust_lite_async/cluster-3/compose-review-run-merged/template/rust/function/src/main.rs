@@ -12,7 +12,7 @@ fn main() {
   let handle_unique_id = thread::spawn(move || {
     make_rpc("unique-id-service-merged", req_id)
   });
- 
+
   let text_service_arg = ComposeReviewUploadTextArgs {
     req_id: new_review_info.req_id,
     text: new_review_info.text,

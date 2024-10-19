@@ -4,11 +4,11 @@
       "cluster_id":1
     },
     {
-      "function_name":"register-movie-id",
+      "function_name":"unique-id-service-merged",
       "cluster_id":1
     },
     {
-      "function_name":"update-movie-id",
+      "function_name":"register-movie-id",
       "cluster_id":1
     },
     {
@@ -44,6 +44,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"text-service-merged",
+      "cluster_id":1
+    },
+    {
       "function_name":"page-service",
       "cluster_id":1
     },
@@ -60,6 +64,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"upload-movie-id-merged",
+      "cluster_id":1
+    },
+    {
       "function_name":"register-user",
       "cluster_id":2
     },
@@ -73,6 +81,10 @@
     },
     {
       "function_name":"upload-user-with-username",
+      "cluster_id":1
+    },
+    {
+      "function_name":"upload-user-with-username-merged",
       "cluster_id":1
     },
     {
