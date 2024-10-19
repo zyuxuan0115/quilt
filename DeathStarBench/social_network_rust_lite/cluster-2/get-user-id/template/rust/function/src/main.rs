@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{Duration, Instant}};
-use mongodb::{bson::doc,sync::Client};
 use memcache::Client as memcached_client;
 use redis::{Commands, RedisResult};
 
@@ -49,8 +48,8 @@ fn main() {
         user_id = x;
       },
       RedisError => {
-        println!("User: {} doesn't exist in MongoDB", username);
-        panic!("User: {} doesn't exist in MongoDB", username);
+        println!("User: {} doesn't exist in reids", username);
+        panic!("User: {} doesn't exist in redis", username);
       },
     } 
   }
