@@ -24,10 +24,11 @@ function build_merge {
   cp merge.sh temp
   cp merge_tree.py temp
   cp funcTree temp
-  sudo docker build --no-cache --build-arg CACHEBUST=$(date +%s) -t zyuxuan0115/sn-$CALLER-async-merged:latest \
+  sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-async-merged:latest \
     -f Dockerfile \
     temp
   rm -rf temp
+  sudo docker system prune -f
   sudo docker push zyuxuan0115/sn-$CALLER-async-merged:latest
 }
 
