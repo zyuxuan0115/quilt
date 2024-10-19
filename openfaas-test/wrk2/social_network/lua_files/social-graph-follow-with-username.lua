@@ -40,7 +40,7 @@ request = function(req_id)
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-  body = '{"username":"' .. username .. '","followee_name":"' .. followee_name .. '"}'
+  body = '{"user_name":"' .. username .. '","followee_name":"' .. followee_name .. '"}'
 
   local body_write = body .. '\n'
   file = io.open('req_data_log_social-graph-follow-with-username.txt', 'a')
