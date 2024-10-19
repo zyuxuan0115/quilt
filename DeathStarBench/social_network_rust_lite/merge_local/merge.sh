@@ -71,16 +71,22 @@ function merge_existing {
   mv $CALLER_IR caller.bc
   cp caller.bc merged.bc
 
-  for i in $(2..$($NUM_ARGS)..2);
+  for i in $(seq 2 2 $(($NUM_ARGS-1)) );
   do
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-    mv $CALLEE_IR callee.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/std-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_abort-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
+    rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
+    ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
+    $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
+    mv $CALLEE_IR $CALLEE_FUNC.bc
     $LLVM_DIR/llvm-link merged.bc callee.bc -o caller_and_callee.bc
     $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
     $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func -merge-existing-rr -merged-names-rr=${ARGS[$i+1]} -o merged.bc
     cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
-    mv callee.bc $CALLEE_IR
+    mv $CALLEE_FUNC.bc $CALLEE_IR
   done
 
   mv merged.bc $CALLER_IR
@@ -98,7 +104,7 @@ function merge_both {
   cp caller.bc merged.bc
 #  $LLVM_DIR/llvm-dis caller.bc -o merged.ll
 
-  for i in $(2..$($NUM_ARGS)..2);
+  for i in $(seq 2 2 $(($NUM_ARGS-1)) );
   do
     CALLEE_FUNC=${ARGS[$i]}
     CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
