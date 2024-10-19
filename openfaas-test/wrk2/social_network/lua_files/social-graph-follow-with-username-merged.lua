@@ -26,57 +26,25 @@ local function decRandom(length)
   end
 end
 
+
 request = function(req_id)
-  local user_index = math.random(1, 999)
+  local user_index = math.random(1,999)
   local username = "username_" .. tostring(user_index)
-  local user_id = tostring(user_index)
-  local text = stringRandom(256)
-  local num_user_mentions = math.random(0, 5)
-  local num_urls = math.random(0, 5)
-  local num_media = math.random(0, 4)
-  local media_ids = '['
-  local media_types = '['
+  local followee_idx = math.random(1,999)
+  local followee_name = "username_" .. tostring(followee_idx)
 
-  for i = 0, num_user_mentions, 1 do
-    local user_mention_id
-    while (true) do
-      user_mention_id = math.random(1, 962)
-      if user_index ~= user_mention_id then
-        break
-      end
-    end
-    text = text .. " @username_" .. tostring(user_mention_id)
-  end
-
-  for i = 0, num_urls, 1 do
-    text = text .. " http://" .. stringRandom(64)
-  end
-
-  for i = 0, num_media, 1 do
-    local media_id = decRandom(10)
-    media_ids = media_ids .. media_id .. ","
-    media_types = media_types .. "\"png\","
-  end
-
-  media_ids = media_ids:sub(1, #media_ids - 1) .. "]"
-  media_types = media_types:sub(1, #media_types - 1) .. "]"
 
   local method = "POST"
-  local path = "/function/compose-post"
+  local path = "/function/social-graph-follow-with-username-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/x-www-form-urlencoded"
-  if num_media then
-    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
-        ',"text":"' .. text .. '","media_ids":' .. media_ids ..
-        ',"media_types":' .. media_types .. ',"post_type":"POST"}'
-  else
-    body   = '{"username":"' .. username .. '","user_id":' .. user_id ..
-        ',"text":"' .. text .. '","media_ids":[],media_types":[]' .. ',"post_type":"POST"}'
-  end
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  body = '{"user_name":"' .. username .. '","followee_name":"' .. followee_name .. '"}'
+
+  local body_write = body .. '\n'
+  file = io.open('req_data_log_social-graph-follow-with-username-merged.txt', 'a')
+  file:write(body_write)
   file:close()
 
   if req_id ~= "" then
