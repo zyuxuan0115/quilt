@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.70"
-AGENT_IP="130.127.133.96"
-SERVER_HOST="zyuxuan@clnode061.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode087.clemson.cloudlab.us"
+SERVER_IP="128.110.96.58"
+AGENT_IP="128.110.96.54"
+SERVER_HOST="zyuxuan@apt058.apt.emulab.net"
+AGENT_HOST="zyuxuan@apt054.apt.emulab.net"
 
 function setup_k8s {
   ### setup the kubernetes cluster
@@ -29,10 +29,10 @@ function setup {
 function kill_k8s {
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
-  ssh -q $SERVER_HOST -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442
+  ssh -q $SERVER_HOST -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442 31112 31113
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
   ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
-  ssh -q $AGENT_HOST -- npx kill-port 30080  6379 27017 11211 30081 3000 30443 30442
+  ssh -q $AGENT_HOST -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442 31112 31113
   for entry in "$(pwd)"/*
   do
     if [[ -d $entry  ]] ; then
