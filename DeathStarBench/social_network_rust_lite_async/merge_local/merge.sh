@@ -93,8 +93,10 @@ function merge_existing {
   CALLER_FUNC=${ARGS[1]} 
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
   CALLEE_FUNC=${ARGS[2]}
+  REAL_CALLER_FUNC=${ARGS[3]}
   $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -merge-existing-rra \
-                 -caller-name-rra=$CALLER_FUNC -callee-name-rra=$CALLEE_FUNC -o merged.bc
+                 -caller-name-rra=$REAL_CALLER_FUNC -callee-name-rra=$CALLEE_FUNC \
+                 -o merged.bc
   mv merged.bc $CALLER_IR
 }
 
@@ -138,6 +140,7 @@ function clean {
   done
   rm -rf *.ll *.o *.bc function *.txt Implib.so
 }
+
 
 case "$1" in
 compile)

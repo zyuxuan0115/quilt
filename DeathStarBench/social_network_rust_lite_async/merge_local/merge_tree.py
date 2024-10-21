@@ -29,12 +29,11 @@ def merge(f_name):
  
   func_visited = {}
   entry_func = ""
-  # merge functions 
+  # get the entry function
   if len(Lines) > 0:
     words = Lines[0].split();
     if len(words) > 0:
       entry_func = words[0]
-
   # compile
   for line in Lines:
     words = line.split()
@@ -49,12 +48,11 @@ def merge(f_name):
   cmd = "./merge.sh compile "+func_to_be_compiled
   print(cmd)
   os.system(cmd)
-
+  # rename caller
   cmd = "./merge.sh rename_caller "+entry_func
   print(cmd)
   os.system(cmd)
-
-  # delete useless
+  # delete useless files
   all_callees = ""
   for func in func_visited:
     if func != entry_func:
@@ -62,39 +60,36 @@ def merge(f_name):
   cmd = "./merge.sh remove_redundant_files "+entry_func + " " + all_callees
   print(cmd)
   os.system(cmd)
-
-  # rename
+  # rename callee
   for func in func_visited:
     if func != entry_func:
       cmd = "./merge.sh rename_callee "+func
       print(cmd)
       os.system(cmd)
-
   # merge
+  merged_funcs = {}
+  merged_funcs[entry_func] = 1
   for line in Lines:
     words = line.split()
     caller = words[0]
     callee = words[1]
-    cmd = "./merge.sh merge "+entry_func+" "+callee+" "+caller
-    print(cmd)
-    os.system(cmd)
-
+    if callee not in merged_funcs:
+      cmd = "./merge.sh merge "+entry_func+" "+callee+" "+caller
+      print(cmd)
+      os.system(cmd)
+      merged_funcs[callee] = 1
+    else:
+      cmd = "./merge.sh merge_existing "+entry_func+" "+callee+" "+caller
   # link
   cmd = "./merge.sh link " + entry_func
   print(cmd)
   os.system(cmd)
 
+
 def clean(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
-
   func_visited = {}
-  entry_func = ""
-  if len(Lines) > 0:
-    words = Lines[0].split();
-    if len(words) > 0:
-      entry_func = words[0]
-
   # remove all
   for line in Lines:
     words = line.split()
@@ -124,6 +119,7 @@ def main():
   else:
     print("usage: ./merge_tree.py <'merge' or 'clean'> <input file>")
     exit(1)
+
 
 if __name__ == "__main__":
     main()
