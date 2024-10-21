@@ -3,7 +3,6 @@ import os
 import sys 
 import json
 
-
 def move_functions(json_file):
   funcTree = sys.argv[2]
   f = open(sys.argv[2], 'r')
@@ -28,48 +27,87 @@ def merge(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
  
-  callers = {}
+  func_visited = {}
+  entry_func = ""
   # merge functions 
+  if len(Lines) > 0:
+    words = Lines[0].split();
+    if len(words) > 0:
+      entry_func = words[0]
+
+  # compile
   for line in Lines:
-    functions = line.split()
-    caller = functions[0]
-    callers[caller] = 1
-    callees = ""
-    for callee in functions:
-      if callee not in callers:
-        callees = callees+callee+" "
-    cmd = "./merge.sh compile "+caller+" "+callees
-    print(cmd)
-    os.system(cmd)
-  
-    callees = ""
-    for callee in functions:
-      if callee != caller: 
-        callees = callees+callee+" "
-    cmd = "./merge.sh merge "+caller+" "+callees
-    print(cmd)
-    os.system(cmd)
-  # merge libs
-  final_caller = Lines[len(Lines)-1].split()[0]
-  print(final_caller)
-  cmd = "./merge.sh link "+final_caller
+    words = line.split()
+    func_str = ""
+    for word in words:
+      new_func=word
+      if new_func not in func_visited:
+        func_visited[new_func] = 1
+  func_to_be_compiled = ""
+  for func in func_visited:
+    func_to_be_compiled = func_to_be_compiled + func + " "
+  cmd = "./merge.sh compile "+func_to_be_compiled
+  print(cmd)
   os.system(cmd)
 
+  cmd = "./merge.sh rename_caller "+entry_func
+  print(cmd)
+  os.system(cmd)
 
-def clean():
-  f_name = sys.argv[2]
+  # delete useless
+  all_callees = ""
+  for func in func_visited:
+    if func != entry_func:
+      all_callees = all_callees + func + " "
+  cmd = "./merge.sh remove_redundant_files "+entry_func + " " + all_callees
+  print(cmd)
+  os.system(cmd)
+
+  # rename
+  for func in func_visited:
+    if func != entry_func:
+      cmd = "./merge.sh rename_callee "+func
+      print(cmd)
+      os.system(cmd)
+
+  # merge
+  for line in Lines:
+    words = line.split()
+    caller = words[0]
+    callee = words[1]
+    cmd = "./merge.sh merge "+entry_func+" "+callee+" "+caller
+    print(cmd)
+    os.system(cmd)
+
+  # link
+  cmd = "./merge.sh link " + entry_func
+  print(cmd)
+  os.system(cmd)
+
+def clean(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
-  functions = {}
+
+  func_visited = {}
+  entry_func = ""
+  if len(Lines) > 0:
+    words = Lines[0].split();
+    if len(words) > 0:
+      entry_func = words[0]
+
+  # remove all
   for line in Lines:
-    funcs = line.split()
-    for func in funcs:
-      functions[func] = 1
-  cmd = "rm -rf "
-  for key in functions:
-    cmd = cmd + key + " "
-  os.system(cmd)
-  cmd = "rm -rf *.ll *.bc *.o *.txt function Implib.so"
+    words = line.split()
+    func_str = ""
+    for word in words:
+      new_func = word
+      if new_func not in func_visited:
+        func_visited[new_func] = 1
+  func_to_be_compiled = ""
+  for func in func_visited:
+    func_to_be_compiled = func_to_be_compiled + func + " "
+  cmd = "rm -rf "+func_to_be_compiled+" *.o *.bc *.txt function Implib.so"
+  print(cmd)
   os.system(cmd)
 
 
@@ -82,7 +120,7 @@ def main():
     move_functions("../OpenFaaSRPC/func_info.json")
     merge(sys.argv[2])
   elif arg == "clean":
-    clean()    
+    clean(sys.argv[2])    
   else:
     print("usage: ./merge_tree.py <'merge' or 'clean'> <input file>")
     exit(1)
