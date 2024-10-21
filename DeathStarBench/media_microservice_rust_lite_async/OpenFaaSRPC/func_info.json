@@ -132,12 +132,11 @@
       "cluster_id":2
     },
     {
-      "function_name":"compose-review",
+      "function_name":"compose-review-user-id",
       "cluster_id":2
     },
     {
-      "function_name":"compose-review-user-id",
-      "cluster_id":2
+      "function_name":"compose-review",
+      "cluster_id":3
     }
-
 ]
