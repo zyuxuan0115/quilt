@@ -14,24 +14,27 @@ static cl::opt<bool> RenameCallee_rra(
                                      "rename-callee-rra", cl::init(false),
                                      cl::desc("rename the rust callee functions"));
 
+static cl::opt<bool> RenameCaller_rra(
+                                     "rename-caller-rra", cl::init(false),
+                                     cl::desc("rename the rust caller functions"));
+
 static cl::opt<bool> MergeCallee_rra(
                                      "merge-callee-rra", cl::init(false),
                                      cl::desc("merge the given callee functions"));
+
+static cl::opt<bool> MergeExistingCallee_rra(
+                                     "merge-existing-rra", cl::init(false),
+                                     cl::desc("merge with existing rust callee functions"));
 
 static cl::opt<std::string> CalleeName_rra(
                                      "callee-name-rra", cl::Hidden,
                                      cl::desc("callee function name"),
                                      cl::init(""));
 
-static cl::opt<bool> MergeExistingCallee_rra(
-                                     "merge-existing-rra", cl::init(false),
-                                     cl::desc("merge with existing rust callee functions"));
-
-static cl::list<std::string>
-CalleeFuncsToBeMerged_rra("merged-names-rra", 
-                      cl::desc("A list of callee function name "
-                               "that should be merged."),
-                      cl::CommaSeparated, cl::Hidden);
+static cl::opt<std::string> CallerName_rra(
+                                     "caller-name-rra", cl::Hidden,
+                                     cl::desc("caller function name"),
+                                     cl::init(""));
 
 
 PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
@@ -43,16 +46,31 @@ PreservedAnalyses MergeRustFuncAsyncPass::run(Module &M,
     }
     RenameCallee(&M);
   }
+  else if (RenameCaller_rra) {
+    if (CallerName_rra == "") {
+      llvm::errs()<<"RenameCaller Error: didn't specify caller function name\n";
+      return PreservedAnalyses::all();
+    }
+    RenameCaller(&M);
+  }
   else if (MergeCallee_rra) {
     if (CalleeName_rra == "") {
       llvm::errs()<<"MergeCallee Error: didn't specify callee function name\n";
       return PreservedAnalyses::all();
     }
+    if (CallerName_rra == "") {
+      llvm::errs()<<"MergeCaller Error: didn't specify caller function name\n";
+      return PreservedAnalyses::all();
+    }
     MergeCallee(&M);
   }
   else if (MergeExistingCallee_rra) {
-    if (CalleeFuncsToBeMerged_rra.size() == 0){
-      llvm::errs()<<"MergeExistingCallee Error: didn't specify callee function names\n";
+    if (CalleeName_rra == "") {
+      llvm::errs()<<"MergeCallee Error: didn't specify callee function name\n";
+      return PreservedAnalyses::all();
+    }
+    if (CallerName_rra == "") {
+      llvm::errs()<<"MergeCaller Error: didn't specify caller function name\n";
       return PreservedAnalyses::all();
     }
     MergeExistingCallee(&M);
@@ -69,6 +87,13 @@ void MergeRustFuncAsyncPass::RenameCallee(Module* M) {
   renameRealCallee(mainFunc, "main_2nd_for_"+CalleeName_rra);
   mainFunc->setName("main_for_"+CalleeName_rra);
   rustRTFunc->setName("std_rt_lang_start_for_"+CalleeName_rra); 
+  RenameFunctionMainClosure(M, CalleeName_rra);
+}
+
+
+
+void MergeRustFuncAsyncPass::RenameCaller(Module* M) {
+  RenameFunctionMainClosure(M, CallerName_rra);
 }
 
 
@@ -76,10 +101,10 @@ void MergeRustFuncAsyncPass::RenameCallee(Module* M) {
 void MergeRustFuncAsyncPass::MergeCallee(Module* M) {
   // get function::main::{{closure}}
   // because it contains RPC (OpenFaaSRPC::make_rpc())
-  Function* mainClosure = getMainClosure(M, CalleeName_rra);
+  Function* mainClosure = getMainClosure(M, CallerName_rra, CalleeName_rra);
   CallInst* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
 
-  // create a function that has the same arguments as `make_rpc`
+  // create a function that has theesame arguments as `make_rpc`
   // but the function body is the callee function
   Function* CalleeFunc = M->getFunction("main_2nd_for_"+CalleeName_rra);
 
@@ -94,41 +119,49 @@ void MergeRustFuncAsyncPass::MergeCallee(Module* M) {
 void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
   // get function::main::{{closure}}
   // because it contains RPC (OpenFaaSRPC::make_rpc())
-  for (auto mergedCalleeName: CalleeFuncsToBeMerged_rra) {
-    Function* mainClosure = getMainClosure(M, mergedCalleeName);
-    CallInst* rpcInst = getRPCinst(mainClosure, mergedCalleeName);
-    Function *CalleeFunc = M->getFunction("new_callee_"+mergedCalleeName);
+  Function* mainClosure = getMainClosure(M, CallerName_rra, CalleeName_rra);
+  CallInst* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
+  Function *CalleeFunc = M->getFunction("new_callee_" + CalleeName_rra);
 
-    if (CalleeFunc) {
-      std::vector<Value*> arguments;
-      for (unsigned i=0; i<rpcInst->getNumOperands()-1; i++){
-        Value* arg = rpcInst->getOperand(i);
-        arguments.push_back(arg);
-      }
-      CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments,"", rpcInst);
-      rpcInst->eraseFromParent();
-    } 
-    else {
-      // create a function that has the same arguments as `make_rpc`
-      // but the function body is the callee function
-      Function* oldCalleeFunc = M->getFunction("main_2nd_for_"+mergedCalleeName);
-      CalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcInst, oldCalleeFunc, 
-                                              "new_callee_"+mergedCalleeName);
-      changeNewCalleeInput(CalleeFunc);
-      changeNewCalleeOutput(CalleeFunc);
+  if (CalleeFunc) {
+    std::vector<Value*> arguments;
+    for (unsigned i=0; i<rpcInst->getNumOperands()-1; i++){
+      Value* arg = rpcInst->getOperand(i);
+      arguments.push_back(arg);
     }
+    CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments,"", rpcInst);
+    rpcInst->eraseFromParent();
   }
+  else {
+    llvm::errs()<<"MergeExistingCallee error: cannot find the callee function: new_callee_"
+                <<CalleeName_rra<<"\n";
+  } 
+/*
+  else {
+    // create a function that has the same arguments as `make_rpc`
+    // but the function body is the callee function
+    Function* oldCalleeFunc = M->getFunction("main_2nd_for_" + CalleeName_rra);
+    CalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcInst, oldCalleeFunc, 
+                                              "new_callee_" + CalleeName_rra);
+    changeNewCalleeInput(CalleeFunc);
+    changeNewCalleeOutput(CalleeFunc);
+  }
+*/
 }
 
 
 
-Function* MergeRustFuncAsyncPass::getMainClosure(Module* M, std::string callee_name){
+Function* MergeRustFuncAsyncPass::getMainClosure(Module* M, std::string caller_name, std::string callee_name) {
   std::vector<Function*> main_funcs;
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
-    std::string demangled = getDemangledRustFuncName(func->getName().str());
-    if (demangled == "function::main::{{closure}}") {
-      main_funcs.push_back(func);
+    std::string FunctionName = func->getName().str();
+    if (hasSuffix(FunctionName, "_"+caller_name)) {
+      std::string OrigFuncName = stripSuffix(FunctionName, "_"+caller_name);
+      std::string demangled = getDemangledRustFuncName(OrigFuncName);
+      if (demangled == "function::main::{{closure}}") {
+        main_funcs.push_back(func);
+      }
     }
   }
   for (auto f: main_funcs) {
@@ -149,6 +182,37 @@ Function* MergeRustFuncAsyncPass::getMainClosure(Module* M, std::string callee_n
     }
   }
   return NULL;
+}
+
+
+
+bool MergeRustFuncAsyncPass::hasSuffix(std::string str, std::string suffix) {
+    return str.size() >= suffix.size() && 
+           str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+
+
+std::string MergeRustFuncAsyncPass::stripSuffix(std::string str, std::string suffix) {
+    if (hasSuffix(str, suffix)) {
+        return str.substr(0, str.size() - suffix.size());
+    }
+    return str;  // Return original string if suffix doesn't match
+}
+
+
+
+void MergeRustFuncAsyncPass::RenameFunctionMainClosure(Module* M, std::string suffix) {
+  std::vector<Function*> main_funcs;
+  for (Module::iterator f = M->begin(); f != M->end(); f++){
+    Function* func = dyn_cast<Function>(f);
+    std::string demangled = getDemangledRustFuncName(func->getName().str());
+    if (demangled == "function::main::{{closure}}") {
+      std::string func_name = func->getName().str();
+      func_name = func_name + "_" + suffix;
+      func->setName(func_name);
+    }
+  } 
 }
 
 

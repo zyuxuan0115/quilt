@@ -52,11 +52,15 @@ public:
   void changeNewCalleeOutput(Function*);
   void changeNewCalleeInput(Function*);
   bool IsStringStartWith(std::string, std::string);
-  Function* getMainClosure(Module*, std::string);
+  Function* getMainClosure(Module*, std::string, std::string);
   CallInst* getRPCinst(Function*, std::string);
+  bool hasSuffix(std::string, std::string);
+  std::string stripSuffix(std::string, std::string);
   void RenameCallee(Module*);
+  void RenameCaller(Module*);
   void MergeCallee(Module*);
   void MergeExistingCallee(Module*);
+  void RenameFunctionMainClosure(Module*, std::string);
 
 private:
   std::string demangle_bin = "/llvm/demangle_rust_funcname";
