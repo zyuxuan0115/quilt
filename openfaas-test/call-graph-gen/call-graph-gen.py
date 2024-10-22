@@ -4,7 +4,8 @@ import sys
 import subprocess
 import select
 
-cmd = "curl -G -s http://localhost:8082/api/search --data-urlencode 'tags=http.method=POST' "
+
+cmd = "curl -G -s http://localhost:8082/api/search?limit=200&order=desc --data-urlencode 'tags=http.method=POST' "
 process = subprocess.Popen(cmd, shell=True,
                            stdout=subprocess.PIPE, 
                            stderr=subprocess.PIPE)
@@ -73,6 +74,8 @@ for item in func_info['items']:
 result = {}
 
 for item in caller_callee_info:
+  if item[0] not in ip_func_map:
+    continue 
   caller_name = ip_func_map[item[0]]
   callee_name = item[1][len('/function/'):] 
   if caller_name not in result:
