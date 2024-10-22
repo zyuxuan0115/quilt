@@ -147,7 +147,7 @@ void MergeRustFuncPass::mergeCallee(Module* M) {
 
 
 void MergeRustFuncPass::MergeExistingCallee(Module* M) {
-  Function* CallerFunc = M->getFunction("callee_"+CallerName_rr);
+  Function* CallerFunc = M->getFunction("NewCallee_"+CallerName_rr);
   if (!CallerFunc) {
     llvm::errs()<<"Error: cannot find main function\n";
     return;
