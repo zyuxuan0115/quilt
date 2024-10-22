@@ -136,17 +136,6 @@ void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
     llvm::errs()<<"MergeExistingCallee error: cannot find the callee function: new_callee_"
                 <<CalleeName_rra<<"\n";
   } 
-/*
-  else {
-    // create a function that has the same arguments as `make_rpc`
-    // but the function body is the callee function
-    Function* oldCalleeFunc = M->getFunction("main_2nd_for_" + CalleeName_rra);
-    CalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcInst, oldCalleeFunc, 
-                                              "new_callee_" + CalleeName_rra);
-    changeNewCalleeInput(CalleeFunc);
-    changeNewCalleeOutput(CalleeFunc);
-  }
-*/
 }
 
 
