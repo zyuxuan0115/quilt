@@ -3,7 +3,6 @@ import os
 import sys 
 import json
 
-
 def move_functions(json_file):
   funcTree = sys.argv[2]
   f = open(sys.argv[2], 'r')
@@ -29,93 +28,83 @@ def merge(f_name):
   Lines = f.readlines()
  
   func_visited = {}
-  # merge functions 
+  entry_func = ""
+  # get the entry function
+  if len(Lines) > 0:
+    words = Lines[0].split();
+    if len(words) > 0:
+      entry_func = words[0]
+  # compile
+  for line in Lines:
+    words = line.split()
+    func_str = ""
+    for word in words:
+      new_func=word
+      if new_func not in func_visited:
+        func_visited[new_func] = 1
+  func_to_be_compiled = ""
+  for func in func_visited:
+    func_to_be_compiled = func_to_be_compiled + func + " "
+  cmd = "./merge.sh compile "+func_to_be_compiled
+  print(cmd)
+  os.system(cmd)
+  # rename caller
+  cmd = "./merge.sh rename_caller "+entry_func
+  print(cmd)
+  os.system(cmd)
+  # delete useless files
+  all_callees = ""
+  for func in func_visited:
+    if func != entry_func:
+      all_callees = all_callees + func + " "
+  cmd = "./merge.sh remove_redundant_files "+entry_func + " " + all_callees
+  print(cmd)
+  os.system(cmd)
+  # rename callee
+  for func in func_visited:
+    if func != entry_func:
+      cmd = "./merge.sh rename_callee "+func
+      print(cmd)
+      os.system(cmd)
+  # merge
+  merged_funcs = {}
+  merged_funcs[entry_func] = 1
   for line in Lines:
     words = line.split()
     caller = words[0]
-    callees = {}
-    callees_str = ""
-    func_visited[caller] = 1
-    new_callee = ""
-    for word in words[1:]:
-      if word.startswith('#'):
-        callees[new_callee].append(word[1:])
-      else:
-        new_callee=word
-        callees[new_callee] = []
-        if new_callee not in func_visited:
-          callees_str = callees_str + new_callee + " "
-          func_visited[new_callee] = 1
-    cmd = "./merge.sh compile "+caller+" "+callees_str
-    print(cmd)
-    os.system(cmd)
- 
-    merge_cmd = "./merge.sh merge "+caller+" "
-    merge_existing_cmd = "./merge.sh merge_existing "+caller+" "
-    merge_both_cmd = "./merge.sh merge_both "+caller+" "
-    execute_merge_cmd = False
-    execute_merge_existing_cmd = False
-    execute_merge_both_cmd = False
-    for callee, func_to_merge in callees.items():
-      if callee not in func_to_merge:
-        execute_merge_existing_cmd = True
-        merge_existing_cmd = merge_existing_cmd + callee + " "
-        for func in func_to_merge:
-          merge_existing_cmd = merge_existing_cmd + func+"," 
-        merge_existing_cmd =  merge_existing_cmd[:-1] + " "
-      elif len(func_to_merge) == 1:
-        execute_merge_cmd = True
-        merge_cmd = merge_cmd + func_to_merge[0] + " "
-      else:
-        execute_merge_both_cmd = True
-        merge_both_cmd = merge_both_cmd + callee + " "
-        func_to_merge.remove(callee)
-        for func in func_to_merge:
-          merge_both_cmd = merge_both_cmd + func+"," 
-        merge_both_cmd =  merge_both_cmd[:-1] + " "
-    if execute_merge_cmd == True:
-      print(merge_cmd)
-      os.system(merge_cmd)
-    if execute_merge_existing_cmd == True:
-      print(merge_existing_cmd)
-      os.system(merge_existing_cmd)
-    if execute_merge_both_cmd == True :
-      print(merge_both_cmd)
-      os.system(merge_both_cmd)
-       
-  # merge libs
-  final_caller = Lines[len(Lines)-1].split()[0]
-  print(final_caller)
-  cmd = "./merge.sh link "+final_caller
+    callee = words[1]
+    if callee not in merged_funcs:
+      cmd = "./merge.sh merge "+entry_func+" "+callee+" "+caller
+      print(cmd)
+      os.system(cmd)
+      merged_funcs[callee] = 1
+    else:
+      cmd = "./merge.sh merge_existing "+entry_func+" "+callee+" "+caller
+      print(cmd)
+      os.system(cmd)
+  # link
+  cmd = "./merge.sh link " + entry_func
+  print(cmd)
   os.system(cmd)
 
 
 def clean(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
- 
   func_visited = {}
-  # merge functions 
+  # remove all
   for line in Lines:
     words = line.split()
-    caller = words[0]
-    callees = {}
-    callees_str = ""
-    func_visited[caller] = 1
-    new_callee = ""
-    for word in words[1:]:
-      if word.startswith('#'):
-        callees[new_callee].append(word[1:])
-      else:
-        new_callee=word
-        callees[new_callee] = []
-        if new_callee not in func_visited:
-          callees_str = callees_str + new_callee + " "
-          func_visited[new_callee] = 1
-    cmd = "rm -rf "+caller+" "+callees_str
-    print(cmd)
-    os.system(cmd)
-  cmd = "rm -rf *.ll *.bc *.o *.txt function Implib.so"
+    func_str = ""
+    for word in words:
+      new_func = word
+      if new_func not in func_visited:
+        func_visited[new_func] = 1
+  func_to_be_compiled = ""
+  for func in func_visited:
+    func_to_be_compiled = func_to_be_compiled + func + " "
+  cmd = "rm -rf "+func_to_be_compiled+" *.o *.bc *.txt function Implib.so"
+  print(cmd)
   os.system(cmd)
 
 
@@ -132,6 +121,7 @@ def main():
   else:
     print("usage: ./merge_tree.py <'merge' or 'clean'> <input file>")
     exit(1)
+
 
 if __name__ == "__main__":
     main()

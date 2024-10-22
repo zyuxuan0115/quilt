@@ -1,2 +1,5 @@
-read-movie-reviews read-reviews #read-reviews
-page-service read-movie-reviews #read-movie-reviews read-movie-info #read-movie-info read-cast-info #read-cast-info read-plot #read-plot
+page-service read-plot
+page-service read-cast-info
+page-service read-movie-info
+page-service read-movie-reviews
+read-movie-reviews read-reviews
