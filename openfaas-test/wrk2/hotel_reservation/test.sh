@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IP=http://128.110.96.58
+IP=http://130.127.133.69
 WRK_BIN=../wrk
 WRK_SCRIPT="lua_files/$1.lua"
 CLUSTER_ID=$2
