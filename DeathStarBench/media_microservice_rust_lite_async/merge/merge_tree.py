@@ -3,25 +3,6 @@ import os
 import sys 
 import json
 
-def move_functions(json_file):
-  funcTree = sys.argv[2]
-  f = open(sys.argv[2], 'r')
-  Lines = f.readlines()
-  funcs = {}
-  for line in Lines:
-    line_0 = line.strip()
-    functions = line_0.split()
-    for func in functions:
-      if func not in funcs:
-        funcs[func] = 1 
-  print(funcs)
-  with open(json_file) as json_file:
-    func_info = json.load(json_file)
-    for item in func_info:
-      if item['function_name'] in funcs:
-        cmd = "cp -r ../cluster-"+str(item['cluster_id'])+"/"+item['function_name']+" ."
-        os.system(cmd)
-
 
 def merge(f_name):
   f = open(f_name, 'r')
@@ -82,6 +63,17 @@ def merge(f_name):
       cmd = "./merge.sh merge_existing "+entry_func+" "+callee+" "+caller
       print(cmd)
       os.system(cmd)
+
+
+def link(f_name):
+  f = open(f_name, 'r')
+  Lines = f.readlines()
+  entry_func = ""
+  # get the entry function
+  if len(Lines) > 0:
+    words = Lines[0].split();
+    if len(words) > 0:
+      entry_func = words[0]
   # link
   cmd = "./merge.sh link " + entry_func
   print(cmd)
@@ -114,8 +106,9 @@ def main():
     exit(1)
   arg = sys.argv[1]
   if arg == "merge":
-    move_functions("../OpenFaaSRPC/func_info.json")
     merge(sys.argv[2])
+  elif arg == "link":
+    link(sys.argv[2])
   elif arg == "clean":
     clean(sys.argv[2])    
   else:
