@@ -60,7 +60,7 @@ function remove_redundant {
 function rename_caller {
   CALLER_FUNC=${ARGS[1]}
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -rename-caller-rra -caller-name-rra=$CALLER_FUNC -o caller.bc
+  $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func -rename-caller-rr -caller-name-rr=$CALLER_FUNC -o caller.bc
   cp caller.bc $CALLER_IR
 }
 
@@ -68,7 +68,7 @@ function rename_caller {
 function rename_callee {
   CALLEE_FUNC=${ARGS[1]}
   CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.bc
+  $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func -rename-callee-rr -callee-name-rr=$CALLEE_FUNC -o callee.bc
   mv callee.bc $CALLEE_IR
 }
 
@@ -82,9 +82,9 @@ function merge {
   REAL_CALLER_FUNC=${ARGS[3]}
   $LLVM_DIR/llvm-link $CALLER_IR $CALLEE_IR -o caller_and_callee.bc
   $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
-  $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func-async \
-                 -merge-callee-rra -callee-name-rra=$CALLEE_FUNC \
-                 -caller-name-rra=$REAL_CALLER_FUNC -o merged.bc
+  $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func \
+                 -merge-callee-rr -callee-name-rr=$CALLEE_FUNC \
+                 -caller-name-rr=$REAL_CALLER_FUNC -o merged.bc
   rm $CALLEE_IR
   cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
   mv merged.bc $CALLER_IR
@@ -97,8 +97,8 @@ function merge_existing {
   CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
   CALLEE_FUNC=${ARGS[2]}
   REAL_CALLER_FUNC=${ARGS[3]}
-  $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -merge-existing-rra \
-                 -caller-name-rra=$REAL_CALLER_FUNC -callee-name-rra=$CALLEE_FUNC \
+  $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func -merge-existing-rr \
+                 -caller-name-rr=$REAL_CALLER_FUNC -callee-name-rr=$CALLEE_FUNC \
                  -o merged.bc
   mv merged.bc $CALLER_IR
 }
