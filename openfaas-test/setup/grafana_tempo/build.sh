@@ -27,18 +27,27 @@ EOF
 function setup_tempo {
   ### install Tempo, which collect the trace from open-telemetry
   ### and expose the IP to external, port 3100 
+#  helm -n sn-tempo install tempo grafana/tempo-distributed \
+#    --set traces.otlp.grpc.enabled=true \
+#    --set traces.otlp.http.enabled=true \
+#    --set ingester.zoneAwareReplication.enabled=true \
+#    --set ingester.config.complete_block_timeout="24h" \
+#    --set ingester.config.max_block_duration="24h" \
+#    --values - << EOF
+
   helm -n sn-tempo install tempo grafana/tempo-distributed \
     --set traces.otlp.grpc.enabled=true \
     --set traces.otlp.http.enabled=true \
     --set ingester.zoneAwareReplication.enabled=true \
-    --set ingester.config.complete_block_timeout="24h" \
-    --set ingester.config.max_block_duration="24h" \
+    --set ingester.config.complete_block_timeout="180s" \
+    --set ingester.config.max_block_duration="180s" \
     --values - << EOF
+
 tempo:
   structuredConfig:
     query_frontend:
       search:
-        default_result_limit: 20000 
+        default_result_limit: 200000 
     distributor:
       receivers:
         otlp:
