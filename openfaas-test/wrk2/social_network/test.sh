@@ -12,7 +12,7 @@ then
   ENTRY_HOST=http://$IP:30081
 fi
 
-QPS=1000
+QPS=500
 
 $WRK_BIN -t 1 -c 1 -d 30 -L -U \
 	 -s $WRK_SCRIPT \
