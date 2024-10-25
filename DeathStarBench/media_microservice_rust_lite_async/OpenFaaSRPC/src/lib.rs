@@ -1,6 +1,9 @@
 use curl::easy::{Easy};
 use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
+use std::time::{SystemTime, UNIX_EPOCH};
+use std::process;
+use std::fs::OpenOptions;
 
 pub static NUM_COMPONENTS: u64 = 5;
 
@@ -308,6 +311,26 @@ pub fn read_lines(filename: &str) -> Vec<String> {
                  .collect()  // gather them together into a vector
 }
 
+pub fn write_pid() {
+  let pid = process::id();
+
+  let now = SystemTime::now();
+  let since_epoch = now.duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
+
+  let nanoseconds_since_epoch = since_epoch.as_secs() * 1_000_000_000 + since_epoch.subsec_nanos() as u64;
+  let timestamp_str = nanoseconds_since_epoch.to_string();
+
+  let file_path = format!("pids.txt"); 
+  let mut file = OpenOptions::new()
+      .append(true)
+      .create(true)
+      .open(file_path).unwrap();
+  let content = format!("PID: {}, time: {}", pid, nanoseconds_since_epoch);
+  writeln!(file, "{}", content).unwrap();
+}
+
+
 pub fn make_rpc(func_name: &str, input: String) -> String {
 
   let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
@@ -368,6 +391,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 pub fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
   let _ = io::stdin().read_line(&mut buffer);
+//  write_pid();
   buffer
 }
 
