@@ -86,21 +86,25 @@ for i in range(len(fifty_latency_orig)):
 x = np.arange(len(fifty_latency_normalized))
 
 fig, ax = plt.subplots()
-width = 0.24
-bars1 = ax.bar(x - width, fifty_latency_normalized, width, label='50% latency sync')
-bars2 = ax.bar(x - width/2, ninety_latency_normalized, width, label='99% latency sync')
-bars3 = ax.bar(x + width/2, fifty_latency_normalized_async, width, label='50% latency async')
-bars4 = ax.bar(x + width, ninety_latency_normalized_async, width, label='99% latency async')
+width = 0.18
+bars1 = ax.bar(x - width*1.5, fifty_latency_normalized, width, label='50% latency sync')
+bars2 = ax.bar(x - width/2, fifty_latency_normalized_async, width, label='50% latency async')
+bars3 = ax.bar(x + width/2, ninety_latency_normalized, width, label='99% latency sync')
+bars4 = ax.bar(x + width*1.5, ninety_latency_normalized_async, width, label='99% latency async')
+
+fnames = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
 
 
-ax.set_xlabel('workload')
+
+ax.set_xlabel('entry function name')
 ax.set_ylabel('normalized latency')
-ax.set_title('SocialNetwork latency')
+ax.set_title('SocialNetwork Normalized Latency')
 ax.set_xticks(x)
 ax.set_xticklabels(fnames)
 ax.legend()
 
-plt.grid()  
+plt.ylim(0.2, 1.2)
+plt.grid(True, linestyle='--')  
 plt.savefig("5099latency.png", dpi=300)  
 
 plt.show()
