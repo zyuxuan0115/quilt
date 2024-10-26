@@ -2,18 +2,26 @@
 import sys
 import matplotlib.pyplot as plt
 
-x = [10, 20, 50, 100, 200, 500, 1000, 1250, 1500, 1750, 2000, 2500]
-y = [, 3, 5, 7, 11]
+if len(sys.argv) == 1:
+  exit(-1) 
 
-# Create the plot
-plt.plot(x, y, marker='o')  # 'marker' option adds points at data positions
-plt.xlabel("Throughput (Queries Per Second)")   # Label for the X-axis
-plt.ylabel("Latency (ms)")   # Label for the Y-axis
-plt.title("SocialNetwork: compose-post")  # Title of the plot
-plt.grid()  # Optional: Add grid lines for better readability
+tput = []
+fname = sys.argv[1] + ".txt"
+with open(fname, 'r') as file:
+  for line in file:
+    words = line.split()
+    if len(words) > 1 && words[0] == 'Requests/sec:':
+      tput.append(float(words[1]))
 
-# Save the plot to a PDF file
-plt.savefig("line_plot.png", dpi=300)  # Save as PDF
+x = [20 40 60 80 100 140 180 240 300 400 500 750 1000 1500 2000 3000]
+y = tput
 
-# Optionally, display the plot
+plt.plot(x, y, marker='o') 
+plt.xlabel("Throughput (Queries Per Second)")  
+plt.ylabel("Latency (ms)")   
+plt.title("SocialNetwork: compose-post")  
+plt.grid()  
+
+plt.savefig(sys.argv[1] + "_tput.png", dpi=300)  
+
 plt.show()
