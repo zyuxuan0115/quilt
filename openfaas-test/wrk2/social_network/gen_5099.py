@@ -92,15 +92,13 @@ bars2 = ax.bar(x - width/2, fifty_latency_normalized_async, width, label='50% la
 bars3 = ax.bar(x + width/2, ninety_latency_normalized, width, label='99% latency sync')
 bars4 = ax.bar(x + width*1.5, ninety_latency_normalized_async, width, label='99% latency async')
 
-fnames = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
-
-
+label = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
 
 ax.set_xlabel('entry function name')
 ax.set_ylabel('normalized latency')
 ax.set_title('SocialNetwork Normalized Latency')
 ax.set_xticks(x)
-ax.set_xticklabels(fnames)
+ax.set_xticklabels(label)
 ax.legend()
 
 plt.ylim(0.2, 1.2)

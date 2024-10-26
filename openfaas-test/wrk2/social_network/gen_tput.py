@@ -21,21 +21,21 @@ for func_name in fnames:
   with open(fname, 'r') as file:
     for line in file:
       words = line.split()
-      if len(words) > 2 and words[0] == 'Requests/sec:':
-        tput = float(words[2])
+      if len(words) > 1 and words[0] == 'Requests/sec:':
+        tput = float(words[1])
         tput_orig.append(float(tput))
-      elif len(words) >2 and words[0] == 'Transfer/sec:':
-        tput = float( remove_suffix(words[2], "KB"))
+      elif len(words) >1 and words[0] == 'Transfer/sec:':
+        tput = float( remove_suffix(words[1], "KB"))
         tput_kb_orig.append(float(tput))
   fname = func_name + "-merged-sync.txt"
   with open(fname, 'r') as file:
     for line in file:
       words = line.split()
-      if len(words) > 2 and words[0] == 'Requests/sec:':
-        tput = float(words[2])
+      if len(words) > 1 and words[0] == 'Requests/sec:':
+        tput = float(words[1])
         tput_merged.append(float(tput))
-      elif len(words) >2 and words[0] == 'Transfer/sec:':
-        tput = float( remove_suffix(words[2], "KB"))
+      elif len(words) >1 and words[0] == 'Transfer/sec:':
+        tput = float( remove_suffix(words[1], "KB"))
         tput_kb_merged.append(float(tput))
 
 print(tput_orig)
@@ -53,21 +53,21 @@ for func_name in fnames:
   with open(fname, 'r') as file:
     for line in file:
       words = line.split()
-      if len(words) > 2 and words[0] == 'Requests/sec:':
-        tput = float(words[2])
+      if len(words) > 1 and words[0] == 'Requests/sec:':
+        tput = float(words[1])
         tput_orig_async.append(float(tput))
-      elif len(words) >2 and words[0] == 'Transfer/sec:':
-        tput = float( remove_suffix(words[2], "KB"))
+      elif len(words) >1 and words[0] == 'Transfer/sec:':
+        tput = float( remove_suffix(words[1], "KB"))
         tput_kb_orig_async.append(float(tput))
   fname = func_name + "-merged-async.txt"
   with open(fname, 'r') as file:
     for line in file:
       words = line.split()
-      if len(words) > 2 and words[0] == 'Requests/sec:':
-        tput = float(words[2])
+      if len(words) > 1 and words[0] == 'Requests/sec:':
+        tput = float(words[1])
         tput_merged_async.append(float(tput))
-      elif len(words) >2 and words[0] == 'Transfer/sec:':
-        tput = float(remove_suffix(words[2], "KB"))
+      elif len(words) >1 and words[0] == 'Transfer/sec:':
+        tput = float(remove_suffix(words[1], "KB"))
         tput_kb_merged_async.append(float(tput))
 
 tput_normalized = []
@@ -85,21 +85,22 @@ for i in range(len(tput_orig)):
 x = np.arange(len(tput_normalized))
 
 fig, ax = plt.subplots()
-width = 0.24
-bars1 = ax.bar(x - width, tput_latency_normalized, width, label='request/sec sync')
-bars2 = ax.bar(x - width/2, tput_latency_normalized, width, label='transfer/sec (KB) sync')
-bars3 = ax.bar(x + width/2, tput_latency_normalized_async, width, label='request/sec async')
-bars4 = ax.bar(x + width, tput_latency_normalized_async, width, label='transfer/sec (KB) async')
+width = 0.18
+bars1 = ax.bar(x - width*1.5, tput_normalized, width, label='request/sec sync')
+bars2 = ax.bar(x - width/2, tput_normalized_async, width, label='request/sec async')
+bars3 = ax.bar(x + width/2, tput_normalized, width, label='transfer/sec (KB) sync')
+bars4 = ax.bar(x + width*1.5, tput_normalized_async, width, label='transfer/sec (KB) async')
 
+label = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
 
-ax.set_xlabel('workload')
+ax.set_xlabel('entry function name')
 ax.set_ylabel('normalized throughput')
-ax.set_title('SocialNetwork Throughput')
+ax.set_title('SocialNetwork Normalized Throughput')
 ax.set_xticks(x)
-ax.set_xticklabels(fnames)
+ax.set_xticklabels(label)
 ax.legend()
 
-plt.grid()  
+plt.grid(True, linestyle='--')  
 plt.savefig("tput.png", dpi=300)  
 
 plt.show()

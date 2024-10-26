@@ -43,6 +43,7 @@ for qps in "${QPS[@]}"; do
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy
   FUNC_NAME=$1
   FUNC_NAME_OLD="${FUNC_NAME%-merged}"
+  echo $DEATHSTARBENCH/$WORKLOAD/cluster-$CLUSTER_ID/$FUNC_NAME_OLD
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-$CLUSTER_ID/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml
   sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2/social_network
