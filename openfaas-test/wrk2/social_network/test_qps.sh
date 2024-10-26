@@ -1,19 +1,27 @@
 #!/bin/bash
 
+if [ "$#" -lt 3 ]; then
+  echo "Error: Missing command line argument."
+  echo 'example: `./test_qps.sh compose-post 2 async`'
+  exit 1
+fi
+
 IP=130.127.133.69
 WRK_BIN=../wrk
 WRK_SCRIPT="lua_files/$1.lua"
 CLUSTER_ID=$2
-# cluster 1 IP
+DEATHSTARBENCH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench
+WORKLOAD=social_network_rust_lite
 ENTRY_HOST=http://$IP:30080
-if [[ $CLUSTER_ID -eq 2 ]]
-then
-  # cluster 2 IP
-  ENTRY_HOST=http://$IP:30081
+
+
+if [[ $CLUSTER_ID -eq 2 ]]; then
+   ENTRY_HOST=http://$IP:30081 # cluster 2 IP 
+fi
+if [ "$3" = "async" ]; then
+  WORKLOAD="${WORKLOAD}_async"
 fi
 
-DEATHSTARBENCH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench
-WORKLOAD=social_network_rust_lite_async
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
 #QPS=(20 40 60 80 100 140 180 240 300 400 500 750 1000 1500 2000)
@@ -26,6 +34,7 @@ for qps in "${QPS[@]}"; do
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh clean
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh clean
   faas-cli remove $1
+  faas-cli remove $1 --gateway=localhost:8081
   cd $OPENFAAS_TEST_DIR/setup/redis_memcached \
     && ./build.sh kill \
     && ./build.sh setup
@@ -40,8 +49,10 @@ for qps in "${QPS[@]}"; do
   ./initialize.sh
   $WRK_BIN -t 1 -c 1 -d 180 -L -U \
 	 -s $WRK_SCRIPT \
-	 $ENTRY_HOST -R $qps 2>/dev/null > output_$1_$qps.log
+	 $ENTRY_HOST -R $qps 2>/dev/null > output_$1-$3_$qps.log
   echo "===== QPS: $qps ====="
-  ./get5099tput.py output_$1_$qps.log
+  ./get5099tput.py output_$1-$3_$qps.log
   echo "===================="
+  faas-cli remove $1
+  faas-cli remove $1 --gateway=localhost:8081
 done

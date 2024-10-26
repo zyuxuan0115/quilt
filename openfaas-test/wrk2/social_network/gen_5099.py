@@ -17,7 +17,7 @@ fifty_latency_merged = []
 ninety_latency_merged = []
 
 for func_name in fnames:
-  fname = func_name + ".txt"
+  fname = func_name + "-sync.txt"
   with open(fname, 'r') as file:
     for line in file:
       words = line.split()
@@ -27,7 +27,7 @@ for func_name in fnames:
       elif len(words) >2 and words[0] == '99%':
         latency = float( remove_suffix(words[2], "ms"))
         ninety_latency_orig.append(float(latency))
-  fname = func_name + "-merged.txt"
+  fname = func_name + "-merged-sync.txt"
   with open(fname, 'r') as file:
     for line in file:
       words = line.split()
@@ -43,18 +43,55 @@ print(fifty_latency_merged)
 print(ninety_latency_orig)
 print(ninety_latency_merged)
 
+fifty_latency_orig_async = []
+ninety_latency_orig_async = []
+fifty_latency_merged_async = []
+ninety_latency_merged_async = []
+
+for func_name in fnames:
+  fname = func_name + "-async.txt"
+  with open(fname, 'r') as file:
+    for line in file:
+      words = line.split()
+      if len(words) > 2 and words[0] == '50%':
+        latency = float( remove_suffix(words[2], "ms"))
+        fifty_latency_orig_async.append(float(latency))
+      elif len(words) >2 and words[0] == '99%':
+        latency = float( remove_suffix(words[2], "ms"))
+        ninety_latency_orig_async.append(float(latency))
+  fname = func_name + "-merged-async.txt"
+  with open(fname, 'r') as file:
+    for line in file:
+      words = line.split()
+      if len(words) > 2 and words[0] == '50%':
+        latency = float( remove_suffix(words[2], "ms"))
+        fifty_latency_merged_async.append(float(latency))
+      elif len(words) >2 and words[0] == '99%':
+        latency = float( remove_suffix(words[2], "ms"))
+        ninety_latency_merged_async.append(float(latency))
+
 fifty_latency_normalized = []
 ninety_latency_normalized = []
 for i in range(len(fifty_latency_orig)):
   fifty_latency_normalized.append(fifty_latency_merged[i]/fifty_latency_orig[i])
   ninety_latency_normalized.append(ninety_latency_merged[i]/ninety_latency_orig[i])
+
+fifty_latency_normalized_async = []
+ninety_latency_normalized_async = []
+for i in range(len(fifty_latency_orig)):
+  fifty_latency_normalized_async.append(fifty_latency_merged_async[i]/fifty_latency_orig_async[i])
+  ninety_latency_normalized_async.append(ninety_latency_merged_async[i]/ninety_latency_orig_async[i])
+ 
   
 x = np.arange(len(fifty_latency_normalized))
 
 fig, ax = plt.subplots()
-width = 0.35
-bars1 = ax.bar(x - width/2, fifty_latency_normalized, width, label='50% latency')
-bars2 = ax.bar(x + width/2, ninety_latency_normalized, width, label='99% latency')
+width = 0.24
+bars1 = ax.bar(x - width, fifty_latency_normalized, width, label='50% latency sync')
+bars2 = ax.bar(x - width/2, ninety_latency_normalized, width, label='99% latency sync')
+bars3 = ax.bar(x + width/2, fifty_latency_normalized_async, width, label='50% latency async')
+bars4 = ax.bar(x + width, ninety_latency_normalized_async, width, label='99% latency async')
+
 
 ax.set_xlabel('workload')
 ax.set_ylabel('normalized latency')
@@ -63,8 +100,7 @@ ax.set_xticks(x)
 ax.set_xticklabels(fnames)
 ax.legend()
 
-#plt.grid()  
-
+plt.grid()  
 plt.savefig("5099latency.png", dpi=300)  
 
 plt.show()
