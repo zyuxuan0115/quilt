@@ -9,7 +9,7 @@ def remove_suffix(text, suffix):
     return text
 
 
-fnames = ["compose-post", "social-graph-follow-with-username", "read-home-timeline"]
+fnames = ["compose-review", "page-service", "read-user-review"]
 
 tput_orig = []
 tput_kb_orig = []

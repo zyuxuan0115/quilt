@@ -47,17 +47,23 @@ for qps in "${QPS[@]}"; do
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy
   faas-cli remove login --gateway=localhost:8081
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-3/compose-review && faas-cli deploy -f deployFunc.yml
-  sleep 60
-  FUNC_NAME=$1
-  FUNC_NAME_OLD="${FUNC_NAME%-merged}"
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-$CLUSTER_ID/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml
   sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2/media_microservice
   ./initialize.sh
+  faas-cli remove register-movie-id
+  sleep 60
+  FUNC_NAME=$1
+  FUNC_NAME_OLD="${FUNC_NAME%-merged}"
+  if [ "$1" = "compose-review-merged" ]; then
+    cd $DEATHSTARBENCH/$WORKLOAD/cluster-3/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml
+  else
+    cd $DEATHSTARBENCH/$WORKLOAD/cluster-$CLUSTER_ID/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml 
+  fi
+  sleep 30
+  cd $OPENFAAS_TEST_DIR/wrk2/media_microservice
   $WRK_BIN -t 1 -c 1 -d 180 -L -U \
 	 -s $WRK_SCRIPT \
-	 $ENTRY_HOST -R $qps 2>/dev/null > output_$1-$3_$qps.log
+	 $ENTRY_HOST -R $qps 2 > /dev/null > output_$1-$3_$qps.log
   echo "===== QPS: $qps ====="
   ./get5099tput.py output_$1-$3_$qps.log
   echo "===================="
