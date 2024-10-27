@@ -91,10 +91,10 @@ x = np.arange(len(tput_normalized))
 
 fig, ax = plt.subplots()
 width = 0.18
-bars1 = ax.bar(x - width*1.5, tput_normalized, width, label='request/sec sync', color='darkviolet',edgecolor='black', linewidth=1)
-bars2 = ax.bar(x - width/2, tput_normalized_async, width, label='request/sec async', color='violet',edgecolor='black', linewidth=1)
-bars3 = ax.bar(x + width/2, tput_kb_normalized, width, label='transfer/sec (KB) sync', color='plum',edgecolor='black', linewidth=1)
-bars4 = ax.bar(x + width*1.5, tput_kb_normalized_async, width, label='transfer/sec (KB) async', color='lavenderblush',edgecolor='black', linewidth=1)
+bars1 = ax.bar(x - width*1.5, tput_normalized, width, label='request/sec sync', color='darkviolet',edgecolor='black', linewidth=1, zorder=3)
+bars2 = ax.bar(x - width/2, tput_normalized_async, width, label='request/sec async', color='violet',edgecolor='black', linewidth=1, zorder=3)
+bars3 = ax.bar(x + width/2, tput_kb_normalized, width, label='transfer/sec (KB) sync', color='plum',edgecolor='black', linewidth=1, zorder=3)
+bars4 = ax.bar(x + width*1.5, tput_kb_normalized_async, width, label='transfer/sec (KB) async', color='lavenderblush',edgecolor='black', linewidth=1, zorder=3)
 
 label = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
 
