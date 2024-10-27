@@ -17,7 +17,10 @@ ENTRY_HOST=http://$IP:30080
 
 if [[ $CLUSTER_ID -eq 2 ]]; then
    ENTRY_HOST=http://$IP:30081 # cluster 2 IP 
+elif [[ $CLUSTER_ID -eq 3 ]]; then
+   ENTRY_HOST=http://$IP:30081 # cluster 2 IP 
 fi
+
 if [ "$3" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
 fi
@@ -33,7 +36,7 @@ rm -rf *.log
 for qps in "${QPS[@]}"; do
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh clean
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh clean
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh clean
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3 && ./build.sh clean
   faas-cli remove $1
   faas-cli remove $1 --gateway=localhost:8081
   cd $OPENFAAS_TEST_DIR/setup/redis_memcached \
@@ -42,13 +45,14 @@ for qps in "${QPS[@]}"; do
   sleep 30
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3 && ./build.sh deploy
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3/compose-review && faac-cli deploy -f deployFunc.yml
   faas-cli remove login --gateway=localhost:8081
   FUNC_NAME=$1
   FUNC_NAME_OLD="${FUNC_NAME%-merged}"
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-$CLUSTER_ID/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml
   sleep 30
-  cd $OPENFAAS_TEST_DIR/wrk2/social_network
+  cd $OPENFAAS_TEST_DIR/wrk2/media_microservice
   ./initialize.sh
   $WRK_BIN -t 1 -c 1 -d 180 -L -U \
 	 -s $WRK_SCRIPT \

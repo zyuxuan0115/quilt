@@ -70,6 +70,11 @@ for func_name in fnames:
         tput = float(remove_suffix(words[1], "KB"))
         tput_kb_merged_async.append(float(tput))
 
+print(tput_orig_async)
+print(tput_kb_orig_async)
+print(tput_merged_async)
+print(tput_kb_merged_async)
+
 tput_normalized = []
 tput_kb_normalized = []
 for i in range(len(tput_orig)):
@@ -88,8 +93,8 @@ fig, ax = plt.subplots()
 width = 0.18
 bars1 = ax.bar(x - width*1.5, tput_normalized, width, label='request/sec sync')
 bars2 = ax.bar(x - width/2, tput_normalized_async, width, label='request/sec async')
-bars3 = ax.bar(x + width/2, tput_normalized, width, label='transfer/sec (KB) sync')
-bars4 = ax.bar(x + width*1.5, tput_normalized_async, width, label='transfer/sec (KB) async')
+bars3 = ax.bar(x + width/2, tput_kb_normalized, width, label='transfer/sec (KB) sync')
+bars4 = ax.bar(x + width*1.5, tput_kb_normalized_async, width, label='transfer/sec (KB) async')
 
 label = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
 
