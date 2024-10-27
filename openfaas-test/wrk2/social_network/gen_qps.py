@@ -36,11 +36,12 @@ with open(fname, 'r') as file:
 x1 = tput
 y1 = latency
 
-plt.plot(x1, y1, marker='x') 
+plt.plot(x, y, marker='o', label='original')
+plt.plot(x1, y1, marker='x', label='merged') 
 plt.xlabel("Throughput (Queries Per Second)")
 plt.ylabel("Latency (ms)")
-plt.title("SocialNetwork "+sys.argv[1])
-plt.grid(True, '---')  
+plt.title("SocialNetwork "+sys.argv[1]+" Latency-QPS")
+plt.grid(True, linestyle='--')
 
 plt.savefig("latency_qps.png", dpi=300)  
 
