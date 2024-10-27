@@ -39,6 +39,8 @@ function setup_openfaas2 {
     --namespace openfaas2 \
     --set gateway.nodePort=31113 \
     --set basic_auth=false \
+    --set queueWorker.replicas=5 \
+    --set queueWorker.maxInflight=10 \
     --set functionNamespace=openfaas2-fn > openfaas2.yaml
   mv openfaas2.yaml ../
   cd ..
