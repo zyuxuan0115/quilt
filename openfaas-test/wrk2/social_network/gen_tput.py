@@ -104,8 +104,8 @@ ax.set_title('SocialNetwork Normalized Throughput')
 ax.set_xticks(x)
 ax.set_xticklabels(label)
 ax.legend()
+ax.grid(True, linestyle='--', zorder=0)  
 
-plt.grid(True, linestyle='--', zorder=0)  
 plt.savefig("tputsn.png", dpi=300)  
 
 plt.show()

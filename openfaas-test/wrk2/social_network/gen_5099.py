@@ -102,7 +102,7 @@ ax.set_xticklabels(label)
 ax.legend()
 
 plt.ylim(0.2, 1.2)
-plt.grid(True, linestyle='--', zorder=0)  
+ax.grid(True, linestyle='--', zorder=0)  
 plt.savefig("5099latencysn.png", dpi=300)  
 
 plt.show()
