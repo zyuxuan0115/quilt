@@ -96,16 +96,16 @@ bars2 = ax.bar(x - width/2, tput_normalized_async, width, label='request/sec asy
 bars3 = ax.bar(x + width/2, tput_kb_normalized, width, label='transfer/sec (KB) sync')
 bars4 = ax.bar(x + width*1.5, tput_kb_normalized_async, width, label='transfer/sec (KB) async')
 
-label = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
+label = ["compose-review(15)", "page-service(6)", "read-user-review(2)"]
 
 ax.set_xlabel('entry function name')
 ax.set_ylabel('normalized throughput')
-ax.set_title('SocialNetwork Normalized Throughput')
+ax.set_title('MediaMicroservice Normalized Throughput')
 ax.set_xticks(x)
 ax.set_xticklabels(label)
 ax.legend()
 
 plt.grid(True, linestyle='--')  
-plt.savefig("tput.png", dpi=300)  
+plt.savefig("tputmm.png", dpi=300)  
 
 plt.show()
