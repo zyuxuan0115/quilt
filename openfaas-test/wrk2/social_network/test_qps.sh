@@ -24,9 +24,9 @@ fi
 
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
-#QPS=(20 40 60 80 100 140 180 240 300 400 500 750 1000 1500 2000)
+QPS=(20 40 60 80 100 140 180 240 300 400 500 750 1000 1500 2000 3000 4000)
 #QPS=(8000 10000 14000 18000 24000 30000)
-QPS=(100)
+#QPS=(100)
 
 # Iterate over each element in the array
 rm -rf *.log

@@ -91,10 +91,10 @@ x = np.arange(len(tput_normalized))
 
 fig, ax = plt.subplots()
 width = 0.18
-bars1 = ax.bar(x - width*1.5, tput_normalized, width, label='request/sec sync')
-bars2 = ax.bar(x - width/2, tput_normalized_async, width, label='request/sec async')
-bars3 = ax.bar(x + width/2, tput_kb_normalized, width, label='transfer/sec (KB) sync')
-bars4 = ax.bar(x + width*1.5, tput_kb_normalized_async, width, label='transfer/sec (KB) async')
+bars1 = ax.bar(x - width*1.5, tput_normalized, width, label='request/sec sync',color='darkviolet', linewidth=1, edgecolor='black', zorder=3)
+bars2 = ax.bar(x - width/2, tput_normalized_async, width, label='request/sec async',color='violet', linewidth=1, edgecolor='black', zorder=3)
+bars3 = ax.bar(x + width/2, tput_kb_normalized, width, label='transfer/sec (KB) sync',color='plum', linewidth=1, edgecolor='black', zorder=3)
+bars4 = ax.bar(x + width*1.5, tput_kb_normalized_async, width, label='transfer/sec (KB) async',color='lavenderblush', linewidth=1, edgecolor='black', zorder=3)
 
 label = ["compose-review(15)", "page-service(6)", "read-user-review(2)"]
 
@@ -104,8 +104,8 @@ ax.set_title('MediaMicroservice Normalized Throughput')
 ax.set_xticks(x)
 ax.set_xticklabels(label)
 ax.legend()
+ax.grid(True, linestyle='--', zorder=0)  
 
-plt.grid(True, linestyle='--')  
 plt.savefig("tputmm.png", dpi=300)  
 
 plt.show()
