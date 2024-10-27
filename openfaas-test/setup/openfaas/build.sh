@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function setup_openfaas {
-  arkade install openfaas --max-inflight 8 --queue-workers 4 
+  arkade install openfaas --max-inflight 10 --queue-workers 5 
   kubectl rollout status -n openfaas deploy/gateway
   kubectl port-forward -n openfaas svc/gateway 8080:8080 &
   kubectl get svc -o wide gateway-external -n openfaas

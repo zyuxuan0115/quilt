@@ -18,6 +18,8 @@ def openfaas():
         doc['metadata']['name'] = 'openfaas2'
       elif doc['kind'] == 'Namespace' and doc['metadata']['name'] == 'openfaas-fn':
         doc['metadata']['name'] = 'openfaas2-fn'
+      elif doc['kind'] == 'Deployment' and doc['metadate']['name'] == 'queue-worker':
+        doc['spec']['replicas'] = 5
       doc_yml = yaml.dump(doc)
       outfile.write('---\n')
       outfile.write(doc_yml)
