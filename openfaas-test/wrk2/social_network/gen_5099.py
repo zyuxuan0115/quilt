@@ -87,10 +87,10 @@ x = np.arange(len(fifty_latency_normalized))
 
 fig, ax = plt.subplots()
 width = 0.18
-bars1 = ax.bar(x - width*1.5, fifty_latency_normalized, width, label='50% latency sync')
-bars2 = ax.bar(x - width/2, fifty_latency_normalized_async, width, label='50% latency async')
-bars3 = ax.bar(x + width/2, ninety_latency_normalized, width, label='99% latency sync')
-bars4 = ax.bar(x + width*1.5, ninety_latency_normalized_async, width, label='99% latency async')
+bars1 = ax.bar(x - width*1.5, fifty_latency_normalized, width, label='50% latency sync', color='darkviolet', linewidth=1, edgecolor='black')
+bars2 = ax.bar(x - width/2, fifty_latency_normalized_async, width, label='50% latency async', color='violet', linewidth=1, edgecolor='black')
+bars3 = ax.bar(x + width/2, ninety_latency_normalized, width, label='99% latency sync', color='plum', linewidth=1, edgecolor='black')
+bars4 = ax.bar(x + width*1.5, ninety_latency_normalized_async, width, label='99% latency async', color='lavenderblush', linewidth=1, edgecolor='black')
 
 label = ["compose-post(10)", "follow-with-username(4)", "read-home-TL(2)"]
 
@@ -102,7 +102,7 @@ ax.set_xticklabels(label)
 ax.legend()
 
 plt.ylim(0.2, 1.2)
-plt.grid(True, linestyle='--')  
-plt.savefig("5099latency.png", dpi=300)  
+plt.grid(True, linestyle='--', zorder=0)  
+plt.savefig("5099latencysn.png", dpi=300)  
 
 plt.show()
