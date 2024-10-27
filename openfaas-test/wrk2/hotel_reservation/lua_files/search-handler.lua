@@ -64,13 +64,13 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
---  if status ~= 200 then
+  if status ~= 200 then
       io.write("------------------------------\n")
       io.write("Response with status: ".. status .."\n")
       io.write("------------------------------\n")
       io.write("[response] Body:\n")
       io.write(body .. "\n")
---  end
+  end
 end
 
 function init(rand_seed)
