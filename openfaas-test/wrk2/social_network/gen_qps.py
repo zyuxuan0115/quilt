@@ -2,26 +2,46 @@
 import sys
 import matplotlib.pyplot as plt
 
+def remove_suffix(text, suffix):
+    if text.endswith(suffix):
+        return text[:-len(suffix)]
+    return text
+
 if len(sys.argv) == 1:
   exit(-1) 
 
 tput = []
-fname = sys.argv[1] + ".txt"
+latency = []
+fname = sys.argv[1] + "-async.txt"
 with open(fname, 'r') as file:
   for line in file:
     words = line.split()
     if len(words) > 1 && words[0] == 'Requests/sec:':
       tput.append(float(words[1]))
+    else if len(words) > 2 && words[0] == '50%':
+      latency.append(float(remove_suffix(words[2], "ms"))
+x = tput
+y = latency
 
-x = [20 40 60 80 100 140 180 240 300 400 500 750 1000 1500 2000 3000]
-y = tput
+tput = []
+latency = []
+fname = sys.argv[1] + "-merged-async.txt"
+with open(fname, 'r') as file:
+  for line in file:
+    words = line.split()
+    if len(words) > 1 && words[0] == 'Requests/sec:':
+      tput.append(float(words[1]))
+    else if len(words) > 2 && words[0] == '50%':
+      latency.append(float(remove_suffix(words[2], "ms"))
+x1 = tput
+y1 = latency
 
-plt.plot(x, y, marker='o') 
-plt.xlabel("Throughput (Queries Per Second)")  
-plt.ylabel("Latency (ms)")   
-plt.title("SocialNetwork: compose-post")  
-plt.grid()  
+plt.plot(x1, y1, marker='x') 
+plt.xlabel("Throughput (Queries Per Second)")
+plt.ylabel("Latency (ms)")
+plt.title("SocialNetwork "+sys.argv[1])
+plt.grid(True, '---')  
 
-plt.savefig(sys.argv[1] + "_tput.png", dpi=300)  
+plt.savefig("latency_qps.png", dpi=300)  
 
 plt.show()
