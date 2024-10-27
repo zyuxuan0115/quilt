@@ -1,5 +1,4 @@
 #!/bin/bash
-rm -rf *.txt
 ./test.sh register-user 2
 ./test.sh register-movie-id
 ./test.sh register-user-with-id 2

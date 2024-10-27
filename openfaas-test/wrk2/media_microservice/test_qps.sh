@@ -45,8 +45,9 @@ for qps in "${QPS[@]}"; do
   sleep 30
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3/compose-review && faac-cli deploy -f deployFunc.yml
   faas-cli remove login --gateway=localhost:8081
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3/compose-review && faas-cli deploy -f deployFunc.yml
+  sleep 60
   FUNC_NAME=$1
   FUNC_NAME_OLD="${FUNC_NAME%-merged}"
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-$CLUSTER_ID/$FUNC_NAME_OLD && faas-cli deploy -f deployMergedFunc.yml
@@ -62,4 +63,6 @@ for qps in "${QPS[@]}"; do
   echo "===================="
   faas-cli remove $1
   faas-cli remove $1 --gateway=localhost:8081
+  faas-cli remove $1-merged
+  faas-cli remove $1-merged --gateway=localhost:8081
 done
