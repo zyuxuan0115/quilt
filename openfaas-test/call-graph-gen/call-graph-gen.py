@@ -1,11 +1,17 @@
+#!/usr/bin/python3
 import yaml
 import json
 import sys
 import subprocess
 import select
+import time
 
+#cmd = "curl -G -s http://localhost:8082/api/search?limit=200&order=desc --data-urlencode 'tags=http.method=POST' "
+#cmd = "curl -G -s http://localhost:8082/api/search?limit=200 --data-urlencode 'tags=http.method=POST' "
 
-cmd = "curl -G -s http://localhost:8082/api/search?limit=200&order=desc --data-urlencode 'tags=http.method=POST' "
+current_time = int(time.time())
+
+cmd = "curl -G -s http://localhost:8082/api/search?limit=3000&start="+ str(current_time-120)+ "&end=" + str(current_time) + " --data-urlencode 'tags=http.method=POST' "
 process = subprocess.Popen(cmd, shell=True,
                            stdout=subprocess.PIPE, 
                            stderr=subprocess.PIPE)
@@ -40,7 +46,7 @@ for item in traces['traces']:
   caller_callee.append(caller)
   caller_callee.append(callee)
   caller_callee_info.append(caller_callee)
-#print(caller_callee_info)
+print(caller_callee_info)
 
 cmd = "kubectl get -n openfaas-fn pods -o yaml"
 process = subprocess.Popen(cmd, shell=True,
