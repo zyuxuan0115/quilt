@@ -1,10 +1,10 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.69"
-AGENT_IP="130.127.133.85"
-SERVER_HOST="zyuxuan@clnode060.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode076.clemson.cloudlab.us"
+SERVER_IP="130.127.133.219"
+AGENT_IP="130.127.133.192"
+SERVER_HOST="zyuxuan@clnode210.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode183.clemson.cloudlab.us"
 
 function setup_k8s {
   ### setup the kubernetes cluster
