@@ -20,24 +20,82 @@ all_func_names = ["unique-id-service",
                   "social-graph-follow",
                   "social-graph-unfollow",
                   "social-graph-follow-with-username",
+                  "social-graph-get-followers",
+                  "social-graph-get-followees",
+                  "store-post",
+                  "read-post",
+                  "read-posts",
+                  "write-home-timeline",
+                  "read-home-timeline",
+                  "write-user-timeline",
+                  "read-user-timeline",
+                  "compose-post",
 
-current_time = int(time.time())
+                  "register-movie-id",
+                  "upload-movie-id",
+                  "rating-service",
+                  "write-movie-info",
+                  "read-movie-info",
+                  "compose-review",
+                  "compose-review-user-id",
+                  "write-cast-info",
+                  "read-cast-info",
+                  "write-plot",
+                  "read-plot",
+                  "register-user",
+                  "register-user-with-id",
+                  "login",
+                  "upload-user-with-username",
+                  "upload-user-with-userid",
+                  "upload-user-review",
+                  "upload-movie-review",
+                  "read-user-review",
+                  "read-movie-reviews",
+                  "store-review",
+                  "read-reviews",
+                  "page-service",
+                  "compose-review-upload-movie-id",
+                  "compose-review-upload-user-id",
+                  "compose-review-upload-unique-id",
+                  "compose-review-upload-rating",
+                  "compose-review-upload-text",
+                  "compose-and-upload",
 
-cmd = "curl -G -s http://localhost:8082/api/search?limit=3000&start="+ str(current_time-120)+ "&end=" + str(current_time) + " --data-urlencode 'tags=http.method=POST' "
-process = subprocess.Popen(cmd, shell=True,
-                           stdout=subprocess.PIPE, 
-                           stderr=subprocess.PIPE)
+                  "nearby-rest",
+                  "nearby-mus",
+                  "nearby-cinema",
+                  "get-nearby-points-rest",
+                  "get-nearby-points-mus",
+                  "get-nearby-points-cinema",
+                  "nearby-hotel",
+                  "get-profiles",
+                  "set-cinema",
+                  "set-hotel-point",
+                  "set-mus",
+                  "set-profile",
+                  "set-rest",
+                  "search-handler",
+                  "recommendation-handler",
+                  "reservation-handler",
+                  "search-nearby",
+                  "check-availability",
+                  "check-user",
+                  "get-rates",
+                  "set-rate",
+                  "get-recommendation",
+                  "set-recommendation",
+                  "get-reviews",
+                  "set-review",
+                  "make-reservation",
+                  "set-capacity",
+                  "register-user"]
 
-# wait for the process to terminate
-out, err = process.communicate()
-errcode = process.returncode
+max_cpu = -1
+max_func_cpu = {}
+for i in range(60):
+  func_cpu = {}
 
-res = str(out,'utf-8')
-traces = json.loads(res)
-caller_callee_info = []
-for item in traces['traces']:
-  trace_id = item['traceID']
-  cmd = "curl -G -s http://localhost:8082/api/traces/"+trace_id
+  cmd = "kubectl top pod -n openfaas-fn"
   process = subprocess.Popen(cmd, shell=True,
                              stdout=subprocess.PIPE, 
                              stderr=subprocess.PIPE)
@@ -45,66 +103,45 @@ for item in traces['traces']:
   out, err = process.communicate()
   errcode = process.returncode
   res = str(out,'utf-8')
-  trace = json.loads(res)
-  span_attrs = trace['batches'][0]['scopeSpans'][0]['spans'][0]['attributes']
-  caller = ""
-  callee = ""
-  for attr in span_attrs :
-    if attr['key'] == 'http.target':
-      callee = attr['value']['stringValue']
-    elif attr['key'] == 'net.peer.ip':
-      caller = attr['value']['stringValue']
-  caller_callee = []
-  caller_callee.append(caller)
-  caller_callee.append(callee)
-  caller_callee_info.append(caller_callee)
-print(caller_callee_info)
-
-cmd = "kubectl get -n openfaas-fn pods -o yaml"
-process = subprocess.Popen(cmd, shell=True,
-                           stdout=subprocess.PIPE, 
-                           stderr=subprocess.PIPE)
-# wait for the process to terminate
-out, err = process.communicate()
-errcode = process.returncode
-res = str(out,'utf-8')
-func_info = yaml.safe_load(res)
-ip_func_map = {}
-for item in func_info['items']:
-  if 'status' in item and 'podIP' in item['status']:
-    ip_func_map[item['status']['podIP']] = item['metadata']['labels']['faas_function']
-
-cmd = "kubectl get -n openfaas2-fn pods -o yaml"
-process = subprocess.Popen(cmd, shell=True,
-                           stdout=subprocess.PIPE, 
-                           stderr=subprocess.PIPE)
-# wait for the process to terminate
-out, err = process.communicate()
-errcode = process.returncode
-res = str(out,'utf-8')
-func_info = yaml.safe_load(res)
-
-for item in func_info['items']:
-  if 'status' in item and 'podIP' in item['status']:
-    ip_func_map[item['status']['podIP']] = item['metadata']['labels']['faas_function']
-#print(ip_func_map)
-
-result = {}
-
-for item in caller_callee_info:
-  if item[0] not in ip_func_map:
-    continue 
-  caller_name = ip_func_map[item[0]]
-  callee_name = item[1][len('/function/'):] 
-  if caller_name not in result:
-    temp = {}
-    temp[callee_name] = 1
-    result[caller_name] = temp
-  else:
-    if callee_name not in result[caller_name]:
-      result[caller_name][callee_name] = 1
-    else:
-      result[caller_name][callee_name] = result[caller_name][callee_name] + 1
-with open("call-freq.json", "w") as outfile: 
-    json.dump(result, outfile)
-
+  lines = res.split('\n')
+  for line in lines:
+    print(line)
+    words = line.split()
+    if len(words) > 2:
+      for func in all_func_names:
+        if words[0].startswith(func):
+          cpu = int(words[1][:-1])
+          if func in func_cpu:
+            func_cpu[func] = func_cpu[func]+cpu
+          else:
+            func_cpu[func] = cpu
+  cmd = "kubectl top pod -n openfaas2-fn"
+  process = subprocess.Popen(cmd, shell=True,
+                             stdout=subprocess.PIPE, 
+                             stderr=subprocess.PIPE)
+  # wait for the process to terminate
+  out, err = process.communicate()
+  errcode = process.returncode
+  res = str(out,'utf-8')
+  lines = res.split('\n')
+  for line in lines:
+    print(line)
+    words = line.split()
+    if len(words) > 2:
+      for func in all_func_names:
+        if words[0].startswith(func):
+          cpu = int(words[1][:-1])
+          if func in func_cpu:
+            func_cpu[func] = func_cpu[func]+cpu
+          else:
+            func_cpu[func] = cpu
+  print(func_cpu)
+  overall_cpu = 0
+  for func, cpu in func_cpu.items():
+    overall_cpu = overall_cpu + cpu
+  if overall_cpu > max_cpu:
+    max_cpu = overall_cpu
+    max_func_cpu = func_cpu
+  time.sleep(1)
+print(max_cpu)
+print(max_func_cpu)
