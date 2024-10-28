@@ -5,7 +5,18 @@ import subprocess
 import select
 import time
 
-all_func_names = ["unique-id-service",
+all_func_names = [
+                  "compose-post-merged",
+                  "social-graph-follow-with-username",
+                  "read-home-timeline",
+                  "compose-review-merged",
+                  "page-service-merged",
+                  "read-user-review-merged",
+                  "nearby-cinema",
+                  "reservation-handler-merged",
+                  "search-handler",
+
+                  "unique-id-service",
                   "url-shorten-service",
                   "user-mention-service",
                   "text-service",
@@ -17,14 +28,15 @@ all_func_names = ["unique-id-service",
                   "get-user-id",
                   "user-login",
                   "social-graph-insert-user",
-                  "social-graph-follow",
-                  "social-graph-unfollow",
                   "social-graph-follow-with-username",
+                  "social-graph-follow",
+                  "social-graph-unfollow-with-username",
+                  "social-graph-unfollow",
                   "social-graph-get-followers",
                   "social-graph-get-followees",
                   "store-post",
-                  "read-post",
                   "read-posts",
+                  "read-post",
                   "write-home-timeline",
                   "read-home-timeline",
                   "write-user-timeline",
@@ -42,8 +54,8 @@ all_func_names = ["unique-id-service",
                   "read-cast-info",
                   "write-plot",
                   "read-plot",
-                  "register-user",
                   "register-user-with-id",
+                  "register-user",
                   "login",
                   "upload-user-with-username",
                   "upload-user-with-userid",
@@ -88,7 +100,8 @@ all_func_names = ["unique-id-service",
                   "set-review",
                   "make-reservation",
                   "set-capacity",
-                  "register-user"]
+                  "register-user"
+                ]
 
 max_cpu = -1
 max_func_cpu = {}
@@ -115,6 +128,7 @@ for i in range(60):
             func_cpu[func] = func_cpu[func]+cpu
           else:
             func_cpu[func] = cpu
+          break
   cmd = "kubectl top pod -n openfaas2-fn"
   process = subprocess.Popen(cmd, shell=True,
                              stdout=subprocess.PIPE, 
