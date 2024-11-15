@@ -105,8 +105,9 @@ all_func_names = [
                 ]
 
 max_cpu = -1
+sum_cpu = 0.0
 max_func_cpu = {}
-for i in range(60):
+for i in range(180):
   func_cpu = {}
 
   cmd = "kubectl top pod -n openfaas-fn"
@@ -150,13 +151,16 @@ for i in range(60):
             func_cpu[func] = func_cpu[func]+cpu
           else:
             func_cpu[func] = cpu
+          break
   print(func_cpu)
   overall_cpu = 0
   for func, cpu in func_cpu.items():
     overall_cpu = overall_cpu + cpu
+  sum_cpu = sum_cpu + overall_cpu
   if overall_cpu > max_cpu:
     max_cpu = overall_cpu
     max_func_cpu = func_cpu
   time.sleep(1)
 print(max_cpu)
 print(max_func_cpu)
+print(sum_cpu/180)

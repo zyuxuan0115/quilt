@@ -5,7 +5,7 @@ import sys
 import os
 
 fname = sys.argv[1]
-os.system("rm funcTree.*")
+os.system("rm -rf funcTree.*")
 
 data = {}
 with open(fname, 'r') as file:
