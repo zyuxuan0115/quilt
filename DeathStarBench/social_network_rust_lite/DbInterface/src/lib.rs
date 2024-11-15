@@ -19,7 +19,7 @@ pub fn get_redis_rw_uri() -> String{
   let password = passwords[0].to_owned();
   let mut uri: String = String::from("redis://default:");
   uri.push_str(&password[..]);
-  uri.push_str("@sn-redis-master.openfaas-db.svc.cluster.local:6379");
+  uri.push_str("@sn-redis-keydb-master.openfaas-db.svc.cluster.local:6379");
   uri
 }
 
@@ -34,7 +34,7 @@ pub fn get_redis_ro_uri() -> String{
   let password = passwords[0].to_owned();
   let mut uri: String = String::from("redis://default:");
     uri.push_str(&password[..]);
-    uri.push_str("@sn-redis-replicas.openfaas-db.svc.cluster.local:6379");
+    uri.push_str("@sn-redis-keydb-replicas.openfaas-db.svc.cluster.local:6379");
   uri
 }
 
