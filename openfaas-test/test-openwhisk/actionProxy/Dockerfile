@@ -47,4 +47,4 @@ RUN chmod +x /action/exec
 
 WORKDIR /actionProxy
 
-CMD ["python", "-u", "actionproxy.py"]
+CMD ["python3", "-u", "actionproxy.py"]
