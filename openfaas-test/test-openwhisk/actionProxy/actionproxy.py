@@ -58,7 +58,7 @@ class ActionRunner:
     # @param binary the path where the binary will be located (may be the
     # same as source code path)
     def __init__(self, source=None, binary=None, zipdest=None):
-        defaultBinary = '/home/rust/function'
+        defaultBinary = '/action/exec'
         self.source = source if source else defaultBinary
         self.binary = binary if binary else defaultBinary
         self.zipdest = zipdest if zipdest else os.path.dirname(self.source)
