@@ -58,7 +58,7 @@ class ActionRunner:
     # @param binary the path where the binary will be located (may be the
     # same as source code path)
     def __init__(self, source=None, binary=None, zipdest=None):
-        defaultBinary = '/action/exec'
+        defaultBinary = '/home/rust/function'
         self.source = source if source else defaultBinary
         self.binary = binary if binary else defaultBinary
         self.zipdest = zipdest if zipdest else os.path.dirname(self.source)
@@ -139,22 +139,13 @@ class ActionRunner:
 
         try:
             input = json.dumps(args)
-            if len(input) > 131071:             # MAX_ARG_STRLEN (131071) linux/binfmts.h
-                # pass argument via stdin
-                p = subprocess.Popen(
-                    [self.binary],
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    env=env)
-            else:
-                # pass argument via stdin and command parameter
-                p = subprocess.Popen(
-                    [self.binary, input],
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    env=env)
+            # pass argument via stdin
+            p = subprocess.Popen(
+                  [self.binary],
+                  stdin=subprocess.PIPE,
+                  stdout=subprocess.PIPE,
+                  stderr=subprocess.PIPE,
+                  env=env)
             # run the process and wait until it completes.
             # stdout/stderr will always be set because we passed PIPEs to Popen
             (o, e) = p.communicate(input=input.encode())
