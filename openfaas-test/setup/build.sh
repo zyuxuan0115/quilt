@@ -23,8 +23,9 @@ function setup {
   cd open-telemetry && ./build.sh setup && cd ..
   cd ingress-nginx && ./build.sh setup && cd ..
   cd openfaas && ./build.sh setup && cd ..
-  cd openwhisk && ./build.sh setup && cd ..
+  cd openwhisk && ./build.sh setup $SERVER_IP && cd ..
   cd redis_memcached && ./build.sh setup && cd ..
+
 }
 
 function kill_k8s {

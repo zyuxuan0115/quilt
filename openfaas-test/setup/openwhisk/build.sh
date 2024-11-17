@@ -1,6 +1,9 @@
 #!/bin/bash
 
-function setup_openwhisk {
+ARGS=("$@")
+IP=${ARGS[1]}
+
+function setup {
   helm repo add openwhisk https://openwhisk.apache.org/charts
   helm repo update
   helm install owdev openwhisk/openwhisk -n openwhisk --create-namespace -f - <<EOF
@@ -23,17 +26,21 @@ invoker:
   containerFactory:
     impl: "kubernetes"
 EOF
-}
 
-function setup {
-  setup_openwhisk
+  kubectl rollout status deployment/owdev-apigateway --namespace=openwhisk --timeout=600s
+  kubectl rollout status deployment/owdev-nginx --namespace=openwhisk --timeout=600s
+
+  # set openwhisk cli
+  PORT=$(kubectl get svc -n openwhisk owdev-nginx -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}') 
+  wsk property set --apihost http://$IP:$PORT
+  wsk property set --auth 23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP
 }
 
 function kill_openwhisk {
   helm -n openwhisk uninstall owdev
   kubectl delete all --all -n openwhisk
   kubectl delete namespace openwhisk
-  python3 ../kill_port_fwd.py 8080:8080
+  #python3 ../kill_port_fwd.py 31001:31001
 }
 
 function killa {
@@ -47,9 +54,6 @@ setup)
     ;;
 kill)
     killa
-    ;;
-setup_openwhisk)
-    setup_openwhisk
     ;;
 kill_openwhisk)
     kill_openwhisk
