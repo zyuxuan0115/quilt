@@ -197,8 +197,8 @@ pub struct FuncInfo{
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RetMsg {
-  pub message: String,
-  pub error: String,
+  pub msg: String,
+  pub err: String,
 }
 
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
@@ -220,7 +220,6 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 }
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
-
   let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
   let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
 
@@ -228,36 +227,23 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::new();
 
-  let lines: Vec<String> = read_lines("/var/openfaas/secrets/ingress-enable");
-  let ingress_enable = lines[0].clone();
-  if ingress_enable == "0" {  
-    url = match callee_cluster_id {
-      1 => String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/"),
-      2 => String::from("http://gateway.openfaas2.svc.cluster.local.:8080/function/"),
-      _ => {
-        println!("Error: callee_cluster_id should not have other value");
-        panic!("Error: callee_cluster_id should not have other value");
-      },
-    }
-  }
-  else {
-    url = match callee_cluster_id {
-      1 => String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/function/"),
-      2 => String::from("http://ingress-nginx-controller.ingress-nginx2.svc.cluster.local.:80/function/"),
-      _ => {
-        println!("Error: callee_cluster_id should not have other value");
-        panic!("Error: callee_cluster_id should not have other value"); 
-      },
-    }
-  }
-  let mut input_to_be_sent = (&input).as_bytes();
+  url = String::from("http://owdev-nginx.openwhisk.svc.cluster.local.:32001/");
+  url.push_str("api/v1/namespaces/_/actions/");
   url.push_str(func_name);
+  url.push_str("?blocking=true&result=true");
+
+  let mut input_to_be_sent = (&input).as_bytes();
+  let mut headers = curl::easy::List::new();
+  headers.append("Content-Type: application/json").unwrap();
+
   easy.url(&url).unwrap();
+  easy.username("23bc46b1-71f6-4ed5-8c54-816aa4f8c502");
+  easy.password("123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP");
+  easy.http_headers(headers).unwrap();
   easy.post(true).unwrap();
   easy.post_field_size(input_to_be_sent.len() as u64).unwrap();
 
   let mut html_data = String::new();
-
   {
     let mut transfer = easy.transfer();
     transfer.read_function(|buf| {
@@ -284,8 +270,8 @@ pub fn get_arg_from_caller() -> String{
 
 pub fn send_return_value_to_caller(output: String) -> (){
   let msg = RetMsg {
-    message: output,
-    error: "".to_string(),
+    msg: output,
+    err: "".to_string(),
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
@@ -293,8 +279,8 @@ pub fn send_return_value_to_caller(output: String) -> (){
 
 pub fn send_err_msg(msg: String) -> () {
   let msg = RetMsg {
-    message: "".to_string(),
-    error: msg,
+    msg: "".to_string(),
+    err: msg,
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
