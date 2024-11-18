@@ -4,7 +4,7 @@
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
 
-function build_rust_test {
+function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build --no-cache -t zyuxuan0115/sn-register-user:latest \
@@ -15,21 +15,28 @@ function build_rust_test {
     sudo docker system prune -f
 }
 
-function push_rust_test {
-    sudo docker push zyuxuan0115/sn-register-user:latest
-}
-
-function build {
-    build_rust_test
+function build_openwhisk {
+    cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
+    sudo docker build --no-cache -t zyuxuan0115/sn-register-user:latest \
+        -f Dockerfile.wsk \
+        $ROOT_DIR/template/rust
+    rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
+    rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
+    sudo docker system prune -f
 }
 
 function push {
-    push_rust_test
+    sudo docker push zyuxuan0115/sn-register-user:latest
 }
 
+
 case "$1" in
-build)
-    build
+openfaas)
+    build_openfaas
+    ;;
+openwhisk)
+    build_openwhisk
     ;;
 push)
     push

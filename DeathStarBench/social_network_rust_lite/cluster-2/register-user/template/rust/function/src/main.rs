@@ -18,11 +18,13 @@ fn gen_random_string()->String{
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
+
   let new_user_info: RegisterUserArgs = serde_json::from_str(&input).unwrap();
 
   // update redis
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+
   let mut con = redis_client.get_connection().unwrap();
 
   let mut real_username = format!("user:{}",new_user_info.username);
@@ -30,11 +32,14 @@ fn main() {
 
   match res {
     Ok(_) => {
-      println!("User {} already existed", new_user_info.username);
+      let msg = format!("User {} already existed", new_user_info.username);
+      send_err_msg(msg);
       panic!("User {} already existed", new_user_info.username);
     },
     RedisError => (),
   }
+
+
 
   let mut pw_sha: String = String::from(&new_user_info.password[..]);
   let salt: String = gen_random_string();
@@ -50,8 +55,10 @@ fn main() {
   ret = con.hset(&real_username[..],"password",pw_sha).unwrap();
 
   let user_id_str = serde_json::to_string(&uid).unwrap();
+
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  make_rpc("social-graph-insert-user", user_id_str);
+//  make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
+
 }
