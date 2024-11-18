@@ -4,17 +4,20 @@ ARGS=("$@")
 IP=${ARGS[1]}
 
 function setup {
-  helm repo add openwhisk https://openwhisk.apache.org/charts
-  helm repo update
-  helm install owdev openwhisk/openwhisk -n openwhisk --create-namespace -f - <<EOF
+#  helm repo add openwhisk https://openwhisk.apache.org/charts
+#  helm repo update
+#  helm install owdev openwhisk/openwhisk -n openwhisk --create-namespace -f - <<EOF
+  helm install owdev ./helm-chart -n openwhisk --create-namespace -f - <<EOF
 whisk:
   ingress:
     type: NodePort
     apiHostName: localhost
-    apiHostPort: 31001
+    apiHostPort: 32001
+    apiHostProto: "http"
     useInternally: false
 
 nginx:
+  httpNodePort: 32001
   httpsNodePort: 31001
 
 affinity:
