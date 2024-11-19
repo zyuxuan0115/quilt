@@ -1,4 +1,4 @@
-## The call graph of social network
+ƒ## The call graph of social network
 
 ![cg](call-graph.png)
 
@@ -121,7 +121,7 @@ curl 127.0.0.1:8080/function/social-graph-get-followers -d "11029"
   + didn't test writing mongodb's data back to redis part
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-get-followees -d "11028"
+curl 127.0.0.1:8080/function/social-graph-get-followees -d '{"user_id":11028}'
 ```
 
 ### StorePost
