@@ -15,7 +15,7 @@ function build_rust_test {
     sudo docker system prune -f
 }
 
-function push_rust_test {
+function push {
     sudo docker push zyuxuan0115/sn-url-shorten-service:latest
 }
 
@@ -23,15 +23,29 @@ function build {
     build_rust_test
 }
 
-function push {
-    push_rust_test
+function deploy_openfaas {
+  faas-cli deploy -f deployFunc.yml
+}
+
+function deploy_openwhisk {
+  wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC:latest    
 }
 
 case "$1" in
-build)
-    build
+openfaas)
+    build_openfaas
+    ;;
+openwhisk)
+    build_openwhisk
     ;;
 push)
     push
     ;;
+deploy_openfaas)
+    deploy_openfaas
+    ;;
+deploy_openwhisk)
+    deploy_openwhisk
+    ;;
 esac
+
