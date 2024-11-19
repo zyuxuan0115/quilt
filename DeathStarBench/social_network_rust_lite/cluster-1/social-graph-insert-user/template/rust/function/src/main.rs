@@ -7,7 +7,8 @@ use redis::{Commands, RedisResult};
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
-  let user_id: i64 = serde_json::from_str(&input).unwrap();
+  let args: SocialGraphInsertUserArgs = serde_json::from_str(&input).unwrap();
+  let user_id: i64 = args.user_id;
 
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
@@ -29,6 +30,6 @@ fn main() {
 
 //  let new_now =  Instant::now();
 //  println!("SocialGraphInsertUser: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("from social-graph-insert-unser".to_string());
 }
 
