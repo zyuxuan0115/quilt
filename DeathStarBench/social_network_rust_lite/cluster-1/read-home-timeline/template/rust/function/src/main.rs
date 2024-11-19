@@ -25,7 +25,9 @@ fn main() {
 
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));
-  let posts = make_rpc("read-posts", serialized); 
+  let posts_str= make_rpc("read-posts", serialized); 
+  let posts_info: RetMsg = serde_json::from_str(&posts_str).unwrap();
+  let posts = posts_info.msg;
   send_return_value_to_caller(posts);
 }
 
