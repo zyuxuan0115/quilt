@@ -5,7 +5,7 @@ ROOT_DIR=$(pwd)
 echo $ROOT_DIR
 FUNC=social-graph-unfollow-with-username
 
-function build_rust_test {
+function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build -t zyuxuan0115/sn-$FUNC:latest \
@@ -27,7 +27,7 @@ function build_openwhisk {
     sudo docker system prune -f
 }
 
-function push_rust_test {
+function push {
     sudo docker push zyuxuan0115/sn-$FUNC:latest
 }
 
