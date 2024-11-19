@@ -12,7 +12,9 @@ fn main() {
 
   let mut timeline_info: WriteHomeTimelineArgs = serde_json::from_str(&input).unwrap();
   let user_id_str: String = timeline_info.user_id.to_string();
-  let followers_str: String = make_rpc("social-graph-get-followers", user_id_str);
+  let ret_str: String = make_rpc("social-graph-get-followers", user_id_str);
+  let ret_msg: RetMsg = serde_json::from_str(&ret_str).unwrap();
+  let followers_str = ret_msg.msg;
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
   let mut followers_set: HashMap<i64,bool> = followers.iter().map(|x| (*x, false) ).collect::<HashMap<_, _>>();
   for follower in timeline_info.user_mentions_id {

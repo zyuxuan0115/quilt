@@ -20,7 +20,9 @@ fn main() {
 //  let time_3 = Instant::now();
 //  println!("{:?}", time_1.duration_since(time_0));
 //  println!("{:?}", time_3.duration_since(time_2));
-  let result = make_rpc("social-graph-unfollow", serialized); 
-  send_return_value_to_caller(result);
+  let result_str = make_rpc("social-graph-unfollow", serialized); 
+  let result: RetMsg = serde_json::from_str(&result_str).unwrap();
+  let msg = result.msg;
+  send_return_value_to_caller(msg);
 }
 
