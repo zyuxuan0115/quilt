@@ -8,7 +8,8 @@ use memcache::Client as memcached_client;
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
-  let user_id: i64 = serde_json::from_str(&input).unwrap();
+  let input_args: SocialGraphGetFolloweesArgs = serde_json::from_str(&input).unwrap(); 
+  let user_id: i64 = input_args.user_id;
 
   // get memcache connection
   let memcache_uri = get_memcached_uri();

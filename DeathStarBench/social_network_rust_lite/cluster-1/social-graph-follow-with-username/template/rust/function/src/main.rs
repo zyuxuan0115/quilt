@@ -21,6 +21,6 @@ fn main() {
 //  println!("{:?}", time_1.duration_since(time_0));
 //  println!("{:?}", time_3.duration_since(time_2));
   let result = make_rpc("social-graph-follow", serialized); 
-  send_return_value_to_caller(result);
+  send_return_value_to_caller("".to_string());
 }
 
