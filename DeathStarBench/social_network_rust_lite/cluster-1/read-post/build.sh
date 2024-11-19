@@ -31,15 +31,28 @@ function push {
     sudo docker push zyuxuan0115/sn-$FUNC:latest
 }
 
+function deploy_openfaas {
+  faas-cli deploy -f deployFunc.yml
+}
+
+function deploy_openwhisk {
+  wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC:latest    
+}
 
 case "$1" in
-build_openfaas)
+openfaas)
     build_openfaas
     ;;
-build_openwhisk)
+openwhisk)
     build_openwhisk
     ;;
 push)
     push
+    ;;
+deploy_openfaas)
+    deploy_openfaas
+    ;;
+deploy_openwhisk)
+    deploy_openwhisk
     ;;
 esac
