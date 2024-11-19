@@ -3,11 +3,12 @@
 #ROOT_DIR=`realpath $(dirname $0)/..`
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
+FUNC=register-user
 
 function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/sn-register-user:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
@@ -18,7 +19,7 @@ function build_openfaas {
 function build_openwhisk {
     cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/sn-register-user:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
         -f Dockerfile.wsk \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
@@ -27,7 +28,7 @@ function build_openwhisk {
 }
 
 function push {
-    sudo docker push zyuxuan0115/sn-register-user:latest
+    sudo docker push zyuxuan0115/sn-$FUNC:latest
 }
 
 
