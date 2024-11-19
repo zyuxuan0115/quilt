@@ -39,8 +39,6 @@ fn main() {
     RedisError => (),
   }
 
-
-
   let mut pw_sha: String = String::from(&new_user_info.password[..]);
   let salt: String = gen_random_string();
   pw_sha.push_str(&salt[..]);
@@ -54,11 +52,18 @@ fn main() {
   ret = con.hset(&real_username[..],"salt",salt).unwrap();
   ret = con.hset(&real_username[..],"password",pw_sha).unwrap();
 
-  let user_id_str = serde_json::to_string(&uid).unwrap();
+  let args = SocialGraphInsertUserArgs {
+    user_id: uid,
+  };
+
+  let user_id_str = serde_json::to_string(&args).unwrap();
 
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-//  make_rpc("social-graph-insert-user", user_id_str);
-  send_return_value_to_caller("".to_string());
 
+  let ret_str =  make_rpc("social-graph-insert-user", user_id_str);
+  let ret: RetMsg = serde_json::from_str(&ret_str).unwrap();
+  let message = ret.msg;
+//  println!("{}", ret_str);
+  send_return_value_to_caller(message);
 }
