@@ -3,11 +3,12 @@
 #ROOT_DIR=`realpath $(dirname $0)/..`
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
+FUNC=compose-creator-with-username
 
-function build_rust_test {
+function build {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/sn-compose-creator-with-username:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
         -f Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
@@ -15,21 +16,35 @@ function build_rust_test {
     sudo docker system prune -f
 }
 
-function push_rust_test {
-    sudo docker push zyuxuan0115/sn-compose-creator-with-username:latest
-}
-
-function build {
-    build_rust_test
+function build_openwhisk {
+    cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
+        -f Dockerfile.wsk \
+        $ROOT_DIR/template/rust
+    rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
+    rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
+    sudo docker system prune -f
 }
 
 function push {
-    push_rust_test
+    sudo docker push zyuxuan0115/sn-$FUNC:latest
+}
+
+function build_openwhisk {
+    build_openwhisk
+}
+
+function build_openfaas {
+    build_openfaas
 }
 
 case "$1" in
-build)
-    build
+build_openfaas)
+    build_openfaas
+    ;;
+build_openwhisk)
+    build_openwhisk
     ;;
 push)
     push
