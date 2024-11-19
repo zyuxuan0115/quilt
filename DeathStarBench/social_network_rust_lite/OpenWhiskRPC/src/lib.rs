@@ -80,6 +80,11 @@ pub struct WriteUserTimelineArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphInsertUserArgs{
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComposePostArgs {
   pub username: String,
   pub user_id: i64,
@@ -87,6 +92,21 @@ pub struct ComposePostArgs {
   pub media_ids: Vec<i64>,
   pub media_types: Vec<String>,
   pub post_type: PostType,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReadPostArgs {
+  pub post_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphGetFolloweesArgs {
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphGetFollowersArgs {
+  pub user_id: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -220,14 +240,10 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 }
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
-  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
-  let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
-
-  let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
   let mut easy = Easy::new();
   let mut url = String::new();
 
-  url = String::from("http://owdev-nginx.openwhisk.svc.cluster.local.:32001/");
+  url = String::from("http://owdev-nginx.openwhisk.svc.cluster.local.:80/");
   url.push_str("api/v1/namespaces/_/actions/");
   url.push_str(func_name);
   url.push_str("?blocking=true&result=true");
@@ -237,9 +253,11 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   headers.append("Content-Type: application/json").unwrap();
 
   easy.url(&url).unwrap();
+
   easy.username("23bc46b1-71f6-4ed5-8c54-816aa4f8c502");
   easy.password("123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP");
   easy.http_headers(headers).unwrap();
+
   easy.post(true).unwrap();
   easy.post_field_size(input_to_be_sent.len() as u64).unwrap();
 
@@ -258,7 +276,6 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 
     transfer.perform().unwrap();
   }
-
   html_data
 }
 
