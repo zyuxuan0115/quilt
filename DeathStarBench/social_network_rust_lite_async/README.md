@@ -137,7 +137,7 @@ curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"us
 ### ReadPost
 
 ```bash
-curl 127.0.0.1:8080/function/read-post -d "1723"
+curl 127.0.0.1:8080/function/read-post -d '{"post_id":1723}'
 ```
 
 ### ReadPosts
