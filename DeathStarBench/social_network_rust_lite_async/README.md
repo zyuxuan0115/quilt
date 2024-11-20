@@ -53,7 +53,7 @@ curl 127.0.0.1:8081/function/register-user -d "{\"first_name\":\"Yuxuan\",\"last
 ### ComposeCreatorWithUsername
 
 ```bash
-curl 127.0.0.1:8081/function/compose-creator-with-username -d "zyuxuan"
+curl 127.0.0.1:8081/function/compose-creator-with-username -d '{"username":"zyuxuan"}'
 ```
 
 ### ComposeCreatorWithUserId
@@ -65,7 +65,7 @@ curl 127.0.0.1:8081/function/compose-creator-with-userid -d "{\"user_id\":11028,
 ### GetUserId
 
 ```bash
-curl 127.0.0.1:8081/function/get-user-id -d "zyuxuan"
+curl 127.0.0.1:8081/function/get-user-id -d '{"username":"zyuxuan"}'
 ```
 
 ### UserLogin
