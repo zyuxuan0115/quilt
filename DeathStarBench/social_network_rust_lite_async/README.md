@@ -114,14 +114,14 @@ curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d "{\"user_nam
   + didn't test writing mongodb's data back to redis part
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-get-followers -d "11029"
+curl 127.0.0.1:8080/function/social-graph-get-followers -d '{"user_id":11029}'
 ```
 
 ### SocialGraphGetFollowees
   + didn't test writing mongodb's data back to redis part
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-get-followees -d "11028"
+curl 127.0.0.1:8080/function/social-graph-get-followees -d '{"user_id":11028}'
 ```
 
 ### StorePost
