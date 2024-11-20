@@ -90,6 +90,47 @@ pub struct ComposePostArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ReadPostArgs {
+  pub post_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphGetFolloweesArgs {
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphGetFollowersArgs {
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeCreatorWithUsernameArgs {
+  pub username: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetUserIdArgs {
+  pub username: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TextServiceArgs {
+  pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UniqueIdServiceArgs {
+  pub msg: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RetMsg {
+  pub msg: String,
+  pub err: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PostEntry {
   pub post_id: i64,
   pub timestamp: i64,
@@ -195,6 +236,12 @@ pub struct FuncInfo{
   pub cluster_id: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RetMsg {
+  pub msg: String,
+  pub err: String,
+}
+
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
   // Open the file in read-only mode with buffer.
   let file = File::open(path)?;
@@ -266,8 +313,27 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 
     transfer.perform().unwrap();
   }
+  let msg: RetMsg = serde_json::from_str(&html_data).unwrap();
+  msg.msg
+}
 
-  html_data
+
+pub fn send_return_value_to_caller(output: String) -> (){
+  let msg = RetMsg {
+    msg: output,
+    err: "".to_string(),
+  };
+  let msg_str = serde_json::to_string(&msg).unwrap();
+  let _ = io::stdout().write(&msg_str[..].as_bytes());
+}
+
+pub fn send_err_msg(msg: String) -> () {
+  let msg = RetMsg {
+    msg: "".to_string(),
+    err: msg,
+  };
+  let msg_str = serde_json::to_string(&msg).unwrap();
+  let _ = io::stdout().write(&msg_str[..].as_bytes());
 }
 
 pub fn get_arg_from_caller() -> String{
@@ -276,6 +342,3 @@ pub fn get_arg_from_caller() -> String{
   buffer
 }
 
-pub fn send_return_value_to_caller(output: String) -> (){
-  let _ = io::stdout().write(&output[..].as_bytes());
-}
