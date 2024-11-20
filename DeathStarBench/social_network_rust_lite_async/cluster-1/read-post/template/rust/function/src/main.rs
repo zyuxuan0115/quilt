@@ -8,7 +8,8 @@ use redis::{Commands};
 fn main() {
   let input: String = get_arg_from_caller();
 //  let time_0 = Instant::now();
-  let post_id: i64 = serde_json::from_str(&input).unwrap();
+  let input_args: ReadPostArgs = serde_json::from_str(&input).unwrap();
+  let post_id: i64 = input_args.post_id;
 
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
