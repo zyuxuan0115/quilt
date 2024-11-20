@@ -125,6 +125,11 @@ pub struct TextServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct UniqueIdServiceArgs {
+  pub msg: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PostEntry {
   pub post_id: i64,
   pub timestamp: i64,
@@ -291,7 +296,8 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 
     transfer.perform().unwrap();
   }
-  html_data
+  let msg: RetMsg = serde_json::from_str(&html_data).unwrap();
+  msg.msg
 }
 
 pub fn get_arg_from_caller() -> String{
