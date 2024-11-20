@@ -1,4 +1,4 @@
-ƒ## The call graph of social network
+## The call graph of social network
 
 ![cg](call-graph.png)
 
@@ -25,7 +25,7 @@ curl 127.0.0.1:8081/function/user-mention-service -d "[\"Alice\",\"Bob\"]"
 ### TextService
 
 ```bash
-curl 127.0.0.1:8081/function/text-service -d "Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"
+curl 127.0.0.1:8081/function/text-service -d '{"text":"Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"}'
 ```
 
 ### MediaService
