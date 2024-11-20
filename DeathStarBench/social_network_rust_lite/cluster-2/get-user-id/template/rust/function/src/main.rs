@@ -4,6 +4,7 @@ use DbInterface::*;
 use std::{collections::HashMap, time::{Duration, Instant}};
 use memcache::Client as memcached_client;
 use redis::{Commands, RedisResult};
+use std::path::Path;
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {
@@ -15,7 +16,8 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let mut username = String::from(&input[..]);
+  let input_args: GetUserIdArgs = serde_json::from_str(&input).unwrap();
+  let mut username = String::from(&input_args.username[..]);
   username.push_str(":user_id");
 
   let memcache_uri = get_memcached_uri();

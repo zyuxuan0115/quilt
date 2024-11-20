@@ -110,6 +110,16 @@ pub struct SocialGraphGetFollowersArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeCreatorWithUsernameArgs {
+  pub username: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetUserIdArgs {
+  pub username: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PostEntry {
   pub post_id: i64,
   pub timestamp: i64,
