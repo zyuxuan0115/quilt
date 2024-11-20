@@ -77,11 +77,11 @@ curl 127.0.0.1:8081/function/user-login -d "{\"username\":\"zyuxuan\",\"password
 ### SocialGraphInsertUser
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-insert-user -d "11028"
+curl 127.0.0.1:8080/function/social-graph-insert-user -d '{"user_id":11028}'
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-insert-user -d "11029"
+curl 127.0.0.1:8080/function/social-graph-insert-user -d '{"user_id":11029}'
 ```
 
 ### SocialGraphFollow
