@@ -62,8 +62,6 @@ fn main() {
 //  println!("{:?}", new_now.duration_since(now));
 
   let ret_str =  make_rpc("social-graph-insert-user", user_id_str);
-  let ret: RetMsg = serde_json::from_str(&ret_str).unwrap();
-  let message = ret.msg;
 //  println!("{}", ret_str);
-  send_return_value_to_caller(message);
+  send_return_value_to_caller(ret_str);
 }
