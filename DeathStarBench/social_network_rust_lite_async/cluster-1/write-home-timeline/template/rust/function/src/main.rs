@@ -11,10 +11,13 @@ fn main() {
   let input: String = get_arg_from_caller();
 
   let mut timeline_info: WriteHomeTimelineArgs = serde_json::from_str(&input).unwrap();
-  let user_id_str: String = timeline_info.user_id.to_string();
+  let args = SocialGraphGetFollowersArgs {
+    user_id: timeline_info.user_id, 
+  };
+  let args_str = serde_json::to_string(&args).unwrap();
 
   let handle = thread::spawn(move || {
-    make_rpc("social-graph-get-followers", user_id_str)
+    make_rpc("social-graph-get-followers", args_str)
   });
 
   let followers_str = handle.join().unwrap();

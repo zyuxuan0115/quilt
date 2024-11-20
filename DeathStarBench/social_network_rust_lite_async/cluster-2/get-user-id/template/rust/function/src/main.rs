@@ -15,7 +15,8 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let mut username = String::from(&input[..]);
+  let input_arg: GetUserIdArgs = serde_json::from_str(&input).unwrap();
+  let mut username = String::from(&input_arg.username[..]);
   username.push_str(":user_id");
 
   let memcache_uri = get_memcached_uri();

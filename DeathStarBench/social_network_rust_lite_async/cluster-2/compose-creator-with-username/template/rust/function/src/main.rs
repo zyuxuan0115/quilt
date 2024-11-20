@@ -8,7 +8,8 @@ use redis::{Commands, RedisResult};
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
-  let mut username = String::from(&input[..]);
+  let input_arg: ComposeCreatorWithUsernameArgs = serde_json::from_str(&input).unwrap();
+  let mut username = String::from(&input_arg.username[..]);
   username.push_str(":user_id");
 
   let memcache_uri = get_memcached_uri();
