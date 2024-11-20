@@ -19,7 +19,7 @@ curl 127.0.0.1:8081/function/url-shorten-service -d '["http://google.com","http:
 ### UserMentionService
 
 ```bash
-curl 127.0.0.1:8081/function/user-mention-service -d "[\"Alice\",\"Bob\"]"
+curl 127.0.0.1:8081/function/user-mention-service -d '["Alice","Bob"]'
 ```
 
 ### TextService
@@ -31,23 +31,23 @@ curl 127.0.0.1:8081/function/text-service -d '{"text":"Hey, this is @Yuxuan! Nic
 ### MediaService
 
 ```bash
-curl 127.0.0.1:8081/function/media-service -d "{\"media_id\":[111,222],\"media_type\":[\"png\",\"jpg\"]}"
+curl 127.0.0.1:8081/function/media-service -d '{"media_id":[111,222],"media_type":["png","jpg"]}'
 ```
 
 ### RegisterUserWithId
 
 ```bash
-curl 127.0.0.1:8081/function/register-user-with-id -d "{\"first_name\":\"Tom\",\"last_name\":\"Wenisch\",\"username\":\"twenisch\",\"password\":\"umichandgoogle\",\"user_id\":11028}"
+curl 127.0.0.1:8081/function/register-user-with-id -d '{"first_name":"Tom","last_name":"Wenisch","username":"twenisch","password":"umichandgoogle","user_id":11028}'
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/register-user-with-id -d "{\"first_name\":\"Todd\",\"last_name\":\"Austin\",\"username\":\"todda\",\"password\":\"uwandupenn\",\"user_id\":11029}"
+curl 127.0.0.1:8080/function/register-user-with-id -d '{"first_name":"Todd","last_name":"Austin","username":"todda","password":"uwandupenn","user_id":11029}'
 ```
 
 ### RegisterUser
 
 ```bash
-curl 127.0.0.1:8081/function/register-user -d "{\"first_name\":\"Yuxuan\",\"last_name\":\"Zhang\",\"username\":\"zyuxuan\",\"password\":\"umichandupenn\"}"
+curl 127.0.0.1:8081/function/register-user -d "{"first_name":"Yuxuan","last_name":"Zhang","username":"zyuxuan","password":"umichandupenn"}"
 ```
 
 ### ComposeCreatorWithUsername
