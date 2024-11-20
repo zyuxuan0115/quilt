@@ -59,7 +59,7 @@ curl 127.0.0.1:8081/function/compose-creator-with-username -d '{"username":"zyux
 ### ComposeCreatorWithUserId
 
 ```bash
-curl 127.0.0.1:8081/function/compose-creator-with-userid -d "{\"user_id\":11028,\"username\":\"twenisch\"}"
+curl 127.0.0.1:8081/function/compose-creator-with-userid -d "{"user_id":11028,"username":"twenisch"}"
 ```
 
 ### GetUserId
@@ -71,7 +71,7 @@ curl 127.0.0.1:8081/function/get-user-id -d '{"username":"zyuxuan"}'
 ### UserLogin
 
 ```bash
-curl 127.0.0.1:8081/function/user-login -d "{\"username\":\"zyuxuan\",\"password\":\"umichandupenn\",\"secret\":\"idon'tknowwhatshouldbesecret\"}"
+curl 127.0.0.1:8081/function/user-login -d '{"username":"zyuxuan","password":"umichandupenn","secret":"idon'tknowwhatshouldbesecret"}'
 ```
 
 ### SocialGraphInsertUser
@@ -88,26 +88,26 @@ curl 127.0.0.1:8080/function/social-graph-insert-user -d '{"user_id":11029}'
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-follow -d "{\"user_id\":11028,\"followee_id\":11029}"
+curl 127.0.0.1:8080/function/social-graph-follow -d "{"user_id":11028,"followee_id":11029}"
 ```
 
 ### SocialGraphUnfollow
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-unfollow -d "{\"user_id\":11028,\"followee_id\":11029}"
+curl 127.0.0.1:8080/function/social-graph-unfollow -d "{"user_id":11028,"followee_id":11029}"
 ```
 
 ### SocialGraphFollowWithUsername
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-follow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"todda\"}"
+curl 127.0.0.1:8080/function/social-graph-follow-with-username -d "{"user_name":"twenisch","followee_name":"todda"}"
 ```
 
 ### SocialGraphUnfollowWithUsername
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d "{\"user_name\":\"twenisch\",\"followee_name\":\"todda\"}"
+curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d "{"user_name":"twenisch","followee_name":"todda"}"
 ```
 
 ### SocialGraphGetFollowers
@@ -150,7 +150,7 @@ curl 127.0.0.1:8080/function/read-posts -d "[1722,1723]"
   + I was thinking of using redis pipe to insert data, but it doesn't work (for now)
 
 ```bash
-curl 127.0.0.1:8080/function/write-home-timeline -d "{\"post_id\":1722,\"user_id\":11029,\"timestamp\":12343242,\"user_mentions_id\":[11028]}"
+curl 127.0.0.1:8080/function/write-home-timeline -d "{"post_id":1722,"user_id":11029,"timestamp":12343242,"user_mentions_id":[11028]}"
 ```
 
 ### ReadHomeTimeline
