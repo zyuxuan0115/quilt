@@ -80,6 +80,11 @@ pub struct WriteUserTimelineArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphInsertUserArgs{
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComposePostArgs {
   pub username: String,
   pub user_id: i64,
@@ -192,7 +197,7 @@ pub struct Post {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Media {
+pub struct Media{
   pub media_type: String,
   pub media_id: i64,
 }
@@ -230,6 +235,12 @@ pub struct FuncInfo{
   pub cluster_id: i64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RetMsg {
+  pub msg: String,
+  pub err: String,
+}
+
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
   // Open the file in read-only mode with buffer.
   let file = File::open(path)?;
@@ -249,44 +260,28 @@ pub fn read_lines(filename: &str) -> Vec<String> {
 }
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
-
-  let func_vec = read_func_info_from_file("/home/rust/OpenFaaSRPC/func_info.json").unwrap();
-  let func_info_hash: HashMap<String, i64> = func_vec.into_iter().map(|x| (x.function_name, x.cluster_id)).collect();
-
-  let callee_cluster_id: i64 = func_info_hash.get(func_name).unwrap().to_owned();
   let mut easy = Easy::new();
   let mut url = String::new();
 
-  let lines: Vec<String> = read_lines("/var/openfaas/secrets/ingress-enable");
-  let ingress_enable = lines[0].clone();
-  if ingress_enable == "0" {  
-    url = match callee_cluster_id {
-      1 => String::from("http://gateway.openfaas.svc.cluster.local.:8080/function/"),
-      2 => String::from("http://gateway.openfaas2.svc.cluster.local.:8080/function/"),
-      _ => {
-        println!("Error: callee_cluster_id should not have other value");
-        panic!("Error: callee_cluster_id should not have other value");
-      },
-    }
-  }
-  else {
-    url = match callee_cluster_id {
-      1 => String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/function/"),
-      2 => String::from("http://ingress-nginx-controller.ingress-nginx2.svc.cluster.local.:80/function/"),
-      _ => {
-        println!("Error: callee_cluster_id should not have other value");
-        panic!("Error: callee_cluster_id should not have other value"); 
-      },
-    }
-  }
-  let mut input_to_be_sent = (&input).as_bytes();
+  url = String::from("http://owdev-nginx.openwhisk.svc.cluster.local.:80/");
+  url.push_str("api/v1/namespaces/_/actions/");
   url.push_str(func_name);
+  url.push_str("?blocking=true&result=true");
+
+  let mut input_to_be_sent = (&input).as_bytes();
+  let mut headers = curl::easy::List::new();
+  headers.append("Content-Type: application/json").unwrap();
+
   easy.url(&url).unwrap();
+
+  easy.username("23bc46b1-71f6-4ed5-8c54-816aa4f8c502");
+  easy.password("123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP");
+  easy.http_headers(headers).unwrap();
+
   easy.post(true).unwrap();
   easy.post_field_size(input_to_be_sent.len() as u64).unwrap();
 
   let mut html_data = String::new();
-
   {
     let mut transfer = easy.transfer();
     transfer.read_function(|buf| {
@@ -301,8 +296,8 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 
     transfer.perform().unwrap();
   }
-
-  html_data
+  let msg: RetMsg = serde_json::from_str(&html_data).unwrap();
+  msg.msg
 }
 
 pub fn get_arg_from_caller() -> String{
@@ -312,5 +307,19 @@ pub fn get_arg_from_caller() -> String{
 }
 
 pub fn send_return_value_to_caller(output: String) -> (){
-  let _ = io::stdout().write(&output[..].as_bytes());
+  let msg = RetMsg {
+    msg: output,
+    err: "".to_string(),
+  };
+  let msg_str = serde_json::to_string(&msg).unwrap();
+  let _ = io::stdout().write(&msg_str[..].as_bytes());
+}
+
+pub fn send_err_msg(msg: String) -> () {
+  let msg = RetMsg {
+    msg: "".to_string(),
+    err: msg,
+  };
+  let msg_str = serde_json::to_string(&msg).unwrap();
+  let _ = io::stdout().write(&msg_str[..].as_bytes());
 }
