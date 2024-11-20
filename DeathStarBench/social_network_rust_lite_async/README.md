@@ -95,19 +95,19 @@ curl 127.0.0.1:8080/function/social-graph-follow -d "{"user_id":11028,"followee_
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-unfollow -d "{"user_id":11028,"followee_id":11029}"
+curl 127.0.0.1:8080/function/social-graph-unfollow -d '{"user_id":11028,"followee_id":11029}'
 ```
 
 ### SocialGraphFollowWithUsername
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-follow-with-username -d "{"user_name":"twenisch","followee_name":"todda"}"
+curl 127.0.0.1:8080/function/social-graph-follow-with-username -d '{"user_name":"twenisch","followee_name":"todda"}'
 ```
 
 ### SocialGraphUnfollowWithUsername
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d "{"user_name":"twenisch","followee_name":"todda"}"
+curl 127.0.0.1:8080/function/social-graph-unfollow-with-username -d '{"user_name":"twenisch","followee_name":"todda"}'
 ```
 
 ### SocialGraphGetFollowers
