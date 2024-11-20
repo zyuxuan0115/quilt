@@ -120,6 +120,11 @@ pub struct GetUserIdArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct TextServiceArgs {
+  pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PostEntry {
   pub post_id: i64,
   pub timestamp: i64,
