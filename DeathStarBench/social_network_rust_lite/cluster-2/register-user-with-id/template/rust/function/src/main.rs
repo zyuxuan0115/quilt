@@ -48,9 +48,13 @@ fn main() {
   ret = con.hset(&real_username[..],"salt",salt).unwrap();
   ret = con.hset(&real_username[..],"password",pw_sha).unwrap();
 
-  let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
+  let user_id_arg = SocialGraphInsertUserArgs {
+    user_id: new_user_info.user_id,
+  };
+  let user_id_arg_str = serde_json::to_string(&user_id_arg).unwrap();
+  make_rpc("social-graph-insert-user", user_id_arg_str);
+
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  make_rpc("social-graph-insert-user", user_id_str);
   send_return_value_to_caller("".to_string());
 }
