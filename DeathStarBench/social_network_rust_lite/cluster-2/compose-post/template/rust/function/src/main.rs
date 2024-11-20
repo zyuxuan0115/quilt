@@ -10,7 +10,11 @@ fn main() {
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
   let time_1 = Instant::now();
   // call UniqueIdService
-  let uuid: String = make_rpc("unique-id-service", "".to_string());
+  let uniq_id_msg = UniqueIdServiceArgs {
+    msg: "".to_string(),
+  };
+  let uniq_id_str = serde_json::to_string(&uniq_id_msg).unwrap();
+  let uuid: String = make_rpc("unique-id-service", uniq_id_str);
   let pid: i64 = uuid[..].parse::<i64>().unwrap();
   let time_2 = Instant::now();
   // call ComposerCreatorWithUserId
@@ -22,9 +26,12 @@ fn main() {
   let time_3 = Instant::now();
   let creator_str: String = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str);
   // call TextService
-  let text_str: String = make_rpc("text-service", input_info.text);
+  let text_svc_arg = TextServiceArgs {
+    text: input_info.text,
+  };
+  let text_svc_str = serde_json::to_string(&text_svc_arg).unwrap();
+  let text_str: String = make_rpc("text-service", text_svc_str);
   let time_4 = Instant::now();
-  println!("{}", text_str);
   let text_return_info: TextServiceReturn = serde_json::from_str(&text_str).unwrap();
 
   // call MediaService
