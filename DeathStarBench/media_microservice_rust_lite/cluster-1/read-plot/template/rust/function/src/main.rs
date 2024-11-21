@@ -7,7 +7,7 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let input_args: ReadPlotArgs = serde_json::from_str(&input).unwrap();
-  let plot_id = input_args.plot_id;
+  let plot_id = input_args.plot_id.to_string();
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
