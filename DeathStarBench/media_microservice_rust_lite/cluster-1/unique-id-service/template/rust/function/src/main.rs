@@ -5,7 +5,7 @@ use rand::Rng;
 fn main() {
   let input: String = get_arg_from_caller();
 
-  let input_args: UniqueIdService = serde_json::from_str(&input).unwrap();
+  let input_args: UniqueIdServiceArgs = serde_json::from_str(&input).unwrap();
   
 //  let now = Instant::now();
   let mut uuid:i64 = rand::thread_rng().gen();
