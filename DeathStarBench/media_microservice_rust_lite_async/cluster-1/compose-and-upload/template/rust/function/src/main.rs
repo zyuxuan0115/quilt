@@ -7,7 +7,7 @@ use std::thread;
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
-  let input_args: ComposeAndPostArgs = serde_json::from_str(&input).unwrap();
+  let input_args: ComposeAndUploadArgs = serde_json::from_str(&input).unwrap();
   let req_id: i64 = input_args.req_id;
   let key_unique_id: String = format!("{}:review_id",req_id);
   let key_movie_id: String = format!("{}:movie_id",req_id);
