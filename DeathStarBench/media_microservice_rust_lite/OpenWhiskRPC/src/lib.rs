@@ -191,6 +191,11 @@ pub struct ComposeReviewUserIdArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ComposeAndUploadArgs {
+  pub req_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
   pub reviews: Vec<Review>,
@@ -288,6 +293,12 @@ pub struct Page {
 pub struct FuncInfo{
   pub function_name: String,
   pub cluster_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RetMsg {
+  pub msg: String,
+  pub err: String,
 }
 
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
