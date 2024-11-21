@@ -198,5 +198,5 @@ curl localhost:8081/function/compose-review-upload-text -d '{"req_id":8037,"text
 
 ### compose-and-upload
 ```bash
-curl localhost:8080/function/compose-and-upload -d '8037'
+curl localhost:8080/function/compose-and-upload -d '{"req_id":8037}'
 ```
