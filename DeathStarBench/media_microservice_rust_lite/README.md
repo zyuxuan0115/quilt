@@ -3,7 +3,7 @@
 ### unique-id-service
 
 ```bash
-curl localhost:8080/function/unique-id-service -d '8037'
+curl localhost:8080/function/unique-id-service -d '{"req_id":8037}'
 ```
 
 ### register-movie-id
@@ -77,7 +77,7 @@ curl localhost:8080/function/write-plot -d '{"plot_id":113473,"plot":"One evenin
 ### read-plot
 
 ```bash
-curl localhost:8080/function/read-plot -d '113473'
+curl localhost:8080/function/read-plot -d '{"plot_id":113473}'
 ```
 
 ### register-user
