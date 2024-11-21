@@ -20,7 +20,7 @@ fn jwt_encode(secret: &str, payload: &str) -> String {
 
 fn main() {
   let input: String = get_arg_from_caller();
-  //let now = Instant::now();
+//  let now = Instant::now();
   let user_info: UserLoginArgs = serde_json::from_str(&input).unwrap();
 
   let mut username = user_info.username;
@@ -89,14 +89,14 @@ fn main() {
           }
         },
         RedisError => {
-          println!("User: {} doesn't exist in MongoDB", username);
-          panic!("User: {} doesn't exist in MongoDB", username);
+          println!("User: {} doesn't exist in redis", username);
+          panic!("User: {} doesn't exist in redis", username);
         },
       } 
     },
   } 
-  //let new_now =  Instant::now();
-  //println!("{:?}", new_now.duration_since(now));
+//  let new_now =  Instant::now();
+//  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(jwt_encode_msg);
 }
 

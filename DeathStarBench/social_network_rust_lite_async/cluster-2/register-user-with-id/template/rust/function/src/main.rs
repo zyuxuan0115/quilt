@@ -48,11 +48,14 @@ fn main() {
   ret = con.hset(&real_username[..],"salt",salt).unwrap();
   ret = con.hset(&real_username[..],"password",pw_sha).unwrap();
 
-  let user_id_str = serde_json::to_string(&new_user_info.user_id).unwrap();
+  let args = SocialGraphInsertUserArgs {
+    user_id: new_user_info.user_id,
+  };
+  let args_str = serde_json::to_string(&args).unwrap();
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   let handle = thread::spawn(move || {
-    make_rpc("social-graph-insert-user", user_id_str)
+    make_rpc("social-graph-insert-user", args_str)
   });
   let result = handle.join().unwrap();
 
