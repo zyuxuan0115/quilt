@@ -130,6 +130,11 @@ pub struct UniqueIdServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ReadMovieInfoArgs {
+  pub movie_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PostEntry {
   pub post_id: i64,
   pub timestamp: i64,

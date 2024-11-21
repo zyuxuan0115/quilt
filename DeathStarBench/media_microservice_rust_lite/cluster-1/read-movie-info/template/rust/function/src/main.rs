@@ -6,7 +6,8 @@ use redis::Commands;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let movie_id = input;
+  let input_args: ReadMovieInfoArgs = serde_json::from_str(&input).unwrap();
+  let movie_id = input_args.movie_id;
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
