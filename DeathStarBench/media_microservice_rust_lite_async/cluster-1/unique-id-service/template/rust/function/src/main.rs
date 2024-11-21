@@ -5,6 +5,7 @@ use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
+  let input_args: UniqueIdServiceArgs = serde_json::from_str(&input).unwrap();
   
 //  let now = Instant::now();
   let mut uuid:i64 = rand::thread_rng().gen();
@@ -12,7 +13,7 @@ fn main() {
     uuid = 0-uuid;
   }
   let args = ComposeReviewUploadUniqueIdArgs {
-    req_id: input.parse::<i64>().unwrap(),
+    req_id: input_args.req_id,
     review_id: uuid,
   };
   let args_str = serde_json::to_string(&args).unwrap();

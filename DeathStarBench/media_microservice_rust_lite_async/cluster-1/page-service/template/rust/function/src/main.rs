@@ -6,9 +6,12 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let args: PageServiceArgs = serde_json::from_str(&input).unwrap();
-  let movie_id_arg = args.movie_id.clone();
+  let read_movie_info_arg = ReadMovieInfoArgs {
+    movie_id: args.movie_id.clone(),
+  };
+  let read_movie_id_str = serde_json::to_string(&read_movie_info_arg).unwrap();
   let handle_read_movie_info = thread::spawn(move || {
-    make_rpc("read-movie-info", movie_id_arg)
+    make_rpc("read-movie-info", read_movie_id_str)
   });
   let read_movie_reviews_args = ReadMovieReviewArgs {
     movie_id: args.movie_id.clone(),
@@ -36,8 +39,13 @@ fn main() {
     make_rpc("read-cast-info", cast_info_id_str)
   });
 
+  let read_plot_args = ReadPlotArgs {
+    plot_id: movie_info.plot_id,
+  };
+  let read_plot_args_str = serde_json::to_string(&read_plot_args).unwrap();
+
   let handle_read_plot = thread::spawn(move || {
-    make_rpc("read-plot", movie_info.plot_id.to_string())
+    make_rpc("read-plot", read_plot_args_str)
   });
 
   let cast_info_str = handle_read_cast_info.join().unwrap();

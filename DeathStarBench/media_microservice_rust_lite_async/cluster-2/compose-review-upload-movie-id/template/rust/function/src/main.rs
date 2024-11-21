@@ -22,9 +22,13 @@ fn main() {
 
   println!("memcache successful");
   println!("counter_value:{}", counter_value);
+  let compose_and_upload_args = ComposeAndUploadArgs {
+    req_id: args.req_id,
+  };
+  let compose_and_upload_args_str = serde_json::to_string(&compose_and_upload_args).unwrap();
   if counter_value == NUM_COMPONENTS {
     let handle = thread::spawn(move || {
-      make_rpc("compose-and-upload", args.req_id.to_string())
+      make_rpc("compose-and-upload", compose_and_upload_args_str)
     });    
     let _ = handle.join().unwrap();
   }
