@@ -10,7 +10,7 @@ fn main() {
   let uniq_id_args = UniqueIdServiceArgs {
     req_id: new_review_info.req_id,
   }; 
-  let uniq_id_args_str = uniq_id_args.to_string(&uniq_id_args).unwrap();
+  let uniq_id_args_str = serde_json::to_string(&uniq_id_args).unwrap();
   let _ = make_rpc("unique-id-service", uniq_id_args_str);
 
   let text_service_arg = ComposeReviewUploadTextArgs {
