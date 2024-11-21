@@ -3,7 +3,7 @@
 ### unique-id-service
 
 ```bash
-curl localhost:8080/function/unique-id-service -d '8037'
+curl localhost:8080/function/unique-id-service -d '{"req_id":8037}'
 ```
 
 ### register-movie-id
