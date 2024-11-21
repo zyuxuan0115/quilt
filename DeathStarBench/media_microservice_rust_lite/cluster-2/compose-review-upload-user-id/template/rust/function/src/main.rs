@@ -16,12 +16,17 @@ fn main() {
   let mut key_user_id: String = args.req_id.to_string();
   key_user_id.push_str(":user_id");
   let user_id = args.user_id;
- 
+
   memcache_client.add(&key_user_id[..], user_id.to_string(), 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
+  let compose_and_upload_args = ComposeAndUploadArgs {
+    req_id: args.req_id,
+  };
+  let compose_and_upload_str = serde_json::to_string(&compose_and_upload_args).unwrap();
+ 
   if counter_value == NUM_COMPONENTS {
-    make_rpc("compose-and-upload", args.req_id.to_string());
+    make_rpc("compose-and-upload", compose_and_upload_str);
   }
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));

@@ -196,6 +196,27 @@ pub struct ComposeAndUploadArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ReadMovieInfoArgs {
+  pub movie_id: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReadPlotArgs {
+  pub plot_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TextServiceArgs {
+  pub req_id: i64,
+  pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UniqueIdServiceArgs {
+  pub req_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
   pub reviews: Vec<Review>,

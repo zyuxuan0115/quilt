@@ -6,8 +6,12 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let new_review_info: ComposeReviewUserIdArgs = serde_json::from_str(&input).unwrap();
- 
-  let _ = make_rpc("unique-id-service", new_review_info.req_id.to_string());
+
+  let uniq_id_args = UniqueIdServiceArgs {
+    req_id: new_review_info.req_id,
+  }; 
+  let uniq_id_args_str = uniq_id_args.to_string(&uniq_id_args).unwrap();
+  let _ = make_rpc("unique-id-service", uniq_id_args_str);
 
   let text_service_arg = ComposeReviewUploadTextArgs {
     req_id: new_review_info.req_id,
