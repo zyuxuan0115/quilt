@@ -3,7 +3,7 @@
 #ROOT_DIR=`realpath $(dirname $0)/..`
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
-FUNC=page-service
+FUNC=compose-review-upload-rating
 
 function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
