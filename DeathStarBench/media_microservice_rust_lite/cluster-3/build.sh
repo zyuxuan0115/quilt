@@ -2,13 +2,26 @@
   
 search_dir=$(pwd)
 
-function build {
+function build_openfaas {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
     if [[ -d $entry ]] ; then 
       cd $entry
-      ./build.sh build
+      ./build.sh openfaas
+      ./build.sh push
+    fi
+    cd ..
+  done
+}
+
+function build_openwhisk {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ -d $entry ]] ; then 
+      cd $entry
+      ./build.sh openwhisk
       ./build.sh push
     fi
     cd ..
@@ -21,7 +34,7 @@ function build_0 {
     sudo docker push zyuxuan0115/rust-env:latest
 }
 
-function deploy {
+function deploy_openfaas {
   for entry in "$search_dir"/*
   do
    if [[ -d $entry ]] ; then
@@ -33,6 +46,16 @@ function deploy {
   done
 }
 
+function deploy_openwhisk {
+  for entry in "$search_dir"/*
+  do
+   if [[ -d $entry ]] ; then
+      cd $entry
+      ./build.sh deploy_openwhisk
+    fi
+    cd ..
+  done
+}
 
 function clean {
   for entry in "$search_dir"/*
@@ -59,11 +82,17 @@ case "$1" in
 build_env)
     build_0
     ;;
-build)
-    build
+build_openfaas)
+    build_openfaas
     ;;
-deploy)
-    deploy
+build_openwhisk)
+    build_openwhisk
+    ;;
+deploy_openfaas)
+    deploy_openfaas
+    ;;
+deploy_openwhisk)
+    deploy_openwhisk
     ;;
 clean)
     clean
