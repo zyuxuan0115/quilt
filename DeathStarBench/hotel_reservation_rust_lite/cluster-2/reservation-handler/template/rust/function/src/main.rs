@@ -14,7 +14,7 @@ fn main() {
     password: resv_info.password,
   };
   let check_user_args_str = serde_json::to_string(&check_user_args).unwrap();
-  let check_user_args_ret_str =  make_rpc("check-user", check_user_args_str);
+  let check_user_args_ret_str = make_rpc("check-user", check_user_args_str);
 
   let check_user_args_ret: bool = serde_json::from_str(&check_user_args_ret_str).unwrap();
 
