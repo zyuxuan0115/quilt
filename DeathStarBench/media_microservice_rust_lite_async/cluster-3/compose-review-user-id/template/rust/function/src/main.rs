@@ -13,7 +13,7 @@ fn main() {
   };
   let uniq_id_args_str = serde_json::to_string(&uniq_id_args).unwrap();
   let handle_unique_id = thread::spawn(move || {
-    make_rpc("unique-id-service", req_id)
+    make_rpc("unique-id-service", uniq_id_args_str)
   });
  
   let text_service_arg = ComposeReviewUploadTextArgs {
