@@ -7,8 +7,9 @@ use redis::{Iter, Commands};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let hotel_id: String = input.clone();
-  let mut hotel_id_mmc: String = input.clone();
+  let input_args: GetReviewsArgs = serde_json::from_str(&input).unwrap();
+  let hotel_id: String = input_args.hotel_id;
+  let mut hotel_id_mmc: String = hotel_id.clone();
   hotel_id_mmc.push_str(":review");
 
   // connect to memcached
