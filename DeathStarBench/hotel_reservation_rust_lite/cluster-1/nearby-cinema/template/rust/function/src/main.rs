@@ -4,8 +4,8 @@ use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
 
 fn main() {
+  let time_0 = Instant::now();
   let input: String = get_arg_from_caller();
-  //let now = Instant::now();
   let hotel_id: String = input; 
 
   let redis_uri = get_redis_rw_uri();
@@ -23,7 +23,9 @@ fn main() {
         longitude: long,
       };
       let serialized = serde_json::to_string(&args).unwrap();
-      let cinema_points_str = make_rpc("get-nearby-points-cinema", serialized); 
+      println!("@@@ before");
+      let cinema_points_str = make_rpc("get-nearby-points-cinema", serialized);
+      println!("@@@ after:{}",cinema_points_str); 
       let cinema_points: Vec<Point> = serde_json::from_str(&cinema_points_str).unwrap();
       cinema_pids = cinema_points.iter().map(|x| x.id.clone()).collect();
     },
@@ -35,8 +37,9 @@ fn main() {
 
   let cinema_pids_str = serde_json::to_string(&cinema_pids).unwrap();
 
-  //let new_now =  Instant::now();
-  //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(cinema_pids_str);
+  let time_1 =  Instant::now();
+  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
+  println!("nearby-cinema: {}", result);
 }
 
