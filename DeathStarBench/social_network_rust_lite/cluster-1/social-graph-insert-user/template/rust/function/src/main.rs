@@ -30,6 +30,6 @@ fn main() {
 
 //  let new_now =  Instant::now();
 //  println!("SocialGraphInsertUser: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("from social-graph-insert-unser".to_string());
+  send_return_value_to_caller("from social-graph-insert-user".to_string());
 }
 
