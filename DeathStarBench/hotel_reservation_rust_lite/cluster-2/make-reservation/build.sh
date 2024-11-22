@@ -3,7 +3,7 @@
 #ROOT_DIR=`realpath $(dirname $0)/..`
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
-FUNC=set-recommendation
+FUNC=make-reservation
 
 function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
