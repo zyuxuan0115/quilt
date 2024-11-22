@@ -6,7 +6,8 @@ use redis::Commands;
 fn main() {
   let time_0 = Instant::now();
   let input: String = get_arg_from_caller();
-  let hotel_id: String = input; 
+  let input_args: NearbyCinemaArgs = serde_json::from_str(&input).unwrap();
+  let hotel_id: String = input_args.hotel_id;
 
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
@@ -23,9 +24,7 @@ fn main() {
         longitude: long,
       };
       let serialized = serde_json::to_string(&args).unwrap();
-      println!("@@@ before");
       let cinema_points_str = make_rpc("get-nearby-points-cinema", serialized);
-      println!("@@@ after:{}",cinema_points_str); 
       let cinema_points: Vec<Point> = serde_json::from_str(&cinema_points_str).unwrap();
       cinema_pids = cinema_points.iter().map(|x| x.id.clone()).collect();
     },

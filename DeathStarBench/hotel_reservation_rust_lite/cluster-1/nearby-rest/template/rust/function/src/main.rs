@@ -6,7 +6,8 @@ use redis::Commands;
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let hotel_id: String = input; 
+  let input_args: NearbyRestArgs = serde_json::from_str(&input).unwrap();
+  let hotel_id: String = input_args.hotel_id;
 
   let mut hid = format!("geo:{}", hotel_id);
   let mut rest_pids: Vec<String> = Vec::new(); 
