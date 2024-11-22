@@ -6,8 +6,8 @@ use std::collections::HashMap;
 use redis::{Commands, Iter};
 
 fn main() {
+  let time_0 = Instant::now();
   let input: String = get_arg_from_caller();
-  //let now = Instant::now();
   let hotel_loc: GetNearbyPointsCinemaArgs = serde_json::from_str(&input).unwrap();
 
   let mut cinemas: Vec<Cinema> = Vec::new();
@@ -81,10 +81,11 @@ fn main() {
     };
     cinema_points.push(new_p);
   }
-
   let serialized = serde_json::to_string(&cinema_points).unwrap();
-  //let new_now =  Instant::now();
-  //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
+  
+  let time_1 = Instant::now();
+  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
+//  println!("get-nearby-points-cinema: {}",result);
 }
 

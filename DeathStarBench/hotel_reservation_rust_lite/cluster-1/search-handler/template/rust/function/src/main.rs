@@ -4,8 +4,9 @@ use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 
 fn main() {
+  let time_0 = Instant::now();
+
   let input: String = get_arg_from_caller();
-  //let now = Instant::now();
   let search_info: SearchHandlerArgs = serde_json::from_str(&input).unwrap();
 
   let search_nearby_args = SearchNearbyArgs {
@@ -31,8 +32,10 @@ fn main() {
 
   let profiles_str =  make_rpc("get-profiles", check_availability_ret_str);
     
-  //let new_now =  Instant::now();
+  let time_1 =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(profiles_str);
+  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
+  println!("search-handler:{}",result);
 }
 
