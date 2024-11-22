@@ -48,7 +48,8 @@ fn main() {
       }
     },
     Err(_) => {
-      println!("UserID = {} is not registered.", follow_info.user_id);
+      let err_msg = format!("UserID = {} is not registered.", follow_info.user_id);
+      send_err_msg(err_msg);
       panic!("UserID = {} is not registered.", follow_info.user_id);
     },
   }
@@ -78,7 +79,8 @@ fn main() {
       }
     },
     Err(_) => {
-      println!("UserID = {} is not registered.", follow_info.followee_id);
+      let err_msg = format!("UserID = {} is not registered.", follow_info.followee_id);
+      send_err_msg(err_msg);
       panic!("UserID = {} is not registered.", follow_info.followee_id);
     },
   }

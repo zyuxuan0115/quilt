@@ -30,7 +30,8 @@ fn main() {
   
   match res {
     Ok(_) => {
-      println!("User {} already existed", new_user_info.username);
+      let err_msg = format!("User {} already existed", new_user_info.username);
+      send_err_msg(err_msg);
       panic!("User {} already existed", new_user_info.username);
     },
     RedisError => (),
