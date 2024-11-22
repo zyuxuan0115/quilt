@@ -231,6 +231,12 @@ spec:
             value: "{{ .Values.akka.actorSystemTerminateTimeout }}"
           - name: "CONFIG_whisk_runtime_delete_timeout"
             value: "{{ .Values.invoker.runtimeDeleteTimeout }}"
+          - name: "CONFIG_whisk_containerProxy_timeouts_idleContainer"
+            value: "{{ .Values.invoker.timeoutsIdleContainer }}"
+          - name: "CONFIG_whisk_containerProxy_timeouts_pauseGrace"
+            value: "{{ .Values.invoker.timeoutsPauseGrace }}"
+          - name: "CONFIG_whisk_containerProxy_timeouts_keepingDuration"
+            value: "{{ .Values.invoker.timeoutsKeepingDuration }}"
         ports:
         - name: invoker
           containerPort: {{ .Values.invoker.port }}

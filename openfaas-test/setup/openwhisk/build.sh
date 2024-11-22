@@ -26,6 +26,9 @@ toleration:
   enabled: false
 invoker:
   options: "-Dwhisk.kubernetes.user-pod-node-affinity.enabled=false"
+  timeoutsIdleContainer: "30 minutes"
+  timeoutsPauseGrace: "29 minutes"
+  timeoutsKeepingDuration: "30 minutes"
   containerFactory:
     impl: "kubernetes"
 EOF
