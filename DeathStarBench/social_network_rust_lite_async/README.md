@@ -59,7 +59,7 @@ curl 127.0.0.1:8081/function/compose-creator-with-username -d '{"username":"zyux
 ### ComposeCreatorWithUserId
 
 ```bash
-curl 127.0.0.1:8081/function/compose-creator-with-userid -d "{"user_id":11028,"username":"twenisch"}"
+curl 127.0.0.1:8081/function/compose-creator-with-userid -d '{"user_id":11028,"username":"twenisch"}'
 ```
 
 ### GetUserId
@@ -88,7 +88,7 @@ curl 127.0.0.1:8080/function/social-graph-insert-user -d '{"user_id":11029}'
   + I didn't check the replica of redis, but the DeathStarBench checked.
 
 ```bash
-curl 127.0.0.1:8080/function/social-graph-follow -d "{"user_id":11028,"followee_id":11029}"
+curl 127.0.0.1:8080/function/social-graph-follow -d '{"user_id":11028,"followee_id":11029}'
 ```
 
 ### SocialGraphUnfollow
@@ -143,7 +143,7 @@ curl 127.0.0.1:8080/function/read-post -d '{"post_id":1723}'
 ### ReadPosts
 
 ```bash
-curl 127.0.0.1:8080/function/read-posts -d "[1722,1723]"
+curl 127.0.0.1:8080/function/read-posts -d '[1722,1723]'
 ```
 
 ### WriteHomeTimeline
