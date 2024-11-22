@@ -47,7 +47,7 @@ curl 127.0.0.1:8080/function/register-user-with-id -d '{"first_name":"Todd","las
 ### RegisterUser
 
 ```bash
-curl 127.0.0.1:8081/function/register-user -d "{"first_name":"Yuxuan","last_name":"Zhang","username":"zyuxuan","password":"umichandupenn"}"
+curl 127.0.0.1:8081/function/register-user -d '{"first_name":"Yuxuan","last_name":"Zhang","username":"zyuxuan","password":"umichandupenn"}'
 ```
 
 ### ComposeCreatorWithUsername
@@ -131,7 +131,7 @@ curl 127.0.0.1:8080/function/store-post -d '{"post_id":1723,"creator": {"user_id
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1722,\"creator\": {\"user_id\":11029,\"username\":\"todda\"},\"req_id\":7798,\"text\":\"Hey, this is @todda! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch \",\"user_mentions\": [{\"user_id\":11029,\"username\":\"todda\"},{\"user_id\":11028,\"username\":\"twenisch\"}],\"media\":[],\"urls\":[],\"timestamp\":12343242,\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/store-post -d '{"post_id":1722,"creator": {"user_id":11029,"username":"todda"},"req_id":7798,"text":"Hey, this is @todda! Nice to meet you and welcome to my personal web: https://kate0115.net @tomwenisch ","user_mentions": [{"user_id":11029,"username":"todda"},{"user_id":11028,"username":"twenisch"}],"media":[],"urls":[],"timestamp":12343242,"post_type":"POST"}'
 ```
 
 ### ReadPost
