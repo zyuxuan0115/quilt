@@ -127,7 +127,7 @@ curl 127.0.0.1:8080/function/social-graph-get-followees -d '{"user_id":11028}'
 ### StorePost
 
 ```bash
-curl 127.0.0.1:8080/function/store-post -d "{\"post_id\":1723,\"creator\": {\"user_id\":11028,\"username\":\"twenisch\"},\"req_id\":7795,\"text\":\"yesterday once more \",\"user_mentions\": [],\"media\":[],\"urls\":[],\"timestamp\":12343249,\"post_type\":\"POST\"}"
+curl 127.0.0.1:8080/function/store-post -d '{"post_id":1723,"creator": {"user_id":11028,"username":"twenisch"},"req_id":7795,"text":"yesterday once more ","user_mentions": [],"media":[],"urls":[],"timestamp":12343249,"post_type":"POST"}'
 ```
 
 ```bash
@@ -150,33 +150,33 @@ curl 127.0.0.1:8080/function/read-posts -d "[1722,1723]"
   + I was thinking of using redis pipe to insert data, but it doesn't work (for now)
 
 ```bash
-curl 127.0.0.1:8080/function/write-home-timeline -d "{"post_id":1722,"user_id":11029,"timestamp":12343242,"user_mentions_id":[11028]}"
+curl 127.0.0.1:8080/function/write-home-timeline -d '{"post_id":1722,"user_id":11029,"timestamp":12343242,"user_mentions_id":[11028]}'
 ```
 
 ### ReadHomeTimeline
 
 ```bash
-curl 127.0.0.1:8080/function/read-home-timeline -d "{\"user_id\":11028,\"start\":0,\"stop\":1}"
+curl 127.0.0.1:8080/function/read-home-timeline -d '{"user_id":11028,"start":0,"stop":1}'
 ```
 
 ### WriteUserTimeline
 
 ```bash
-curl 127.0.0.1:8080/function/write-user-timeline -d "{\"post_id\":1722,\"user_id\":11029,\"timestamp\":12343242}"
+curl 127.0.0.1:8080/function/write-user-timeline -d '{"post_id":1722,"user_id":11029,"timestamp":12343242}'
 ```
 
 ```bash
-curl 127.0.0.1:8080/function/write-user-timeline -d "{\"post_id\":1723,\"user_id\":11028,\"timestamp\":12343249}"
+curl 127.0.0.1:8080/function/write-user-timeline -d '{"post_id":1723,"user_id":11028,"timestamp":12343249}'
 ```
 
 ### ReadUserTimeline
 
 ```bash
-curl 127.0.0.1:8080/function/read-user-timeline -d "{\"user_id\":11029,\"start\":0,\"stop\":1}"
+curl 127.0.0.1:8080/function/read-user-timeline -d '{"user_id":11029,"start":0,"stop":1}'
 ```
 
 ### ComposePost
 
 ```bash
-curl 127.0.0.1:8081/function/compose-post -d "{\"username\":\"twenisch\",\"user_id\":11028,\"text\":\"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk \",\"media_ids\":[],\"media_types\":[],\"post_type\":\"POST\"}"
+curl 127.0.0.1:8081/function/compose-post -d '{"username":"twenisch","user_id":11028,"text":"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk ","media_ids":[],"media_types":[],"post_type":"POST"}"
 ```
