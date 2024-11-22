@@ -32,10 +32,10 @@ fn main() {
 
   let profiles_str =  make_rpc("get-profiles", check_availability_ret_str);
     
-  let time_1 =  Instant::now();
+//  let time_1 =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+//  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
+//  println!("search-handler:{}",result);
   send_return_value_to_caller(profiles_str);
-  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
-  println!("search-handler:{}",result);
 }
 
