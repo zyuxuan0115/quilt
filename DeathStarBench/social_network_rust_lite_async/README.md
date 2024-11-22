@@ -59,7 +59,7 @@ curl 127.0.0.1:8081/function/compose-creator-with-username -d '{"username":"zyux
 ### ComposeCreatorWithUserId
 
 ```bash
-curl 127.0.0.1:8081/function/compose-creator-with-userid -d "{"user_id":11028,"username":"twenisch"}"
+curl 127.0.0.1:8081/function/compose-creator-with-userid -d '{"user_id":11028,"username":"twenisch"}'
 ```
 
 ### GetUserId
