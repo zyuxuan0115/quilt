@@ -37,8 +37,10 @@ EOF
   kubectl rollout status deployment/owdev-nginx --namespace=openwhisk --timeout=600s
 
   # set openwhisk cli
-  PORT=$(kubectl get svc -n openwhisk owdev-nginx -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}') 
-  wsk property set --apihost http://$IP:$PORT
+  kubectl port-forward service/owdev-nginx -n openwhisk 9999:80 &  
+  wsk property set --apihost http://localhost:9999
+  #PORT=$(kubectl get svc -n openwhisk owdev-nginx -o jsonpath='{.spec.ports[?(@.port==80)].nodePort}') 
+  #wsk property set --apihost http://$IP:$PORT
   wsk property set --auth 23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP
 }
 
