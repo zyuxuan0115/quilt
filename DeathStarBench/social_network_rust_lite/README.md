@@ -143,7 +143,7 @@ curl 127.0.0.1:8080/function/read-post -d '{"post_id":1723}'
 ### ReadPosts
 
 ```bash
-curl 127.0.0.1:8080/function/read-posts -d '[1722,1723]'
+curl 127.0.0.1:8080/function/read-posts -d '{"post_ids":[1722,1723]}'
 ```
 
 ### WriteHomeTimeline
