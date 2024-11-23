@@ -15,8 +15,7 @@ fn main() {
     user_id: timeline_info.user_id,
   };
   let social_graph_get_followers_args_str = serde_json::to_string(&social_graph_get_followers_args).unwrap();
-  let ret_str: String = make_rpc("social-graph-get-followers", social_graph_get_followers_args_str);
-  let followers_str = serde_json::from_str(&ret_str).unwrap();
+  let followers_str: String = make_rpc("social-graph-get-followers", social_graph_get_followers_args_str);
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();
   let mut followers_set: HashMap<i64,bool> = followers.iter().map(|x| (*x, false) ).collect::<HashMap<_, _>>();
   for follower in timeline_info.user_mentions_id {
