@@ -7,12 +7,12 @@ fn main() {
 //  let time_0 = Instant::now();
   let follow_info: SocialGraphFollowWithUsernameArgs = serde_json::from_str(&input).unwrap();
 //  let time_1 = Instant::now();
-  let get_user_id_args1 = GetUsrIdArgs {
+  let get_user_id_args1 = GetUserIdArgs {
     username: follow_info.user_name,
   };
   let get_user_id_args1_str = serde_json::to_string(&get_user_id_args1).unwrap();
   
-  let get_user_id_args2 = GetUsrIdArgs {
+  let get_user_id_args2 = GetUserIdArgs {
     username: follow_info.followee_name,
   };
   let get_user_id_args2_str = serde_json::to_string(&get_user_id_args2).unwrap();
