@@ -50,7 +50,8 @@ fn main() {
         user_id = x;
       },
       RedisError => {
-        println!("User: {} doesn't exist in reids", username);
+        let err_msg = format!("User: {} doesn't exist in redis", username);
+        send_err_msg(err_msg);
         panic!("User: {} doesn't exist in redis", username);
       },
     } 
