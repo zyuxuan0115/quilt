@@ -18,7 +18,8 @@ fn gen_short_url()->String{
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
-  let urls: Vec<String> = serde_json::from_str(&input).unwrap();
+  let input_args: UrlShortenServiceArgs = serde_json::from_str(&input).unwrap();
+  let urls: Vec<String> = input_args.urls;
 
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();

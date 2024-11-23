@@ -15,7 +15,8 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let usernames: Vec<String> = serde_json::from_str(&input).unwrap();
+  let input_arg: UserMentionServiceArgs = serde_json::from_str(&input).unwrap();
+  let usernames: Vec<String> = input_arg.usernames;
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();

@@ -130,6 +130,16 @@ pub struct UniqueIdServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct UrlShortenServiceArgs {
+  pub urls: Vec<String>, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserMentionServiceArgs {
+  pub usernames: Vec<String>, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PostEntry {
   pub post_id: i64,
   pub timestamp: i64,
@@ -215,7 +225,7 @@ pub struct UserMention {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TextServiceReturn{
+pub struct TextServiceReturn {
   pub user_mentions: Vec<UserMention>,
   pub urls: Vec<UrlPair>,
   pub text: String,
@@ -230,7 +240,7 @@ pub struct UserLoginReturn {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct FuncInfo{
+pub struct FuncInfo {
   pub function_name: String,
   pub cluster_id: i64,
 }
