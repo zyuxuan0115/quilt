@@ -100,6 +100,11 @@ pub struct ReadPostArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ReadPostsArgs {
+  pub post_ids: Vec<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct SocialGraphGetFolloweesArgs {
   pub user_id: i64,
 }
