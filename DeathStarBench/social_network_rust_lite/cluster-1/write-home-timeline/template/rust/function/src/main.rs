@@ -11,8 +11,11 @@ fn main() {
   let input: String = get_arg_from_caller();
 
   let mut timeline_info: WriteHomeTimelineArgs = serde_json::from_str(&input).unwrap();
-  let user_id_str: String = timeline_info.user_id.to_string();
-  let ret_str: String = make_rpc("social-graph-get-followers", user_id_str);
+  let social_graph_get_followers_args = SocialGraphGetFollowersArgs {
+    user_id: timeline_info.user_id,
+  };
+  let social_graph_get_followers_args_str = serde_json::to_string(&social_graph_get_followers_args).unwrap();
+  let ret_str: String = make_rpc("social-graph-get-followers", social_graph_get_followers_args_str);
   let ret_msg: RetMsg = serde_json::from_str(&ret_str).unwrap();
   let followers_str = ret_msg.msg;
   let mut followers: Vec<i64> = serde_json::from_str(&followers_str).unwrap();

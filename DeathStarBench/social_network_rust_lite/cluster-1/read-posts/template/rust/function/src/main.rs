@@ -61,7 +61,8 @@ fn main() {
         posts.push(post);
       },
       Err(_) => {
-        println!("Post_id:{} doesn't exist in redis", pid);
+        let err_msg = format!("Post_id:{} doesn't exist in redis", pid);
+        send_err_msg(err_msg);
         panic!("Post_id:{} doesn't exist in redis", pid);
       },
     };
