@@ -33,7 +33,7 @@ fn main() {
     let mut con = redis_client.get_connection().unwrap();
    
     let mut real_username = String::from("user:");
-    real_username.push_str(&input[..]);
+    real_username.push_str(&input_args.username[..]);
   
     let redis_result: RedisResult<i64> = con.hget(&real_username[..],"user_id");
 

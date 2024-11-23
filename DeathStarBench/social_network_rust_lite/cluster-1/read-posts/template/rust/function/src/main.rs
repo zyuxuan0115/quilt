@@ -8,7 +8,8 @@ use redis::{Commands};
 fn main() {
   let input: String = get_arg_from_caller();
 //  let time_0 = Instant::now();
-  let post_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
+  let input_args: ReadPostsArgs = serde_json::from_str(&input).unwrap();
+  let post_ids: Vec<i64> = input_args.post_ids;
 
   let mut post_not_cached: HashMap<String, bool> = HashMap::new();
   for post_id in &post_ids {
