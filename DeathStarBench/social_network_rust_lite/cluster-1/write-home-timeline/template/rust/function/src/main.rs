@@ -37,6 +37,6 @@ fn main() {
   }
 //  let time_1 = Instant::now();
 //  println!("{:?}", time_1.duration_since(time_0));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller(followers_str);
 }
 

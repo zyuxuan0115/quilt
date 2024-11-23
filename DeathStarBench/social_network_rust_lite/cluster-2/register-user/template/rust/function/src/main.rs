@@ -5,6 +5,7 @@ use DbInterface::*;
 use rand::{distributions::Alphanumeric, Rng};
 use sha256::digest;
 use std::time::{Duration, Instant};
+use std::process
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
@@ -33,8 +34,8 @@ fn main() {
   match res {
     Ok(_) => {
       let msg = format!("User {} already existed", new_user_info.username);
-      send_err_msg(msg);
-      panic!("User {} already existed", new_user_info.username);
+      send_return_value_and_err_msg("".to_string(), msg);
+      process::exit(0);
     },
     RedisError => (),
   }
@@ -62,6 +63,5 @@ fn main() {
 //  println!("{:?}", new_now.duration_since(now));
 
   let ret_str =  make_rpc("social-graph-insert-user", user_id_str);
-//  println!("{}", ret_str);
   send_return_value_to_caller(ret_str);
 }

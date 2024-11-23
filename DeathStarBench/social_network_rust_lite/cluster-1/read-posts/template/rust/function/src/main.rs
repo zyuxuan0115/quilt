@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{Duration, Instant}};
+use std::{fs::read_to_string, collections::HashMap, time::{Duration, Instant}, process};
 use memcache::Client as memcached_client;
 use redis::{Commands};
 
@@ -61,9 +61,10 @@ fn main() {
         posts.push(post);
       },
       Err(_) => {
-        let err_msg = format!("Post_id:{} doesn't exist in redis", pid);
-        send_err_msg(err_msg);
-        panic!("Post_id:{} doesn't exist in redis", pid);
+        let serialized = serde_json::to_string(&posts).unwrap();
+        let err_msg = format!("Post_id: {} doesn't exist in redis", pid);
+        send_return_value_and_err_msg(serialized, err_msg);
+        process::exit(0);
       },
     };
   }

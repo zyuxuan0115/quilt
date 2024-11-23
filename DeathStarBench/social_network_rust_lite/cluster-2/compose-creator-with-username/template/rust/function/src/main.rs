@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{collections::HashMap, time::{Duration, Instant}};
+use std::{collections::HashMap, time::{Duration, Instant}, process};
 use memcache::Client as memcached_client;
 use redis::{Commands, RedisResult};
 
@@ -43,8 +43,8 @@ fn main() {
       },
       RedisError => {
         let err_msg = format!("User: {} doesn't exist in redis", username);
-        send_err_msg(err_msg);
-        panic!("User: {} doesn't exist in redis", username);
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       },
     }
   }
