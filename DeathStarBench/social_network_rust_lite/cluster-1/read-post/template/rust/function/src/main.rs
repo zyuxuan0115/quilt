@@ -46,7 +46,8 @@ fn main() {
       memcache_client.set(&post_id_str[..], &result_str[..], 0).unwrap();
     },
     Err(_) => {
-      println!("Post_id:{} doesn't exist in MongoDB", post_id);
+      let err_msg = format!("Post_id:{} doesn't exist in MongoDB", post_id);
+      send_err_msg(err_msg);
       panic!("Post_id:{} doesn't exist in MongoDB", post_id);
     },
   };
