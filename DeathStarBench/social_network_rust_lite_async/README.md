@@ -7,19 +7,19 @@
 ### UniqueIdService
 
 ```bash
-curl 127.0.0.1:8081/function/unique-id-service -d ""
+curl 127.0.0.1:8081/function/unique-id-service -d '{"msg":""}'
 ```
 
 ### UrlShortenService
 
 ```bash
-curl 127.0.0.1:8081/function/url-shorten-service -d '["http://google.com","http://kate0115.net"]'
+curl 127.0.0.1:8081/function/url-shorten-service -d '{"urls":["http://google.com","http://kate0115.net"]}'
 ```
 
 ### UserMentionService
 
 ```bash
-curl 127.0.0.1:8081/function/user-mention-service -d '["Alice","Bob"]'
+curl 127.0.0.1:8081/function/user-mention-service -d '{"usernames":["Alice","Bob"]}'
 ```
 
 ### TextService
