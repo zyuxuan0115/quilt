@@ -2,7 +2,7 @@ use mongodb::{bson::doc,sync::Client};
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}};
+use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}, process};
 use memcache::Client as memcached_client;
 use sha256::digest;
 use jws::{JsonObject, JsonValue};
@@ -55,8 +55,9 @@ fn main() {
         jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
       }
       else {
-        println!("Incorrect username or password");
-        panic!("Incorrect username or password");
+        let err_msg = format!("Incorrect username or password");
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       }
     },
     None => {
@@ -85,13 +86,15 @@ fn main() {
             jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
           }
           else {
-            println!("Incorrect username or password");
-            panic!("Incorrect username or password");
+            let err_msg = format!("Incorrect username or password");
+            send_return_value_and_err_msg("".to_string(), err_msg);
+            process::exit(0);
           }
         },
         RedisError => {
-          println!("User: {} doesn't exist in MongoDB", username);
-          panic!("User: {} doesn't exist in MongoDB", username);
+          let err_msg = format!("User: {} doesn't exist in redis", username);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         },
       } 
     },

@@ -331,10 +331,19 @@ pub fn send_return_value_to_caller(output: String) -> (){
 }
 
 pub fn send_err_msg(msg: String) -> () {
-  let msg = RetMsg {
+  let new_msg = RetMsg {
     msg: "".to_string(),
     err: msg,
   };
-  let msg_str = serde_json::to_string(&msg).unwrap();
+  let msg_str = serde_json::to_string(&new_msg).unwrap();
+  let _ = io::stdout().write(&msg_str[..].as_bytes());
+}
+
+pub fn send_return_value_and_err_msg (msg: String, err: String) -> () {
+  let new_msg = RetMsg {
+    msg: msg,
+    err: err,
+  };
+  let msg_str = serde_json::to_string(&new_msg).unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
 }

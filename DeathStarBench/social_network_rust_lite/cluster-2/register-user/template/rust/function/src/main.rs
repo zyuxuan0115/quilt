@@ -5,7 +5,7 @@ use DbInterface::*;
 use rand::{distributions::Alphanumeric, Rng};
 use sha256::digest;
 use std::time::{Duration, Instant};
-use std::process
+use std::process;
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
