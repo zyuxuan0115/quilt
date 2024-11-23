@@ -27,7 +27,7 @@ function build_openwhisk {
     sudo docker system prune -f
 }
 
-function push_rust_test {
+function push {
     sudo docker push zyuxuan0115/sn-$FUNC:latest
 }
 

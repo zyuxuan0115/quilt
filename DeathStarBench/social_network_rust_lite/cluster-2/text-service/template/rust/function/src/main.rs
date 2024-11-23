@@ -27,7 +27,7 @@ fn main() {
   let urls_serialized = serde_json::to_string(&url_shorten_svc_args).unwrap();
 
   let user_mention_svc_args = UserMentionServiceArgs {
-    username: mentioned_usernames,
+    usernames: mentioned_usernames,
   };
   let mentioned_usernames_serialized = serde_json::to_string(&user_mention_svc_args).unwrap();
 //  let time_1 = Instant::now();
