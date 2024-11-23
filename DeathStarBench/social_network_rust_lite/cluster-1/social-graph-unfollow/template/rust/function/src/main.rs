@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
+use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}, process};
 use redis::{Commands};
 use memcache::Client as memcached_client;
 
@@ -43,8 +43,8 @@ fn main() {
     },
     Err(_) => {
       let err_msg = format!("UserID = {} is not registered.", follow_info.user_id);
-      send_err_msg(err_msg);
-      panic!("UserID = {} is not registered.", follow_info.user_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   }
 
@@ -69,8 +69,8 @@ fn main() {
     },
     Err(_) => {
       let err_msg = format!("UserID = {} is not registered.", follow_info.followee_id);
-      send_err_msg(err_msg);
-      panic!("UserID = {} is not registered.", follow_info.followee_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   }
 

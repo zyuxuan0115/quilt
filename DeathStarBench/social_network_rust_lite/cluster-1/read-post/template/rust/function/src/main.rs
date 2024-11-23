@@ -3,6 +3,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use memcache::Client as memcached_client;
 use std::time::{Duration, Instant};
+use std::process;
 use redis::{Commands};
 
 fn main() {
@@ -46,9 +47,9 @@ fn main() {
       memcache_client.set(&post_id_str[..], &result_str[..], 0).unwrap();
     },
     Err(_) => {
-      let err_msg = format!("Post_id:{} doesn't exist in MongoDB", post_id);
-      send_err_msg(err_msg);
-      panic!("Post_id:{} doesn't exist in MongoDB", post_id);
+      let err_msg = format!("Post_id:{} doesn't exist in redis", post_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   };
 

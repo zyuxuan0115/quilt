@@ -25,7 +25,6 @@ fn main() {
     post_ids: post_ids,
   };
   let serialized = serde_json::to_string(&read_posts_args).unwrap(); 
-
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));
   let posts_str= make_rpc("read-posts", serialized); 
