@@ -85,13 +85,12 @@ fn main() {
   let time_11 = Instant::now();
   make_rpc("write-home-timeline", write_h_tl_arg_str); 
 
-  println!("{:?}, ", time_1.duration_since(time_0));
-  println!("{:?}, ", time_3.duration_since(time_2));
-  println!("{:?}, ", time_5.duration_since(time_4));
-  println!("{:?}, ", time_7.duration_since(time_6));
-  println!("{:?}, ", time_9.duration_since(time_8));
-  let fina = format!("{:?}.", time_11.duration_since(time_10));
-  send_return_value_to_caller(fina);
-//  send_return_value_to_caller("".to_string());
+//  println!("{:?}, ", time_1.duration_since(time_0));
+//  println!("{:?}, ", time_3.duration_since(time_2));
+//  println!("{:?}, ", time_5.duration_since(time_4));
+//  println!("{:?}, ", time_7.duration_since(time_6));
+//  println!("{:?}, ", time_9.duration_since(time_8));
+//  let fina = format!("{:?}.", time_11.duration_since(time_10));
+  send_return_value_to_caller("".to_string());
 }
 

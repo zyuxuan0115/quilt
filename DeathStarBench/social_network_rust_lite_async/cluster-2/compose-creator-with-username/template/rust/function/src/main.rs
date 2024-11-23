@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{collections::HashMap, time::{Duration, Instant}};
+use std::{collections::HashMap, time::{Duration, Instant}, process};
 use memcache::Client as memcached_client;
 use redis::{Commands, RedisResult};
 
@@ -33,7 +33,7 @@ fn main() {
     let mut con = redis_client.get_connection().unwrap();
    
     let mut real_username = String::from("user:");
-    real_username.push_str(&input[..]);
+    real_username.push_str(&input_arg.username[..]);
   
     let redis_result: RedisResult<i64> = con.hget(&real_username[..],"user_id");
 
@@ -42,8 +42,9 @@ fn main() {
         user_id = x;
       },
       RedisError => {
-        println!("User: {} doesn't exist in MongoDB", username);
-        panic!("User: {} doesn't exist in MongoDB", username);
+        let err_msg = format!("User: {} doesn't exist in redis", username);
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       },
     }
   }
