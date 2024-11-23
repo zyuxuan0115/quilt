@@ -36,7 +36,8 @@ fn main() {
           return_value = followees_str;
         },
         Err(_) => {
-          println!("user_id: {} not found", user_id);
+          let err_msg = format!("user_id: {} not found", user_id);
+          send_err_msg(err_msg);
           panic!("user_id: {} not found", user_id);
         },
       }
