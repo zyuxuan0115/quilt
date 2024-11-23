@@ -4,7 +4,7 @@ APIHOST=130.127.133.209:32001
 FUNC=unique-id-service
 #wsk action delete $FUNC
 #sleep 5
-#wsk action create $FUNC --docker zyuxuan0115/sn-register-user
+#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
 -d '{"msg":""}'
