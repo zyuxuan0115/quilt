@@ -1,6 +1,6 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
+use std::{collections::HashMap, time::{SystemTime,Duration, Instant}, process};
 use redis::{Commands};
 
 fn main() {
@@ -19,8 +19,9 @@ fn main() {
 
   match res {
     Ok(x) => {
-      println!("Movie {} is already in redis;", movie_info.title);
-      panic!("Movie {} is already in redis;", movie_info.title);
+      let err_msg = format!("Movie {} is already in redis;", movie_info.title);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
     Err(_) => {
       let _: isize = con.hset(&mtitle[..], "movie_id", &movie_info.movie_id[..]).unwrap();

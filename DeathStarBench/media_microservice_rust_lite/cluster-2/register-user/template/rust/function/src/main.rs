@@ -3,6 +3,7 @@ use DbInterface::*;
 use rand::{distributions::Alphanumeric, Rng};
 use sha256::digest;
 use std::time::{Duration, Instant};
+use std::process;
 use redis::Commands;
 
 fn gen_random_string()->String{
@@ -29,8 +30,9 @@ fn main() {
   let res: redis::RedisResult<String> = con.hget(&uname[..], "user_id");
   match res {
     Ok(x) => {
-      println!("User {} already existed", new_user_info.username);
-      panic!("User {} already existed", new_user_info.username);
+      let err_msg = format!("User {} already existed", new_user_info.username);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
     Err(_) => {
       let mut pw_sha: String = String::from(&new_user_info.password[..]);

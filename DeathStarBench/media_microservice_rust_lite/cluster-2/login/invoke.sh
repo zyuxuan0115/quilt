@@ -4,7 +4,11 @@ APIHOST=localhost:9999
 FUNC=login
 #wsk action delete $FUNC
 #sleep 5
-#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC
+#wsk action create $FUNC --docker zyuxuan0115/mm-$FUNC
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
--d '{"post_id":1723}'
+-d '{"username":"zyuxuan","password":"123456","secret":"idontknowwhatasecretis"}'
+
+curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
+-X POST -H "Content-Type: application/json" \
+-d '{"username":"twenisch","password":"12345","secret":"idontknowwhatasecretis"}'
