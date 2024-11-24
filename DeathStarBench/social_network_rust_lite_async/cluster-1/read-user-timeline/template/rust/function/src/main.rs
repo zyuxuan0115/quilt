@@ -20,7 +20,10 @@ fn main() {
 
   let mut post_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
 
-  let serialized = serde_json::to_string(&post_ids).unwrap(); 
+  let read_posts_args = ReadPostsArgs {
+    post_ids: post_ids,
+  };
+  let serialized = serde_json::to_string(&read_posts_args).unwrap(); 
 //  let new_now = Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   let handle = thread::spawn(move || {
