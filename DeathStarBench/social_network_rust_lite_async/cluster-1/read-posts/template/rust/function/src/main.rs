@@ -8,7 +8,8 @@ use redis::{Commands};
 fn main() {
   let input: String = get_arg_from_caller();
 //  let time_0 = Instant::now();
-  let post_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
+  let input_args: ReadPostsArgs = serde_json::from_str(&input).unwrap();
+  let post_ids: Vec<i64> = input_args.post_ids;
 
   let mut post_not_cached: HashMap<String, bool> = HashMap::new();
   for post_id in &post_ids {
@@ -60,8 +61,10 @@ fn main() {
         posts.push(post);
       },
       Err(_) => {
-        println!("Post_id:{} doesn't exist in redis", pid);
-        panic!("Post_id:{} doesn't exist in redis", pid);
+        let serialized = serde_json::to_string(&posts).unwrap();
+        let err_msg = format!("Post_id: {} doesn't exist in redis", pid);
+        send_return_value_and_err_msg(serialized, err_msg);
+        process::exit(0);
       },
     };
   }
