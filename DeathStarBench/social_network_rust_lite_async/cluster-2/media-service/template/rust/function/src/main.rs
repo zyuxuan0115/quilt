@@ -1,4 +1,5 @@
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
+use std::process;
 //use std::time::{Duration, Instant};
 
 fn main() {
