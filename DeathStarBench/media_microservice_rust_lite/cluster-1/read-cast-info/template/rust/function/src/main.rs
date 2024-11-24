@@ -2,12 +2,14 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
+use std::process;
 use redis::Commands;
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let cast_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
+  let input_args: ReadCastInfoArgs = serde_json::from_str(&input).unwrap();
+  let cast_ids: Vec<i64> = input_args.cast_ids;
   let cast_id_strs: Vec<String> = cast_ids.iter().map(|x| x.to_string()).collect();
 
   let mut cast_info_ids_not_cached: HashMap<String, bool> = HashMap::new();
@@ -60,8 +62,9 @@ fn main() {
           cast_infos.push(cast_info);
         },
         Err(_) => {
-          println!("error in loading cast info, with id: {}", item);
-          panic!("error in loading cast info, with id: {}", item);
+          let err_msg = format!("error in loading cast info, with id: {}", item);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         }
       }
     }

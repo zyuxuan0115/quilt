@@ -8,6 +8,8 @@ fn main() {
   //let now = Instant::now();
   let plot_info: WritePlotArgs = serde_json::from_str(&input).unwrap();
 
+  println!("{}", input);
+/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
@@ -20,5 +22,6 @@ fn main() {
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
+*/
 }
 

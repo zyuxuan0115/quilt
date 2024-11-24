@@ -22,7 +22,11 @@ fn main() {
   let cast_info_str = make_rpc("read-cast-info", cast_info_id_str);
   let cast_info: Vec<CastInfoEntry> = serde_json::from_str(&cast_info_str).unwrap();
 
-  let plot = make_rpc("read-plot", movie_info.plot_id.to_string());
+  let read_plot_args = ReadPlotArgs {
+    plot_id: movie_info.plot_id,
+  };
+  let read_plot_args_str = serde_json::to_string(&read_plot_args).unwrap();
+  let plot = make_rpc("read-plot", read_plot_args_str);
 
   let page = Page {
     movie_info: movie_info,

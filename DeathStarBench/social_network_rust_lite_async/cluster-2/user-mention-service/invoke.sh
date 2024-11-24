@@ -4,7 +4,7 @@ APIHOST=localhost:9999
 FUNC=user-mention-service
 #wsk action delete $FUNC
 #sleep 5
-#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC
+#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC-async
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
 -d '{"usernames":["zyuxuan","twenisch"]}'

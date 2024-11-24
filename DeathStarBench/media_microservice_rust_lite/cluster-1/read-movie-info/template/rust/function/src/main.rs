@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -54,8 +55,9 @@ fn main() {
           memcache_client.set(&movie_id_mmd[..],&movie_info[..],0).unwrap();
         },
         Err(_) => {
-          println!("error: cannot find the movie: {} in redis", movie_id);
-          panic!("error: cannot find the movie: {} in redis", movie_id);
+          let err_msg = format!("error: cannot find the movie: {} in redis", movie_id);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         },
       }
     },

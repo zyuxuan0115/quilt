@@ -50,7 +50,7 @@ fn main() {
   }
   let new_creator = Creator {
       user_id: user_id,
-      username: username,
+      username: String::from(&input_arg.username[..]),
   };
 
   if memcache_has_username == false {
