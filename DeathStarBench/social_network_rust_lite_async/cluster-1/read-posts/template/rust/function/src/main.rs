@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{Duration, Instant}};
+use std::{fs::read_to_string, collections::HashMap, time::{Duration, Instant}, process};
 use memcache::Client as memcached_client;
 use redis::{Commands};
 
