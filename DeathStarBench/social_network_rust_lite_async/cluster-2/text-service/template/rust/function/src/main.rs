@@ -20,8 +20,15 @@ fn main() {
   for url in re2.captures_iter(&text[..]).map(|m| m.get(0).unwrap().as_str()) {
     urls.push(url.to_string());
   }
-  let mentioned_usernames_serialized = serde_json::to_string(&mentioned_usernames).unwrap();
-  let urls_serialized = serde_json::to_string(&urls).unwrap();
+
+  let url_shorten_svc_args = UrlShortenServiceArgs {
+    urls: urls,
+  };
+  let urls_serialized = serde_json::to_string(&url_shorten_svc_args).unwrap();
+  let user_mention_svc_args = UserMentionServiceArgs {
+    usernames: mentioned_usernames,
+  };
+  let mentioned_usernames_serialized = serde_json::to_string(&user_mention_svc_args).unwrap();
 
   let time_1 = Instant::now();
   let handle = thread::spawn(move || {
