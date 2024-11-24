@@ -1,5 +1,5 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
-use std::thread;
+use std::{thread, process};
 //use std::time::{Duration, Instant};
 
 fn main() {
@@ -7,11 +7,21 @@ fn main() {
 //  let time_0 = Instant::now();
   let follow_info: SocialGraphFollowWithUsernameArgs = serde_json::from_str(&input).unwrap();
 //  let time_1 = Instant::now();
+  let get_user_id_arg1 = GetUserIdArgs {
+    username: follow_info.user_name,
+  };
+  let get_user_id_arg1_str = serde_json::to_string(&get_user_id_arg1).unwrap();
+ 
+  let get_user_id_arg2 = GetUserIdArgs {
+    username: follow_info.followee_name,
+  };
+  let get_user_id_arg2_str = serde_json::to_string(&get_user_id_arg2).unwrap();
+
   let handle = thread::spawn(move || {
-    make_rpc("get-user-id", follow_info.user_name)
+    make_rpc("get-user-id", get_user_id_arg1_str)
   });
   let handle1 = thread::spawn(move || {
-    make_rpc("get-user-id", follow_info.followee_name)
+    make_rpc("get-user-id", get_user_id_arg2_str)
   });
 
   let user_id_str = handle.join().unwrap();
