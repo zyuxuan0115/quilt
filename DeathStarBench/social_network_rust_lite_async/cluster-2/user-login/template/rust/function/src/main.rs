@@ -54,8 +54,9 @@ fn main() {
         jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
       }
       else {
-        println!("Incorrect username or password");
-        panic!("Incorrect username or password");
+        let err_msg = format!("Incorrect username or password");
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       }
     },
     None => {
@@ -84,13 +85,15 @@ fn main() {
             jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
           }
           else {
-            println!("Incorrect username or password");
-            panic!("Incorrect username or password");
+            let err_msg = format!("Incorrect username or password");
+            send_return_value_and_err_msg("".to_string(), err_msg);
+            process::exit(0);
           }
         },
         RedisError => {
-          println!("User: {} doesn't exist in redis", username);
-          panic!("User: {} doesn't exist in redis", username);
+          let err_msg = format!("User: {} doesn't exist in redis", username);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         },
       } 
     },
