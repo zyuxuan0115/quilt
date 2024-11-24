@@ -52,6 +52,8 @@ fn main() {
   new_review.timestamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64;
 
   let new_review_str: String = serde_json::to_string(&new_review).unwrap();
+
+
   let _ = make_rpc("store-review", new_review_str);
 
   let upload_user_review_args = UploadUserReviewArgs {
@@ -74,4 +76,5 @@ fn main() {
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
+
 }

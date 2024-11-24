@@ -14,15 +14,14 @@ fn main() {
 
   let mut plot_id = "plot:".to_string();
   plot_id.push_str(&plot_info.plot_id.to_string()[..]);
-  
-
   let _: isize = con.set(&plot_id[..], &plot_info.plot[..]).unwrap();
-   println!("{}", input);
 
+//  println!("{}", input); 
+//  send_return_value_to_caller(plot_id);
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-//  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("".to_string());
 
 }
 
