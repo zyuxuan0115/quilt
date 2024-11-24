@@ -65,7 +65,7 @@ curl localhost:8080/function/write-cast-info -d '{"cast_info_id":12346,"name":"J
 ### read-cast-info
 
 ```bash
-curl localhost:8080/function/read-cast-info -d '[12345,12346]'
+curl localhost:8080/function/read-cast-info -d '{"cast_ids":[12345,12346]}'
 ```
 
 ### write-plot
