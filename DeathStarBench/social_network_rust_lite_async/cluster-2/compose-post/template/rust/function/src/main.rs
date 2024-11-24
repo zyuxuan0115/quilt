@@ -8,8 +8,12 @@ fn main() {
   let input: String = get_arg_from_caller();
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
   // call UniqueIdService
+  let uniq_id_msg = UniqueIdServiceArgs {
+    msg: "".to_string(),
+  };
+  let uniq_id_str = serde_json::to_string(&uniq_id_msg).unwrap();
   let handle_uuid = thread::spawn(move || {
-    make_rpc("unique-id-service", "".to_string())
+    make_rpc("unique-id-service", uniq_id_str)
   });
 
   // call ComposerCreatorWithUserId
@@ -23,9 +27,13 @@ fn main() {
     make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str)
   });
 
+  let text_svc_arg = TextServiceArgs {
+    text: input_info.text,
+  };
+  let text_svc_str = serde_json::to_string(&text_svc_arg).unwrap();
   // call TextService
   let handle_text = thread::spawn(move || {
-    make_rpc("text-service", input_info.text)
+    make_rpc("text-service", text_svc_str)
   });
 
   // call MediaService

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}};
+use std::{fs::read_to_string, collections::HashMap, time::{SystemTime, Duration, Instant}, process};
 use redis::{Commands, RedisResult};
 use memcache::Client as memcached_client;
 
@@ -36,8 +36,11 @@ fn main() {
           return_value = followees_str;
         },
         Err(_) => {
-          println!("user_id: {} not found", user_id);
-          panic!("user_id: {} not found", user_id);
+          let followees: Vec<i64> = Vec::new();
+          let followees_str = serde_json::to_string(&followees).unwrap();
+          let err_msg = format!("user_id: {} not found", user_id);
+          send_return_value_and_err_msg(followees_str, err_msg);
+          process::exit(0);
         },
       }
     },
