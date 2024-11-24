@@ -3,7 +3,7 @@ use DbInterface::*;
 use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 use redis::{Commands, RedisResult};
-use std::thread;
+use std::{thread,process};
 //use std::time::{Duration, Instant};
 
 fn gen_random_string()->String{
@@ -30,8 +30,9 @@ fn main() {
   
   match res {
     Ok(_) => {
-      println!("User {} already existed", new_user_info.username);
-      panic!("User {} already existed", new_user_info.username);
+      let err_msg = format!("User {} already existed", new_user_info.username);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
     RedisError => (),
   }
