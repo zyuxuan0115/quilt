@@ -48,8 +48,9 @@ fn main() {
       }
     },
     Err(_) => {
-      println!("UserID = {} is not registered.", follow_info.user_id);
-      panic!("UserID = {} is not registered.", follow_info.user_id);
+      let err_msg = format!("UserID = {} is not registered.", follow_info.user_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   }
 
@@ -78,8 +79,9 @@ fn main() {
       }
     },
     Err(_) => {
-      println!("UserID = {} is not registered.", follow_info.followee_id);
-      panic!("UserID = {} is not registered.", follow_info.followee_id);
+      let err_msg = format!("UserID = {} is not registered.", follow_info.followee_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   }
   //let new_now =  Instant::now();
