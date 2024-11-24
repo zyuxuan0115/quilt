@@ -4,6 +4,7 @@ use DbInterface::*;
 use memcache::Client as memcached_client;
 use std::time::{Duration, Instant};
 use redis::{Commands};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -46,8 +47,9 @@ fn main() {
       memcache_client.set(&post_id_str[..], &result_str[..], 0).unwrap();
     },
     Err(_) => {
-      println!("Post_id:{} doesn't exist in MongoDB", post_id);
-      panic!("Post_id:{} doesn't exist in MongoDB", post_id);
+      let err_msg = format!("Post_id:{} doesn't exist in redis", post_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   };
 
