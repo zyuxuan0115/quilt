@@ -157,7 +157,7 @@ curl localhost:8081/function/store-review -d '{"review_id":98766,"user_id":11079
 ### read-reviews
 
 ```bash
-curl localhost:8081/function/read-reviews -d '[98765,98766]'
+curl localhost:8081/function/read-reviews -d '{"review_ids":[98765,98766]}'
 ```
 
 ### page-service
