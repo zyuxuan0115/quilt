@@ -9,8 +9,11 @@ fn main() {
   let media_types = media_get.media_type;
 
   if media_ids.len() != media_types.len() {
-    println!("the length of media_id and media_type are not equal");
-    panic!("the length of media_id and media_type are not equal");
+    let tmp: Vec<Media> = Vec::new();
+    let tmp_str = serde_json::to_string(&tmp).unwrap();
+    let err_msg = format!("the length of media_id and media_type are not equal");
+    send_return_value_and_err_msg(tmp_str, err_msg);
+    process::exit(0);
   }
 
   let mut i: usize = 0;
