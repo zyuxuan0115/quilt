@@ -3,6 +3,7 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use redis::{Iter, Commands};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -36,8 +37,9 @@ fn main() {
           keys = iter.map(|x| x).collect();
         },
         Err(err) => {
-          println!("Error: finding any of the hotel record");
-          panic!("Error: finding any of the hotel record");
+          let err_msg = format!("Error: finding any of the hotel record");
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         },
       }
 
@@ -66,8 +68,9 @@ fn main() {
             reviews.push(review_info);
           },
           Err(_) => {
-            println!("error in loading hotel info, with id: {}", key);
-            panic!("error in loading hotel info, with id: {}", key);
+            let err_msg = format!("error in loading hotel info, with id: {}", key);
+            send_return_value_and_err_msg("".to_string(), err_msg);
+            process::exit(0);
           }          
         }
       }

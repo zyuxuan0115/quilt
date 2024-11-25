@@ -5,6 +5,7 @@ use ordered_float::OrderedFloat;
 use std::f64::MAX;
 use std::collections::HashMap;
 use redis::{Iter,Commands};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -27,8 +28,9 @@ fn main() {
       keys = iter.map(|x| x).collect();
     },
     Err(err) => {
-      println!("Error: finding any of the recommendation record");
-      panic!("Error: finding any of the recommendation record");
+      let err_msg = format!("Error: finding any of the recommendation record");
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   }
 
@@ -47,8 +49,9 @@ fn main() {
         hotel_info.push(new_recomm);
       },
       Err(_) => {
-        println!("error in loading hotel info, with id: {}", key);
-        panic!("error in loading hotel info, with id: {}", key);
+        let err_msg = format!("error in loading hotel info, with id: {}", key);
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       }
     }
   }
