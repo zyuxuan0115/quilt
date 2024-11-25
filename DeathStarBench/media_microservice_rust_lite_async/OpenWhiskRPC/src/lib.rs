@@ -217,6 +217,11 @@ pub struct UniqueIdServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ReadCastInfoArgs {
+  pub cast_ids: Vec<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
   pub reviews: Vec<Review>,

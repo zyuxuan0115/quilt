@@ -46,12 +46,11 @@ curl localhost:8080/function/read-movie-info -d '{"movie_id":"tt1517268"}'
 curl localhost:8081/function/compose-review -d '{"req_id":8037,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 ```
 
-### compose-review-user-id
+### compose-review
 
 ```bash
 curl localhost:8081/function/compose-review-user-id -d '{"req_id":8037,"user_id":11078,"password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 ```
-
 
 ### write-cast-info
 
@@ -66,7 +65,7 @@ curl localhost:8080/function/write-cast-info -d '{"cast_info_id":12346,"name":"J
 ### read-cast-info
 
 ```bash
-curl localhost:8080/function/read-cast-info -d '[12345,12346]'
+curl localhost:8080/function/read-cast-info -d '{"cast_ids":[12345,12346]}'
 ```
 
 ### write-plot
@@ -78,7 +77,7 @@ curl localhost:8080/function/write-plot -d '{"plot_id":113473,"plot":"One evenin
 ### read-plot
 
 ```bash
-curl localhost:8080/function/read-plot -d '{"read-plot":113473}'
+curl localhost:8080/function/read-plot -d '{"plot_id":113473}'
 ```
 
 ### register-user
@@ -158,7 +157,7 @@ curl localhost:8081/function/store-review -d '{"review_id":98766,"user_id":11079
 ### read-reviews
 
 ```bash
-curl localhost:8081/function/read-reviews -d '[98765,98766]'
+curl localhost:8081/function/read-reviews -d '{"review_ids":[98765,98766]}'
 ```
 
 ### page-service
