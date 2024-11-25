@@ -14,7 +14,7 @@ fn main() {
 
   let movie_id: String = format!("movie-review:{}", review_info.movie_id);
   // TODO set the options to be NX
-  let _: usize = con.zadd(&movie_id[..], review_info.review_id, review_info.timestamp).unwrap();
+  let _: i32 = con.zadd(&movie_id[..], review_info.review_id, review_info.timestamp).unwrap();
   
 //  let new_now =  Instant::now();
 //  println!("SocialGraphUnfollow: {:?}", new_now.duration_since(now));
