@@ -4,7 +4,7 @@ APIHOST=localhost:9999
 FUNC=write-plot
 #wsk action delete $FUNC
 #sleep 5
-#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC
+#wsk action create $FUNC --docker zyuxuan0115/mm-$FUNC-async
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
--d '{"post_id":1723}'
+-d '{"plot_id":113473,"plot":"One evening at a dance party, Barbie is suddenly stricken with worries about mortality. Overnight, she develops bad breath, cellulite, and flat feet, disrupting her routines and impairing the aura of classic perfection experienced by the Barbies. Weird Barbie, a disfigured doll, tells Barbie to find the child playing with her in the real world to cure her afflictions. Barbie follows the advice and travels to the real world, with Ken joining Barbie by stowing away in her convertible."}'
