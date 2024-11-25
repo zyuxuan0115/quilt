@@ -7,4 +7,4 @@ FUNC=rating-service
 #wsk action create $FUNC --docker zyuxuan0115/mm-$FUNC-async
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
--d '{"req_id":8037,"rating":4}'
+-d '{"movie_id":"tt1517268", "rating":5, "req_id":8037}'

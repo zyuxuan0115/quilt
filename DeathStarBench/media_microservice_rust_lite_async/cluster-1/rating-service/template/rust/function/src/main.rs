@@ -27,11 +27,11 @@ fn main() {
 
   let mut movie_id1 = rating_info.movie_id.clone();
   movie_id1.push_str(":uncommit_sum");
-  let _: isize = con.incr(&movie_id1[..], rating_info.rating).unwrap();
+  let _: i64 = con.incr(&movie_id1[..], rating_info.rating).unwrap();
   
   let mut movie_id2 = rating_info.movie_id.clone();
   movie_id2.push_str(":uncommit_num");
-  let _: isize = con.incr(&movie_id2[..], 1).unwrap();
+  let _: i64 = con.incr(&movie_id2[..], 1).unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());

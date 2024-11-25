@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
+use std::process;
 
 fn main() {
   let time_0 = Instant::now();
@@ -29,16 +30,17 @@ fn main() {
       cinema_pids = cinema_points.iter().map(|x| x.id.clone()).collect();
     },
     Err(_) => {
-      println!("Hotel {} does not exist", hotel_id);
-      panic!("Hotel {} does not exist", hotel_id);
+      let err_msg = format!("Hotel {} does not exist", hotel_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     }
   }
 
   let cinema_pids_str = serde_json::to_string(&cinema_pids).unwrap();
 
   send_return_value_to_caller(cinema_pids_str);
-  let time_1 =  Instant::now();
-  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
-  println!("nearby-cinema: {}", result);
+//  let time_1 =  Instant::now();
+//  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
+//  println!("nearby-cinema: {}", result);
 }
 

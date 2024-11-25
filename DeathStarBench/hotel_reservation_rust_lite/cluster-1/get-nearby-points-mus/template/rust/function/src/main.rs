@@ -4,6 +4,7 @@ use std::time::{SystemTime,Duration, Instant};
 use knn::PointCloud;
 use std::collections::HashMap;
 use redis::{Commands, Iter};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -46,8 +47,9 @@ fn main() {
         museums.push(mus_info);
       },
       Err(_) => {
-        println!("error in loading museum info, with id: {}", key);
-        panic!("error in loading museum info, with id: {}", key);
+        let err_msg = format!("error in loading museum info, with id: {}", key);
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       }
     }
   }

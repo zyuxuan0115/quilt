@@ -4,6 +4,7 @@ use std::time::{SystemTime,Duration, Instant};
 use knn::PointCloud;
 use std::collections::HashMap;
 use redis::{Commands, Iter};
+use std::process;
 
 fn main() {
   let time_0 = Instant::now();
@@ -46,8 +47,9 @@ fn main() {
         cinemas.push(cinema_info);
       },
       Err(_) => {
-        println!("error in loading cinema info, with id: {}", key);
-        panic!("error in loading cinema info, with id: {}", key);
+        let err_msg = format!("error in loading cinema info, with id: {}", key);
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       }
     }
   }
@@ -84,8 +86,8 @@ fn main() {
   let serialized = serde_json::to_string(&cinema_points).unwrap();
   send_return_value_to_caller(serialized);
   
-  let time_1 = Instant::now();
-  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
+//  let time_1 = Instant::now();
+//  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
 //  println!("get-nearby-points-cinema: {}",result);
 }
 

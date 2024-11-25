@@ -4,6 +4,7 @@ use std::time::{SystemTime,Duration, Instant};
 use knn::PointCloud;
 use std::collections::HashMap;
 use redis::{Commands, Iter};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -25,8 +26,9 @@ fn main() {
       keys = iter.map(|x| x).collect();
     },
     Err(err) => {
-      println!("Error: finding any of the restaurant record");
-      panic!("Error: finding any of the restaurant record");
+      let err_msg = format!("Error: finding any of the restaurant record");
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   }
   for key in keys {

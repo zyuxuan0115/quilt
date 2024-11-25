@@ -5,6 +5,7 @@ use kdtree::KdTree;
 use kdtree::ErrorKind;
 use kdtree::distance::squared_euclidean;
 use redis::{Iter,Commands};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -28,8 +29,9 @@ fn main() {
       keys = iter.map(|x| x).collect();
     },
     Err(err) => {
-      println!("Error: finding any of the hotel record");
-      panic!("Error: finding any of the hotel record");
+      let err_msg = format!("Error: finding any of the hotel record");
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
   }
 
@@ -42,8 +44,9 @@ fn main() {
         hotels.push((new_v,id));
       },
       Err(_) => {
-        println!("error in loading hotel info, with id: {}", key);
-        panic!("error in loading hotel info, with id: {}", key);
+        let err_msg = format!("error in loading hotel info, with id: {}", key);
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       }
     }
   }

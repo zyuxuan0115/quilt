@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -29,8 +30,9 @@ fn main() {
       mus_pids = mus_points.iter().map(|x| x.id.clone()).collect();
     },
     Err(_) => {
-      println!("Hotel {} does not exist", hotel_id);
-      panic!("Hotel {} does not exist", hotel_id);
+      let err_msg = format!("Hotel {} does not exist", hotel_id);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     }
   }
 
