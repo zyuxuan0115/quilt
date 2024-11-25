@@ -217,6 +217,16 @@ pub struct UniqueIdServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ReadCastInfoArgs {
+  pub cast_ids: Vec<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReadReviewsArgs {
+  pub review_ids: Vec<i64>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct UserReviewEntry {
   pub user_id: i64,
   pub reviews: Vec<Review>,
@@ -402,5 +412,14 @@ pub fn send_err_msg(msg: String) -> () {
     err: msg,
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
+  let _ = io::stdout().write(&msg_str[..].as_bytes());
+}
+
+pub fn send_return_value_and_err_msg (msg: String, err: String) -> () {
+  let new_msg = RetMsg {
+    msg: msg,
+    err: err,
+  };
+  let msg_str = serde_json::to_string(&new_msg).unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
 }

@@ -5,6 +5,7 @@ use std::time::{SystemTime,Duration, Instant};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
+
   let new_review_info: ComposeReviewArgs = serde_json::from_str(&input).unwrap();
   
   let uniq_id_args = UniqueIdServiceArgs {
@@ -37,6 +38,7 @@ fn main() {
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+
   send_return_value_to_caller("".to_string());
 }
 

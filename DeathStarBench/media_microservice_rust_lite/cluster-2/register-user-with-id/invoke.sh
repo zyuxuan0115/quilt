@@ -4,7 +4,11 @@ APIHOST=localhost:9999
 FUNC=register-user-with-id
 #wsk action delete $FUNC
 #sleep 5
-#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC
+#wsk action create $FUNC --docker zyuxuan0115/mm-$FUNC
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
--d '{"post_id":1723}'
+-d '{"user_id":11078,"first_name":"Tom","last_name":"Wenisch","username":"twenisch","password":"12345"}'
+
+curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
+-X POST -H "Content-Type: application/json" \
+-d '{"user_id":11079,"first_name":"Todd","last_name":"Austin","username":"taustin","password":"12345"}'
