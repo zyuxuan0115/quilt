@@ -4,6 +4,7 @@ use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 use std::time::{Duration, Instant};
 use redis::Commands;
+use std::process;
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
