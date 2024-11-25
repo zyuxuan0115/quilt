@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -36,8 +37,9 @@ fn main() {
           memcache_client.set(&plot_id[..], &plot[..], 0).unwrap();
         },
         Err(_) => {
-          println!("Plot {} is not found in MongoDB;", plot_id);
-          panic!("Plot {} is not found in MongoDB;", plot_id);
+          let err_msg = format!("Plot {} is not found in redis.", plot_id);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         },
       }
     },
