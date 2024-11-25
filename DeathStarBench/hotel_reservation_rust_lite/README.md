@@ -3,19 +3,19 @@
 ### nearby-rest
 
 ```bash
-curl localhost:8080/function/nearby-rest -d 'h1347234'
+curl localhost:8080/function/nearby-rest -d '{"hotel_id":"h1347234"}'
 ```
 
 ### nearby-mus
 
 ```bash
-curl localhost:8080/function/nearby-mus -d 'h1347234'
+curl localhost:8080/function/nearby-mus -d '{"hotel_id":"h1347234"}'
 ```
 
 ### nearby-cinema
 
 ```bash
-curl localhost:8080/function/nearby-cinema -d 'h1347234'
+curl localhost:8080/function/nearby-cinema -d '{"hotel_id":"h1347234"}'
 ```
 
 ### get-nearby-points-rest
@@ -245,7 +245,7 @@ curl localhost:8081/function/set-recommendation -d '{"hotel_id":"h1347234","lati
 ### get-reviews
 
 ```bash
-curl localhost:8081/function/get-reviews -d 'h1347234'
+curl localhost:8081/function/get-reviews -d '{"hotel_id":"h1347234"}'
 ```
 
 ### set-review
