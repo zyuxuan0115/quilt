@@ -2,6 +2,7 @@ use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -15,7 +16,15 @@ fn main() {
 
   let key = format!("number:{}",cap_info.hotel_id);
 
-  let _: isize  = con.set(&key[..], cap_info.capacity).unwrap();
+  let result: redis::RedisResult<()> = con.set(&key[..], &cap_info.capacity);
+  match result {
+    Ok(_) => (),
+    Err(e) => {
+      let err = format!("{}",e);
+      send_return_value_and_err_msg("".to_string(), err);
+      process::exit(0);
+    },
+  }
   
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
