@@ -216,6 +216,11 @@ pub struct GetReviewsArgs {
   pub hotel_id: String,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetProfilesArgs {
+  pub hotel_ids: Vec<String>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Restaurant {
   pub restaurant_id: String,
