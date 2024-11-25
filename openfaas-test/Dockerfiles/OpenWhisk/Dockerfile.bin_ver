@@ -45,4 +45,8 @@ RUN mkdir -p /action
 ADD stub.sh /action/exec
 RUN chmod +x /action/exec
 
+WORKDIR /actionProxy
+RUN pip3 install pyinstaller
+RUN python3 -m PyInstaller --hidden-import=flask --hidden-import=gevent  actionproxy.py
+
 CMD ["python3", "-u", "actionproxy.py"]
