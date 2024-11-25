@@ -4,7 +4,7 @@ APIHOST=localhost:9999
 FUNC=write-cast-info
 #wsk action delete $FUNC
 #sleep 5
-#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC
+#wsk action create $FUNC --docker zyuxuan0115/mm-$FUNC-async
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
 -d '{"cast_info_id":12345,"name":"Kirk Douglas","gender":true,"intro":"Kirk Douglas was an American actor and filmmaker."}'

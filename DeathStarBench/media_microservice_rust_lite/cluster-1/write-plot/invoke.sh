@@ -7,4 +7,4 @@ sleep 5
 wsk action create $FUNC --docker zyuxuan0115/mm-$FUNC
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
--d '{"plot_id":113473,"plot":"One evening at a dance party, Barbie is suddenly stricken with worries about mortality."}'
+-d '{"plot_id":113475,"plot":"One evening at a party."}'

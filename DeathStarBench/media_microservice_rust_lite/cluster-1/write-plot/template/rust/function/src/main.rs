@@ -2,6 +2,8 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
+use redis::RedisError;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -14,13 +16,17 @@ fn main() {
 
   let mut plot_id = "plot:".to_string();
   plot_id.push_str(&plot_info.plot_id.to_string()[..]);
-  let _: isize = con.set(&plot_id[..], &plot_info.plot[..]).unwrap();
 
-//  println!("{}", input); 
-//  send_return_value_to_caller(plot_id);
-
+  let result: redis::RedisResult<()> = con.set(&plot_id[..], &plot_info.plot[..]);
+  match result {
+    Ok(_) => (),
+    Err(e) => {
+      let err = format!("{}",e);
+      send_return_value_and_err_msg("".to_string(), err);
+      process::exit(0);
+    },
+  }
   //let new_now =  Instant::now();
-  //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
 
 }
