@@ -19,7 +19,10 @@ fn main() {
   let res: Vec<String> = con.zrevrange(&movie_id[..], review_info.start as isize, (review_info.stop-1) as isize).unwrap();
  
   let mut review_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
-  let serialized = serde_json::to_string(&review_ids).unwrap(); 
+  let read_reviews_args = ReadReviewsArgs {
+    review_ids: review_ids,
+  };
+  let serialized = serde_json::to_string(&read_reviews_args).unwrap(); 
   
   let handle = thread::spawn(move || {
     make_rpc("read-reviews", serialized)

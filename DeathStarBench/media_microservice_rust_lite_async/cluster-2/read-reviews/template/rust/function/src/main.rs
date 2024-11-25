@@ -3,11 +3,13 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
-  let review_ids: Vec<i64> = serde_json::from_str(&input).unwrap();
+  let input_args: ReadReviewsArgs = serde_json::from_str(&input).unwrap();
+  let review_ids = input_args.review_ids;
   let review_id_strs: Vec<String> = review_ids.iter().map(|x| x.to_string()).collect();
 
   let mut review_ids_not_cached: HashMap<String, bool> = HashMap::new();
@@ -57,8 +59,9 @@ fn main() {
           reviews.push(new_review); 
         },
         Err(_) => {
-          println!("review: {} doesn't exist in redis", item);
-          panic!("review: {} doesn't exist in redis", item);
+          let err_msg = format!("review: {} doesn't exist in redis", item);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         }
       };
     }
