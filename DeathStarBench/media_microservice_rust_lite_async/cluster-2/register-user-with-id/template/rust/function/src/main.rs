@@ -4,6 +4,7 @@ use sha256::digest;
 use rand::{distributions::Alphanumeric, Rng};
 use std::time::{Duration, Instant};
 use redis::Commands;
+use std::process;
 
 fn gen_random_string()->String{
   let salt: String = rand::thread_rng()
@@ -29,8 +30,9 @@ fn main() {
   let res: redis::RedisResult<String> = con.hget(&uname[..], "user_id");
   match res {
     Ok(x) => {
-      println!("User {} already existed", new_user_info.username);
-      panic!("User {} already existed", new_user_info.username);
+      let err_msg = format!("User {} already existed", new_user_info.username);
+      send_return_value_and_err_msg("".to_string(), err_msg);
+      process::exit(0);
     },
     Err(_) => {
       let mut pw_sha: String = String::from(&new_user_info.password[..]);
