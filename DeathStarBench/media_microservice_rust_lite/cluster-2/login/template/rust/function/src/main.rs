@@ -90,8 +90,9 @@ fn main() {
         user_id_str = user_id.to_string();
       },
       Err(_) => {
-        println!("User {} doesn't existed", username);
-        panic!("User {} doesn't existed", username);
+        let msg_err = format!("User {} doesn't existed", username);
+        send_return_value_and_err_msg("".to_string(), msg_err);
+        process::exit(0);
       },
     } 
   }
@@ -117,8 +118,9 @@ fn main() {
     jwt_encode_msg  = jwt_encode(&secret[..], &payload[..]);
   }
   else {
-    println!("Incorrect username or password");
-    panic!("Incorrect username or password");
+    let msg_err = format!("User {} doesn't existed", username);
+    send_return_value_and_err_msg("".to_string(), msg_err);
+    process::exit(0);
   }
 
   if mmc_has_user_id == false {
