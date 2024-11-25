@@ -35,8 +35,9 @@ fn main() {
           memcache_client.set(&movie_info.title[..], &movie_id[..], 0).unwrap();
         },
         Err(_) => {
-          println!("Movie {} is not found in redis;", movie_info.title);
-          panic!("Movie {} is not found in redis;", movie_info.title);
+          let err_msg = format!("Movie {} is not found in redis;", movie_info.title);
+          sent_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         },
       }
     },
