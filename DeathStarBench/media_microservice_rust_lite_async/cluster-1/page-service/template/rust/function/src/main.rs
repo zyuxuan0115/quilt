@@ -31,9 +31,11 @@ fn main() {
   let reviews: Vec<ReviewEntry> = serde_json::from_str(&read_movie_review_ret).unwrap();
 
   let cast_info_ids: Vec<i64> = movie_info.casts.iter().map(|x| x.cast_info_id).collect();
-  let cast_info_id_str: String = serde_json::to_string(&cast_info_ids).unwrap();
 
-  println!("cast_info_id_str: {}", cast_info_id_str);
+  let cast_info_args = ReadCastInfoArgs {
+    cast_ids: cast_info_ids,
+  };
+  let cast_info_id_str: String = serde_json::to_string(&cast_info_args).unwrap();
 
   let handle_read_cast_info = thread::spawn(move || {
     make_rpc("read-cast-info", cast_info_id_str)
