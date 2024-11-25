@@ -4,7 +4,13 @@ APIHOST=localhost:9999
 FUNC=get-recommendation
 #wsk action delete $FUNC
 #sleep 5
-#wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC
+#wsk action create $FUNC --docker zyuxuan0115/hr-$FUNC
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
--d '{"post_id":1723}'
+-d '{"require":"price","latitude":32.113,"longitude":116.211}'
+curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
+-X POST -H "Content-Type: application/json" \
+-d '{"require":"rate","latitude":32.113,"longitude":116.211}'
+curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
+-X POST -H "Content-Type: application/json" \
+-d '{"require":"dis","latitude":32.113,"longitude":116.211}' 
