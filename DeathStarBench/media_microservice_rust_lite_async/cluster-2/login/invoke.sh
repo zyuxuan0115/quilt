@@ -8,3 +8,6 @@ FUNC=login
 curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
 -X POST -H "Content-Type: application/json" \
 -d '{"username":"zyuxuan","password":"123456","secret":"idontknowwhatasecretis"}'
+curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
+-X POST -H "Content-Type: application/json" \
+-d '{"username":"twenisch","password":"12345","secret":"idontknowwhatasecretis"}' 

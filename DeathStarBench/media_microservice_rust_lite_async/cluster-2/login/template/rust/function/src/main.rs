@@ -2,7 +2,7 @@ use redis::Commands;
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
+use std::{fs::read_to_string, collections::HashMap, time::SystemTime, process};
 use memcache::Client as memcached_client;
 use sha256::digest;
 use jws::{JsonObject, JsonValue};
