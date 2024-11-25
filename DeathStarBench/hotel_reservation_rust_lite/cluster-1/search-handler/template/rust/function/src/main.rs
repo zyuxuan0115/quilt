@@ -30,8 +30,12 @@ fn main() {
   let check_availability_ret_str = make_rpc("check-availability", check_availability_args_str);
   let check_availability_ret: Vec<String> = serde_json::from_str(&check_availability_ret_str).unwrap();
 
-  let profiles_str =  make_rpc("get-profiles", check_availability_ret_str);
-    
+  let get_profiles_args = GetProfilesArgs {
+    hotel_ids: check_availability_ret,
+  };
+  let get_profiles_args_str = serde_json::to_string(&get_profiles_args).unwrap();
+  let profiles_str =  make_rpc("get-profiles", get_profiles_args_str);
+   
 //  let time_1 =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
 //  let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
