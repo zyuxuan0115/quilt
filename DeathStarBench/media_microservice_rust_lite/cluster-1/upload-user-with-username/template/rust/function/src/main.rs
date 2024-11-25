@@ -2,6 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -33,8 +34,9 @@ fn main() {
           memcache_client.set(&username_uid[..], &user_id_str[..], 0).unwrap();
         },
         Err(_) => {
-          println!("User {} is not found in redis;", user_info.username);
-          panic!("User {} is not found in redis;", user_info.username);
+          let err_msg = format!("User {} is not found in redis;", user_info.username);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         }
       }
     },
