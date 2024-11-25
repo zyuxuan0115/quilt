@@ -12,8 +12,8 @@ fn main() {
 
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
-
-  let result: Option<String> = memcache_client.get(&plot_id[..]).unwrap();
+  let plot_id_mmd = format!("plot:{}", plot_id);
+  let result: Option<String> = memcache_client.get(&plot_id_mmd[..]).unwrap();
 
   let mut plot = String::new();
   match result {
@@ -34,7 +34,7 @@ fn main() {
       match res {
         Ok(x) => {
           plot = x;
-          memcache_client.set(&plot_id[..], &plot[..], 0).unwrap();
+          memcache_client.set(&plot_id_mmd[..], &plot[..], 0).unwrap();
         },
         Err(_) => {
           let err_msg = format!("Plot {} is not found in redis.", plot_id);
