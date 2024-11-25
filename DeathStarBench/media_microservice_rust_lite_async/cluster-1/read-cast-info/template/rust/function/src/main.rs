@@ -3,6 +3,7 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();

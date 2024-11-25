@@ -38,7 +38,7 @@ fn main() {
         },
         Err(_) => {
           let err_msg = format!("Movie {} is not found in redis;", movie_info.title);
-          sent_return_value_and_err_msg("".to_string(), err_msg);
+          send_return_value_and_err_msg("".to_string(), err_msg);
           process::exit(0);
         },
       }
