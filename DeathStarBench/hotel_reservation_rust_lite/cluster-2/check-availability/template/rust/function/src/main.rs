@@ -4,6 +4,7 @@ use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
 use redis::{Iter,Commands};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -50,8 +51,9 @@ fn main() {
         keys = iter.map(|x| x).collect();
       },
       Err(err) => {
-        println!("Error: cannot find any hotel capacity record");
-        panic!("Error: cannot find any hotel capacity record");
+        let err_msg = format!("Error: cannot find any hotel capacity record");
+        send_return_value_and_err_msg("".to_string(), err_msg);
+        process::exit(0);
       },
     }
 
@@ -71,8 +73,9 @@ fn main() {
         },
         Err(_) => {
           let real_hid = key.strip_prefix("number:").unwrap().to_string();
-          println!("Error: cannot find capacity record for hotel_id={}", real_hid);
-          panic!("Error: cannot find capacity record for hotel_id={}", real_hid);
+          let err_msg = format!("Error: cannot find capacity record for hotel_id={}", real_hid);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         }
       }
     }

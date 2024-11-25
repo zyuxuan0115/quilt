@@ -3,6 +3,7 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -63,8 +64,9 @@ fn main() {
           hotel_rates.push(rate_info);
         },
         Err(_) => {
-          println!("error in loading rating info, with id: {}", item);
-          panic!("error in loading rating info, with id: {}", item);
+          let err_msg = format!("error in loading rating info, with id: {}", item);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         }
       }
     }
