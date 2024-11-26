@@ -4,6 +4,7 @@ use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
 use redis::Commands;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -39,8 +40,9 @@ fn main() {
           memcache_client.set(&hotel_id[..], x.to_string(), 0).unwrap();
         },
         Err(_) => {
-          println!("Hotel {} is not found in MongoDB;", hotel_id);
-          panic!("Hotel {} is not found in MongoDB;", hotel_id);
+          let err_msg = format!("Hotel {} is not found in redis;", hotel_id);
+          send_return_value_and_err_msg("".to_string(), err_msg);
+          process::exit(0);
         }
       }
     },
@@ -90,8 +92,8 @@ fn main() {
   } 
 
   let hotel_resv_not_cached: Vec<String> = hotel_ids_not_cached.into_iter().map(|(k,_)| k).collect();
-
-  // fetch data from mongodb, if not present in memcached
+//
+  // fetch data from redis, if not present in memcached
   if hotel_resv_not_cached.len() != 0 {
     for item in hotel_resv_not_cached {
       let parts = item[..].split("_").collect::<Vec<&str>>();
@@ -142,7 +144,15 @@ fn main() {
       memcache_client.set(&key_mmc[..], new_resv_num.to_string(), 0).unwrap();
       // update redis  
       let redis_key = format!("reservation:{}:{}:{}",&item.hotel_id[..],&item.in_date[..],&item.out_date[..]);
-      let _:isize = con.set(&redis_key[..], item.number + args.room_number).unwrap(); 
+      let result: redis::RedisResult<()> = con.set(&redis_key[..], item.number + args.room_number);
+      match result {
+        Ok(_) => (),
+        Err(e) => {
+          let err = format!("{}",e);
+          send_return_value_and_err_msg("".to_string(), err);
+          process::exit(0);
+        },
+      }
     }
   }
   
