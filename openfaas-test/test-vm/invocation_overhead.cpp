@@ -94,7 +94,7 @@ int main() {
                }
                else {
                  buffer2[bytesRead2] = '\0';
-                 std::cout << "Function Bar received: " << buffer2 << std::endl;
+//                 std::cout << "Function Bar received: " << buffer2 << std::endl;
                  const char *response2 = "Hello from the Bar! I'm done";
                  write(B2Apipefd[1], response2, strlen(response2) + 1);    
                }
@@ -119,7 +119,6 @@ int main() {
               write(A2Fpipefd[1], message3, strlen(message3) + 1);
               close(B2Apipefd[0]);
               close(A2Bpipefd[1]);
-              sleep(5);
             }
         }
         close(F2Apipefd[0]); // close read end
