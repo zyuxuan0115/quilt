@@ -78,12 +78,16 @@ request = function(req_id)
   end
   video_ids = video_ids:sub(1, #video_ids - 1) .. ']'
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
 
   local method = "POST"
-  local path = "/function/write-movie-info"
+  local path = "/api/v1/namespaces/_/actions/write-movie-info?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   body = '{"movie_id":"' .. movie_id .. '","title":"' .. title .. '","plot_id":'
          .. tostring(plot_id) .. ',"avg_rating":"' .. tostring(avg_rating) .. '","num_rating":'

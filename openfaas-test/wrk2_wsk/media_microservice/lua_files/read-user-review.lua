@@ -31,11 +31,16 @@ request = function(req_id)
   local user_idx = math.random(1,999)
   local user_id = tostring(user_idx)
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
+
   local method = "POST"
-  local path = "/function/read-user-review"
+  local path = "/api/v1/namespaces/_/actions/read-user-review?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   body = '{"user_id":' .. user_id .. ',"start":0,"stop":1}'
 

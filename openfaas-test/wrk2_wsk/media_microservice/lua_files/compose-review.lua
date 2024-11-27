@@ -37,11 +37,16 @@ request = function(req_id)
   local rating = math.random(1,5)
   local text = stringRandom(100)
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
+
   local method = "POST"
-  local path = "/function/compose-review"
+  local path = "/api/v1/namespaces/_/actions/compose-review?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   body = '{"req_id":' .. tostring(req_id) .. ',"title":"' .. title .. '","rating":'
          .. rating .. ',"username":"' .. username .. '","password":"123456","text":"'

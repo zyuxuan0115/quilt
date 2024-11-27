@@ -33,11 +33,17 @@ request = function(req_id)
   local plot_id = counter % 1000
   local text = stringRandom(256)
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
+
   local method = "POST"
-  local path = "/function/write-plot"
+  local path = "/api/v1/namespaces/_/actions/write-plot?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
+
   body = '{"plot_id":' .. tostring(plot_id) .. ',"plot":"' .. text .. '"}' 
 
   local body_write = body .. '\n'

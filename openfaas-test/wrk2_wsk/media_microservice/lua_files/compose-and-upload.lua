@@ -37,28 +37,33 @@ request = function(req_id)
   local title_idx = math.random(1,999)
   local title = "movie_" .. tostring(title_idx) 
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
+
   local method = "POST"
   local path
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   count = count + 1
 
   if count % 4 == 1 then
-    path = "/function/unique-id-service"
+    path = "/api/v1/namespaces/_/actions/unique-id-service?blocking=true&result=true"
     local content =  tostring(request_id) 
     body = content
   elseif count % 4 == 2 then
-    path = "/function/text-service"
+    path = "/api/v1/namespaces/_/actions/text-service?blocking=true&result=true"
     local content = '{"req_id":' .. tostring(request_id) .. ',"text":"' .. text .. '"}'
     body = content
   elseif count % 4 == 3 then
-    path = "/function/upload-user-with-username"
+    path = "/api/v1/namespaces/_/actions/upload-user-with-username?blocking=true&result=true"
     local content = '{"username":"' .. username .. '","req_id":' .. tostring(request_id) .. '}'
     body = content
   else 
-    path = "/function/upload-movie-id"
+    path = "/api/v1/namespaces/_/actions/upload-movie-id?blocking=true&result=true"
     local content = '{"title":"' .. title .. '","rating":' .. rating .. ',"req_id":' .. tostring(request_id) .. '}'
     body = content
     request_id = request_id + 1
