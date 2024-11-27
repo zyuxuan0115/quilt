@@ -68,11 +68,9 @@ request = function(req_id)
   local method = "POST"
   local path = "/api/v1/namespaces/_/actions/text-service?blocking=true&result=true"
   local headers = {}
-  local body
+  local body = '{"text":"' .. text .. '"}'
   headers["Content-Type"] = "application/json"
   headers["Authorization"] = auth
-
-  body = text 
 
 --  file = io.open('req_data_log.txt', 'w')
 --  file:write(body)

@@ -45,7 +45,7 @@ request = function(req_id)
   local method = "POST"
   local path = "/api/v1/namespaces/_/actions/user-mention-service?blocking=true&result=true"
   local headers = {}
-  local body
+  local body = '{"usernames":' .. usernames .. '}'
   headers["Content-Type"] = "application/json"
   body = usernames
 

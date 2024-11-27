@@ -71,7 +71,7 @@ request = function(req_id)
   local body
   headers["Content-Type"] = "application/json"
   headers["Authorization"] = auth
-  body = text 
+  body = '{"text":"' .. text .. '"}'
 
 --  file = io.open('req_data_log.txt', 'w')
 --  file:write(body)

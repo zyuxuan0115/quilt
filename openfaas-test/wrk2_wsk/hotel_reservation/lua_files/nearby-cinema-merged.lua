@@ -41,7 +41,7 @@ request = function(req_id)
   local method = "POST"
   local path = "/api/v1/namespaces/_/actions/nearby-cinema-merged?blocking=true&result=true"
   local headers = {}
-  local body = hotel_id
+  local body = '{"hotel_id":"' .. hotel_id .. '"}'
   headers["Content-Type"] = "application/json"
   headers["Authorization"] = auth
 

@@ -39,7 +39,7 @@ request = function(req_id)
   local method = "POST"
   local path = "/api/v1/namespaces/_/actions/social-graph-get-followers?blocking=true&result=true"
   local headers = {}
-  local body = user_id
+  local body = '{"user_id":' .. user_id .. '}'
   headers["Content-Type"] = "application/json"
   headers["Authorization"] = auth
 
