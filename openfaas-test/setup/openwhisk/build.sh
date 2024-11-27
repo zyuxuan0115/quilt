@@ -15,11 +15,14 @@ whisk:
     apiHostPort: 32001
     apiHostProto: "http"
     useInternally: false
-
+  limits:
+    actionsInvokesPerminute: 60000
+    actionsInvokesConcurrent: 60000
+    triggersFiresPerminute: 60000
+    actionsSequenceMaxlength: 50000
 nginx:
   httpNodePort: 32001
   httpsNodePort: 31001
-
 affinity:
   enabled: false
 toleration:
@@ -31,6 +34,8 @@ invoker:
   timeoutsKeepingDuration: "30 minutes"
   containerFactory:
     impl: "kubernetes"
+    kubernetes:
+      replicaCount: 100
 EOF
 
   kubectl rollout status deployment/owdev-apigateway --namespace=openwhisk --timeout=600s
@@ -48,7 +53,7 @@ function kill_openwhisk {
   helm -n openwhisk uninstall owdev
   kubectl delete all --all -n openwhisk
   kubectl delete namespace openwhisk
-  #python3 ../kill_port_fwd.py 31001:31001
+  python3 ../kill_port_fwd.py 9999:80
 }
 
 function killa {
