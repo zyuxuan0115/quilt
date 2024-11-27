@@ -32,11 +32,16 @@ request = function(req_id)
 
   real_user_id = "\"" .. user_id .. "\""
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
+
   local method = "POST"
-  local path = "/function/social-graph-get-followers"
+  local path = "/api/v1/namespaces/_/actions/social-graph-get-followers?blocking=true&result=true"
   local headers = {}
   local body = user_id
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   file = io.open('req_data_log.txt', 'w')
   file:write(body)

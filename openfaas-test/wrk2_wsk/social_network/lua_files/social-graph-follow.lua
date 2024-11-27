@@ -31,12 +31,16 @@ request = function(req_id)
   local user_index = math.random(1,999)
   local followee_idx = math.random(1,999)
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
 
   local method = "POST"
-  local path = "/function/social-graph-follow"
+  local path = "/api/v1/namespaces/_/actions/social-graph-follow?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   body = '{"user_id":' .. tostring(user_index) .. ',"followee_id":' .. tostring(followee_idx) .. '}'
 
