@@ -1,6 +1,9 @@
 --require "socket"
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
+package.path = package.path .. ";/usr/share/lua/5.1/?.lua"
+package.cpath = package.cpath .. ";/usr/lib/x86_64-linux-gnu/lua/5.1/?.so"
+local mime = require("mime")
 
 request_id = 77891
 count = 0
