@@ -1,6 +1,9 @@
---require "socket"
---math.randomseed(socket.gettime()*1000)
+package.path = package.path .. ";/usr/share/lua/5.1/?.lua"
+package.cpath = package.cpath .. ";/usr/lib/x86_64-linux-gnu/lua/5.1/?.so"
+-- require "socket"
+-- math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
+local mime = require("mime")
 
 local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
   'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q',
