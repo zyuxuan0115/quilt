@@ -38,11 +38,16 @@ request = function(req_id)
   local capacity = tostring(number)
   local hotel_id = 'hotel_' .. tostring(counter%1000)
 
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
+
   local method = "POST"
-  local path = "/function/set-capacity"
+  local path = "/api/v1/namespaces/_/actions/set-capacity?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   body = '{"hotel_id":"' .. hotel_id .. '","capacity":' .. capacity .. '}'
 

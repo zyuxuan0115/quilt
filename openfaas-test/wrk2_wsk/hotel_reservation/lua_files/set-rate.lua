@@ -42,12 +42,17 @@ request = function(req_id)
                     .. tostring(random_float(200, 600)) .. ',"total_rate_inclusive":' .. tostring(total_rate) ..
                     ',"code":"' .. stringRandom(8) .. '","currency":"' .. stringRandom(3) .. '","room_description":"' 
                     .. stringRandom(20) .. '"}'
+
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
  
   local method = "POST"
-  local path = "/function/set-rate"
+  local path = "/api/v1/namespaces/_/actions/set-rate?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   body = '{"hotel_id":"' .. hotel_id .. '","code":"' .. stringRandom(5) .. 
          '","in_date":"2023-01-01","out_date":"2025-12-31","room_type":' .. room_type .. '}'

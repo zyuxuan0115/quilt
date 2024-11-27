@@ -41,12 +41,17 @@ request = function(req_id)
   end_time = os.time{year=2024, month=12, day=31}
   local random_out_time = math.random(start_time, end_time)
   local outdate = os.date("%Y-%m-%d", random_out_time)
+
+  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
  
   local method = "POST"
-  local path = "/function/search-handler-merged"
+  local path = "/api/v1/namespaces/_/actions/search-handler-merged?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
+  headers["Authorization"] = auth
 
   body = '{"latitude":' .. lat .. ',"longitude":' .. long .. ',"in_date":"' 
          .. indate .. '","out_date":"' .. outdate .. '"}'
