@@ -20,6 +20,15 @@ whisk:
     actionsInvokesConcurrent: 60000
     triggersFiresPerminute: 60000
     actionsSequenceMaxlength: 50000
+    actions:
+      concurrency:
+        min: 1
+        max: 10
+        std: 5
+      time:
+        min: "1ms"
+        max: "5m"
+        std: "2m"
 nginx:
   httpNodePort: 32001
   httpsNodePort: 31001
@@ -27,15 +36,18 @@ affinity:
   enabled: false
 toleration:
   enabled: false
+scheduler:
+  enabled: true
 invoker:
   options: "-Dwhisk.kubernetes.user-pod-node-affinity.enabled=false"
-  timeoutsIdleContainer: "30 minutes"
-  timeoutsPauseGrace: "29 minutes"
-  timeoutsKeepingDuration: "30 minutes"
+  timeoutsIdleContainer: "10 minutes"
+  timeoutsPauseGrace: "2 minutes"
+  timeoutsKeepingDuration: "10 minutes"
   containerFactory:
     impl: "kubernetes"
+    enableConcurrency: true
     kubernetes:
-      replicaCount: 100
+      replicaCount: 5
 EOF
 
   kubectl rollout status deployment/owdev-apigateway --namespace=openwhisk --timeout=600s
