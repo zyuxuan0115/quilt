@@ -2,7 +2,7 @@ use rand::{distributions::Alphanumeric, Rng}; // 0.8
 use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use redis::Commands;
-//use std::time::{Duration, Instant};
+use std::time::{Duration, Instant};
 
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");
@@ -38,7 +38,7 @@ fn main() {
   }
   let serialized = serde_json::to_string(&docs).unwrap();
 //  let new_now =  Instant::now();
-//  println!("{:?}", new_now.duration_since(now));
+//  let time = format!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
 

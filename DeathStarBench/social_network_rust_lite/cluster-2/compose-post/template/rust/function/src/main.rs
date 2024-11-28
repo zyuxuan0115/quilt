@@ -25,6 +25,8 @@ fn main() {
   let compose_creator_with_userid_arg_str = serde_json::to_string(&compose_creator_with_userid_arg).unwrap();
   let time_3 = Instant::now();
   let creator_str: String = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str);
+
+
   // call TextService
   let text_svc_arg = TextServiceArgs {
     text: input_info.text,
