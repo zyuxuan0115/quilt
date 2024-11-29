@@ -19,13 +19,14 @@ fi
 
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
-QPS=(1 5 10 15 20 25 30 35 40 50 60 70 80 90 100)
+CON=(1 5 10 15 20 25 30 35 40 50 60 70 80 90 100)
 #QPS=(8000 10000 14000 18000 24000 30000)
 #QPS=(300)
 
 # Iterate over each element in the array
 rm -rf *.log
-for qps in "${QPS[@]}"; do
+for con in "${CON[@]}"; do
+  echo $con
   cd $OPENFAAS_TEST_DIR/setup/redis_memcached \
     && ./build.sh kill \
     && ./build.sh setup
@@ -37,11 +38,11 @@ for qps in "${QPS[@]}"; do
   sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
   ./initialize.sh
-  $WRK_BIN -t 4 -c 100 -d 120 -L -U \
+  $WRK_BIN -t 4 -c $con -d 120 -L -U \
 	 -s $WRK_SCRIPT \
-	 $ENTRY_HOST -R $qps 2>/dev/null > output_$1-$2_$qps.log
-  echo "===== QPS: $qps ====="
-  ./get5099tput.py output_$1-$2_$qps.log
+	 $ENTRY_HOST -R 2000 2>/dev/null > output_$1-$2_$con.log
+  echo "===== Connections: $con ====="
+  ./get5099tput.py output_$1-$2_$con.log
   echo "===================="
   cd $OPENFAAS_TEST_DIR/setup/openwhisk && ./build.sh kill && ./build.sh setup
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
