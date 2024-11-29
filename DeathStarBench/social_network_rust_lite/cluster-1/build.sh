@@ -57,7 +57,7 @@ function deploy_openwhisk {
   done
 }
 
-function clean {
+function clean_openfaas {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
@@ -68,6 +68,20 @@ function clean {
     cd ..
   done
 }
+
+function clean_openwhisk {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ -d $entry ]] ; then
+      cd $entry
+      wsk action delete $BASE_NAME
+    fi
+    cd ..
+  done
+}
+
+
 
 
 function nuke {
@@ -94,8 +108,11 @@ deploy_openfaas)
 deploy_openwhisk)
     deploy_openwhisk
     ;;
-clean)
-    clean
+clean_openfaas)
+    clean_openfaas
+    ;;
+clean_openwhisk)
+    clean_openwhisk
     ;;
 nuke)
     nuke
