@@ -26,16 +26,14 @@ QPS=(300)
 # Iterate over each element in the array
 rm -rf *.log
 for qps in "${QPS[@]}"; do
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh clean_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh clean_openwhisk
   cd $OPENFAAS_TEST_DIR/setup/redis_memcached \
     && ./build.sh kill \
     && ./build.sh setup
   sleep 10
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/merge/build.sh && ./build.sh deploy_openwhisk
   FUNC_NAME=$1
-  wsk action create $FUNC_NAME-merged --docker zyuxuan0115/sn-$FUNC_NAME-merged
   sleep 10
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
   ./initialize.sh
@@ -45,5 +43,6 @@ for qps in "${QPS[@]}"; do
   echo "===== QPS: $qps ====="
   ./get5099tput.py output_$1-$2_$qps.log
   echo "===================="
-  wsk action delete $FUNC_NAME-merged
+  cd $OPENFAAS_TEST_DIR/setup/openwhisk && ./build.sh kill && ./build.sh setup
+  cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
 done
