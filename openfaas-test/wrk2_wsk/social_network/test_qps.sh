@@ -19,9 +19,9 @@ fi
 
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
-#QPS=(20 40 60 80 100 140 180 240 300 400 500 750 1000 1500 2000 3000 4000)
+QPS=(1 5 10 15 20 25 30 35 40 50 60 70 80 90 100)
 #QPS=(8000 10000 14000 18000 24000 30000)
-QPS=(300)
+#QPS=(300)
 
 # Iterate over each element in the array
 rm -rf *.log
@@ -29,15 +29,15 @@ for qps in "${QPS[@]}"; do
   cd $OPENFAAS_TEST_DIR/setup/redis_memcached \
     && ./build.sh kill \
     && ./build.sh setup
-  sleep 10
+  sleep 30
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/merge/build.sh && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/merge/ && ./build.sh deploy_openwhisk
   FUNC_NAME=$1
-  sleep 10
+  sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
   ./initialize.sh
-  $WRK_BIN -t 1 -c 5 -d 120 -L -U \
+  $WRK_BIN -t 4 -c 100 -d 120 -L -U \
 	 -s $WRK_SCRIPT \
 	 $ENTRY_HOST -R $qps 2>/dev/null > output_$1-$2_$qps.log
   echo "===== QPS: $qps ====="

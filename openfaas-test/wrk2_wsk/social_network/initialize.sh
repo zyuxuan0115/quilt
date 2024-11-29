@@ -8,6 +8,7 @@ CURRENT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/wrk2_wsk/social_networ
 SCRIPT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/setup/openwhisk
 
 run_wrk(){
+  sleep 30
   WRK_SCRIPT="lua_files/$1.lua"
 
   $WRK_BIN -t 1 -c 5 -d 120 -L -U \

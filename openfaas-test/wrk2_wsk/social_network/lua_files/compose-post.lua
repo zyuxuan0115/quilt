@@ -84,8 +84,9 @@ request = function(req_id)
         ',"text":"' .. text .. '","media_ids":[],media_types":[]' .. ',"post_type":"POST"}'
   end
 
-  file = io.open('req_data_log.txt', 'w')
-  file:write(body)
+  body_log = body .. '\n'
+  file = io.open('req_data_log_compose-post.txt', 'a')
+  file:write(body_log)
   file:close()
 
   if req_id ~= "" then

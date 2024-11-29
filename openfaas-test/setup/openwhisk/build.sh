@@ -23,12 +23,12 @@ whisk:
     actions:
       concurrency:
         min: 1
-        max: 10
-        std: 5
+        max: 15
+        std: 8
       time:
-        min: "1ms"
-        max: "5m"
-        std: "2m"
+        min: "10ms"
+        max: "20m"
+        std: "10m"
 nginx:
   httpNodePort: 32001
   httpsNodePort: 31001
@@ -40,9 +40,9 @@ scheduler:
   enabled: true
 invoker:
   options: "-Dwhisk.kubernetes.user-pod-node-affinity.enabled=false"
-  timeoutsIdleContainer: "10 minutes"
+  timeoutsIdleContainer: "5 minutes"
   timeoutsPauseGrace: "2 minutes"
-  timeoutsKeepingDuration: "10 minutes"
+  timeoutsKeepingDuration: "5 minutes"
   containerFactory:
     impl: "kubernetes"
     enableConcurrency: true
