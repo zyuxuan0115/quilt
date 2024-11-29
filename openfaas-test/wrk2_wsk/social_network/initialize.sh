@@ -21,6 +21,7 @@ redeploy(){
   sleep 10
   cd $FUNCTION_PATH/cluster-1 && ./build.sh deploy_openwhisk
   cd $FUNCTION_PATH/cluster-2 && ./build.sh deploy_openwhisk
+  cd $FUNCTION_PATH/merge && ./build.sh deploy_openwhisk
   cd $CURRENT_PATH
 }
 
