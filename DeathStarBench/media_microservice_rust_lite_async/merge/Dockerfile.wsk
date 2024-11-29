@@ -1,0 +1,14 @@
+FROM zyuxuan0115/llvm-19:latest as builder
+
+# Copy all the sources
+WORKDIR /home/rust
+COPY . .
+
+# build function.o
+RUN chmod 777 merge_tree.py
+RUN ./merge_tree.py merge funcTree
+RUN ./merge_tree.py link funcTree
+
+FROM zyuxuan0115/docker-skeleton:latest as final
+
+COPY --from=builder /home/rust/function /action/exec

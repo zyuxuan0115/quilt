@@ -24,12 +24,12 @@ function merge_openfaas {
   cp merge_tree.py temp
   cp funcTree temp
   cp rm_redundant_bc.py temp 
-e sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-async-merged:latest \
+e sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-merged:latest \
     -f Dockerfile \
     temp
   rm -rf temp
   sudo docker system prune -f
-  sudo docker push zyuxuan0115/sn-$CALLER-async-merged:latest
+  sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
 }
 
 function merge_openwhisk {
@@ -43,20 +43,20 @@ function merge_openwhisk {
   cp merge_tree.py temp
   cp funcTree temp
   cp rm_redundant_bc.py temp
-  sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-async-merged:latest \
+  sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-merged:latest \
     -f Dockerfile.wsk \
     temp
   rm -rf temp
   sudo docker system prune -f
-  sudo docker push zyuxuan0115/sn-$CALLER-async-merged:latest
+  sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
   wsk action delete $CALLER-merged
   sleep 5
-  wsk action create $CALLER-merged --docker zyuxuan0115/sn-$CALLER-async-merged
+  wsk action create $CALLER-merged --docker zyuxuan0115/sn-$CALLER-merged
 }
 
 function deploy_openwhisk {
-  wsk action create text-service-merged --docker zyuxuan0115/sn-text-service-async-merged
-  wsk action create compose-post-merged --docker zyuxuan0115/sn-compose-post-async-merged
+  wsk action create text-service-merged --docker zyuxuan0115/sn-text-service-merged
+  wsk action create compose-post-merged --docker zyuxuan0115/sn-compose-post-merged
 }
 
 case "$1" in
