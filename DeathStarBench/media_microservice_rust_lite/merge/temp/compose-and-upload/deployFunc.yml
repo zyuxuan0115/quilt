@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  compose-and-upload:
+    lang: rust
+    handler: ./compose-and-upload
+    image: zyuxuan0115/mm-compose-and-upload:latest
+    secrets:
+    - ingress-enable
+    - redis-password

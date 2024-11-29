@@ -2,7 +2,6 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
-use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -37,7 +36,7 @@ fn main() {
         },
         Err(_) => {
           let err_msg = format!("Movie {} is not found in redis;", movie_info.title);
-          send_return_value_and_err_msg("".to_string(), err_msg);
+          sent_return_value_and_err_msg("".to_string(), err_msg);
           process::exit(0);
         },
       }

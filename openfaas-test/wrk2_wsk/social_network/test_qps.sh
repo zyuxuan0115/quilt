@@ -38,7 +38,8 @@ for con in "${CON[@]}"; do
   sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
   ./initialize.sh
-  $WRK_BIN -t 4 -c $con -d 120 -L -U \
+  echo $ABC
+  $WRK_BIN -t 1 -c $con -d 120 -L -U \
 	 -s $WRK_SCRIPT \
 	 $ENTRY_HOST -R 2000 2>/dev/null > output_$1-$2_$con.log
   echo "===== Connections: $con ====="
