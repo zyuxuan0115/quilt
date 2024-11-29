@@ -2,7 +2,7 @@
 
 ENTRY_HOST=http://130.127.133.207:32001
 WRK_BIN=../wrk
-QPS=1000
+QPS=100
 FUNCTION_PATH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench/social_network_rust_lite
 CURRENT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/wrk2_wsk/social_network
 SCRIPT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/setup/openwhisk
