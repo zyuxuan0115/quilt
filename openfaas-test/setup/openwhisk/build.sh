@@ -23,8 +23,8 @@ whisk:
     actions:
       concurrency:
         min: 1
-        max: 15
-        std: 8
+        max: 800
+        std: 400
       time:
         min: "10ms"
         max: "20m"
@@ -65,7 +65,7 @@ function kill_openwhisk {
   helm -n openwhisk uninstall owdev
   kubectl delete all --all -n openwhisk
   kubectl delete namespace openwhisk
-  python3 ../kill_port_fwd.py 9999:80
+  ../helper.py kill_port_fwd 9999:80
 }
 
 function killa {

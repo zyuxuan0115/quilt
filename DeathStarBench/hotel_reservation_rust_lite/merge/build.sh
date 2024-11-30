@@ -24,7 +24,7 @@ function merge_openfaas {
   cp merge_tree.py temp
   cp funcTree temp
   cp rm_redundant_bc.py temp 
-e sudo docker build --no-cache -t zyuxuan0115/hr-$CALLER-merged:latest \
+  sudo docker build --no-cache -t zyuxuan0115/hr-$CALLER-merged:latest \
     -f Dockerfile \
     temp
   rm -rf temp

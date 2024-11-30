@@ -79,7 +79,7 @@ function killa {
   kill_grafana
   kill_tempo
   rm -rf *.txt *.yaml *.yml
-  python3 ../kill_port_fwd.py 8082:3100
+  ../helper.py kill_port_fwd 8082:3100
 }
 
 case "$1" in

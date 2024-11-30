@@ -1,0 +1,22 @@
+[
+  {
+    "hostname": "clnode001.clemson.cloudlab.us",
+    "ip": "130.127.133.10"
+  },
+  {
+    "hostname": "clnode006.clemson.cloudlab.us",
+    "ip": "130.127.133.15"
+  },
+  {
+    "hostname": "clnode204.clemson.cloudlab.us",
+    "ip": "130.127.133.220"
+  },
+  {
+    "hostname": "clnode211.clemson.cloudlab.us",
+    "ip": "130.127.133.220"
+  },
+  {
+    "hostname": "clnode198.clemson.cloudlab.us",
+    "ip": "130.127.133.207"
+  }
+]

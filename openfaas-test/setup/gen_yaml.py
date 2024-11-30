@@ -5,6 +5,8 @@ import os
 def main():
   if sys.argv[1] == 'openfaas':
     openfaas()
+  elif sys.argv[1] == 'openfaas_set_replica':
+    openfaas_set_replica() 
   elif sys.argv[1] == 'nginx':
     nginx()
 
@@ -18,7 +20,19 @@ def openfaas():
         doc['metadata']['name'] = 'openfaas2'
       elif doc['kind'] == 'Namespace' and doc['metadata']['name'] == 'openfaas-fn':
         doc['metadata']['name'] = 'openfaas2-fn'
-      elif doc['kind'] == 'Deployment' and doc['metadate']['name'] == 'queue-worker':
+      doc_yml = yaml.dump(doc)
+      outfile.write('---\n')
+      outfile.write(doc_yml)
+  outfile.close()
+
+def openfaas_set_replica():
+  if os.path.exists("openfaas2_.yaml"):
+    os.remove("openfaas2_.yaml")
+  docs = yaml.safe_load_all(sys.stdin)
+  with open('openfaas2_.yaml', 'a') as outfile:
+    for doc in docs:
+      print(doc)
+      if doc['kind'] == 'Deployment' and doc['metadata']['name'] == 'queue-worker':
         doc['spec']['replicas'] = 5
       doc_yml = yaml.dump(doc)
       outfile.write('---\n')

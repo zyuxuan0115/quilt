@@ -1,16 +1,23 @@
 #!/bin/bash
 
 USER="zyuxuan"
-SERVER_IP="130.127.133.219"
-AGENT_IP="130.127.133.192"
-SERVER_HOST="zyuxuan@clnode210.clemson.cloudlab.us"
-AGENT_HOST="zyuxuan@clnode183.clemson.cloudlab.us"
+SERVER_IP="130.127.133.207"
+AGENT_IP="130.127.133.213"
+SERVER_HOST="zyuxuan@clnode198.clemson.cloudlab.us"
+AGENT_HOST="zyuxuan@clnode204.clemson.cloudlab.us"
 
 function setup_k8s {
   ### setup the kubernetes cluster
   sudo chmod -R 777 /users/zyuxuan/.docker
-  k3sup install --ip $SERVER_IP --user $USER
-  k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
+  k3sup plan machine.json \
+    --user zyuxuan \
+    --servers 5 \
+    --server-k3s-extra-args "--disable traefik" \
+    --background > bootstrap.sh
+  chmod +x bootstrap.sh
+  ./bootstrap.sh
+#  k3sup install --ip $SERVER_IP --user $USER
+#  k3sup join --ip $AGENT_IP --server-ip $SERVER_IP --user $USER
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
@@ -29,19 +36,19 @@ function setup {
 }
 
 function kill_k8s {
-  ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
-  ssh -q $SERVER_HOST -- sudo sh /usr/local/bin/k3s-uninstall.sh
-  ssh -q $SERVER_HOST -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442 31112 31113
-  ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-killall.sh
-  ssh -q $AGENT_HOST -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
-  ssh -q $AGENT_HOST -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442 31112 31113
+  ALL_ENGINE_NODES=$(./helper.py load_machine_info)
+  for host in $ALL_ENGINE_NODES; do
+    ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-killall.sh
+    ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-uninstall.sh
+    ssh -q $USER@$host -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442 31112 31113 8080
+  done
   for entry in "$(pwd)"/*
   do
     if [[ -d $entry  ]] ; then
       rm -rf $entry/*.txt $entry/*.yaml $entry/*.yml 
     fi
   done
-  rm kubeconfig
+  rm kubeconfig bootstrap.sh
 }
 
 case "$1" in

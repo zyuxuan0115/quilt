@@ -87,7 +87,7 @@ function kill_openfaas {
   kubectl delete all --all -n openfaas-fn
   kubectl delete namespace openfaas
   kubectl delete namespace openfaas-fn
-  python3 ../kill_port_fwd.py 8080:8080
+  ../helper.py kill_port_fwd 8080:8080
 }
 
 function kill_openfaas2 {
@@ -95,7 +95,7 @@ function kill_openfaas2 {
   kubectl delete all --all -n openfaas2-fn
   kubectl delete namespace openfaas2
   kubectl delete namespace openfaas2-fn
-  python3 ../kill_port_fwd.py 8081:8080
+  ../helper.py kill_port_fwd 8081:8080
 }
 
 function killa {
