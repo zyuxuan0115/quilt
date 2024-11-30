@@ -37,7 +37,7 @@ affinity:
 toleration:
   enabled: false
 scheduler:
-  enabled: true
+  enabled: false
 invoker:
   options: "-Dwhisk.kubernetes.user-pod-node-affinity.enabled=false"
   timeoutsIdleContainer: "5 minutes"
