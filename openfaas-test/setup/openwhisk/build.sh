@@ -29,6 +29,8 @@ whisk:
         min: "10ms"
         max: "20m"
         std: "10m"
+  loadbalancer:
+    blackboxFraction: "100%"
 nginx:
   httpNodePort: 32001
   httpsNodePort: 31001

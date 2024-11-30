@@ -12,7 +12,7 @@ fn main() {
   let input_args: ReadPostArgs = serde_json::from_str(&input).unwrap();
   let post_id = input_args.post_id;
 
-  let redis_uri = get_redis_rw_uri();
+  let redis_uri = get_redis_ro_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
 
