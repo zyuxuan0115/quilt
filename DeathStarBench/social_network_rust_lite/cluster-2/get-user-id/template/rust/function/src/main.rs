@@ -36,7 +36,7 @@ fn main() {
   } 
 
   if memcache_has_username == false {
-    let redis_uri = get_redis_rw_uri();
+    let redis_uri = get_redis_ro_uri();
     let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
     let mut con = redis_client.get_connection().unwrap();
 

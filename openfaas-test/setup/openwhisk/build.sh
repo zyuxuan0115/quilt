@@ -23,14 +23,14 @@ whisk:
     actions:
       concurrency:
         min: 1
-        max: 800
-        std: 400
+        max: 8
+        std: 5
       time:
         min: "10ms"
         max: "20m"
         std: "10m"
   loadbalancer:
-    blackboxFraction: "100%"
+    blackboxFraction: "90%"
 nginx:
   httpNodePort: 32001
   httpsNodePort: 31001
@@ -45,6 +45,9 @@ invoker:
   timeoutsIdleContainer: "5 minutes"
   timeoutsPauseGrace: "2 minutes"
   timeoutsKeepingDuration: "5 minutes"
+  jvmHeapMB: "5120"
+  jvmOptions: ""
+  loglevel: "OFF"
   containerFactory:
     impl: "kubernetes"
     enableConcurrency: true

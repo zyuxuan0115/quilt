@@ -32,6 +32,8 @@ fn main() {
     text: input_info.text,
   };
   let text_svc_str = serde_json::to_string(&text_svc_arg).unwrap();
+
+
   let text_str: String = make_rpc("text-service", text_svc_str);
   let time_4 = Instant::now();
   let text_return_info: TextServiceReturn = serde_json::from_str(&text_str).unwrap();
