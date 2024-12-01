@@ -44,7 +44,7 @@ request = function(req_id)
   local path = "/api/v1/namespaces/_/actions/social-graph-follow-with-username-merged?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
   headers["Authorization"] = auth
 
   body = '{"user_name":"' .. username .. '","followee_name":"' .. followee_name .. '"}'
