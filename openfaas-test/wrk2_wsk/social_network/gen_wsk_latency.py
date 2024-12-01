@@ -4,15 +4,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-fifty_latency_orig = [273.663, ]
+fifty_latency_orig = [273.663,  ]
 ninety_latency_orig = [985.6, ]
 fifty_latency_merged = [56.639, ]
 ninety_latency_merged = [497.41, ]
 
 fifty_latency_orig_async = [124.159, 95.615 ]
 ninety_latency_orig_async = [638.97, 504.32 ]
-fifty_latency_merged_async = [48.319, ]
-ninety_latency_merged_async = [224.9, ]
+fifty_latency_merged_async = [48.319, 31.343 ]
+ninety_latency_merged_async = [224.9, 118.14 ]
 
 fifty_latency_normalized = []
 ninety_latency_normalized = []
