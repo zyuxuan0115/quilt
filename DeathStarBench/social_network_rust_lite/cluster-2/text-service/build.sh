@@ -36,7 +36,7 @@ function deploy_openfaas {
 }
 
 function deploy_openwhisk {
-  wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC:latest --kind text-service 
+  wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC:latest
 }
 
 case "$1" in
