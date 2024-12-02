@@ -28,7 +28,8 @@ fn main() {
   let mut hotel_capacity: i32 = 0;
   match result {
     Some(x) => {
-      hotel_capacity = x.parse::<i32>().unwrap();
+      let hotel_cp: HotelCapacity = serde_json::from_str(&x).unwrap();
+      hotel_capacity = hotel_cp.capacity;
     },
     None => {
       let key = format!("number:{}",hotel_id);
@@ -46,7 +47,7 @@ fn main() {
         }
       }
     },
-  } 
+  }
  
   // create keys for memcached to get the reservation number for each date
   let mut in_date = NaiveDate::parse_from_str(&args.in_date[..], "%Y-%m-%d").unwrap();
@@ -134,7 +135,7 @@ fn main() {
     }
   }
 
-  // update memcached and mongodb
+  // update memcached and redis
   let mut hotel_id_ret: Vec<String> = Vec::new();
   if make_resv_successful == true {
     hotel_id_ret.push(args.hotel_id.clone());
