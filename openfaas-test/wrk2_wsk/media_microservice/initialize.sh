@@ -1,8 +1,36 @@
 #!/bin/bash
-./test.sh register-user 2
-./test.sh register-movie-id
-./test.sh register-user-with-id 2
-./test.sh write-plot
-./test.sh write-cast-info
-./test.sh write-movie-info
-./test.sh compose-review 2  
+
+WRK_BIN=../wrk
+ENTRY_HOST="http://130.127.133.207:32001"
+QPS=1000
+FUNCTION_PATH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench/media_microservice_rust_lite
+CURRENT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/wrk2_wsk/media_microservice
+SCRIPT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/setup/openwhisk
+
+run_wrk(){
+  sleep 10
+  WRK_SCRIPT="lua_files/$1.lua"
+
+  $WRK_BIN -t 1 -c 1 -d 180 -L -U \
+           -s $WRK_SCRIPT \
+           $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
+}
+
+redeploy(){
+  cd $SCRIPT_PATH && ./build.sh kill && ./build.sh setup
+  sleep 10
+  cd $FUNCTION_PATH/cluster-1 && ./build.sh deploy_openwhisk
+  cd $FUNCTION_PATH/cluster-2 && ./build.sh deploy_openwhisk
+  cd $FUNCTION_PATH/cluster-3 && ./build.sh deploy_openwhisk
+  cd $FUNCTION_PATH/merge && ./build.sh deploy_openwhisk
+  cd $CURRENT_PATH
+}
+
+run_wrk register-user 
+run_wrk register-movie-id
+run_wrk register-user-with-id 
+run_wrk write-plot
+run_wrk write-cast-info
+run_wrk write-movie-info
+run_wrk compose-review 
+redeploy
