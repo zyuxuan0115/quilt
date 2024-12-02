@@ -55,8 +55,9 @@ function merge_openwhisk {
 }
 
 function deploy_openwhisk {
-  wsk action create text-service-merged --docker zyuxuan0115/hr-text-service-merged
-  wsk action create compose-post-merged --docker zyuxuan0115/hr-compose-post-merged
+  wsk action create search-handler-merged --docker zyuxuan0115/hr-search-handler-merged
+  wsk action create reservation-handler-merged --docker zyuxuan0115/hr-reservation-handler-merged
+  wsk action create nearby-cinema-merged --docker zyuxuan0115/hr-nearby-cinema-merged
 }
 
 case "$1" in
