@@ -58,6 +58,7 @@ function deploy_openwhisk {
   wsk action create text-service-merged --docker zyuxuan0115/sn-text-service-async-merged
   wsk action create compose-post-merged --docker zyuxuan0115/sn-compose-post-async-merged
   wsk action create social-graph-follow-with-username-merged --docker zyuxuan0115/sn-social-graph-follow-with-username-async-merged
+  wsk action create read-user-timeline-merged --docker zyuxuan0115/sn-read-user-timeline-async-merged
 }
 
 case "$1" in

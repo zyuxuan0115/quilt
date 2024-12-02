@@ -9,8 +9,8 @@ latency_merged = [56.639, ]
 tput_orig = [124.159, ]
 tput_merged = []
  
-plt.plot(tput_orig, latency_orig, marker='o', linestyle='-', color='b', label='Prime Numbers')
-plt.plot(tput_merged, latency_merged, marker='o', linestyle='-', color='r', label='Prime Numbers')
+plt.plot(tput_orig, latency_orig, marker='o', linestyle='-', color='b', label='original')
+plt.plot(tput_merged, latency_merged, marker='o', linestyle='-', color='r', label='merged')
 
 ax.set_xlabel('throughput (queries/minute)')
 ax.set_ylabel('latency (ms)')
