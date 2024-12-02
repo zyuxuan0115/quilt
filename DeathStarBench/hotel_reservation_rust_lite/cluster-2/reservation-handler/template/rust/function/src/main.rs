@@ -18,6 +18,7 @@ fn main() {
 
   let check_user_args_ret: bool = serde_json::from_str(&check_user_args_ret_str).unwrap();
 
+
   let mut serialized: String = String::new();
   if check_user_args_ret == true {
     let make_resv_args = MakeReservationArgs {

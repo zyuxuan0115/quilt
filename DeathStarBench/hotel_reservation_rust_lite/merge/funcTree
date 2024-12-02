@@ -1,5 +1,2 @@
-search-handler search-nearby
-search-handler check-availability
-search-handler get-profiles
-search-nearby get-rates
-search-nearby nearby-hotel
+reservation-handler make-reservation
+reservation-handler check-user
