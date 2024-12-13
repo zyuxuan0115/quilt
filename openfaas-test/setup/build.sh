@@ -4,9 +4,9 @@ USER="zyuxuan"
 
 function setup_k8s {
   ### setup the kubernetes cluster
-  sudo chmod -R 777 /users/zyuxuan/.docker
+  sudo chmod -R 777 /users/$USER/.docker
   k3sup plan machine.json \
-    --user zyuxuan \
+    --user $USER \
     --servers 1 \
     --server-k3s-extra-args "--disable traefik" \
     --background > bootstrap.sh
@@ -26,9 +26,8 @@ function setup {
   cd open-telemetry && ./build.sh setup && cd ..
   cd ingress-nginx && ./build.sh setup && cd ..
   cd openfaas && ./build.sh setup && cd ..
-  cd openwhisk && ./build.sh setup $SERVER_IP && cd ..
+  cd openwhisk && ./build.sh setup && cd ..
   cd redis_memcached && ./build.sh setup && cd ..
-
 }
 
 function kill_k8s {

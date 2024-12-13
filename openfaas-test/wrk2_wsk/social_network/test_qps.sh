@@ -19,9 +19,10 @@ fi
 
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
-CON=(1 5 10 15 20 25 30 35 40 50 60 70 80 90 100)
-#QPS=(8000 10000 14000 18000 24000 30000)
-#QPS=(300)
+CON=(1 2 3 4 5 7 9 12 15 18 22 26 30)
+#CON=(7 9 18 26)
+#CON=(180 210 250 290)
+#CON=(26)
 
 # Iterate over each element in the array
 rm -rf *.log
@@ -31,17 +32,21 @@ for con in "${CON[@]}"; do
     && ./build.sh kill \
     && ./build.sh setup
   sleep 30
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/merge/ && ./build.sh deploy_openwhisk
-  FUNC_NAME=$1
-  sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
   ./initialize.sh
-  echo $ABC
-  $WRK_BIN -t 1 -c $con -d 120 -L -U \
+  cd $OPENFAAS_TEST_DIR/setup/openwhisk \
+    && ./build.sh kill \
+    && ./build.sh setup
+  sleep 60
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_openwhisk
+  FUNC_NAME=$1
+  sleep 10
+  cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
+  $WRK_BIN -t 1 -c $con -d 900 -L -U \
 	 -s $WRK_SCRIPT \
-	 $ENTRY_HOST -R 2000 2>/dev/null > output_$1-$2_$con.log
+	 $ENTRY_HOST -R 1000 2>/dev/null > output_$1-$2_$con.log
   echo "===== Connections: $con ====="
   ./get5099tput.py output_$1-$2_$con.log
   echo "===================="
