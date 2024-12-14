@@ -19,8 +19,8 @@ fi
 
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
-CON=(1 2 3 4 5 7 9 12 15 18 22 26 30)
-#CON=(7 9 18 26)
+#CON=(1 2 3 4 5 7 9 12 15 18 22 26 30)
+CON=(40 50 60 70)
 #CON=(180 210 250 290)
 #CON=(26)
 
