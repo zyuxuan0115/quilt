@@ -6,12 +6,11 @@ if [ "$#" -lt 2 ]; then
   exit 1
 fi
 
-IP=130.127.133.207
 WRK_BIN=../wrk
 WRK_SCRIPT="lua_files/$1.lua"
 DEATHSTARBENCH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench
 WORKLOAD=social_network_rust_lite
-ENTRY_HOST=http://$IP:32001
+ENTRY_HOST=http://130.127.133.207:32001
 QPS=1
 FUNC_NAME=$1
 
@@ -55,14 +54,37 @@ function measure_perf {
   done
 }
 
+function run_wrk {
+  sleep 10
+  WRK_SCRIPT="lua_files/$1.lua"
+
+  $WRK_BIN -t 1 -c 3 -d 600 -L -U \
+	   -s $WRK_SCRIPT \
+	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
+}
+
+
+function redeploy {
+  cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
+    && ./build.sh kill \
+    && ./build.sh setup
+  sleep 60
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_openwhisk
+  cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
+}
+
 
 function init {
-
+  redeploy 
+  run_wrk register-user-with-id
+  run_wrk social-graph-follow-with-username-merged
 }
 
 
 case "$1" in
-test)
+perf)
     measure_perf
     ;;
 init)
