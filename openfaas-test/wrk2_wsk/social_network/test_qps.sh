@@ -12,6 +12,7 @@ WRK_SCRIPT="lua_files/$1.lua"
 DEATHSTARBENCH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench
 WORKLOAD=social_network_rust_lite
 ENTRY_HOST=http://$IP:32001
+QPS=1
 
 if [ "$2" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
@@ -19,10 +20,9 @@ fi
 
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
-#CON=(1 2 3 4 5 7 9 12 15 18 22 26 30)
-CON=(40 50 60 70)
+#CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 60 70)
 #CON=(180 210 250 290)
-#CON=(26)
+CON=(1)
 
 # Iterate over each element in the array
 rm -rf *.log
@@ -46,7 +46,7 @@ for con in "${CON[@]}"; do
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
   $WRK_BIN -t 1 -c $con -d 900 -L -U \
 	 -s $WRK_SCRIPT \
-	 $ENTRY_HOST -R 1000 2>/dev/null > output_$1-$2_$con.log
+	 $ENTRY_HOST -R $QPS 2>/dev/null > output_$1-$2_$con.log
   echo "===== Connections: $con ====="
   ./get5099tput.py output_$1-$2_$con.log
   echo "===================="

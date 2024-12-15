@@ -42,7 +42,7 @@ request = function(req_id)
   local path = "/api/v1/namespaces/_/actions/read-home-timeline?blocking=true&result=true"
   local headers = {}
   local body
-  headers["Content-Type"] = "application/x-www-form-urlencoded"
+  headers["Content-Type"] = "application/json"
   headers["Authorization"] = auth
 
   body = '{"user_id":' .. user_id .. ',"start":0,"stop":1}'

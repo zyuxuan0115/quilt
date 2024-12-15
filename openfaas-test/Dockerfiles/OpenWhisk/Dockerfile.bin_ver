@@ -24,14 +24,6 @@ RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates pkg-config libssl-dev sed openssh-client openssl python3-pip \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC pip3 install --upgrade setuptools six pip-tools \
     && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC pip3 install gevent==23.9.1 flask==3.0.0 greenlet==3.0.0 
-     
-#RUN apk upgrade --update \
-#  && apk add --no-cache bash perl jq zip git curl wget openssl ca-certificates sed openssh-client \
-#  && update-ca-certificates \
-#  && apk add --no-cache --virtual .build-deps bzip2-dev g++ libc-dev \
-#  && pip install --upgrade pip setuptools six \
-#  && pip install --no-cache-dir gevent==23.9.1 flask==3.0.0 greenlet==3.0.0\
-#  && apk del .build-deps
 
 ENV FLASK_PROXY_PORT 8080
 
@@ -53,10 +45,7 @@ FROM ubuntu:focal as final
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y libssl-dev \
  && rm -rf /var/lib/apt/lists/*
-#RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-#    && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates pkg-config libssl-dev 
 
 COPY --from=builder /actionProxy/dist/actionproxy/ /actionProxy/
 WORKDIR /actionProxy
 CMD ["./actionproxy"]
-#CMD ["python3", "-u", "actionproxy.py"]
