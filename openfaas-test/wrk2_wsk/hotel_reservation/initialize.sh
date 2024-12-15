@@ -1,28 +1,36 @@
 #!/bin/bash
 
-IP=130.127.133.219
 WRK_BIN=../wrk
-QPS=300
+ENTRY_HOST="http://130.127.133.207:32001"
+QPS=50
+FUNCTION_PATH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench/hotel_reservation_rust_lite
+CURRENT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/wrk2_wsk/hotel_reservation
+SCRIPT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/setup/openwhisk
 
 run_wrk(){
+  sleep 10
   WRK_SCRIPT="lua_files/$1.lua"
-  CLUSTER_ID=$2
-  # cluster 1 IP
-  ENTRY_HOST=http://$IP:30080
-  if [[ $CLUSTER_ID -eq 2 ]]
-  then
-    # cluster 2 IP
-    ENTRY_HOST=http://$IP:30081
-  fi
 
-  $WRK_BIN -t 5 -c 5 -d 30 -L -U \
-	   -s $WRK_SCRIPT \
-	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
+  $WRK_BIN -t 1 -c 1 -d 600 -L -U \
+           -s $WRK_SCRIPT \
+           $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
 }
 
-run_wrk set-cinema
-run_wrk set-capacity 2
-run_wrk set-profile
+redeploy(){
+  cd $SCRIPT_PATH && ./build.sh kill && ./build.sh setup
+  sleep 60
+  cd $FUNCTION_PATH/cluster-1 && ./build.sh deploy_openwhisk
+  cd $FUNCTION_PATH/cluster-2 && ./build.sh deploy_openwhisk
+  cd $FUNCTION_PATH/merge && ./build.sh deploy_openwhisk
+  cd $CURRENT_PATH
+}
+
+redeploy
 run_wrk set-hotel-point
-run_wrk register-user 2
-run_wrk set-rate 2
+run_wrk register-user 
+run_wrk set-cinema
+run_wrk set-capacity 
+run_wrk set-profile
+run_wrk set-rate 
+run_wrk reservation-handler-merged
+#redeploy
