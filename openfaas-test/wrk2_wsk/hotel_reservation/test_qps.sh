@@ -36,7 +36,7 @@ for con in "${CON[@]}"; do
   cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_openwhisk
   FUNC_NAME=$1
   sleep 10
-  cd $OPENFAAS_TEST_DIR/wrk2/hotel_reservation
+  cd $OPENFAAS_TEST_DIR/wrk2_wsk/hotel_reservation
   $WRK_BIN -t 1 -c 1 -d 900 -L -U \
 	 -s $WRK_SCRIPT \
 	 $ENTRY_HOST -R $QPS 2>/dev/null > output_$1-$2_$con.log
