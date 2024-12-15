@@ -47,8 +47,8 @@ function measure_perf {
 	   -s $WRK_SCRIPT \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1-$2_$con.log
     echo "===== Connections: $con ====="
-    ./get5099tput.py output_$1-$2_$con.log
-    echo "===================="
+    echo "connections: $con done"
+    echo "============================"
     cd $OPENFAAS_TEST_DIR/setup/openwhisk && ./build.sh kill && ./build.sh setup
     cd $OPENFAAS_TEST_DIR/wrk2_wsk/social_network
   done
