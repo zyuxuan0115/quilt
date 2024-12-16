@@ -3,7 +3,7 @@ FROM zyuxuan0115/go-env as builder
 COPY caller.go ./caller.go
  
 WORKDIR /home/go/function
-RUN go build caller.go -o caller 
+RUN go build caller.go
 
 FROM zyuxuan0115/docker-skeleton:latest as final
 
