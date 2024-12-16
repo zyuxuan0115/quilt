@@ -1,6 +1,4 @@
 #!/bin/bash
-  
-search_dir=$(pwd)
 
 function build {
     sudo docker build -t zyuxuan0115/rust-env:latest \

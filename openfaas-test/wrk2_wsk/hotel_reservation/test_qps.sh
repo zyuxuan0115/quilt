@@ -6,12 +6,11 @@ if [ "$#" -lt 2 ]; then
   exit 1
 fi
 
-IP=130.127.133.207
 WRK_BIN=../wrk
 WRK_SCRIPT="lua_files/$1.lua"
 DEATHSTARBENCH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench
 WORKLOAD=hotel_reservation_rust_lite
-ENTRY_HOST=http://$IP:32001
+ENTRY_HOST=http://130.127.133.207:32001
 QPS=1000
 
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
@@ -25,7 +24,7 @@ for con in "${CON[@]}"; do
     && ./build.sh kill \
     && ./build.sh setup
   sleep 30
-  cd $OPENFAAS_TEST_DIR/hotel_reservation
+  cd $OPENFAAS_TEST_DIR/wrk2_wsk/hotel_reservation
   ./initialize.sh
   cd $OPENFAAS_TEST_DIR/setup/openwhisk \
     && ./build.sh kill \
