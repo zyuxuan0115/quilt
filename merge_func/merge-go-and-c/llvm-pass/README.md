@@ -49,7 +49,7 @@ export PATH=/proj/zyuxuanssf-PG0/gollvm/bin:$PATH
   -o caller -lpthread -lm
 ```
 
-### add MergeRustFuncAsync pass
+### Add MergeGoCFunc pass
 ```bash
 > cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeGoCFunc.h
 > cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeGoCFunc.cpp
@@ -59,7 +59,14 @@ export PATH=/proj/zyuxuanssf-PG0/gollvm/bin:$PATH
 - In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-go-c-func", MergeGoCFuncPass())` 
 - In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeGoCFunc.h"`
 
-### to run the optimization pass
+### to build the pass
 ```bash
-> llvm-project/build/bin/opt -disable-output main.ll -passes=merge-go-c-func
+> cd llvm-project/build/
+> rm -rf *
+> cmake -DCMAKE_INSTALL_PREFIX=/proj/zyuxuanssf-PG0/gollvm \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DLLVM_USE_LINKER=gold \
+  -G Ninja ../llvm
+> ninja gollvm
+> ninja install-gollvm
 ```
