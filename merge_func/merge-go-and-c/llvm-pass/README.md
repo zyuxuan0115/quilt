@@ -51,15 +51,15 @@ export PATH=/proj/zyuxuanssf-PG0/gollvm/bin:$PATH
 
 ### add MergeRustFuncAsync pass
 ```bash
-> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeRustFuncAsync.h
-> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeRustFuncAsync.cpp
+> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeGoCFunc.h
+> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeGoCFunc.cpp
 ```
 
-- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeRustFuncAsync.cpp`
-- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-rust-func-async", MergeRustFuncAsyncPass())` 
-- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeRustFuncAsync.h"`
+- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeGoCFunc.cpp`
+- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-go-c-func", MergeGoCFuncPass())` 
+- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeGoCFunc.h"`
 
 ### to run the optimization pass
 ```bash
-> llvm-project/build/bin/opt -disable-output main.ll -passes=merge-rust-func-async
+> llvm-project/build/bin/opt -disable-output main.ll -passes=merge-go-c-func
 ```
