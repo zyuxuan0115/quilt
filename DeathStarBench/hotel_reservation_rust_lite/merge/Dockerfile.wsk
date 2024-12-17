@@ -9,6 +9,6 @@ RUN chmod 777 merge_tree.py
 RUN ./merge_tree.py merge funcTree
 RUN ./merge_tree.py link funcTree
 
-FROM zyuxuan0115/docker-skeleton:latest as final
+FROM zyuxuan0115/openwhisk-skeleton:latest as final
 
 COPY --from=builder /home/rust/function /action/exec
