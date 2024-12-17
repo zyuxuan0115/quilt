@@ -51,8 +51,8 @@ export PATH=/proj/zyuxuanssf-PG0/gollvm/bin:$PATH
 
 ### Add MergeGoCFunc pass
 ```bash
-> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeGoCFunc.h
-> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeGoCFunc.cpp
+> cp MergeGoCFunc.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeGoCFunc.h
+> cp MergeGoCFunc.cpp llvm-project/llvm/lib/Transforms/Utils/MergeGoCFunc.cpp
 ```
 
 - In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeGoCFunc.cpp`
