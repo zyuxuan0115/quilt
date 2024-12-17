@@ -16,21 +16,27 @@ whisk:
     apiHostProto: "http"
     useInternally: false
   limits:
-    actionsInvokesPerminute: 60000
-    actionsInvokesConcurrent: 60000
-    triggersFiresPerminute: 60000
-    actionsSequenceMaxlength: 50000
+    actionsInvokesPerminute: 6000
+    actionsInvokesConcurrent: 6000
+    triggersFiresPerminute: 6000
+    actionsSequenceMaxlength: 50
     actions:
+      memory:
+        min: "32m"
+        max: "128m"
+        std: "64m"
       concurrency:
         min: 1
-        max: 8
-        std: 5
+        max: 1
+        std: 1
       time:
         min: "10ms"
         max: "20m"
         std: "10m"
   loadbalancer:
-    blackboxFraction: "90%"
+    blackboxFraction: "100%"
+  containerPool:
+    userMemory: "6400m"
 nginx:
   httpNodePort: 32001
   httpsNodePort: 31001
@@ -39,20 +45,22 @@ affinity:
 toleration:
   enabled: false
 scheduler:
-  enabled: false
+  enabled: true
 invoker:
   options: "-Dwhisk.kubernetes.user-pod-node-affinity.enabled=false"
   timeoutsIdleContainer: "5 minutes"
   timeoutsPauseGrace: "2 minutes"
   timeoutsKeepingDuration: "5 minutes"
-  jvmHeapMB: "5120"
+  runtimeDeleteTimeout: "3 minutes"
+  jvmHeapMB: "512"
   jvmOptions: ""
   loglevel: "OFF"
   containerFactory:
     impl: "kubernetes"
     enableConcurrency: true
     kubernetes:
-      replicaCount: 5
+      isolateUserActions: true
+      replicaCount: 6
 EOF
 
   kubectl rollout status deployment/owdev-apigateway --namespace=openwhisk --timeout=600s
