@@ -1,13 +1,11 @@
-FROM zyuxuan0115/rust-env as builder
+FROM zyuxuan0115/c-env as builder
 # Copy all the sources
-COPY function ./function
-COPY OpenWhiskRPC ./OpenFaaSRPC
-COPY DbInterface_wsk ./DbInterface
+COPY callee.cpp ./callee.cpp
+COPY Makefile ./Makefile
 
-WORKDIR /home/rust/function
-RUN cargo build --release
+WORKDIR /home/c/function
+RUN make
 
 FROM zyuxuan0115/docker-skeleton:latest as final
 
-COPY --from=builder /home/rust/function/target/release/function /action/exec            
-COPY --from=builder /home/rust/OpenFaaSRPC /home/rust/OpenFaaSRPC
+COPY --from=builder /home/c/function/callee /action/exec            

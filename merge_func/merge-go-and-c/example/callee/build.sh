@@ -1,50 +1,31 @@
 #!/bin/bash
+AUTH=23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP
+APIHOST=localhost:9999
+FUNC=c-callee
 
-#ROOT_DIR=`realpath $(dirname $0)/..`
-ROOT_DIR=$(pwd)
-echo $ROOT_DIR
-FUNC=c-uuid-callee
-
-function build_openfaas {
-    sudo docker build --no-cache -t zyuxuan0115/$FUNC:latest \
-        -f Dockerfile --no-cache \
-        $ROOT_DIR/template/rust
-    sudo docker system prune -f
+function build {
+  sudo docker build --no-cache  -t zyuxuan0115/$FUNC:latest -f Dockerfile . 
+  sudo docker push zyuxuan0115/$FUNC:latest
 }
 
-function build_openwhisk {
-    sudo docker build --no-cache -t zyuxuan0115/$FUNC:latest \
-        -f Dockerfile \
-        .
-    sudo docker system prune -f
+function deploy {
+  wsk action create $FUNC --docker zyuxuan0115/$FUNC:latest
 }
 
-function push {
-    sudo docker push zyuxuan0115/$FUNC:latest
-}
-
-function deploy_openfaas {
-  faas-cli deploy -f deployFunc.yml
-}
-
-function deploy_openwhisk {
-  wsk action create $FUNC --docker zyuxuan0115/$FUNC:latest    
+function invoke {
+  curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
+  -X POST -H "Content-Type: application/json" \
+  -d '{"msg":""}'
 }
 
 case "$1" in
-openfaas)
-    build_openfaas
+build)
+    build
     ;;
-openwhisk)
-    build_openwhisk
+deploy)
+    deploy
     ;;
-push)
-    push
-    ;;
-deploy_openfaas)
-    deploy_openfaas
-    ;;
-deploy_openwhisk)
-    deploy_openwhisk
+invoke)
+    invoke
     ;;
 esac
