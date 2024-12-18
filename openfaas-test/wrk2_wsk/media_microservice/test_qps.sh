@@ -33,10 +33,10 @@ for con in "${CON[@]}"; do
     && ./build.sh kill \
     && ./build.sh setup
   sleep 60
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3 && ./build.sh deploy
-  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3 && ./build.sh deploy_openwhisk
+  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_openwhisk
   sleep 10
   cd $OPENFAAS_TEST_DIR/wrk2_wsk/media_microservice
   FUNC_NAME=$1
