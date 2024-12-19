@@ -10,7 +10,9 @@ struct Function {
 
   static func main() {
     let input = get_arg_from_caller()
-    send_return_value_to_caller(input)
+    let json_str = ""
+    let res = make_rpc(func_name: "unique-id-service", jsonStr: json_str);
+    send_return_value_to_caller(res)
   }
 
   static func get_arg_from_caller() -> String {
@@ -42,9 +44,16 @@ struct Function {
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.httpBody = bodyData
 
-    let group = DispatchGroup()
+    // add basic authentication
+    let username = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
+    let password = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
+    let loginString = "\(username):\(password)"
+    guard let loginData = loginString.data(using: .utf8) else { return "" }
+    let base64LoginString = loginData.base64EncodedString()
+    request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
+
     var resp = ""
-    group.enter()
+    let semaphore = DispatchSemaphore(value: 0)
     // Create a URLSession data task
     let task = URLSession.shared.dataTask(with: request) { data, response, error in
       if let res = data {
@@ -54,13 +63,13 @@ struct Function {
           resp = message_err.msg
         }
       }
-      group.leave()
+      semaphore.signal()
     }
     
 
     // Start the task
     task.resume()
-    group.wait() 
+    semaphore.wait()
     return resp
   }
 }
