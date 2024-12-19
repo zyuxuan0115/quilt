@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WRK_BIN=../wrk
-ENTRY_HOST="http://130.127.133.207:32001"
+ENTRY_HOST=http://130.127.133.30:32001
 QPS=1000
 FUNCTION_PATH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench/media_microservice_rust_lite_async
 CURRENT_PATH=/proj/zyuxuanssf-PG0/faas-test/openfaas-test/wrk2_wsk/media_microservice

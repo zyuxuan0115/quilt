@@ -11,7 +11,7 @@ WRK_SCRIPT="lua_files/$1.lua"
 DEATHSTARBENCH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench
 OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 WORKLOAD=media_microservice_rust_lite
-ENTRY_HOST=http://130.127.133.207:32001
+ENTRY_HOST=http://130.127.133.30:32001
 QPS=1000
 
 if [ "$2" = "async" ]; then
@@ -20,6 +20,7 @@ fi
 
 
 CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 60 70)
+#CON=(15 40 50 60 70)
 
 # Iterate over each element in the array
 for con in "${CON[@]}"; do

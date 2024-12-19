@@ -36,7 +36,7 @@ whisk:
   loadbalancer:
     blackboxFraction: "100%"
   containerPool:
-    userMemory: "6400m"
+    userMemory: "8192m"
 nginx:
   httpNodePort: 32001
   httpsNodePort: 31001

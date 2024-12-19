@@ -55,7 +55,7 @@ function setup {
   setup_memcached
 #  setup_redis
   setup_keydb
-  kubectl wait --for=condition=ready pod --all --namespace=openfaas-db
+  kubectl wait --for=condition=ready pod --all --namespace=openfaas-db --timeout=600s
 }
 
 function kill_mongodb {
