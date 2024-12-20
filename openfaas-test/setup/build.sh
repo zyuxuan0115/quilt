@@ -27,6 +27,7 @@ function setup {
   cd ingress-nginx && ./build.sh setup && cd ..
   cd openfaas && ./build.sh setup && cd ..
   cd openwhisk && ./build.sh setup && cd ..
+  cd fission && ./build.sh setup && cd ..
   cd redis_memcached && ./build.sh setup && cd ..
 }
 
