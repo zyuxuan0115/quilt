@@ -121,11 +121,11 @@ func (bs *BinaryServer) SpecializeHandler(w http.ResponseWriter, r *http.Request
 }
 
 func (bs *BinaryServer) InvocationHandler(w http.ResponseWriter, r *http.Request) {
-	if !specialized {
-		HttpResponseWithError(w, http.StatusBadRequest, fmt.Errorf("not specialized"))
-		return
-	}
-	log.Println("Starting binary function execution")
+//	if !specialized {
+//		HttpResponseWithError(w, http.StatusBadRequest, fmt.Errorf("not specialized"))
+//		return
+//	}
+//	log.Println("Starting binary function execution")
 
 	// CGI-like passing of environment variables
 	execEnv := NewEnv(nil)
@@ -139,7 +139,9 @@ func (bs *BinaryServer) InvocationHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Future: could be improved by keeping subprocess open while environment is specialized
-	cmd := exec.Command("/bin/sh", bs.internalCodePath)
+        //cmd_str := "./" + bs.internalCodePath
+	//cmd := exec.Command("/bin/sh", bs.internalCodePath)
+        cmd := exec.Command(bs.internalCodePath)
 	cmd.Env = execEnv.ToStringEnv()
 
 	stdinPipe, err := cmd.StdinPipe()

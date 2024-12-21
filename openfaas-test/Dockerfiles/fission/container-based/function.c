@@ -5,7 +5,7 @@
 #define BUFFER_SIZE 1024
 
 int main() {
-    char input[BUFFER_SIZE];
+/*    char input[BUFFER_SIZE];
     char output[BUFFER_SIZE];
 
     // Read input from stdin
@@ -28,6 +28,7 @@ int main() {
 
     // Write output to stdout
     fputs(output, stdout);
-
+*/
+    printf("hello world\n");
     return 0;
 }
