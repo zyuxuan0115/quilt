@@ -109,7 +109,8 @@ func (bs *BinaryServer) SpecializeHandler(w http.ResponseWriter, r *http.Request
 		HttpResponseWithError(w, http.StatusBadRequest, fmt.Errorf("failed to read file: %w", err))
 		return
 	}
-	err = os.WriteFile(bs.internalCodePath, userFunc, 0555)
+	//err = os.WriteFile(bs.internalCodePath, userFunc, 0555)
+        err = os.WriteFile(bs.internalCodePath, userFunc, 0777)
 	if err != nil {
 		HttpResponseWithError(w, http.StatusBadRequest, fmt.Errorf("failed to write file: %w", err))
 		return
@@ -139,7 +140,8 @@ func (bs *BinaryServer) InvocationHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Future: could be improved by keeping subprocess open while environment is specialized
-	cmd := exec.Command(bs.internalCodePath)
+	//cmd := exec.Command(bs.internalCodePath)
+        cmd := exec.Command(DEFAULT_INTERNAL_CODE_PATH)
 	cmd.Env = execEnv.ToStringEnv()
 
 	stdinPipe, err := cmd.StdinPipe()
