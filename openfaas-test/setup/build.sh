@@ -22,11 +22,11 @@ function setup_k8s {
 
 function setup {
   setup_k8s
-  cd grafana_tempo && ./build.sh setup && cd ..
-  cd open-telemetry && ./build.sh setup && cd ..
-  cd ingress-nginx && ./build.sh setup && cd ..
-  cd openfaas && ./build.sh setup && cd ..
-  cd openwhisk && ./build.sh setup && cd ..
+#  cd grafana_tempo && ./build.sh setup && cd ..
+#  cd open-telemetry && ./build.sh setup && cd ..
+#  cd ingress-nginx && ./build.sh setup && cd ..
+#  cd openfaas && ./build.sh setup && cd ..
+#  cd openwhisk && ./build.sh setup && cd ..
   cd fission && ./build.sh setup && cd ..
   cd redis_memcached && ./build.sh setup && cd ..
 }
