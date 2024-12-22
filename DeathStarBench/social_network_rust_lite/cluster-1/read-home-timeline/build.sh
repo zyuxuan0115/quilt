@@ -47,10 +47,16 @@ function build_fission_bin {
     rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
     sudo docker system prune -f
+    sudo docker create --name temp-container zyuxuan0115/sn-$FUNC:latest
+    sudo docker cp temp-container:/home/rust/function/target/release/function ./function_orig
+    sudo docker rm temp-container
+    echo $FUNC > metadata.txt
+    objcopy --add-section .metadata=metadata.txt function_orig function
+    rm -rf metadata.txt function_orig
 }
 
 function push {
-    sudo docker push zyuxuan0115/sn-$FUNC:latest
+  sudo docker push zyuxuan0115/sn-$FUNC:latest
 }
 
 function deploy_openfaas {
@@ -70,6 +76,9 @@ openwhisk)
     ;;
 fission_c)
     build_fission_container
+    ;;
+fission_b)
+    build_fission_bin
     ;;
 push)
     push
