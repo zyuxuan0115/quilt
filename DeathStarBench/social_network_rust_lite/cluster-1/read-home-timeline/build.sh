@@ -52,6 +52,8 @@ function build_fission_bin {
     sudo docker rm temp-container
     echo $FUNC > metadata.txt
     objcopy --add-section .metadata=metadata.txt function_orig function
+    sudo chmod 777 function
+    sudo chown root:root function
     rm -rf metadata.txt function_orig
 }
 
@@ -65,6 +67,19 @@ function deploy_openfaas {
 
 function deploy_openwhisk {
   wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC:latest    
+}
+
+function deploy_fission_c {
+  fission function run-container --name $FUNC \
+    --image docker.io/zyuxuan0115/sn-$FUNC \
+    --port 8888
+  fission route create --method POST \
+    --url /$FUNC --function $FUNC
+}
+
+function deploy_fission_b {
+  fission function create --name $FUNC --env fission-bin-env --code function
+  fission route create --method POST --url /$FUNC --function $FUNC
 }
 
 case "$1" in
@@ -88,5 +103,11 @@ deploy_openfaas)
     ;;
 deploy_openwhisk)
     deploy_openwhisk
+    ;;
+deploy_fission_c)
+    deploy_fission_c
+    ;;
+deploy_fission_b)
+    deploy_fission_b
     ;;
 esac
