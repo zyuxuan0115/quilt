@@ -11,6 +11,6 @@ $(TARGET): $(SRC)
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRC)
 
 clean:
-	rm -f $(TARGET)
+	rm -f $(TARGET) $(TARGET)_metadata *.txt
 
 .PHONY: all clean

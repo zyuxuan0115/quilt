@@ -1,8 +1,8 @@
 FROM ubuntu:focal as builder
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-    && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential perl zip git curl wget \
-    && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates pkg-config libssl-dev openssh-client openssl 
+    && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y binutils curl wget \
+    && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates pkg-config libssl-dev openssl 
 
 WORKDIR /
 RUN wget https://go.dev/dl/go1.23.4.linux-amd64.tar.gz
@@ -22,7 +22,7 @@ FROM ubuntu:focal as final
 WORKDIR /app
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates libssl-dev \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y binutils ca-certificates libssl-dev \
   && rm -rf /var/lib/apt/lists/*
   
 COPY --from=builder /binary/server /app/server
