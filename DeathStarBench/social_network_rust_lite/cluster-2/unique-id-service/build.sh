@@ -71,7 +71,7 @@ function deploy_openwhisk {
 
 function deploy_fission_c {
   fission function run-container --name $FUNC \
-    --image docker.io/zyuxuan0115/$FUNC \
+    --image docker.io/zyuxuan0115/sn-$FUNC \
     --port 8888
   fission route create --method POST \
     --url /$FUNC --function $FUNC
@@ -103,5 +103,11 @@ deploy_openfaas)
     ;;
 deploy_openwhisk)
     deploy_openwhisk
+    ;;
+deploy_fission_c)
+    deploy_fission_c
+    ;;
+deploy_fission_b)
+    deploy_fission_b
     ;;
 esac
