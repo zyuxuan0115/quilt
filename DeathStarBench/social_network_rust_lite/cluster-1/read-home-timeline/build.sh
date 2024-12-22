@@ -27,6 +27,28 @@ function build_openwhisk {
     sudo docker system prune -f
 }
 
+function build_fission_container {
+    cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
+        -f Dockerfile.fs_container \
+        $ROOT_DIR/template/rust
+    rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
+    rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
+    sudo docker system prune -f
+}
+
+function build_fission_bin {
+    cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
+        -f Dockerfile.fs_bin \
+        $ROOT_DIR/template/rust
+    rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
+    rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
+    sudo docker system prune -f
+}
+
 function push {
     sudo docker push zyuxuan0115/sn-$FUNC:latest
 }
@@ -45,6 +67,9 @@ openfaas)
     ;;
 openwhisk)
     build_openwhisk
+    ;;
+fission_c)
+    build_fission_container
     ;;
 push)
     push
