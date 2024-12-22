@@ -21,6 +21,12 @@ function setup {
     --namespace=fission \
     --timeout=600s
   kubectl port-forward service/router -n fission 8888:80 &
+  sleep 30
+  fission env create --name fission-bin-env \
+    --image docker.io/zyuxuan0115/fission-bin-env \
+    --mincpu 40 --maxcpu 80 \
+    --minmemory 64 --maxmemory 128 \
+    --poolsize 4
 }
 
 function killa {
