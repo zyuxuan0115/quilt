@@ -71,7 +71,7 @@ function deploy_openwhisk {
 
 function deploy_fission_c {
   fission function run-container --name $FUNC \
-    --image docker.io/zyuxuan0115/sn-$FUNC \
+    --image docker.io/zyuxuan0115/sn-$FUNC-async \
     --port 8888
   fission route create --method POST \
     --url /$FUNC --function $FUNC
