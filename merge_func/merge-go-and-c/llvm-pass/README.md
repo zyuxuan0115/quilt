@@ -23,14 +23,14 @@ git checkout 2446c66076480ce07a6bd868badcbceb3eeecc2e
 ### Build gollvm
 
 ```bash
-cmake -DCMAKE_INSTALL_PREFIX=/proj/zyuxuanssf-PG0/gollvm \
+cmake -DCMAKE_INSTALL_PREFIX=/proj/zyuxuanssf-PG0/zyuxuan/gollvm \
   -DCMAKE_BUILD_TYPE=Release \
   -DLLVM_USE_LINKER=gold \
   -G Ninja ../llvm
 ninja gollvm
 ninja install-gollvm
-export LD_LIBRARY_PATH=/proj/zyuxuanssf-PG0/gollvm/lib64:$LD_LIBRARY_PATH
-export PATH=/proj/zyuxuanssf-PG0/gollvm/bin:$PATH
+export LD_LIBRARY_PATH=/proj/zyuxuanssf-PG0/zyuxuan/gollvm/lib64:$LD_LIBRARY_PATH
+export PATH=/proj/zyuxuanssf-PG0/zyuxuan/gollvm/bin:$PATH
 ```
 
 ### Generate LLVM IR for a go program
