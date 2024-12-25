@@ -36,6 +36,7 @@ export PATH=/proj/zyuxuanssf-PG0/zyuxuan/gollvm/bin:$PATH
 ### Generate LLVM IR for a go program
 
 ```bash
+GOLLVM=/proj/zyuxuanssf-PG0/zyuxuan/gollvm
 # can generate LLVM IR only based on this
 > llvm-goc -emit-llvm -S -o caller.ll caller.go
 # disable function inlining
