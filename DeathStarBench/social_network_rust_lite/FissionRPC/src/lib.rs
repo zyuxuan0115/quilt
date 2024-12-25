@@ -278,10 +278,8 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::new();
 
-  url = String::from("http://owdev-nginx.openwhisk.svc.cluster.local.:80/");
-  url.push_str("api/v1/namespaces/_/actions/");
+  url = String::from("http://router.fission.svc.cluster.local.:80/");
   url.push_str(func_name);
-  url.push_str("?blocking=true&result=true");
 
   let mut input_to_be_sent = (&input).as_bytes();
   let mut headers = curl::easy::List::new();
