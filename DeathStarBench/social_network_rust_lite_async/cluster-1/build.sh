@@ -28,6 +28,31 @@ function build_openwhisk {
   done
 }
 
+function build_fission_c {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ -d $entry ]] ; then 
+      cd $entry
+      ./build.sh fission_c
+      ./build.sh push
+    fi
+    cd ..
+  done
+}
+
+function build_fission_b {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ -d $entry ]] ; then 
+      cd $entry
+      ./build.sh fission_b
+    fi
+    cd ..
+  done
+}
+
 function build_0 {
     sudo docker build -t zyuxuan0115/rust-env:latest \
         -f Dockerfile .
@@ -39,7 +64,6 @@ function deploy_openfaas {
   do
    if [[ -d $entry ]] ; then
       cd $entry
-      YAML_FILE=$(ls *.yml)
       faas-cli deploy -f deployFunc.yml
     fi
     cd ..
@@ -57,7 +81,29 @@ function deploy_openwhisk {
   done
 }
 
-function clean {
+function deploy_fission_c {
+  for entry in "$search_dir"/*
+  do
+   if [[ -d $entry ]] ; then
+      cd $entry
+      ./build.sh deploy_fission_c
+    fi
+    cd ..
+  done
+}
+
+function deploy_fission_b {
+  for entry in "$search_dir"/*
+  do
+   if [[ -d $entry ]] ; then
+      cd $entry
+      ./build.sh deploy_fission_b
+    fi
+    cd ..
+  done
+}
+
+function clean_openfaas {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
@@ -68,6 +114,20 @@ function clean {
     cd ..
   done
 }
+
+function clean_openwhisk {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ -d $entry ]] ; then
+      cd $entry
+      wsk action delete $BASE_NAME
+    fi
+    cd ..
+  done
+}
+
+
 
 
 function nuke {
@@ -88,14 +148,29 @@ build_openfaas)
 build_openwhisk)
     build_openwhisk
     ;;
+build_fission_c)
+    build_openwhisk
+    ;;
+build_fission_b)
+    build_fission_b
+    ;;
 deploy_openfaas)
     deploy_openfaas
     ;;
 deploy_openwhisk)
     deploy_openwhisk
     ;;
-clean)
-    clean
+deploy_fission_c)
+    deploy_fission_c
+    ;;
+deploy_fission_b)
+    deploy_fission_b
+    ;;
+clean_openfaas)
+    clean_openfaas
+    ;;
+clean_openwhisk)
+    clean_openwhisk
     ;;
 nuke)
     nuke
