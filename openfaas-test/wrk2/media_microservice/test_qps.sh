@@ -6,7 +6,7 @@ if [ "$#" -lt 3 ]; then
   exit 1
 fi
 
-IP=130.127.133.69
+IP=130.127.133.219
 WRK_BIN=../wrk
 WRK_SCRIPT="lua_files/$1.lua"
 CLUSTER_ID=$2
@@ -61,7 +61,7 @@ for qps in "${QPS[@]}"; do
   fi
   sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2/media_microservice
-  $WRK_BIN -t 1 -c 1 -d 180 -L -U \
+  $WRK_BIN -t 1 -c 5 -d 900 -L -U \
 	 -s $WRK_SCRIPT \
 	 $ENTRY_HOST -R $qps 2 > /dev/null > output_$1-$3_$qps.log
   echo "===== QPS: $qps ====="

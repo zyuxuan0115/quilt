@@ -1,0 +1,5 @@
+50% latency: 20.42ms
+99% latency: 96.64ms
+Requests/sec: 41.67
+Transfer/sec: 10.78KB
+

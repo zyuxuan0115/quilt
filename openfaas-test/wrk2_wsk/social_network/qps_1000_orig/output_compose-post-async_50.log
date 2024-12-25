@@ -1,0 +1,532 @@
+Running 15m test @ http://130.127.133.207:32001
+  1 threads and 50 connections
+  Thread calibration: mean lat.: 9223372036854776.000ms, rate sampling interval: 10ms
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"8f8dfca7102f47838dfca7102f17839a"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"d98daa8c7cac49158daa8c7cacc91543"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"21563dff7fa84d6d963dff7fa86d6d23"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"0e12ea16b85c40fc92ea16b85c70fc75"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"2520ac2882f746f5a0ac2882f796f5a6"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"9abdb08c90c74168bdb08c90c781680d"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"9a8ecb0d1f3a49358ecb0d1f3a793572"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"7fb5ae16f68b49d8b5ae16f68b79d83b"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"f0b914e4845444fbb914e48454e4fb9f"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a2cfcb3d841b4bff8fcb3d841babff22"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"8cb1354302f14d02b1354302f15d02bd"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"88998e8cfc20497f998e8cfc20d97fd6"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"8d77bd68669f4aaeb7bd68669fdaae85"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"16ef226ad4d14703af226ad4d12703d5"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"2c9bc42ad4d347179bc42ad4d35717b1"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a96114dc37864f96a114dc37869f96a4"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a51a87b5f2fe414d9a87b5f2fe714dc1"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"2edb1254e46146e59b1254e46126e5f8"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"9870fe7cf0724f25b0fe7cf0725f2544"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"eb9941fd378b483f9941fd378b283f49"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"e467d529e27742eba7d529e277a2ebe5"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"0d21f612c69a424ea1f612c69a524e03"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"6eaaf9cae3834174aaf9cae3834174e8"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"dbcb3289c35d443c8b3289c35d843c73"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"9657736e607a4ebd97736e607a5ebd06"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"c43770374d1d473fb770374d1db73fe0"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"3cd1b006f69b424e91b006f69bd24e8e"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"3f7b18e9672445e9bb18e9672425e922"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"4d5c3935a2c948a89c3935a2c988a897"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a1f9763d5777422bb9763d5777522be1"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"02c5f5b8391a4db085f5b8391a5db028"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a80418345ccb447b8418345ccbb47bdd"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"d5b99cb7a2bd4fc0b99cb7a2bd7fc0aa"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"46fe385da6b94071be385da6b9a07158"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"53f39535dd5444f8b39535dd5464f8da"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"31908877253a4590908877253ae590eb"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"b0237833b8554e62a37833b855be620c"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"825f144186f14bf99f144186f1fbf977"}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     6.59m     3.46m   14.92m    61.00%
+    Req/Sec     4.70     25.67     1.18k    96.17%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    6.32m 
+ 75.000%    9.18m 
+ 90.000%   11.64m 
+ 99.000%   14.23m 
+ 99.900%   14.85m 
+ 99.990%   14.92m 
+ 99.999%   14.92m 
+100.000%   14.92m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   51347.455     0.000000            1         1.00
+  126943.231     0.100000          401         1.11
+  189792.255     0.200000          802         1.25
+  252837.887     0.300000         1204         1.43
+  316145.663     0.400000         1607         1.67
+  379060.223     0.500000         2006         2.00
+  409993.215     0.550000         2207         2.22
+  441188.351     0.600000         2407         2.50
+  472383.487     0.650000         2607         2.86
+  506462.207     0.700000         2808         3.33
+  550502.399     0.750000         3008         4.00
+  573571.071     0.775000         3108         4.44
+  596639.743     0.800000         3208         5.00
+  620756.991     0.825000         3312         5.71
+  645922.815     0.850000         3411         6.67
+  671612.927     0.875000         3509         8.00
+  685244.415     0.887500         3561         8.89
+  698351.615     0.900000         3612        10.00
+  710934.527     0.912500         3660        11.43
+  725090.303     0.925000         3712        13.33
+  740294.655     0.937500         3763        16.00
+  748158.975     0.943750         3787        17.78
+  756547.583     0.950000         3811        20.00
+  764936.191     0.956250         3837        22.86
+  774897.663     0.962500         3860        26.67
+  788004.863     0.968750         3885        32.00
+  794296.319     0.971875         3898        35.56
+  800587.775     0.975000         3910        40.00
+  808452.095     0.978125         3923        45.71
+  816840.703     0.981250         3935        53.33
+  830472.191     0.984375         3948        64.00
+  837287.935     0.985938         3954        71.11
+  843055.103     0.987500         3960        80.00
+  850395.135     0.989062         3967        91.43
+  856162.303     0.990625         3973       106.67
+  862453.759     0.992188         3979       128.00
+  866123.775     0.992969         3982       142.22
+  868745.215     0.993750         3985       160.00
+  872939.519     0.994531         3989       182.86
+  876609.535     0.995313         3992       213.33
+  879230.975     0.996094         3995       256.00
+  880803.839     0.996484         3996       284.44
+  883425.279     0.996875         3999       320.00
+  884998.143     0.997266         4000       365.71
+  885522.431     0.997656         4001       426.67
+  887619.583     0.998047         4003       512.00
+  887619.583     0.998242         4003       568.89
+  889192.447     0.998437         4004       640.00
+  889716.735     0.998633         4005       731.43
+  891289.599     0.998828         4006       853.33
+  891813.887     0.999023         4007      1024.00
+  891813.887     0.999121         4007      1137.78
+  891813.887     0.999219         4007      1280.00
+  893386.751     0.999316         4008      1462.86
+  893386.751     0.999414         4008      1706.67
+  893911.039     0.999512         4009      2048.00
+  893911.039     0.999561         4009      2275.56
+  893911.039     0.999609         4009      2560.00
+  893911.039     0.999658         4009      2925.71
+  893911.039     0.999707         4009      3413.33
+  895483.903     0.999756         4010      4096.00
+  895483.903     1.000000         4010          inf
+#[Mean    =   395334.480, StdDeviation   =   207342.352]
+#[Max     =   894959.616, Total count    =         4010]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%    8.05s 
+ 75.000%   11.55s 
+ 90.000%   13.91s 
+ 99.000%    0.98m 
+ 99.900%    1.00m 
+ 99.990%    1.00m 
+ 99.999%    1.00m 
+100.000%    1.00m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+      68.991     0.000000            1         1.00
+    7634.943     0.100000          408         1.11
+    7770.111     0.200000          825         1.25
+    7860.223     0.300000         1204         1.43
+    7954.431     0.400000         1621         1.67
+    8052.735     0.500000         2020         2.00
+    8085.503     0.550000         2208         2.22
+    8167.423     0.600000         2436         2.50
+    8265.727     0.650000         2612         2.86
+   10682.367     0.700000         2808         3.33
+   11550.719     0.750000         3008         4.00
+   12001.279     0.775000         3108         4.44
+   12263.423     0.800000         3209         5.00
+   12689.407     0.825000         3309         5.71
+   12877.823     0.850000         3409         6.67
+   13311.999     0.875000         3510         8.00
+   13582.335     0.887500         3560         8.89
+   13910.015     0.900000         3609        10.00
+   15097.855     0.912500         3660        11.43
+   16531.455     0.925000         3710        13.33
+   17481.727     0.937500         3761        16.00
+   19054.591     0.943750         3785        17.78
+   20905.983     0.950000         3810        20.00
+   24199.167     0.956250         3835        22.86
+   26378.239     0.962500         3860        26.67
+   31260.671     0.968750         3885        32.00
+   37683.199     0.971875         3898        35.56
+   42500.095     0.975000         3910        40.00
+   48332.799     0.978125         3923        45.71
+   51970.047     0.981250         3936        53.33
+   52232.191     0.984375         3948        64.00
+   52363.263     0.985938         3954        71.11
+   52494.335     0.987500         3960        80.00
+   57442.303     0.989062         3967        91.43
+   60030.975     0.990625         3973       106.67
+   60063.743     0.992188         3986       128.00
+   60063.743     0.992969         3986       142.22
+   60063.743     0.993750         3986       160.00
+   60096.511     0.994531         3989       182.86
+   60129.279     0.995313         4003       213.33
+   60129.279     0.996094         4003       256.00
+   60129.279     0.996484         4003       284.44
+   60129.279     0.996875         4003       320.00
+   60129.279     0.997266         4003       365.71
+   60129.279     0.997656         4003       426.67
+   60129.279     0.998047         4003       512.00
+   60129.279     0.998242         4003       568.89
+   60162.047     0.998437         4010       640.00
+   60162.047     1.000000         4010          inf
+#[Mean    =    10888.670, StdDeviation   =     8133.197]
+#[Max     =    60129.280, Total count    =         4010]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  4010 requests in 15.00m, 1.83MB read
+  Socket errors: connect 0, read 0, write 0, timeout 18495
+  Non-2xx or 3xx responses: 37
+Requests/sec:      4.45
+Transfer/sec:      2.09KB

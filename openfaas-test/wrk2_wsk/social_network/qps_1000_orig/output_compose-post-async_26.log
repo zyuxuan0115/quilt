@@ -1,0 +1,345 @@
+Running 15m test @ http://130.127.133.207:32001
+  1 threads and 26 connections
+  Thread calibration: mean lat.: 9223372036854776.000ms, rate sampling interval: 10ms
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     6.29m     3.41m   14.92m    63.03%
+    Req/Sec     4.82     24.48   555.00     95.82%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    5.96m 
+ 75.000%    8.50m 
+ 90.000%   11.39m 
+ 99.000%   14.23m 
+ 99.900%   14.78m 
+ 99.990%   14.92m 
+ 99.999%   14.92m 
+100.000%   14.92m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   48365.567     0.000000            1         1.00
+  122486.783     0.100000          412         1.11
+  180223.999     0.200000          817         1.25
+  239730.687     0.300000         1226         1.43
+  298844.159     0.400000         1638         1.67
+  357826.559     0.500000         2043         2.00
+  385613.823     0.550000         2247         2.22
+  412876.799     0.600000         2451         2.50
+  440139.775     0.650000         2655         2.86
+  469499.903     0.700000         2860         3.33
+  509870.079     0.750000         3063         4.00
+  535560.191     0.775000         3166         4.44
+  562036.735     0.800000         3268         5.00
+  591396.863     0.825000         3371         5.71
+  621281.279     0.850000         3472         6.67
+  651689.983     0.875000         3574         8.00
+  666894.335     0.887500         3626         8.89
+  683147.263     0.900000         3677        10.00
+  700448.767     0.912500         3727        11.43
+  718274.559     0.925000         3779        13.33
+  739246.079     0.937500         3829        16.00
+  749731.839     0.943750         3855        17.78
+  760217.599     0.950000         3880        20.00
+  771227.647     0.956250         3906        22.86
+  783286.271     0.962500         3931        26.67
+  797442.047     0.968750         3958        32.00
+  803209.215     0.971875         3970        35.56
+  811597.823     0.975000         3982        40.00
+  820510.719     0.978125         3995        45.71
+  830472.191     0.981250         4009        53.33
+  838860.799     0.984375         4022        64.00
+  843055.103     0.985938         4028        71.11
+  847249.407     0.987500         4034        80.00
+  851443.711     0.989062         4040        91.43
+  855638.015     0.990625         4046       106.67
+  861405.183     0.992188         4053       128.00
+  863502.335     0.992969         4056       142.22
+  865599.487     0.993750         4060       160.00
+  867696.639     0.994531         4063       182.86
+  869793.791     0.995313         4066       213.33
+  871890.943     0.996094         4070       256.00
+  871890.943     0.996484         4070       284.44
+  874512.383     0.996875         4072       320.00
+  876085.247     0.997266         4074       365.71
+  878182.399     0.997656         4076       426.67
+  880279.551     0.998047         4077       512.00
+  880279.551     0.998242         4077       568.89
+  882900.991     0.998437         4078       640.00
+  884473.855     0.998633         4079       731.43
+  887095.295     0.998828         4080       853.33
+  888668.159     0.999023         4081      1024.00
+  888668.159     0.999121         4081      1137.78
+  888668.159     0.999219         4081      1280.00
+  890765.311     0.999316         4082      1462.86
+  890765.311     0.999414         4082      1706.67
+  892862.463     0.999512         4083      2048.00
+  892862.463     0.999561         4083      2275.56
+  892862.463     0.999609         4083      2560.00
+  892862.463     0.999658         4083      2925.71
+  892862.463     0.999707         4083      3413.33
+  895483.903     0.999756         4084      4096.00
+  895483.903     1.000000         4084          inf
+#[Mean    =   377270.966, StdDeviation   =   204595.396]
+#[Max     =   894959.616, Total count    =         4084]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%    3.94s 
+ 75.000%    6.28s 
+ 90.000%    8.92s 
+ 99.000%   22.61s 
+ 99.900%    0.90m 
+ 99.990%    0.92m 
+ 99.999%    0.92m 
+100.000%    0.92m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+    1106.943     0.000000            1         1.00
+    3293.183     0.100000          410         1.11
+    3530.751     0.200000          821         1.25
+    3682.303     0.300000         1228         1.43
+    3813.375     0.400000         1636         1.67
+    3942.399     0.500000         2045         2.00
+    3999.743     0.550000         2253         2.22
+    4081.663     0.600000         2454         2.50
+    4296.703     0.650000         2658         2.86
+    5357.567     0.700000         2859         3.33
+    6279.167     0.750000         3063         4.00
+    6733.823     0.775000         3167         4.44
+    7147.519     0.800000         3268         5.00
+    7581.695     0.825000         3370         5.71
+    7770.111     0.850000         3472         6.67
+    7938.047     0.875000         3575         8.00
+    8065.023     0.887500         3626         8.89
+    8921.087     0.900000         3679        10.00
+    9175.039     0.912500         3727        11.43
+   10592.255     0.925000         3779        13.33
+   10772.479     0.937500         3833        16.00
+   10977.279     0.943750         3855        17.78
+   11591.679     0.950000         3880        20.00
+   12935.167     0.956250         3906        22.86
+   13983.743     0.962500         3931        26.67
+   16596.991     0.968750         3957        32.00
+   17039.359     0.971875         3971        35.56
+   17842.175     0.975000         3983        40.00
+   18464.767     0.978125         3996        45.71
+   18628.607     0.981250         4009        53.33
+   18694.143     0.984375         4021        64.00
+   18726.911     0.985938         4030        71.11
+   18759.679     0.987500         4033        80.00
+   18874.367     0.989062         4040        91.43
+   27000.831     0.990625         4046       106.67
+   33472.511     0.992188         4053       128.00
+   33816.575     0.992969         4057       142.22
+   48365.567     0.993750         4059       160.00
+   49872.895     0.994531         4062       182.86
+   50855.935     0.995313         4065       213.33
+   51838.975     0.996094         4071       256.00
+   51838.975     0.996484         4071       284.44
+   51871.743     0.996875         4072       320.00
+   52428.799     0.997266         4073       365.71
+   52985.855     0.997656         4076       426.67
+   53346.303     0.998047         4077       512.00
+   53346.303     0.998242         4077       568.89
+   53575.679     0.998437         4078       640.00
+   53936.127     0.998633         4079       731.43
+   54067.199     0.998828         4080       853.33
+   54132.735     0.999023         4081      1024.00
+   54132.735     0.999121         4081      1137.78
+   54132.735     0.999219         4081      1280.00
+   54165.503     0.999316         4082      1462.86
+   54165.503     0.999414         4082      1706.67
+   54755.327     0.999512         4083      2048.00
+   54755.327     0.999561         4083      2275.56
+   54755.327     0.999609         4083      2560.00
+   54755.327     0.999658         4083      2925.71
+   54755.327     0.999707         4083      3413.33
+   55017.471     0.999756         4084      4096.00
+   55017.471     1.000000         4084          inf
+#[Mean    =     5602.210, StdDeviation   =     5015.245]
+#[Max     =    54984.704, Total count    =         4084]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  4084 requests in 15.00m, 1.87MB read
+  Socket errors: connect 0, read 0, write 0, timeout 7615
+  Non-2xx or 3xx responses: 35
+Requests/sec:      4.54
+Transfer/sec:      2.12KB

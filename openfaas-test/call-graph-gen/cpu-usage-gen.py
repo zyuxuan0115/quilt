@@ -49,7 +49,6 @@ all_func_names = [
                   "rating-service",
                   "write-movie-info",
                   "read-movie-info",
-                  "compose-review",
                   "compose-review-user-id",
                   "write-cast-info",
                   "read-cast-info",
@@ -72,6 +71,7 @@ all_func_names = [
                   "compose-review-upload-unique-id",
                   "compose-review-upload-rating",
                   "compose-review-upload-text",
+                  "compose-review",
                   "compose-and-upload",
 
                   "nearby-rest",

@@ -19,8 +19,8 @@ if [ "$2" = "async" ]; then
 fi
 
 
-CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 60 70)
-#CON=(15 40 50 60 70)
+#CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 60 70)
+CON=(1 2 18 30)
 
 # Iterate over each element in the array
 for con in "${CON[@]}"; do

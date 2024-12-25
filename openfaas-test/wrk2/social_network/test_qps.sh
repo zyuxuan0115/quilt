@@ -48,7 +48,7 @@ for qps in "${QPS[@]}"; do
   sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2/social_network
   ./initialize.sh
-  $WRK_BIN -t 5 -c 5 -d 900 -L -U \
+  $WRK_BIN -t 1 -c 1 -d 600 -L -U \
 	 -s $WRK_SCRIPT \
 	 $ENTRY_HOST -R $qps 2>/dev/null > output_$1-$3_$qps.log
   echo "===== QPS: $qps ====="

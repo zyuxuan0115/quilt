@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IP=130.127.133.69
+IP=130.127.133.219
 WRK_BIN=../wrk
 WRK_SCRIPT="lua_files/$1.lua"
 CLUSTER_ID=$2
@@ -14,6 +14,6 @@ fi
 
 QPS=400
 
-$WRK_BIN -t 1 -c 1 -d 30 -L -U \
+$WRK_BIN -t 5 -c 5 -d 30 -L -U \
 	 -s $WRK_SCRIPT \
 	 $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log

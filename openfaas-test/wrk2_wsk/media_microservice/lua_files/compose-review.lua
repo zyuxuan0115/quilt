@@ -29,7 +29,9 @@ local function decRandom(length)
   end
 end
 
-counter = 2000
+-- counter = 2000
+
+counter = 21000
 
 request = function(req_id)
   counter = counter + 1

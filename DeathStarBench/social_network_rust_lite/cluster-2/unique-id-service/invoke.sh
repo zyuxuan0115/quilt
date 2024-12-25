@@ -18,10 +18,10 @@ function invoke_fission {
 }
 
 case "$1" in
-invoke_wsk)
+wsk)
     invoke_wsk
     ;;
-invoke_fission)
+fission)
     invoke_fission
     ;;
 esac

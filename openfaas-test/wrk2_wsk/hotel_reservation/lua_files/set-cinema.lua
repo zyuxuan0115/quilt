@@ -39,7 +39,8 @@ request = function(req_id)
   counter = counter + 1
   local lat = random_float(32,35)
   local long = random_float(116,119)
-  local cinema_id = 'cinema_' .. tostring(counter%100)
+--  local cinema_id = 'cinema_' .. tostring(counter%100)
+  local cinema_id = 'cinema_' .. tostring(counter%500)
 
   local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
   local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"

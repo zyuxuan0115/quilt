@@ -1,0 +1,331 @@
+Running 10m test @ http://130.127.133.207:32001
+  1 threads and 22 connections
+  Thread calibration: mean lat.: 9223372036854776.000ms, rate sampling interval: 10ms
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not produce a valid response and exited unexpectedly."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     4.66m     2.11m    9.91m    64.31%
+    Req/Sec     9.11     37.66   777.00     93.09%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    4.55m 
+ 75.000%    6.16m 
+ 90.000%    7.50m 
+ 99.000%    9.55m 
+ 99.900%    9.88m 
+ 99.990%    9.91m 
+ 99.999%    9.92m 
+100.000%    9.92m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   32735.231     0.000000            1         1.00
+  117899.263     0.100000          516         1.11
+  158859.263     0.200000         1033         1.25
+  197001.215     0.300000         1548         1.43
+  235274.239     0.400000         2064         1.67
+  273154.047     0.500000         2578         2.00
+  292290.559     0.550000         2836         2.22
+  311951.359     0.600000         3094         2.50
+  331087.871     0.650000         3353         2.86
+  349962.239     0.700000         3610         3.33
+  369885.183     0.750000         3869         4.00
+  380108.799     0.775000         3997         4.44
+  391380.991     0.800000         4125         5.00
+  404226.047     0.825000         4255         5.71
+  418381.823     0.850000         4385         6.67
+  433586.175     0.875000         4512         8.00
+  441188.351     0.887500         4577         8.89
+  449839.103     0.900000         4641        10.00
+  462159.871     0.912500         4707        11.43
+  474742.783     0.925000         4771        13.33
+  488374.271     0.937500         4834        16.00
+  496500.735     0.943750         4866        17.78
+  505937.919     0.950000         4900        20.00
+  516423.679     0.956250         4933        22.86
+  525336.575     0.962500         4963        26.67
+  536084.479     0.968750         4998        32.00
+  540540.927     0.971875         5012        35.56
+  546308.095     0.975000         5028        40.00
+  551550.975     0.978125         5046        45.71
+  557318.143     0.981250         5060        53.33
+  562561.023     0.984375         5076        64.00
+  565706.751     0.985938         5084        71.11
+  568852.479     0.987500         5094        80.00
+  571473.919     0.989062         5100        91.43
+  574619.647     0.990625         5108       106.67
+  577765.375     0.992188         5116       128.00
+  579338.239     0.992969         5120       142.22
+  581435.391     0.993750         5124       160.00
+  583008.255     0.994531         5128       182.86
+  585105.407     0.995313         5133       213.33
+  586153.983     0.996094         5136       256.00
+  587202.559     0.996484         5138       284.44
+  588251.135     0.996875         5141       320.00
+  589299.711     0.997266         5143       365.71
+  590348.287     0.997656         5145       426.67
+  590872.575     0.998047         5146       512.00
+  591396.863     0.998242         5147       568.89
+  591921.151     0.998437         5148       640.00
+  592445.439     0.998633         5150       731.43
+  592445.439     0.998828         5150       853.33
+  592969.727     0.999023         5151      1024.00
+  593494.015     0.999121         5152      1137.78
+  593494.015     0.999219         5152      1280.00
+  594018.303     0.999316         5153      1462.86
+  594018.303     0.999414         5153      1706.67
+  594542.591     0.999512         5155      2048.00
+  594542.591     0.999561         5155      2275.56
+  594542.591     0.999609         5155      2560.00
+  594542.591     0.999658         5155      2925.71
+  594542.591     0.999707         5155      3413.33
+  594542.591     0.999756         5155      4096.00
+  594542.591     0.999780         5155      4551.11
+  594542.591     0.999805         5155      5120.00
+  595066.879     0.999829         5156      5851.43
+  595066.879     1.000000         5156          inf
+#[Mean    =   279772.935, StdDeviation   =   126312.315]
+#[Max     =   594542.592, Total count    =         5156]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%    1.81s 
+ 75.000%    2.34s 
+ 90.000%    4.44s 
+ 99.000%    9.08s 
+ 99.900%   42.47s 
+ 99.990%   43.71s 
+ 99.999%   43.84s 
+100.000%   43.84s 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+     632.319     0.000000            1         1.00
+    1444.863     0.100000          517         1.11
+    1560.575     0.200000         1034         1.25
+    1647.615     0.300000         1547         1.43
+    1716.223     0.400000         2064         1.67
+    1806.335     0.500000         2582         2.00
+    1867.775     0.550000         2836         2.22
+    1939.455     0.600000         3096         2.50
+    2035.711     0.650000         3353         2.86
+    2146.303     0.700000         3613         3.33
+    2344.959     0.750000         3869         4.00
+    2447.359     0.775000         3999         4.44
+    2553.855     0.800000         4127         5.00
+    2734.079     0.825000         4256         5.71
+    2985.983     0.850000         4383         6.67
+    3837.951     0.875000         4512         8.00
+    4288.511     0.887500         4577         8.89
+    4440.063     0.900000         4641        10.00
+    4714.495     0.912500         4706        11.43
+    5414.911     0.925000         4770        13.33
+    6447.103     0.937500         4836        16.00
+    6541.311     0.943750         4866        17.78
+    6733.823     0.950000         4903        20.00
+    6819.839     0.956250         4931        22.86
+    6930.431     0.962500         4964        26.67
+    7376.895     0.968750         4995        32.00
+    7589.887     0.971875         5011        35.56
+    7688.191     0.975000         5029        40.00
+    7790.591     0.978125         5045        45.71
+    8032.255     0.981250         5060        53.33
+    8413.183     0.984375         5076        64.00
+    8552.447     0.985938         5084        71.11
+    8650.751     0.987500         5092        80.00
+    8962.047     0.989062         5101        91.43
+    9388.031     0.990625         5108       106.67
+    9592.831     0.992188         5116       128.00
+    9617.407     0.992969         5120       142.22
+    9732.095     0.993750         5126       160.00
+    9789.439     0.994531         5129       182.86
+    9846.783     0.995313         5133       213.33
+   34832.383     0.996094         5136       256.00
+   36831.231     0.996484         5138       284.44
+   37650.431     0.996875         5140       320.00
+   38895.615     0.997266         5142       365.71
+   39583.743     0.997656         5144       426.67
+   40435.711     0.998047         5146       512.00
+   40927.231     0.998242         5147       568.89
+   41222.143     0.998437         5148       640.00
+   41713.663     0.998633         5149       731.43
+   41844.735     0.998828         5150       853.33
+   42467.327     0.999023         5151      1024.00
+   43024.383     0.999121         5152      1137.78
+   43024.383     0.999219         5152      1280.00
+   43188.223     0.999316         5153      1462.86
+   43188.223     0.999414         5153      1706.67
+   43220.991     0.999512         5154      2048.00
+   43220.991     0.999561         5154      2275.56
+   43220.991     0.999609         5154      2560.00
+   43712.511     0.999658         5155      2925.71
+   43712.511     0.999707         5155      3413.33
+   43712.511     0.999756         5155      4096.00
+   43712.511     0.999780         5155      4551.11
+   43712.511     0.999805         5155      5120.00
+   43843.583     0.999829         5156      5851.43
+   43843.583     1.000000         5156          inf
+#[Mean    =     2538.976, StdDeviation   =     2898.114]
+#[Max     =    43810.816, Total count    =         5156]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  5156 requests in 10.00m, 2.36MB read
+  Socket errors: connect 0, read 0, write 0, timeout 2022
+  Non-2xx or 3xx responses: 31
+Requests/sec:      8.59
+Transfer/sec:      4.02KB

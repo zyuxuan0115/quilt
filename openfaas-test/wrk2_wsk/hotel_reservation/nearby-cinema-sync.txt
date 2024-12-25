@@ -1,0 +1,30 @@
+Requests/sec: 1.87
+Transfer/sec: 1.00KB
+
+Requests/sec: 3.32
+Transfer/sec: 1.77KB
+
+Requests/sec: 1.85
+Transfer/sec: 0.98KB
+
+Requests/sec: 4.13
+Transfer/sec: 2.21KB
+
+Requests/sec: 3.62
+Transfer/sec: 1.94KB
+
+Requests/sec: 3.17
+Transfer/sec: 1.70KB
+
+Requests/sec: 2.42
+Transfer/sec: 1.30KB
+
+Requests/sec: 1.94
+Transfer/sec: 1.05KB
+
+Requests/sec: 5.06
+Transfer/sec: 2.62KB
+
+Requests/sec: 1.44
+Transfer/sec: 799.82B
+

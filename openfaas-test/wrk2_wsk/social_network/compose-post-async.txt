@@ -1,0 +1,15 @@
+Requests/sec: 0.62
+Transfer/sec: 296.12B
+
+Requests/sec: 0.77
+Transfer/sec: 368.48B
+
+Requests/sec: 0.72
+Transfer/sec: 346.24B
+
+Requests/sec: 0.66
+Transfer/sec: 318.60B
+
+Requests/sec: 0.72
+Transfer/sec: 343.56B
+

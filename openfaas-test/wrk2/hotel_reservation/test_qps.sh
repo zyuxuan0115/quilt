@@ -6,7 +6,7 @@ if [ "$#" -lt 3 ]; then
   exit 1
 fi
 
-IP=130.127.133.69
+IP=130.127.133.219
 WRK_BIN=../wrk
 WRK_SCRIPT="lua_files/$1.lua"
 CLUSTER_ID=$2
@@ -26,7 +26,7 @@ OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
 
 #QPS=(20 40 60 80 100 140 180 240 300 400 500 750 1000 1500 2000)
 #QPS=(8000 10000 14000 18000 24000 30000)
-QPS=(100)
+QPS=(300)
 
 # Iterate over each element in the array
 rm -rf *.log
@@ -48,7 +48,7 @@ for qps in "${QPS[@]}"; do
   sleep 30
   cd $OPENFAAS_TEST_DIR/wrk2/hotel_reservation
   ./initialize.sh
-  $WRK_BIN -t 1 -c 1 -d 180 -L -U \
+  $WRK_BIN -t 1 -c 1 -d 600 -L -U \
 	 -s $WRK_SCRIPT \
 	 $ENTRY_HOST -R $qps 2>/dev/null > output_$1-$3_$qps.log
   echo "===== QPS: $qps ====="

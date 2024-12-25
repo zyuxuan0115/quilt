@@ -1,0 +1,90 @@
+50% latency: 41.18ms
+99% latency: 301.82ms
+Requests/sec: 19.31
+Transfer/sec: 16.00KB
+
+50% latency: 37.50ms
+99% latency: 300.29ms
+Requests/sec: 19.70
+Transfer/sec: 16.31KB
+
+50% latency: 39.17ms
+99% latency: 301.82ms
+Requests/sec: 19.37
+Transfer/sec: 16.04KB
+
+50% latency: 41.25ms
+99% latency: 301.57ms
+Requests/sec: 19.08
+Transfer/sec: 15.80KB
+
+50% latency: 35.84ms
+99% latency: 300.80ms
+Requests/sec: 20.42
+Transfer/sec: 16.89KB
+
+50% latency: 39.52ms
+99% latency: 304.89ms
+Requests/sec: 18.95
+Transfer/sec: 15.71KB
+
+50% latency: 36.67ms
+99% latency: 299.26ms
+Requests/sec: 19.76
+Transfer/sec: 16.36KB
+
+50% latency: 40.93ms
+99% latency: 300.54ms
+Requests/sec: 19.06
+Transfer/sec: 15.79KB
+
+50% latency: 39.23ms
+99% latency: 300.54ms
+Requests/sec: 19.54
+Transfer/sec: 16.19KB
+
+50% latency: 38.91ms
+99% latency: 301.57ms
+Requests/sec: 19.73
+Transfer/sec: 16.34KB
+
+50% latency: 40.13ms
+99% latency: 302.33ms
+Requests/sec: 19.76
+Transfer/sec: 16.36KB
+
+50% latency: 38.30ms
+99% latency: 300.54ms
+Requests/sec: 19.64
+Transfer/sec: 16.26KB
+
+50% latency: 39.01ms
+99% latency: 304.38ms
+Requests/sec: 19.30
+Transfer/sec: 15.99KB
+
+50% latency: 39.74ms
+99% latency: 302.08ms
+Requests/sec: 19.02
+Transfer/sec: 15.76KB
+
+50% latency: 40.48ms
+99% latency: 302.59ms
+Requests/sec: 19.77
+Transfer/sec: 16.37KB
+
+50% latency: 39.04ms
+99% latency: 300.54ms
+Requests/sec: 19.83
+Transfer/sec: 16.42KB
+
+50% latency: 38.46ms
+99% latency: 300.80ms
+Requests/sec: 19.97
+Transfer/sec: 16.54KB
+
+50% latency: 104.70ms
+99% latency: 594.43ms
+Requests/sec: 31.80
+Transfer/sec: 26.31KB
+

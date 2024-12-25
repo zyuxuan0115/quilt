@@ -1,0 +1,88 @@
+50% latency: 1.15s
+99% latency: 2.17s
+Requests/sec: 0.87
+Transfer/sec: 416.17B
+
+50% latency: 1.12s
+99% latency: 2.12s
+Requests/sec: 1.81
+Transfer/sec: 868.00B
+
+50% latency: 1.80s
+99% latency: 2.25s
+Requests/sec: 1.83
+Transfer/sec: 0.85KB
+
+50% latency: 2.08s
+99% latency: 2.38s
+Requests/sec: 1.86
+Transfer/sec: 0.87KB
+
+50% latency: 2.09s
+99% latency: 3.04s
+Requests/sec: 2.30
+Transfer/sec: 1.08KB
+
+50% latency: 1.96s
+99% latency: 2.84s
+Requests/sec: 3.62
+Transfer/sec: 1.69KB
+
+50% latency: 2.12s
+99% latency: 3.66s
+Requests/sec: 3.99
+Transfer/sec: 1.86KB
+
+50% latency: 2.07s
+99% latency: 3.09s
+Requests/sec: 5.48
+Transfer/sec: 2.56KB
+
+50% latency: 2.04s
+99% latency: 3.68s
+Requests/sec: 6.85
+Transfer/sec: 3.20KB
+
+50% latency: 3.07s
+99% latency: 5.35s
+Requests/sec: 5.50
+Transfer/sec: 2.57KB
+
+Requests/sec: 9.23
+Transfer/sec: 4.32KB
+
+50% latency: 2.06s
+99% latency: 7.67s
+Requests/sec: 11.26
+Transfer/sec: 5.27KB
+
+Requests/sec: 8.78
+Transfer/sec: 4.11KB
+
+Requests/sec: 12.71
+Transfer/sec: 5.95KB
+
+Requests/sec: 10.08
+Transfer/sec: 4.72KB
+
+Requests/sec: 0.93
+Transfer/sec: 482.34B
+
+50% latency: 1.08s
+99% latency: 2.15s
+Requests/sec: 0.89
+Transfer/sec: 426.81B
+
+50% latency: 2.03s
+99% latency: 2.27s
+Requests/sec: 1.34
+Transfer/sec: 642.35B
+
+Requests/sec: 0.29
+Transfer/sec: 150.93B
+
+50% latency: 1.85s
+99% latency: 3.59s
+Requests/sec: 15.92
+Transfer/sec: 7.44KB
+
