@@ -256,16 +256,6 @@ pub struct RetMsg {
   pub err: String,
 }
 
-fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
-  // Open the file in read-only mode with buffer.
-  let file = File::open(path)?;
-  let reader = BufReader::new(file);
- 
-  // Read the JSON contents of the file as an instance of `User`.
-  let u: Vec<FuncInfo> = serde_json::from_reader(reader)?;
-  Ok(u)
-}
-
 pub fn read_lines(filename: &str) -> Vec<String> {
   read_to_string(filename)
                  .unwrap()  // panic on possible file-reading errors
@@ -282,14 +272,6 @@ fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Bo
   // Read the JSON contents of the file as an instance of `User`.
   let u: Vec<FuncInfo> = serde_json::from_reader(reader)?;
   Ok(u)
-}
-
-pub fn read_lines(filename: &str) -> Vec<String> {
-  read_to_string(filename)
-                 .unwrap()  // panic on possible file-reading errors
-                 .lines()  // split the string into an iterator of string slices
-                 .map(String::from)  // make each slice into a string
-                 .collect()  // gather them together into a vector
 }
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
@@ -347,6 +329,12 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   }
   let msg: RetMsg = serde_json::from_str(&html_data).unwrap();
   msg.msg
+}
+
+pub fn get_arg_from_caller() -> String{
+  let mut buffer = String::new();
+  let _ = io::stdin().read_line(&mut buffer);
+  buffer
 }
 
 pub fn send_return_value_to_caller(output: String) -> (){
