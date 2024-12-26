@@ -12,7 +12,7 @@ function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build -t zyuxuan0115/sn-$FUNC:latest \
-        -f Dockerfile \
+        -f $DOCKERFILE_DIR/OpenFaaS/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface
@@ -34,7 +34,7 @@ function build_fission_container {
     cp -r $ROOT_DIR/../../FissionRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
     sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
-        -f $DOCKERFILE_DIR/fission/container-based/rust/Dockerfile \
+        -f $DOCKERFILE_DIR/Fission/container-based/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/FissionRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
@@ -45,7 +45,7 @@ function build_fission_bin {
     cp -r $ROOT_DIR/../../FissionRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
     sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
-        -f $DOCKERFILE_DIR/fission/binary-based/rust-bin/Dockerfile \
+        -f $DOCKERFILE_DIR/Fission/binary-based/rust-bin/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/Fission
     rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
