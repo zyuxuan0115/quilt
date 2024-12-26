@@ -80,6 +80,11 @@ pub struct WriteUserTimelineArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct SocialGraphInsertUserArgs{
+  pub user_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ComposePostArgs {
   pub username: String,
   pub user_id: i64,
@@ -92,6 +97,11 @@ pub struct ComposePostArgs {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ReadPostArgs {
   pub post_id: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ReadPostsArgs {
+  pub post_ids: Vec<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -125,9 +135,13 @@ pub struct UniqueIdServiceArgs {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct RetMsg {
-  pub msg: String,
-  pub err: String,
+pub struct UrlShortenServiceArgs {
+  pub urls: Vec<String>, 
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserMentionServiceArgs {
+  pub usernames: Vec<String>, 
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -216,7 +230,7 @@ pub struct UserMention {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TextServiceReturn{
+pub struct TextServiceReturn {
   pub user_mentions: Vec<UserMention>,
   pub urls: Vec<UrlPair>,
   pub text: String,
@@ -231,7 +245,7 @@ pub struct UserLoginReturn {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct FuncInfo{
+pub struct FuncInfo {
   pub function_name: String,
   pub cluster_id: i64,
 }
@@ -240,6 +254,24 @@ pub struct FuncInfo{
 pub struct RetMsg {
   pub msg: String,
   pub err: String,
+}
+
+fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
+  // Open the file in read-only mode with buffer.
+  let file = File::open(path)?;
+  let reader = BufReader::new(file);
+ 
+  // Read the JSON contents of the file as an instance of `User`.
+  let u: Vec<FuncInfo> = serde_json::from_reader(reader)?;
+  Ok(u)
+}
+
+pub fn read_lines(filename: &str) -> Vec<String> {
+  read_to_string(filename)
+                 .unwrap()  // panic on possible file-reading errors
+                 .lines()  // split the string into an iterator of string slices
+                 .map(String::from)  // make each slice into a string
+                 .collect()  // gather them together into a vector
 }
 
 fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
@@ -317,7 +349,6 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   msg.msg
 }
 
-
 pub fn send_return_value_to_caller(output: String) -> (){
   let msg = RetMsg {
     msg: output,
@@ -328,17 +359,19 @@ pub fn send_return_value_to_caller(output: String) -> (){
 }
 
 pub fn send_err_msg(msg: String) -> () {
-  let msg = RetMsg {
+  let new_msg = RetMsg {
     msg: "".to_string(),
     err: msg,
   };
-  let msg_str = serde_json::to_string(&msg).unwrap();
+  let msg_str = serde_json::to_string(&new_msg).unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
 }
 
-pub fn get_arg_from_caller() -> String{
-  let mut buffer = String::new();
-  let _ = io::stdin().read_line(&mut buffer);
-  buffer
+pub fn send_return_value_and_err_msg (msg: String, err: String) -> () {
+  let new_msg = RetMsg {
+    msg: msg,
+    err: err,
+  };
+  let msg_str = serde_json::to_string(&new_msg).unwrap();
+  let _ = io::stdout().write(&msg_str[..].as_bytes());
 }
-
