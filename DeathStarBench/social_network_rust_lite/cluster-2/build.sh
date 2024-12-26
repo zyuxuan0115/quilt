@@ -149,7 +149,7 @@ build_openwhisk)
     build_openwhisk
     ;;
 build_fission_c)
-    build_openwhisk
+    build_fission_c
     ;;
 build_fission_b)
     build_fission_b
