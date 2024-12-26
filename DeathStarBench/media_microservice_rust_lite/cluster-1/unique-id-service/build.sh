@@ -2,14 +2,14 @@
 
 #ROOT_DIR=`realpath $(dirname $0)/..`
 ROOT_DIR=$(pwd)
-echo $ROOT_DIR
-FUNC=unique-id-service
+DOCKERFILE_DIR=`realpath $(dirname $0)/../../../../dockerfiles`
+FUNC=$(basename $ROOT_DIR)
 
 function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build -t zyuxuan0115/mm-$FUNC:latest \
-        -f Dockerfile \
+        -f $DOCKERFILE_DIR/OpenFaaS/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface
@@ -18,34 +18,34 @@ function build_openfaas {
 
 function build_openwhisk {
     cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
-    cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build --no-cache -t zyuxuan0115/mm-$FUNC:latest \
-        -f Dockerfile.wsk \
+        -f $DOCKERFILE_DIR/OpenWhisk/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
-    rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
+    rm -rf $ROOT_DIR/template/rust/DbInterface
     sudo docker system prune -f
 }
 
 function build_fission_container {
-    cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
-    cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../FissionRPC $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build --no-cache -t zyuxuan0115/mm-$FUNC:latest \
-        -f Dockerfile.fs_container \
+        -f $DOCKERFILE_DIR/Fission/container-based/rust/Dockerfile \
         $ROOT_DIR/template/rust
-    rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
-    rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
+    rm -rf $ROOT_DIR/template/rust/FissionRPC
+    rm -rf $ROOT_DIR/template/rust/DbInterface
     sudo docker system prune -f
 }
 
 function build_fission_bin {
-    cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
-    cp -r $ROOT_DIR/../../DbInterface_wsk $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../FissionRPC $ROOT_DIR/template/rust
+    cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build --no-cache -t zyuxuan0115/mm-$FUNC:latest \
-        -f Dockerfile.fs_bin \
+        -f $DOCKERFILE_DIR/Fission/binary-based/rust-bin/Dockerfile \
         $ROOT_DIR/template/rust
-    rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
-    rm -rf $ROOT_DIR/template/rust/DbInterface_wsk
+    rm -rf $ROOT_DIR/template/rust/Fission
+    rm -rf $ROOT_DIR/template/rust/DbInterface
     sudo docker system prune -f
     sudo docker create --name temp-container zyuxuan0115/mm-$FUNC:latest
     sudo docker cp temp-container:/home/rust/function/target/release/function ./function_orig
