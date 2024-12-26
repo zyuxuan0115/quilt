@@ -3,10 +3,7 @@
 #ROOT_DIR=`realpath $(dirname $0)/..`
 ROOT_DIR=$(pwd)
 DOCKERFILE_DIR=`realpath $(dirname $0)/../../../../dockerfiles`
-echo $ROOT_DIR
-FUNC=read-home-timeline
-
-echo $DOCKERFILE_DIR
+FUNC=$(basename $ROOT_DIR)
 
 function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust

@@ -1,6 +1,12 @@
 #!/usr/bin/bash
 
-FUNC=read-home-timeline
+ROOT_DIR=$(pwd)
+FUNC=$(basename $ROOT_DIR)
+
+function invoke_openfaas {
+  curl http://localhost:8080/$FUNC \
+  -d '{"user_id":11028,"start":0,"stop":1}'
+}
 
 function invoke_wsk {
   AUTH=23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP
@@ -19,6 +25,9 @@ function invoke_fission {
 }
 
 case "$1" in
+openfaas)
+    invoke_openfaas
+    ;;
 wsk)
     invoke_wsk
     ;;
