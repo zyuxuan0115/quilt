@@ -127,6 +127,18 @@ function clean_openwhisk {
   done
 }
 
+function clean_openwhisk {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ -d $entry ]] ; then
+      cd $entry
+      fission function delete --name $BASE_NAME
+    fi
+    cd ..
+  done
+}
+
 
 
 

@@ -1,26 +1,26 @@
 [
   {
-    "hostname": "clnode028.clemson.cloudlab.us",
-    "ip": "130.127.133.37"
+    "hostname": "clnode079.clemson.cloudlab.us",
+    "ip": "130.127.133.88"
   },
   {
-    "hostname": "clnode009.clemson.cloudlab.us",
-    "ip": "130.127.133.18"
+    "hostname": "clnode078.clemson.cloudlab.us",
+    "ip": "130.127.133.87"
   },
   {
-    "hostname": "clnode016.clemson.cloudlab.us",
-    "ip": "130.127.133.25"
+    "hostname": "clnode088.clemson.cloudlab.us",
+    "ip": "130.127.133.97"
   },
   {
-    "hostname": "clnode021.clemson.cloudlab.us",
-    "ip": "130.127.133.30"
+    "hostname": "clnode055.clemson.cloudlab.us",
+    "ip": "130.127.133.64"
   },
   {
-    "hostname": "clnode025.clemson.cloudlab.us",
-    "ip": "130.127.133.34"
+    "hostname": "clnode080.clemson.cloudlab.us",
+    "ip": "130.127.133.89"
   },
   {
-    "hostname": "clnode014.clemson.cloudlab.us",
-    "ip": "130.127.133.23"
+    "hostname": "clnode096.clemson.cloudlab.us",
+    "ip": "130.127.133.105"
   }
 ]
