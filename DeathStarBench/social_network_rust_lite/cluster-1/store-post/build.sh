@@ -80,8 +80,13 @@ function deploy_fission_c {
 }
 
 function deploy_fission_b {
-  fission function create --name $FUNC --env fission-bin-env --code function
-  fission httptrigger create --method POST --url /$FUNC --function $FUNC
+  fission function create --name $FUNC \
+    --env fission-bin-env \
+    --code function \
+    -n fission-function
+  fission httptrigger create --method POST \
+    --url /$FUNC --function $FUNC \
+    -n fission-function
 }
 
 function delete_openwhisk {
