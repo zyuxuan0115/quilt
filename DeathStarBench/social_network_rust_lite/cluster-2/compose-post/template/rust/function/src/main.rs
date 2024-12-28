@@ -10,11 +10,13 @@ fn main() {
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
   let time_1 = Instant::now();
   // call UniqueIdService
+
   let uniq_id_msg = UniqueIdServiceArgs {
     msg: "".to_string(),
   };
   let uniq_id_str = serde_json::to_string(&uniq_id_msg).unwrap();
   let uuid: String = make_rpc("unique-id-service", uniq_id_str);
+
   let pid: i64 = uuid[..].parse::<i64>().unwrap();
   let time_2 = Instant::now();
   // call ComposerCreatorWithUserId
@@ -25,7 +27,6 @@ fn main() {
   let compose_creator_with_userid_arg_str = serde_json::to_string(&compose_creator_with_userid_arg).unwrap();
   let time_3 = Instant::now();
   let creator_str: String = make_rpc("compose-creator-with-userid", compose_creator_with_userid_arg_str);
-
 
   // call TextService
   let text_svc_arg = TextServiceArgs {
@@ -66,6 +67,7 @@ fn main() {
   let time_7 = Instant::now();
   make_rpc("store-post", post_str);
 
+
   let time_8 = Instant::now();
   // call WriteUserTimeline
   let write_u_tl_arg =  WriteUserTimelineArgs {
@@ -78,6 +80,7 @@ fn main() {
   make_rpc("write-user-timeline", write_u_tl_arg_str);
   let time_10 = Instant::now();
 
+
   // call WriteHomeTimeline
   let write_h_tl_arg = WriteHomeTimelineArgs {
     post_id: post.post_id,
@@ -86,7 +89,9 @@ fn main() {
     user_mentions_id: post.user_mentions.iter().map(|x| x.user_id).collect(),
   };
   let write_h_tl_arg_str: String = serde_json::to_string(&write_h_tl_arg).unwrap();
+
   let time_11 = Instant::now();
+
   make_rpc("write-home-timeline", write_h_tl_arg_str); 
 
 //  println!("{:?}, ", time_1.duration_since(time_0));
@@ -95,6 +100,8 @@ fn main() {
 //  println!("{:?}, ", time_7.duration_since(time_6));
 //  println!("{:?}, ", time_9.duration_since(time_8));
 //  let fina = format!("{:?}.", time_11.duration_since(time_10));
+
   send_return_value_to_caller("".to_string());
+
 }
 
