@@ -85,9 +85,9 @@ function merge {
   $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func-async \
                  -merge-callee-rra -callee-name-rra=$CALLEE_FUNC \
                  -caller-name-rra=$REAL_CALLER_FUNC -o merged.bc
-  rm $CALLEE_IR
+#  rm $CALLEE_IR
   cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
-  mv merged.bc $CALLER_IR
+#  mv merged.bc $CALLER_IR
 }
 
 
