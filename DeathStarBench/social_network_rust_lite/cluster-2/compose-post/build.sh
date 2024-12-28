@@ -93,10 +93,10 @@ function delete_openfaas {
 }
 
 function delete_fission {
-  fission function delete --name $FUNC
-    --namespace fission-function
-  fission httptrigger delete --function $FUNC
-    --namespace fission-function
+  fission function delete --name $FUNC \
+    -n fission-function
+  fission httptrigger delete --function $FUNC \
+    -n fission-function
 }
 
 case "$1" in
