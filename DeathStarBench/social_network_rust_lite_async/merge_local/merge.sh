@@ -1,5 +1,5 @@
 #!/bin/bash
-LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-19/build/bin
+LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-19/build/bin
 RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.81-x86_64-unknown-linux-gnu/lib
 #RUST_LIB=/users/zyuxuan/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
 C_LIB=/lib/x86_64-linux-gnu
@@ -13,6 +13,8 @@ RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_LINKER_FLAG%".so"}
 #LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -ldl"
 LINKER_FLAGS="-lm -lz -ldl -lpthread"
 
+PLATFORM=FissionRPC
+
 ARGS=("$@")
 NUM_ARGS=$#
 CALLER_FUNC=${ARGS[1]}
@@ -21,7 +23,8 @@ function compile_to_ir {
   for i in $(seq 1 $(($NUM_ARGS-1)) );
   do
     FUNC_NAME=${ARGS[$i]}
-    cp -r ../OpenFaaSRPC $FUNC_NAME/template/rust \
+    cp -r ../$PLATFORM $FUNC_NAME/template/rust \
+    && mv $FUNC_NAME/template/rust/$PLATFORM $FUNC_NAME/template/rust/OpenFaaSRPC \
     && cp -r ../DbInterface $FUNC_NAME/template/rust \
     && cd $FUNC_NAME/template/rust/function \
     && RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build \
