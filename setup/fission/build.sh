@@ -10,7 +10,7 @@ function setup {
   helm repo add fission-charts https://fission.github.io/fission-charts/
   helm repo update
   helm install --version v1.20.5 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
-    --set defaultNamespace="fission-c"
+    --set defaultNamespace="fission-function"
   kubectl rollout status deployment/router \
     --namespace=fission \
     --timeout=600s
@@ -34,11 +34,9 @@ function killa {
   helm uninstall fission -n fission
   kubectl delete crds -l app.kubernetes.io/instance=fission
   kubectl delete all --all -n $FISSION_NAMESPACE
-  kubectl delete all --all -n fission-b
-  kubectl delete all --all -n fission-c
+  kubectl delete all --all -n fission-function
   kubectl delete namespace $FISSION_NAMESPACE
-  kubectl delete namespace fission-c
-  kubectl delete namespace fission-b
+  kubectl delete namespace fission-function
   rm -rf *.txt *.yaml *.yml
   ../helper.py kill_port_fwd 31164:80
 }

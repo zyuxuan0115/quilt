@@ -72,9 +72,11 @@ function deploy_openwhisk {
 function deploy_fission_c {
   fission function run-container --name $FUNC \
     --image docker.io/zyuxuan0115/sn-$FUNC \
-    --port 8888
+    --port 8888 \
+    --namespace fission-function
   fission httptrigger create --method POST \
-    --url /$FUNC --function $FUNC
+    --url /$FUNC --function $FUNC \
+    --namespace fission-function
 }
 
 function deploy_fission_b {
@@ -90,10 +92,11 @@ function delete_openfaas {
   faas-cli remove $FUNC --gateway=http://127.0.0.1:8081
 }
 
-
 function delete_fission {
   fission function delete --name $FUNC
+    --namespace fission-function
   fission httptrigger delete --function $FUNC
+    --namespace fission-function
 }
 
 case "$1" in
