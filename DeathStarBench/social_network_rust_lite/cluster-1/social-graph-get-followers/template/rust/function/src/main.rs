@@ -27,12 +27,13 @@ fn main() {
     },
     None => {
       // get redis connection
-      let redis_uri = get_redis_ro_uri();
+      let redis_uri = get_redis_rw_uri();
       let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
       let mut con = redis_client.get_connection().unwrap();
 
       let mut real_name: String = "social-graph:".to_string();
       real_name.push_str(&(user_id.to_string()));
+
       let followees_str_redis_result: redis::RedisResult<String> = con.hget(&real_name[..], "followers");
       match followees_str_redis_result {
         Ok(followees_str) => {
@@ -45,6 +46,7 @@ fn main() {
       }
     },
   }
+
   let followers_timestamp: Vec<Follower> = serde_json::from_str(&return_value).unwrap();
   let followers: Vec<i64> = followers_timestamp.into_iter().map(|x| x.follower_id).collect();
   let serialized = serde_json::to_string(&followers).unwrap();
