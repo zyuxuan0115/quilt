@@ -1,9 +1,10 @@
 #!/bin/bash
 
-#ROOT_DIR=`realpath $(dirname $0)/..`
-ROOT_DIR=$(pwd)
+ROOT_DIR=`realpath $(dirname $0)`
 DOCKERFILE_DIR=`realpath $(dirname $0)/../../../../dockerfiles`
 FUNC=$(basename $ROOT_DIR)
+PARENT_DIR=`realpath $(dirname $0)/..`
+CLUSTER_ID="${PARENT_DIR: -1}"
 
 function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
@@ -94,7 +95,15 @@ function delete_openwhisk {
 }
 
 function delete_openfaas {
-  faas-cli remove $FUNC --gateway=http://127.0.0.1:8081
+  if [ "$CLUSTER_ID" == "1" ]; then
+    faas-cli remove $FUNC
+  elif [ "$CLUSTER_ID" == "2" ]; then
+    faas-cli remove $FUNC --gateway=http://127.0.0.1:8081
+  elif [ "$CLUSTER_ID" == "3" ]; then
+    faas-cli remove $FUNC --gateway=http://127.0.0.1:8082
+  elif [ "$CLUSTER_ID" == "4" ]; then
+    faas-cli remove $FUNC --gateway=http://127.0.0.1:8083
+  fi
 }
 
 function delete_fission {
