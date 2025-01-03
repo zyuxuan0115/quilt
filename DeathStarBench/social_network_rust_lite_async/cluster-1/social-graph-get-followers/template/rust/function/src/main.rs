@@ -18,6 +18,7 @@ fn main() {
   let mut user_id_str: String = user_id.to_string();
   user_id_str.push_str(":followers");
 
+
   let result_str: Option<String> = memcache_client.get(&user_id_str[..]).unwrap();
   let mut return_value: String = String::new();
 
@@ -27,10 +28,12 @@ fn main() {
     },
     None => {
       // get redis connection
-      let redis_uri = get_redis_rw_uri();
-      let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
-      let mut con = redis_client.get_connection().unwrap();
+//      let redis_uri = get_redis_rw_uri();
+//      let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
+//      let mut con = redis_client.get_connection().unwrap();
 
+      send_return_value_to_caller("".to_string());
+/*
       let mut real_name: String = "social-graph:".to_string();
       real_name.push_str(&(user_id.to_string()));
       let followees_str_redis_result: redis::RedisResult<String> = con.hget(&real_name[..], "followers");
@@ -43,8 +46,10 @@ fn main() {
           return_value = serde_json::to_string(&empty_vec).unwrap();
         },
       }
+*/
     },
   }
+/*
   let followers_timestamp: Vec<Follower> = serde_json::from_str(&return_value).unwrap();
   let followers: Vec<i64> = followers_timestamp.into_iter().map(|x| x.follower_id).collect();
   let serialized = serde_json::to_string(&followers).unwrap();
@@ -52,5 +57,6 @@ fn main() {
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
+*/
 }
 
