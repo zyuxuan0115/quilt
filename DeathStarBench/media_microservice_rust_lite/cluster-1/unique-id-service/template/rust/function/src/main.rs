@@ -13,7 +13,6 @@ fn main() {
     uuid = 0-uuid;
   }
 
-  println!("uuid: {}", uuid);
   let args = ComposeReviewUploadUniqueIdArgs {
     req_id: input_args.req_id,
     review_id: uuid,

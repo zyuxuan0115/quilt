@@ -12,6 +12,7 @@ fn main() {
     req_id: new_review_info.req_id,    
   };
   let uniq_id_args_str = serde_json::to_string(&uniq_id_args).unwrap();
+
   let _ = make_rpc("unique-id-service", uniq_id_args_str);
 
   let text_service_arg = ComposeReviewUploadTextArgs {
@@ -19,6 +20,7 @@ fn main() {
     text: new_review_info.text,
   };
   let text_service_arg_str = serde_json::to_string(&text_service_arg).unwrap();
+
   let _ = make_rpc("text-service", text_service_arg_str);
   
   let upload_user_arg = UploadUserWithUsernameArgs {
@@ -34,7 +36,7 @@ fn main() {
     rating: new_review_info.rating,
   };
   let upload_movie_arg_str = serde_json::to_string(&upload_movie_arg).unwrap();
-  let _ = make_rpc("upload-movie-id", upload_movie_arg_str);
+  let _ = make_rpc("upload-movie-id", upload_movie_arg_str.clone());
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
