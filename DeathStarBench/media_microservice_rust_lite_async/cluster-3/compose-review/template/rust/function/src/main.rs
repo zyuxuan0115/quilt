@@ -49,7 +49,7 @@ fn main() {
   let _ = handle_unique_id.join().unwrap();
   let _ = handle_text.join().unwrap();
   let _ = handle_user.join().unwrap();
-//  let _ = handle_movie.join().unwrap();
+  let _ = handle_movie.join().unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
