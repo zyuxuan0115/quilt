@@ -12,6 +12,7 @@ fn main() {
     req_id: new_review_info.req_id,
   };
   let uniq_id_args_str = serde_json::to_string(&uniq_id_args).unwrap();
+
   let handle_unique_id = thread::spawn(move || {
     make_rpc("unique-id-service", uniq_id_args_str)
   });
@@ -48,10 +49,11 @@ fn main() {
   let _ = handle_unique_id.join().unwrap();
   let _ = handle_text.join().unwrap();
   let _ = handle_user.join().unwrap();
-  let _ = handle_movie.join().unwrap();
+//  let _ = handle_movie.join().unwrap();
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+
   send_return_value_to_caller("".to_string());
 }
 
