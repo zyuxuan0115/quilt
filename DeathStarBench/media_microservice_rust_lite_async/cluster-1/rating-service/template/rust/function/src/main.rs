@@ -34,6 +34,7 @@ fn main() {
   let _: i64 = con.incr(&movie_id2[..], 1).unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+
   send_return_value_to_caller("".to_string());
 }
 

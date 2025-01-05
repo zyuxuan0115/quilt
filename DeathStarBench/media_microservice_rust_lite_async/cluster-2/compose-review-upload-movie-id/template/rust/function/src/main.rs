@@ -20,8 +20,6 @@ fn main() {
   memcache_client.add(&key_movie_id[..], args.movie_id.clone(), 0);
   let counter_value:u64 = memcache_client.increment(&key_counter[..], 1).unwrap();
 
-  println!("memcache successful");
-  println!("counter_value:{}", counter_value);
   let compose_and_upload_args = ComposeAndUploadArgs {
     req_id: args.req_id,
   };
