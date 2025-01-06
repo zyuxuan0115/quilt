@@ -43,7 +43,7 @@ function build_fission_bin {
     cp -r $ROOT_DIR/../../FissionRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     sudo docker build --no-cache -t zyuxuan0115/mm-$FUNC-async:latest \
-        -f $DOCKERFILE_DIR/Fission/binary-based/rust-bin/Dockerfile \
+        -f $DOCKERFILE_DIR/Fission/binary-based/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/Fission
     rm -rf $ROOT_DIR/template/rust/DbInterface
