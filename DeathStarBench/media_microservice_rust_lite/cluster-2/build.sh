@@ -98,6 +98,7 @@ function deploy_fission_b {
    if [[ -d $entry ]] ; then
       cd $entry
       ./build.sh deploy_fission_b
+      rm -rf function
     fi
     cd ..
   done
