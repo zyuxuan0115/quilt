@@ -45,7 +45,7 @@ function build_fission_bin {
     sudo docker build --no-cache -t zyuxuan0115/mm-$FUNC:latest \
         -f $DOCKERFILE_DIR/Fission/binary-based/rust/Dockerfile \
         $ROOT_DIR/template/rust
-    rm -rf $ROOT_DIR/template/rust/Fission
+    rm -rf $ROOT_DIR/template/rust/FissionRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface
     sudo docker system prune -f
     sudo docker create --name temp-container zyuxuan0115/mm-$FUNC:latest
