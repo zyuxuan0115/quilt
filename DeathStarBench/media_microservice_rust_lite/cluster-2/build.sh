@@ -128,8 +128,17 @@ function clean_openwhisk {
   done
 }
 
-
-
+function clean_fission {
+  for entry in "$search_dir"/*
+  do
+    BASE_NAME=$(basename $entry)
+    if [[ -d $entry ]] ; then
+      cd $entry
+      ./build.sh delete_fission
+    fi
+    cd ..
+  done
+}
 
 function nuke {
   sudo docker image rm -f $(sudo docker images -aq)
