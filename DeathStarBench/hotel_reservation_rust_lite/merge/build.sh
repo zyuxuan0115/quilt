@@ -56,7 +56,7 @@ function merge_openwhisk {
 function merge_fission {
   rm -rf temp && mkdir temp
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
-  cp -r ../OpenWhiskRPC temp
+  cp -r ../FissionRPC temp
   cp -r ../DbInterface temp
   mv temp/OpenWhiskRPC temp/OpenFaaSRPC
   cp merge.sh temp
