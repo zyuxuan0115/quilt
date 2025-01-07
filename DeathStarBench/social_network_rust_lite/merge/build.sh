@@ -53,7 +53,7 @@ function merge_openwhisk {
   wsk action create $CALLER-merged --docker zyuxuan0115/sn-$CALLER-merged
 }
 
-function merge_openwhisk {
+function merge_fission {
   rm -rf temp && mkdir temp
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
   cp -r ../FissionRPC temp
