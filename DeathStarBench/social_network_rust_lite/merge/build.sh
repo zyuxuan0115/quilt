@@ -3,7 +3,7 @@
 #ROOT_DIR=`realpath $(dirname $0)/..`
 ROOT_DIR=$(pwd)
 echo $ROOT_DIR
-CKERFILE_DIR=$ROOT_DIR/../../../dockerfiles/LLVM
+DOCKERFILE_DIR=$ROOT_DIR/../../../dockerfiles/LLVM
 ARGS=("$@")
 
 CALLER=${ARGS[1]}
@@ -58,7 +58,7 @@ function merge_fission {
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
   cp -r ../FissionRPC temp
   cp -r ../DbInterface temp
-  mv temp/OpenWhiskRPC temp/OpenFaaSRPC
+  mv temp/FissionRPC temp/OpenFaaSRPC
   cp merge.sh temp
   cp merge_tree.py temp
   cp funcTree temp
