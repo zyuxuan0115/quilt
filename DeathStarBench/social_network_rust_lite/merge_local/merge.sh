@@ -1,5 +1,5 @@
 #!/bin/bash
-LLVM_DIR=/proj/zyuxuanssf-PG0/llvm-project-19/build/bin
+LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-19/build/bin
 RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.81-x86_64-unknown-linux-gnu/lib
 #RUST_LIB=/users/zyuxuan/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
 C_LIB=/lib/x86_64-linux-gnu

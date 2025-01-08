@@ -98,6 +98,7 @@ function deploy_fission_b {
    if [[ -d $entry ]] ; then
       cd $entry
       ./build.sh deploy_fission_b
+      rm -rf function
     fi
     cd ..
   done
@@ -127,20 +128,17 @@ function clean_openwhisk {
   done
 }
 
-function clean_openwhisk {
+function clean_fission {
   for entry in "$search_dir"/*
   do
     BASE_NAME=$(basename $entry)
     if [[ -d $entry ]] ; then
       cd $entry
-      fission function delete --name $BASE_NAME
+      ./build.sh delete_fission
     fi
     cd ..
   done
 }
-
-
-
 
 function nuke {
   sudo docker image rm -f $(sudo docker images -aq)
