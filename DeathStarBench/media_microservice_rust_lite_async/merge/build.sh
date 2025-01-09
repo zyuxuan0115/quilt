@@ -81,9 +81,9 @@ function deploy_openwhisk {
 
 
 function deploy_fission {
-  FUNC=compose-post-async
+  FUNC=compose-review-async
   fission function run-container --name $FUNC-merged \
-    --image docker.io/zyuxuan0115/sn-$FUNC-merged \
+    --image docker.io/zyuxuan0115/mm-$FUNC-merged \
     --port 8888 \
     --namespace fission-function
   fission httptrigger create --method POST \
