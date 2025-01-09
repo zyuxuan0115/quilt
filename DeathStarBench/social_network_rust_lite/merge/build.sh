@@ -66,8 +66,8 @@ function merge_fission {
   sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
-#  rm -rf temp
-#  sudo docker system prune -f
+  rm -rf temp
+  sudo docker system prune -f
   sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
 }
 

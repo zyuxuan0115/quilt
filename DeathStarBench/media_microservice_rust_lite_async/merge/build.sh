@@ -79,6 +79,18 @@ function deploy_openwhisk {
   wsk action create read-user-review-merged --docker zyuxuan0115/mm-read-user-review-async-merged
 }
 
+
+function deploy_fission {
+  FUNC=compose-post-async
+  fission function run-container --name $FUNC-merged \
+    --image docker.io/zyuxuan0115/sn-$FUNC-merged \
+    --port 8888 \
+    --namespace fission-function
+  fission httptrigger create --method POST \
+    --url /$FUNC-merged --function $FUNC-merged \
+    --namespace fission-function
+}
+
 case "$1" in
 llvm)
     build_llvm
@@ -94,5 +106,8 @@ merge_fission)
     ;;
 deploy_openwhisk)
     deploy_openwhisk
+    ;;
+deploy_fission)
+    deploy_fission
     ;;
 esac
