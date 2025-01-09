@@ -66,8 +66,8 @@ function merge_fission {
   sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
-  rm -rf temp
-  sudo docker system prune -f
+#  rm -rf temp
+#  sudo docker system prune -f
   sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
 }
 
@@ -77,6 +77,18 @@ function deploy_openwhisk {
   wsk action create text-service-merged --docker zyuxuan0115/sn-text-service-merged
   wsk action create compose-post-merged --docker zyuxuan0115/sn-compose-post-merged
   wsk action create social-graph-follow-with-username-merged --docker zyuxuan0115/sn-social-graph-follow-with-username-merged
+}
+
+
+function deploy_fission {
+  FUNC=compose-post-merged
+  fission function run-container --name $FUNC \
+    --image docker.io/zyuxuan0115/sn-$FUNC \
+    --port 8888 \
+    --namespace fission-function
+  fission httptrigger create --method POST \
+    --url /$FUNC --function $FUNC \
+    --namespace fission-function
 }
 
 case "$1" in
@@ -94,5 +106,8 @@ merge_fission)
     ;;
 deploy_openwhisk)
     deploy_openwhisk
+    ;;
+deploy_fission)
+    deploy_fission
     ;;
 esac
