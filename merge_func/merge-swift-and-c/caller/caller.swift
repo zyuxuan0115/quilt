@@ -11,8 +11,9 @@ struct Function {
   static func main() {
     let input = get_arg_from_caller()
     let json_str = ""
-    let res = make_rpc(func_name: "unique-id-service", jsonStr: json_str);
-    send_return_value_to_caller(res)
+//    let res = make_rpc(func_name: "unique-id-service", jsonStr: json_str);
+//    send_return_value_to_caller(res)
+    send_return_value_to_caller("hello");
   }
 
   static func get_arg_from_caller() -> String {

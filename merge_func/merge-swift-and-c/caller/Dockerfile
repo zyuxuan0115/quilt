@@ -6,4 +6,5 @@ RUN make
 FROM zyuxuan0115/fission-env:latest as final
 
 COPY --from=builder /function/caller /bin/userfunc
+COPY --from=builder /swift/usr/lib/swift/linux /swift/usr/lib/swift/linux
 
