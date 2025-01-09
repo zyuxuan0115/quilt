@@ -5,6 +5,7 @@ function build_swift {
        -f Dockerfile \
        .
   sudo docker push zyuxuan0115/swift-caller:latest
+  sudo docker system prune
 }
 
 case "$1" in
