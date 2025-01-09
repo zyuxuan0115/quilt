@@ -1,4 +1,4 @@
-### build llvm19
+### build llvm17
 ```bash
 > wget https://github.com/llvm/llvm-project/archive/refs/tags/llvmorg-17.0.1.tar.gz
 > tar -vxf llvmorg-17.0.1.tar.gz
