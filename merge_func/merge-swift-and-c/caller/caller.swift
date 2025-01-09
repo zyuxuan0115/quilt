@@ -11,9 +11,9 @@ struct Function {
   static func main() {
     let input = get_arg_from_caller()
     let json_str = ""
-//    let res = make_rpc(func_name: "unique-id-service", jsonStr: json_str);
-//    send_return_value_to_caller(res)
-    send_return_value_to_caller("hello");
+    let res = make_rpc(func_name: "unique-id-service", jsonStr: json_str);
+    send_return_value_to_caller(res)
+//    send_return_value_to_caller("hello");
   }
 
   static func get_arg_from_caller() -> String {
@@ -29,9 +29,8 @@ struct Function {
   }
 
   static func make_rpc(func_name: String, jsonStr: String) -> String {
-    var urlStr = "http://localhost:9999/api/v1/namespaces/_/actions/"
+    var urlStr = "http://router.fission.svc.cluster.local.:80/"
     urlStr += func_name
-    urlStr += "?blocking=true&result=true"
     guard let url = URL(string: urlStr) else {
       print("Invalid URL")
       return ""
@@ -44,14 +43,6 @@ struct Function {
     request.httpMethod = "POST"
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.httpBody = bodyData
-
-    // add basic authentication
-    let username = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
-    let password = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
-    let loginString = "\(username):\(password)"
-    guard let loginData = loginString.data(using: .utf8) else { return "" }
-    let base64LoginString = loginData.base64EncodedString()
-    request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
 
     var resp = ""
     let semaphore = DispatchSemaphore(value: 0)
