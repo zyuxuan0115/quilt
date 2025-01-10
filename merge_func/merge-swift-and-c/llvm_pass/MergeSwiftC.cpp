@@ -14,7 +14,11 @@ using namespace llvm;
 
 static cl::opt<bool> RenameCallee_sc(
                                      "rename-callee-sc", cl::init(false),
-                                     cl::desc("rename the rust callee functions"));
+                                     cl::desc("rename the wrapper functions"));
+
+static cl::opt<bool> RenameWrapper_sc(
+                                     "rename-wrapper-sc", cl::init(false),
+                                     cl::desc("rename the wrapper functions"));
 
 static cl::opt<bool> MergeCallee_sc(
                                      "merge-callee-sc", cl::init(false),
@@ -25,6 +29,9 @@ PreservedAnalyses MergeSwiftCPass::run(Module &M,
                                        ModuleAnalysisManager &AM) {
   if (RenameCallee_sc) {
     RenameCallee(&M);
+  }
+  else if (RenameWrapper_sc) {
+    RenameWrapper(&M);
   }
   else if (MergeCallee_sc) {
     MergeCallee(&M);
@@ -37,12 +44,18 @@ void MergeSwiftCPass::RenameCallee(Module* M) {
   mainFunc->setName("main_callee");  
 }
 
+void MergeSwiftCPass::RenameWrapper(Module* M) {
+  llvm::errs()<<"RenameWrapper\n";
+  Function *mainFunc = M->getFunction("main");
+  mainFunc->setName("main_wrapper");  
+}
+
 void MergeSwiftCPass::MergeCallee(Module* M) {
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string funcName = func->getName().str();
     std::string demangledName = getDemangledFunctionName(funcName);
-    if (demangledName == "static caller.Function.make_rpc(func_name: Swift.String, jsonStr: Swift.String) -> Swift.String")
+//    if (demangledName == "static caller.Function.make_rpc(func_name: Swift.String, jsonStr: Swift.String) -> Swift.String")
       llvm::errs()<<demangledName<<"\n";
   }
 }

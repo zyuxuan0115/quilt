@@ -41,6 +41,7 @@ class MergeSwiftCPass : public PassInfoMixin<MergeSwiftCPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   void RenameCallee(Module*);
+  void RenameWrapper(Module*);
   void MergeCallee(Module*);
   std::string getDemangledFunctionName(std::string mangledName);
 private:
