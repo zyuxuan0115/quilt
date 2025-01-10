@@ -42,6 +42,9 @@ public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   void RenameCallee(Module*);
   void MergeCallee(Module*);
+  std::string getDemangledFunctionName(std::string mangledName);
+private:
+  std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/bin/swift-demangle";
 };
 
 } // namespace llvm
