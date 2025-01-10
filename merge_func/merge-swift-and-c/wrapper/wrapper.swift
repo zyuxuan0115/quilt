@@ -1,22 +1,19 @@
 import Foundation
 
-static func wrapper_swift2c(jsonStr: String) -> String {
+func wrapper_swift2c(jsonStr: String) -> String {
   // Convert Swift String to a C-style string
   let cString = jsonStr.withCString { UnsafePointer<CChar>(strdup($0)) }
-    
   // Ensure the memory is properly managed
   guard let inputCString = cString else {
     fatalError("Failed to create C string from Swift string.")
   }
     
-  // Call the dummy function
   let resultCString = dummy(inputCString)
     
   // Convert the result back to a Swift String
   guard let swiftResultString = String(validatingUTF8: resultCString) else {
     fatalError("Failed to convert result C string back to Swift String.")
   }
-    
   // Free the input C string to prevent memory leaks
   free(UnsafeMutablePointer(mutating: inputCString))
     
@@ -24,16 +21,14 @@ static func wrapper_swift2c(jsonStr: String) -> String {
   return swiftResultString  
 }
 
-static func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
+func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
   // Convert the C-style string to a Swift string
   let swiftString = String(cString: input)
     
-  // Modify the Swift string (example: appending " processed")
   let modifiedString = swiftString + " processed"
     
   // Convert back to a C-style string
   let resultCString = strdup(modifiedString)
-
   guard let validCString = resultCString else {
     fatalError("Memory allocation failed in strdup.")
   }

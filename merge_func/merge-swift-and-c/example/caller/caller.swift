@@ -1,34 +1,31 @@
 import Foundation
 import FoundationNetworking
 
-@main
-struct Function {
-  struct Message: Decodable {
+struct Message: Decodable {
     let msg: String
     let err: String
-  }  
+}  
 
-  static func main() {
+func caller() {
     let input = get_arg_from_caller()
     let json_str = ""
     let res = make_rpc(func_name: "c-callee", jsonStr: json_str);
     send_return_value_to_caller(res)
-//    send_return_value_to_caller("hello");
-  }
+}
 
-  static func get_arg_from_caller() -> String {
+func get_arg_from_caller() -> String {
     let inputData = FileHandle.standardInput.readDataToEndOfFile()
     guard let inputString = String(data: inputData, encoding: .utf8) else {
       return ""
     }
     return inputString.trimmingCharacters(in: .whitespacesAndNewlines)
-  }
+}
 
-  static func send_return_value_to_caller(_ message: String) {
+func send_return_value_to_caller(_ message: String) {
     print("\(message)")
-  }
+}
 
-  static func make_rpc(func_name: String, jsonStr: String) -> String {
+func make_rpc(func_name: String, jsonStr: String) -> String {
     var urlStr = "http://router.fission.svc.cluster.local.:80/"
     urlStr += func_name
     guard let url = URL(string: urlStr) else {
@@ -63,5 +60,6 @@ struct Function {
     task.resume()
     semaphore.wait()
     return resp
-  }
 }
+
+caller()

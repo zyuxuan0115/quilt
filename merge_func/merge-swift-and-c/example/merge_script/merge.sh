@@ -3,13 +3,14 @@
 LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-17/build/bin
 
 function compile {
-  swiftc -parse-as-library -emit-ir -o caller.ll ../caller/caller.swift
+  swiftc -emit-ir -o caller.ll ../caller/caller.swift
   $LLVM_DIR/clang++ -emit-llvm -S -o callee.ll ../callee/callee.cpp -std=c++17 
+  swiftc -emit-ir -o wrapper.ll ../../wrapper/wrapper.swift
 }
 
 function merge {
   $LLVM_DIR/opt -passes=merge-swift-c -rename-callee-sc -S callee.ll -o callee_rename.ll
-  $LLVM_DIR/llvm-link caller.ll callee_rename.ll -o caller_callee.ll
+  $LLVM_DIR/llvm-link caller.ll callee_rename.ll wrapper.ll -o caller_callee.ll
   $LLVM_DIR/opt -passes=merge-swift-c -merge-callee-sc -S caller_callee.ll -o merged.ll 
 }
 
