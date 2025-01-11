@@ -43,7 +43,11 @@ public:
   void RenameCallee(Module*);
   void RenameWrapper(Module*);
   void MergeCallee(Module*);
-  std::string getDemangledFunctionName(std::string mangledName);
+  std::string getDemangledFunctionName(std::string);
+  Function* getFunctionByDemangledName(Module*, std::string);
+  CallInst* getCallInstByCalledFunc(Function*, Function*);
+  CallInst* createCallWrapper(CallInst*, Function*);
+
 private:
   std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/bin/swift-demangle";
 };

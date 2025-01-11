@@ -11,7 +11,7 @@ function compile {
 function merge {
   $LLVM_DIR/opt -passes=merge-swift-c -rename-callee-sc -S callee.ll -o callee_rename.ll
   $LLVM_DIR/opt -passes=merge-swift-c -rename-wrapper-sc -S wrapper.ll -o wrapper_rename.ll
-  $LLVM_DIR/llvm-link caller.ll wrapper_rename.ll callee_rename.ll -o caller_callee.ll
+  $LLVM_DIR/llvm-link caller.ll wrapper_rename.ll callee_rename.ll -S -o caller_callee.ll
   $LLVM_DIR/opt -passes=merge-swift-c -merge-callee-sc -S caller_callee.ll -o merged.ll 
 }
 
