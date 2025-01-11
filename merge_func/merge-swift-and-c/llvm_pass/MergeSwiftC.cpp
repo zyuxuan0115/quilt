@@ -45,19 +45,76 @@ void MergeSwiftCPass::RenameCallee(Module* M) {
 }
 
 void MergeSwiftCPass::RenameWrapper(Module* M) {
-  llvm::errs()<<"RenameWrapper\n";
   Function *mainFunc = M->getFunction("main");
   mainFunc->setName("main_wrapper");  
 }
 
 void MergeSwiftCPass::MergeCallee(Module* M) {
+  Function* rpcFunc;
+  Function* wrapperFunc;
+  Function* callerFunc;
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string funcName = func->getName().str();
     std::string demangledName = getDemangledFunctionName(funcName);
-//    if (demangledName == "static caller.Function.make_rpc(func_name: Swift.String, jsonStr: Swift.String) -> Swift.String")
-      llvm::errs()<<demangledName<<"\n";
+    if (demangledName == "caller.make_rpc(func_name: Swift.String, jsonStr: Swift.String) -> Swift.String")
+      rpcFunc = func;
+    else if (demangledName == "wrapper.wrapper_swift2c(jsonStr: Swift.String) -> Swift.String")
+      wrapperFunc = func;
+    else if (demangledName == "caller.function() -> ()")
+      callerFunc = func;
   }
+  if ((!rpcFunc) || (!wrapperFunc) || (!callerFunc)) {
+    llvm::errs()<<"wrapper or rpc or caller function is not presented in IR\n";
+    return;
+  }
+
+  CallInst* rpcInst;
+  for (Function::iterator BBB = callerFunc->begin(), BBE = callerFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)) {
+        CallInst* ci = dyn_cast<CallInst>(IB);
+        Function* calledFunc = ci->getCalledFunction();
+        if (calledFunc == rpcFunc) {
+          rpcInst = ci; 
+          break;
+        }
+      }
+    }
+    if (rpcInst) break;
+  }
+  
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+  for (unsigned i=0; i<rpcInst->getNumOperands(); i++){
+    Value* arg = rpcInst->getOperand(i);
+    if ((i==2) || (i==3)) {
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+    }
+  }
+
+  CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"pointer2dummy", rpcInst);
+
+  std::vector<llvm::User*> users;
+
+  for (const llvm::Use &use : rpcInst->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+    llvm::errs()<<"@@@ "<<*user<<"\n";
+  }
+
+  for (auto user: users){
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(rpcInst);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(newCall);
+      }
+    }
+  }
+
+  rpcInst->eraseFromParent();
 }
 
 std::string MergeSwiftCPass::getDemangledFunctionName(std::string mangledName) {
