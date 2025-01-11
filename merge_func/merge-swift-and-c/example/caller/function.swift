@@ -6,10 +6,10 @@ struct Message: Decodable {
     let err: String
 }  
 
-func caller() {
+func function() {
   let input = get_arg_from_caller()
   let json_str = ""
-  let res = make_rpc(func_name: "c-callee", jsonStr: json_str);
+  let res = make_rpc(func_name: "c-callee", jsonStr: input);
   send_return_value_to_caller(res)
 }
 
@@ -62,4 +62,4 @@ func make_rpc(func_name: String, jsonStr: String) -> String {
   return resp
 }
 
-caller()
+function()

@@ -1,5 +1,5 @@
 all:
-	swiftc caller.swift -o caller
+	swiftc function.swift -o function
 
 clean:
-	rm caller
+	rm function

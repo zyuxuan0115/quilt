@@ -1,5 +1,5 @@
 all:
-	g++ callee.cpp -o callee -lcrypto -std=c++17
+	g++ function.cpp -o function -lcrypto -std=c++17
 
 clean:
-	rm callee
+	rm function
