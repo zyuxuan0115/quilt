@@ -22306,7 +22306,7 @@ declare { i8*, i64 } @strings.TrimSpace(i8*, i8*, i64) local_unnamed_addr #27
 declare void @os.File.Read({ i64, %error.0 }*, i8*, %File.3*, { i8*, i64, i64 }*) #27
 
 ; Function Attrs: mustprogress noinline norecurse uwtable
-define dso_local noundef i32 @main_callee() local_unnamed_addr #26 {
+define dso_local noundef i32 @main_callee(i8* %arg1, i8* %arg2) local_unnamed_addr #26 {
 entry:
   %random_string = alloca [17 x i8], align 16
   %call = call noundef i8* @_Z19get_arg_from_callerv()
