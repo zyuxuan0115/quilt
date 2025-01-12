@@ -40,12 +40,3 @@ func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
   return UnsafePointer<CChar>(validCString)
 }
 
-/*
-char* main(char* input0) {
-  char* input = input0;
-  char random_string[LENGTH + 1]; 
-  generate_random_string(random_string, LENGTH);
-  
-  return random_string;
-}
-*/
