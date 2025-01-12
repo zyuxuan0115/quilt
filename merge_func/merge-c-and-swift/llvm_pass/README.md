@@ -8,12 +8,12 @@
 > make -j
 ```
 
-### add MergeSwiftC pass
+### add MergeCSwift pass
 ```bash
-> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeSwiftC.h
-> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeSwiftC.cpp
+> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeCSwift.h
+> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeCSwift.cpp
 ```
 
-- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeSwiftC.cpp`
-- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-swift-c", MergeSwiftCPass())` 
-- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeSwiftC.h"`
+- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeCSwift.cpp`
+- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-c-swift", MergeCSwiftPass())` 
+- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeCSwift.h"`
