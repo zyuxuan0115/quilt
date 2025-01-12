@@ -1,5 +1,5 @@
 all:
-	g++ function.cpp -o function -lcrypto -std=c++17
+	swiftc function.swift -o function
 
 clean:
 	rm function

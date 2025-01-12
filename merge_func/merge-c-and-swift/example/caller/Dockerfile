@@ -1,10 +1,11 @@
-FROM zyuxuan0115/swift-env:latest as builder
+FROM zyuxuan0115/c-env as builder
+# Copy all the sources
+COPY function.cpp ./function.cpp
+COPY Makefile ./Makefile
+
 WORKDIR /function
-COPY . /function
 RUN make
 
 FROM zyuxuan0115/fission-env:latest as final
 
 COPY --from=builder /function/function /bin/userfunc
-COPY --from=builder /swift/usr/lib/swift/linux /swift/usr/lib/swift/linux
-
