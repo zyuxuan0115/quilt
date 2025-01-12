@@ -35,7 +35,20 @@ char* get_arg_from_caller(){
   return buf; 
 }
 
-char* make_rpc(char* func_name, char* input, char** output){
+struct Output {
+  char* buf;
+};
+
+static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) {
+  struct Output *out = (struct Output *)stream;
+  void* buf = malloc(nmemb);
+  memcpy(buf, buffer, nmemb);
+  char* buf_char = (char*) buf;
+  out->buf = buf_char;
+  return nmemb;
+}
+
+char* make_rpc(char* func_name, char* input){
   CURL *curl;
   CURLcode res;
   /* In windows, this will init the winsock stuff */ 
@@ -101,9 +114,9 @@ void generate_random_string(char *str, size_t length) {
 int main() {
   char* input = get_arg_from_caller();
   char* random_string = (char*)malloc((LENGTH+1) * sizeof(char));
-
   generate_random_string(random_string, LENGTH);
-  strcat(input, random_string);  
-  send_return_value_to_caller(input);
+  strcat(input, random_string);
+  char* output = make_rpc("swift-callee", input);
+  send_return_value_to_caller(output);
   return 0;
 }

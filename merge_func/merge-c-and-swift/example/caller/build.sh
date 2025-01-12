@@ -1,21 +1,21 @@
 #!/bin/bash
 function build {
-  sudo docker build --no-cache  -t zyuxuan0115/c-callee:latest -f Dockerfile . 
-  sudo docker push zyuxuan0115/c-callee:latest
+  sudo docker build --no-cache  -t zyuxuan0115/c-caller:latest -f Dockerfile . 
+  sudo docker push zyuxuan0115/c-caller:latest
 }
 
 function deploy {
-  fission function run-container --name c-callee \
-    --image docker.io/zyuxuan0115/c-callee:latest \
+  fission function run-container --name c-caller \
+    --image docker.io/zyuxuan0115/c-caller:latest \
     --port 8888 \
     --namespace fission-function
   fission httptrigger create --method POST \
-    --url /c-callee --function c-callee \
+    --url /c-caller --function c-caller \
     --namespace fission-function
 }
 
 function invoke {
-  curl -XPOST http://localhost:8888/c-callee \
+  curl -XPOST http://localhost:8888/c-caller \
   -d '{"msg":""}'
 }
 
