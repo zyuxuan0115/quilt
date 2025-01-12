@@ -78,7 +78,8 @@ void MergeSwiftCPass::MergeCallee(Module* M) {
   }
 
   Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummyCall);
-  
+
+  createCall2NewCallee(dummyCall, newCalleeFunc);  
 }
 
 std::string MergeSwiftCPass::getDemangledFunctionName(std::string mangledName) {
@@ -191,6 +192,7 @@ CallInst* MergeSwiftCPass::createCallWrapper(CallInst* rpcInst, Function* wrappe
 
 
 Function* MergeSwiftCPass::createNewCalleeFunc(Function* calleeFunc, CallInst* dummyCall) {
+
   Module* M = calleeFunc->getParent();
   // copy this function
   std::vector<Value*> arguments;
@@ -244,39 +246,70 @@ Function* MergeSwiftCPass::createNewCalleeFunc(Function* calleeFunc, CallInst* d
 
   ReturnInst* newRet = ReturnInst::Create(newFunc->getContext(), newRetVal, ret); 
   ret->eraseFromParent();
+  sendReturnCall->eraseFromParent();
 
   // change how the new callee function get arguments
-/*
-  // set attributes for the new callee function's arguments
-  std::vector<AttributeSet> argumentAttrs;
-  AttributeList AttrList = targetFunc->getAttributes();
-  for (unsigned i=0; i<arguments.size(); i++){
-    argumentAttrs.push_back(AttrList.getParamAttrs(i));
+  CallInst* getArgCall;
+  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)) {
+        CallInst* ci = dyn_cast<CallInst>(IB);
+        std::string demangledName = llvm::demangle(ci->getCalledFunction()->getName());
+        if (demangledName == "get_arg_from_caller()") 
+          getArgCall = ci;
+      }
+    }
   }
 
-  AttributeList newAttrList = targetFunc->getAttributes();
-  AttributeSet returnAttr = newAttrList.getRetAttrs();
-  AttributeSet funcAttr = newAttrList.getFnAttrs();
+  AllocaInst* allocFuncArg = new AllocaInst(newFunc->getArg(0)->getType(), 0, NULL, "", getArgCall);
+  StoreInst *storeInst1 = new StoreInst(newFunc->getArg(0), allocFuncArg, getArgCall);
+  LoadInst *loadInst1 = new LoadInst (newFunc->getArg(0)->getType(), allocFuncArg, "", getArgCall);
 
-  newFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
-
-  // copy the old future_maybe function  
-  CallInst* newCall = CallInst::Create(FuncType, newFunc, arguments ,"", call);
-  AttributeList callInstAttr = call->getAttributes();
-  newCall->setAttributes(callInstAttr);
-
-  // get the user of callInst for calling old future_maybe 
-  for (auto u = call->user_begin(); u!= call->user_end(); u++) {
-    User* user = dyn_cast<User>(*u);
+  std::vector<llvm::User*> users;
+  for (const llvm::Use &use : getArgCall->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+  }
+  for (auto user: users){
     for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
       Value *val = *oi;
-      Value *call_value = dyn_cast<Value>(call);
+      Value *call_value = dyn_cast<Value>(getArgCall);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(loadInst1);
+      }
+    }
+  }
+
+  getArgCall->eraseFromParent();
+
+  return newFunc;  
+}
+
+
+void MergeSwiftCPass::createCall2NewCallee(CallInst* dummyCall, Function* newCalleeFunc) {
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+  for (unsigned i=0; i<dummyCall->getNumOperands()-1; i++){
+    Value* arg = dummyCall->getOperand(i);
+    arguments.push_back(arg);
+    argumentTypes.push_back(arg->getType());
+  }
+
+  CallInst* newCall = CallInst::Create(newCalleeFunc->getFunctionType(), newCalleeFunc, arguments ,"new_callee_ret", dummyCall);
+
+  std::vector<llvm::User*> users;
+  for (const llvm::Use &use : dummyCall->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+  }
+  for (auto user: users){
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(dummyCall);
       if (val == call_value){
         *oi = dyn_cast<Value>(newCall);
       }
     }
   }
-  call->eraseFromParent();
-*/
-  return newFunc;   
+  dummyCall->eraseFromParent();
 }

@@ -1,27 +1,32 @@
 import Foundation
 
+func swiftStringToCCharPointer(_ swiftString: String) -> UnsafePointer<CChar> {
+  let cString = strdup(swiftString) // strdup allocates memory and copies the string
+  if cString == nil {
+    fatalError("Failed to allocate memory for the C string.")
+  }
+  return UnsafePointer<CChar>(cString!)
+}
+
+func cCharPointerToSwiftString(_ cString: UnsafePointer<CChar>) -> String {
+  return String(cString: cString)
+}
+
 func wrapper_swift2c(jsonStr: String) -> String {
   // Convert Swift String to a C-style string
-  let cString = jsonStr.withCString { UnsafePointer<CChar>(strdup($0)) }
-  // Ensure the memory is properly managed
-  guard let inputCString = cString else {
-    fatalError("Failed to create C string from Swift string.")
-  }
-    
+  let inputCString = swiftStringToCCharPointer(jsonStr)
+   
   let resultCString = dummy(inputCString)
     
-  // Convert the result back to a Swift String
-  guard let swiftResultString = String(validatingUTF8: resultCString) else {
-    fatalError("Failed to convert result C string back to Swift String.")
-  }
-  // Free the input C string to prevent memory leaks
-  free(UnsafeMutablePointer(mutating: inputCString))
-    
+  let swiftResultString = cCharPointerToSwiftString(resultCString)  
+ 
   // Return the Swift String result
   return swiftResultString  
 }
 
+
 func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
+
   // Convert the C-style string to a Swift string
   let swiftString = String(cString: input)
     
@@ -33,6 +38,8 @@ func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
     fatalError("Memory allocation failed in strdup.")
   }
   return UnsafePointer<CChar>(validCString)
+  
+  //return input
 }
 
 /*

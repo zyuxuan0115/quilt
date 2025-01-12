@@ -30,6 +30,7 @@ char* get_arg_from_caller(){
   buf = (char*)malloc(sizeof(char)*1000);
   memset(buf, 0, 1000);
   ssize_t read_len = read(STDIN_FILENO, (void*)buf, 1000*sizeof(char));
+  buf[read_len-1] = '\0';
   return buf; 
 }
 
@@ -55,7 +56,7 @@ int main() {
   char* random_string = (char*)malloc((LENGTH+1) * sizeof(char));
 
   generate_random_string(random_string, LENGTH);
-  
-  send_return_value_to_caller(random_string);
+  strcat(input, random_string);  
+  send_return_value_to_caller(input);
   return 0;
 }
