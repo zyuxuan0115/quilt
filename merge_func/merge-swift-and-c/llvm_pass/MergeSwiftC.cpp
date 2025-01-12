@@ -57,16 +57,28 @@ void MergeSwiftCPass::MergeCallee(Module* M) {
     llvm::errs()<<"wrapper or rpc or caller function is not presented in IR\n";
     return;
   }
-
   CallInst* rpcInst = getCallInstByCalledFunc(callerFunc, rpcFunc);
   if (!rpcInst) {
-    llvm::errs()<<"make_rpc function doesn't exist\n";
+    llvm::errs()<<"make_rpc call doesn't exist\n";
   }
   
   CallInst* callWrapper = createCallWrapper(rpcInst, wrapperFunc); 
   if (!callWrapper) {
     llvm::errs()<<"fail to create a call to wrapper\n";
   }
+
+  Function* calleeFunc = M->getFunction("main_callee");
+  Function* dummyFunc = getFunctionByDemangledName(M, "wrapper.dummy(Swift.UnsafePointer<Swift.Int8>) -> Swift.UnsafePointer<Swift.Int8>");
+  if ((!calleeFunc) || (!dummyFunc)) {
+    llvm::errs()<<"callee function or dummy function is not presented in IR\n";
+  }
+  CallInst* dummyCall = getCallInstByCalledFunc(wrapperFunc, dummyFunc);
+  if (!dummyCall) {
+    llvm::errs()<<"dummy call doesn't exist\n";
+  }
+
+  Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummyCall);
+  
 }
 
 std::string MergeSwiftCPass::getDemangledFunctionName(std::string mangledName) {
@@ -118,7 +130,6 @@ std::string MergeSwiftCPass::getDemangledFunctionName(std::string mangledName) {
 }
 
 
-
 Function* MergeSwiftCPass::getFunctionByDemangledName(Module* M, std::string fname) {
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
@@ -145,7 +156,6 @@ CallInst* MergeSwiftCPass::getCallInstByCalledFunc(Function* callerFunc, Functio
   }
   return NULL; 
 }
-
 
 
 CallInst* MergeSwiftCPass::createCallWrapper(CallInst* rpcInst, Function* wrapperFunc) {
@@ -177,4 +187,96 @@ CallInst* MergeSwiftCPass::createCallWrapper(CallInst* rpcInst, Function* wrappe
 
   rpcInst->eraseFromParent();
   return newCall;
+}
+
+
+Function* MergeSwiftCPass::createNewCalleeFunc(Function* calleeFunc, CallInst* dummyCall) {
+  Module* M = calleeFunc->getParent();
+  // copy this function
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+
+  // the last argument of a CallInst is the called function
+  // so we don't need to include it in the arguments.
+  for (unsigned i=0; i<dummyCall->getNumOperands()-1; i++){
+    Value* arg = dummyCall->getOperand(i);
+    arguments.push_back(arg);
+    argumentTypes.push_back(arg->getType());
+  }
+
+  FunctionType* FuncType = dummyCall->getCalledFunction()->getFunctionType();
+  Function * newFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, "new_callee_func", M);
+  ValueToValueMapTy VMap;
+  SmallVector<ReturnInst*, 8> Returns;
+
+  Function::arg_iterator DestI = newFunc->arg_begin();
+  for (const Argument &J : calleeFunc->args()) {
+    DestI->setName(J.getName());
+    VMap[&J] = &*DestI++;
+  }
+ 
+  CloneFunctionInto(newFunc, calleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+  // change how the new callee function returns
+  ReturnInst* ret;
+  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<ReturnInst>(IB)) {
+        ret = dyn_cast<ReturnInst>(IB); 
+      }
+    }
+  }
+
+  CallInst* sendReturnCall;
+  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)) {
+        CallInst* ci = dyn_cast<CallInst>(IB);
+        std::string demangledName = llvm::demangle(ci->getCalledFunction()->getName());
+        if (demangledName == "send_return_value_to_caller(char*)") {
+          sendReturnCall = ci;
+        }
+      }
+    }
+  } 
+
+  Value* newRetVal = sendReturnCall->getOperand(0);
+
+  ReturnInst* newRet = ReturnInst::Create(newFunc->getContext(), newRetVal, ret); 
+  ret->eraseFromParent();
+
+  // change how the new callee function get arguments
+/*
+  // set attributes for the new callee function's arguments
+  std::vector<AttributeSet> argumentAttrs;
+  AttributeList AttrList = targetFunc->getAttributes();
+  for (unsigned i=0; i<arguments.size(); i++){
+    argumentAttrs.push_back(AttrList.getParamAttrs(i));
+  }
+
+  AttributeList newAttrList = targetFunc->getAttributes();
+  AttributeSet returnAttr = newAttrList.getRetAttrs();
+  AttributeSet funcAttr = newAttrList.getFnAttrs();
+
+  newFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+
+  // copy the old future_maybe function  
+  CallInst* newCall = CallInst::Create(FuncType, newFunc, arguments ,"", call);
+  AttributeList callInstAttr = call->getAttributes();
+  newCall->setAttributes(callInstAttr);
+
+  // get the user of callInst for calling old future_maybe 
+  for (auto u = call->user_begin(); u!= call->user_end(); u++) {
+    User* user = dyn_cast<User>(*u);
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(call);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(newCall);
+      }
+    }
+  }
+  call->eraseFromParent();
+*/
+  return newFunc;   
 }
