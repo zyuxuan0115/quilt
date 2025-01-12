@@ -1,58 +1,57 @@
 package main  
   
-/*  
-#include <stdlib.h>  
-#include <string.h>  
-
-char* dummy(char* input) {   
-    size_t len = strlen(input);  
-    const char* suffix = " processed";  
-    size_t suffix_len = strlen(suffix);  
-  
-    char* output = (char*)malloc(len + suffix_len + 1);  
-    if (output == NULL) {  
-        return NULL; 
-    }  
-  
-    strcpy(output, input);  
-    strcat(output, suffix);  
-  
-    return output;  
-}  
-*/  
-import "C"  
 import (  
     "fmt"  
     "unsafe"  
 )  
   
-// Convert Go string to C string  
-func goStringToCCharPtr(goStr string) *C.char {  
-    cStr := C.CString(goStr)  
-    return cStr  
+// Convert Go string to C-style null-terminated string (*C.char)  
+func goStringToCCharPointer(goStr string) *byte {  
+    // Convert Go string to a byte slice and append a null terminator  
+    bytes := append([]byte(goStr), 0)  
+    return &bytes[0]  
 }  
   
-// Convert C string to Go string  
-func cCharPtrToGoString(cStr *C.char) string {  
-    goStr := C.GoString(cStr)  
-    return goStr  
-}  
-
-func wrapper_go2c(input string) string {  
-    // Convert Go string to C string  
-    cInput := goStringToCCharPtr(input)  
-    defer C.free(unsafe.Pointer(cInput))  
-  
-    // Call C function dummy  
-    cResult := C.dummy(cInput)  
-    if cResult == nil {  
-        return ""
+// Convert C-style null-terminated string (*C.char) to Go string  
+func cCharPointerToGoString(cStr *byte) string {  
+    // Calculate the length of the C-style string  
+    length := 0  
+    ptr := uintptr(unsafe.Pointer(cStr))  
+    for {  
+        b := *(*byte)(unsafe.Pointer(ptr + uintptr(length)))  
+        if b == 0 {  
+            break  
+        }  
+        length++  
     }  
-    defer C.free(unsafe.Pointer(cResult))
+    // Create a byte slice and convert it to a Go string  
+    bytes := (*[1 << 30]byte)(unsafe.Pointer(cStr))[:length:length]  
+    return string(bytes)  
+}  
   
-    goResult := cCharPtrToGoString(cResult)  
+// Dummy function implemented in Go, simulating a C function operating on char*  
+func dummy(cInput *byte) *byte {  
+    // Convert C-style string to Go string  
+    inputStr := cCharPointerToGoString(cInput)  
   
-    return goResult  
+    // Modify the string  
+    resultStr := inputStr + " processed"  
+  
+    // Convert Go string back to C-style string  
+    return goStringToCCharPointer(resultStr)  
+}  
+  
+func wrapper_go2c(input string) string {  
+    // Convert Go string to C-style string  
+    cInput := goStringToCCharPointer(input)  
+  
+    // Call the dummy function  
+    cResult := dummy(cInput)  
+  
+    // Convert the result C-style string back to Go string  
+    resultStr := cCharPointerToGoString(cResult)  
+  
+    return resultStr  
 }  
   
 func main() {  
