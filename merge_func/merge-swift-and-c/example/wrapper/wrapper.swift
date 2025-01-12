@@ -38,8 +38,6 @@ func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
     fatalError("Memory allocation failed in strdup.")
   }
   return UnsafePointer<CChar>(validCString)
-  
-  //return input
 }
 
 /*
