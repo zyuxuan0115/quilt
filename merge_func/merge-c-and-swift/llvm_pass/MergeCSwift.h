@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_TRANSFORMS_UTILS_MERGESWIFTC_H
-#define LLVM_TRANSFORMS_UTILS_MERGESWIFTC_H
+#ifndef LLVM_TRANSFORMS_UTILS_MERGECSWIFT_H
+#define LLVM_TRANSFORMS_UTILS_MERGECSWIFT_H
 
 #include "llvm/IR/PassManager.h"
 #include "llvm/ADT/Statistic.h"
@@ -37,7 +37,7 @@
 
 namespace llvm {
 
-class MergeSwiftCPass : public PassInfoMixin<MergeSwiftCPass> {
+class MergeCSwiftPass : public PassInfoMixin<MergeCSwiftPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   void RenameCallee(Module*);
@@ -45,10 +45,6 @@ public:
   void MergeCallee(Module*);
   std::string getDemangledFunctionName(std::string);
   Function* getFunctionByDemangledName(Module*, std::string);
-  CallInst* getCallInstByCalledFunc(Function*, Function*);
-  CallInst* createCallWrapper(CallInst*, Function*);
-  Function* createNewCalleeFunc(Function*, CallInst*);
-  void createCall2NewCallee(CallInst*, Function*);
 
 private:
   std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/bin/swift-demangle";
@@ -56,4 +52,4 @@ private:
 
 } // namespace llvm
 
-#endif // LLVM_TRANSFORMS_UTILS_MERGESWIFTC_H
+#endif // LLVM_TRANSFORMS_UTILS_MERGECSWIFT_H
