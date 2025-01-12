@@ -37,6 +37,11 @@ namespace llvm {
 class MergeGoCFuncPass : public PassInfoMixin<MergeGoCFuncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
+  void renameFunctionMainClosure(Module*, std::string);
+  void renameCaller(Module*);
+  void renameCallee(Module*);
+  void cloneAndReplaceFunc(Module*);
+  void renameRealCallee(Function* MainFunc, std::string NewCalleeName);
 };
 
 } // namespace llvm
