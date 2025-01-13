@@ -52,10 +52,4 @@ func wrapper_go2c(input string) string {
     resultStr := cCharPointerToGoString(cResult)  
   
     return resultStr  
-}  
-  
-func main() {  
-    inputStr := "Hello, World!"  
-    resultStr := wrapper_go2c(inputStr)  
-    fmt.Println("Result:", resultStr)  
-}  
+}
