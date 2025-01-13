@@ -7,14 +7,16 @@ export PATH="${INSTALL_BIN_DIR}:$PATH"
   
 DATA_DIR="/root/Data"  
   
-CALLER_GO="${DATA_DIR}/caller.go"  
+CALLER_GO="${DATA_DIR}/caller.go"
+WRAPPER_GO="${DATA_DIR}/wrapper.go"  
 CALLEE_CPP="${DATA_DIR}/callee.cpp"  
   
 # Output
-CALLER_LL="${DATA_DIR}/caller-temp.ll"  
-CALLEE_LL="${DATA_DIR}/callee-temp.ll"  
-COMBINED_LL="${DATA_DIR}/combined-temp.ll"  
-MERGED_LL="${DATA_DIR}/merged-temp.ll"  
+CALLER_LL="${DATA_DIR}/caller.ll"  
+CALLEE_LL="${DATA_DIR}/callee.ll"
+COMBINED_LL_GO="${DATA_DIR}/combined-go.ll"  
+COMBINED_LL="${DATA_DIR}/combined.ll"  
+MERGED_LL="${DATA_DIR}/merged.ll"  
  
 function compile {   
   if [[ ! -f "$CALLER_GO" ]]; then  
@@ -28,14 +30,14 @@ function compile {
   fi  
   
   # Compile Go source file to LLVM IR  
-  llvm-goc -O1 -fno-inline -emit-llvm -S -o "$CALLER_LL" "$CALLER_GO"  
+  llvm-goc -O1 -fno-inline -emit-llvm -S -o "$COMBINED_LL_GO" "$CALLER_GO" "$WRAPPER_GO"
   
   # Compile C++ source file to LLVM IR 
   "$LLVM_DIR/clang++" -O1 -fno-inline -S -emit-llvm -o "$CALLEE_LL" "$CALLEE_CPP"  
   
   # Link LLVM IR files
-  "$LLVM_DIR/llvm-link" -S -o "$COMBINED_LL" "$CALLER_LL" "$CALLEE_LL"  
-}  
+  "$LLVM_DIR/llvm-link" -S -o "$COMBINED_LL" "$COMBINED_LL_GO" "$CALLEE_LL"  
+}
 
 function merge {  
   if [[ ! -f "$COMBINED_LL" ]]; then  
