@@ -12,31 +12,19 @@ func cCharPointerToSwiftString(_ cString: UnsafePointer<CChar>) -> String {
   return String(cString: cString)
 }
 
-func wrapper_swift2c(jsonStr: String) -> String {
-  // Convert Swift String to a C-style string
-  let inputCString = swiftStringToCCharPointer(jsonStr)
+func wrapper_c2swift(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
+  let inputSwiftString = cCharPointerToSwiftString(input)
    
-  let resultCString = dummy(inputCString)
+  let resultSwiftString = dummy(inputSwiftString)
     
-  let swiftResultString = cCharPointerToSwiftString(resultCString)  
+  let outputCCharPointer = swiftStringToCCharPointer(resultSwiftString)  
  
-  // Return the Swift String result
   return swiftResultString  
 }
 
 
-func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
-
-  // Convert the C-style string to a Swift string
-  let swiftString = String(cString: input)
-    
-  let modifiedString = swiftString + " processed"
-    
-  // Convert back to a C-style string
-  let resultCString = strdup(modifiedString)
-  guard let validCString = resultCString else {
-    fatalError("Memory allocation failed in strdup.")
-  }
-  return UnsafePointer<CChar>(validCString)
+func dummy(_ input: String) -> String {
+  let output = input + " processed" 
+  return output 
 }
 
