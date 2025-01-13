@@ -6,6 +6,7 @@
 #include <string>
 #include <nlohmann/json.hpp>
 #include <curl/curl.h>
+#include <iostream>
 
 #define LENGTH 16  
 
@@ -20,7 +21,7 @@ void to_json(nlohmann::json& j, const jsonMsg& s) {
 
 void send_return_value_to_caller(char* output){
   std::string message = std::string(output);
-  jsonMsg new_ojb{message, ""};
+  jsonMsg new_ojb = {message, ""};
   nlohmann::json j = new_ojb;
   std::string json_string = j.dump(); 
   printf("%s", json_string.c_str());
@@ -41,14 +42,15 @@ struct Output {
 
 static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) {
   struct Output *out = (struct Output *)stream;
-  void* buf = malloc(nmemb);
+  void* buf = malloc(nmemb+1);
+  memset(buf, '\0', nmemb+1);
   memcpy(buf, buffer, nmemb);
   char* buf_char = (char*) buf;
   out->buf = buf_char;
   return nmemb;
 }
 
-char* make_rpc(char* func_name, char* input){
+char* make_rpc(const char* func_name, char* input){
   CURL *curl;
   CURLcode res;
   /* In windows, this will init the winsock stuff */ 
@@ -64,8 +66,8 @@ char* make_rpc(char* func_name, char* input){
   char* output;
   if(curl) {
     // First set the URL that is about to receive our POST. This URL can
-    char* prefix = "http://router.fission.svc.cluster.local.:80/";
-    //char* prefix = "http://localhost:8888/";
+    const char* prefix = "http://router.fission.svc.cluster.local:80/";
+//    char* prefix = "http://localhost:8888/";
     char* url = (char*)malloc(sizeof(char)*(strlen(prefix)+strlen(func_name)));
     strcpy(url, prefix);
     strcpy(url+strlen(prefix), func_name);
@@ -85,7 +87,8 @@ char* make_rpc(char* func_name, char* input){
     /* always cleanup */ 
     curl_easy_cleanup(curl);
     free(url);
-    char* output_buf = (char*)malloc(sizeof(char)*strlen(out.buf));
+    char* output_buf = (char*)malloc(sizeof(char)*(strlen(out.buf)+1));
+    memset(output_buf, '\0', sizeof(char) * (strlen(output_buf) + 1));
     strcpy(output_buf, out.buf);
     output = output_buf;
   }
