@@ -50,7 +50,24 @@ void MergeCSwiftPass::RenameWrapper(Module* M) {
 }
 
 void MergeCSwiftPass::MergeCallee(Module* M) {
+  Function* callerFunc = M->getFunction("main");
+  Function* rpcFunc = getCFunctionByDemangledName(M, "make_rpc(char const*, char*)");
+  if ((!callerFunc) || (!rpcFunc)) {
+    llvm::errs()<<"cannot find caller function or make_rpc function\n";
+  }
+  CallInst* rpcInst = getCallInstByCalledFunc(callerFunc, rpcFunc);
+}
 
+Function* MergeCSwiftPass::getCFunctionByDemangledName(Module* M, std::string fname) {
+  for (Module::iterator f = M->begin(); f != M->end(); f++){
+    Function* func = dyn_cast<Function>(f);
+    std::string funcName = func->getName().str();
+    std::string demangledName = llvm::demangle(funcName);
+    if (demangledName == fname) {
+      return func;
+    }
+  }
+  return NULL;
 }
 
 std::string MergeCSwiftPass::getDemangledFunctionName(std::string mangledName) {
@@ -102,7 +119,7 @@ std::string MergeCSwiftPass::getDemangledFunctionName(std::string mangledName) {
 }
 
 
-Function* MergeCSwiftPass::getFunctionByDemangledName(Module* M, std::string fname) {
+Function* MergeCSwiftPass::getSwiftFunctionByDemangledName(Module* M, std::string fname) {
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string funcName = func->getName().str();
