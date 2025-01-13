@@ -19,7 +19,7 @@ func wrapper_c2swift(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
     
   let outputCCharPointer = swiftStringToCCharPointer(resultSwiftString)  
  
-  return swiftResultString  
+  return outputCCharPointer 
 }
 
 
