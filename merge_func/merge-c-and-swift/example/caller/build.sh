@@ -16,7 +16,7 @@ function deploy {
 
 function invoke {
   curl -XPOST http://localhost:8888/c-caller \
-  -d '{"msg":""}'
+  -d ''
 }
 
 case "$1" in

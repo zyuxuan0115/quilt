@@ -21,7 +21,7 @@ func get_arg_from_caller() -> String {
 }
 
 func send_return_value_to_caller(_ message: String) {
-  print("\(message)")
+  print("\(message)", terminator: "")
 }
 
 function()
