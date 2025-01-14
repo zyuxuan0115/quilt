@@ -9,7 +9,7 @@ SETUP_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/setup
 TEST_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/test
 WORKLOAD=social_network_rust_lite
 # You only need to change this line
-QPS=1
+QPS=1000
 
 if [ "${ARGS[2]}" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
@@ -18,6 +18,7 @@ fi
 if [ "$#" -lt 3 ]; then
   echo "Error: Missing command line argument."
   echo 'example: `./test_qps.sh perf compose-post async`'
+  echo 'example: `./test_qps.sh init - -`'
   exit 1
 fi
 
@@ -25,8 +26,7 @@ fi
 
 
 function measure_perf {
-  # CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 60 70)
-  CON=(1)
+  CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 60 70)
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
@@ -39,6 +39,9 @@ function measure_perf {
     redeploy
     sleep 10
     cd $TEST_DIR/wrk2_fission/social_network
+    IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
+    ENTRY_HOST=http://$IP:$PORT
     $WRK_BIN -t 1 -c $con -d 600 -L -U \
 	   -s $WRK_SCRIPT \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
@@ -58,7 +61,7 @@ function run_wrk {
   PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
   ENTRY_HOST=http://$IP:$PORT
   WRK_SCRIPT_0="lua_files/$1.lua"
-  $WRK_BIN -t 1 -c 1 -d 90 -L -U \
+  $WRK_BIN -t 1 -c 1 -d $2 -L -U \
 	   -s $WRK_SCRIPT_0 \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
 }
@@ -78,8 +81,8 @@ function redeploy {
 
 function init {
   redeploy 
-  run_wrk register-user-with-id
-  run_wrk social-graph-follow-with-username-merged
+  run_wrk register-user-with-id 60
+  run_wrk social-graph-follow-with-username-merged 60
 }
 
 

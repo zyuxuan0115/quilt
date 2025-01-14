@@ -66,6 +66,21 @@ void MergeCSwiftPass::MergeCallee(Module* M) {
   if (!callWrapper) {
     llvm::errs()<<"fail to create a call to wrapper\n";
   }
+
+  Function* calleeFunc = getSwiftFunctionByDemangledName(M, "callee.function() -> ()");
+  Function* dummyFunc = getSwiftFunctionByDemangledName(M, "wrapper.dummy(Swift.String) -> Swift.String");
+  if ((!calleeFunc) || (!dummyFunc)) {
+    llvm::errs()<<"callee function or dummy function is not presented in IR\n";
+  }
+ 
+  CallInst* dummyCall = getCallInstByCalledFunc(wrapperFunc, dummyFunc); 
+  if (!dummyCall) {
+    llvm::errs()<<"dummy call doesn't exist\n";
+  }
+
+  Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummyCall); 
+   
+
 }
 
 Function* MergeCSwiftPass::getCFunctionByDemangledName(Module* M, std::string fname) {
@@ -168,7 +183,6 @@ CallInst* MergeCSwiftPass::createCallWrapper(CallInst* rpcInst, Function* wrappe
     }
   }
 
-
   CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"pointer2dummy", rpcInst);
 
   std::vector<llvm::User*> users;
@@ -189,4 +203,64 @@ CallInst* MergeCSwiftPass::createCallWrapper(CallInst* rpcInst, Function* wrappe
   rpcInst->eraseFromParent();
 
   return newCall;
+}
+
+
+
+Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* dummyCall) {
+  Module* M = calleeFunc->getParent();
+  // copy this function
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+
+  // the last argument of a CallInst is the called function
+  // so we don't need to include it in the arguments.
+  for (unsigned i=0; i<dummyCall->getNumOperands()-1; i++){
+    Value* arg = dummyCall->getOperand(i);
+    arguments.push_back(arg);
+    argumentTypes.push_back(arg->getType());
+  }
+
+  FunctionType* FuncType = dummyCall->getCalledFunction()->getFunctionType();
+  Function * newFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, "new_callee_func", M);
+  ValueToValueMapTy VMap;
+  SmallVector<ReturnInst*, 8> Returns;
+
+  Function::arg_iterator DestI = newFunc->arg_begin();
+  for (const Argument &J : calleeFunc->args()) {
+    DestI->setName(J.getName());
+    VMap[&J] = &*DestI++;
+  }
+
+  CloneFunctionInto(newFunc, calleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+  // change how the new callee function returns
+  ReturnInst* ret;
+  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<ReturnInst>(IB)) {
+        ret = dyn_cast<ReturnInst>(IB); 
+      }
+    }
+  }
+
+  // create a new return value
+  CallInst* sendReturnCall;
+  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)) {
+        CallInst* ci = dyn_cast<CallInst>(IB);
+        std::string demangledName = getDemangledFunctionName(ci->getCalledFunction()->getName().str());
+        if (demangledName == "callee.send_return_value_to_caller(Swift.String) -> ()") {
+          sendReturnCall = ci;
+        }
+      }
+    }
+  } 
+  Instruction* sendReturnCallArg = dyn_cast<Instruction>(sendReturnCall->getOperand(0));
+  Value* newRetVal = sendReturnCallArg->getOperand(0);
+  ReturnInst* newRet = ReturnInst::Create(newFunc->getContext(), newRetVal, ret); 
+  ret->eraseFromParent();
+  sendReturnCall->eraseFromParent();
+  return newFunc;
 }
