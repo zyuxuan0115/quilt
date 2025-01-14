@@ -9,9 +9,6 @@ SETUP_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/setup
 TEST_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/test
 WORKLOAD=social_network_rust_lite
 # You only need to change this line
-IP=$(kubectl get svc router -n fission -o jsonpath='{.spec.clusterIP}')
-PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
-ENTRY_HOST=http://$IP:$PORT
 QPS=1
 
 if [ "${ARGS[2]}" = "async" ]; then
@@ -42,13 +39,13 @@ function measure_perf {
     redeploy
     sleep 10
     cd $TEST_DIR/wrk2_fission/social_network
-    $WRK_BIN -t 1 -c $con -d 900 -L -U \
+    $WRK_BIN -t 1 -c $con -d 600 -L -U \
 	   -s $WRK_SCRIPT \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
-    cd $SETUP_DIR/openwhisk \
+    cd $SETUP_DIR/fission \
       && ./build.sh kill \
       && ./build.sh setup
     cd $TEST_DIR/wrk2_fission/social_network
@@ -57,22 +54,25 @@ function measure_perf {
 
 function run_wrk {
   sleep 10
-  WRK_SCRIPT="lua_files/$1.lua"
+  IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
+  ENTRY_HOST=http://$IP:$PORT
+  WRK_SCRIPT_0="lua_files/$1.lua"
   $WRK_BIN -t 1 -c 1 -d 90 -L -U \
-	   -s $WRK_SCRIPT \
+	   -s $WRK_SCRIPT_0 \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
 }
 
 
 function redeploy {
-  cd $OPENFAAS_TEST_DIR/setup/social_network \
+  cd $SETUP_DIR/fission \
     && ./build.sh kill \
     && ./build.sh setup
   sleep 60
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_openwhisk
-  cd $OPENFAAS_TEST_DIR/wrk2_fission/social_network
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
+  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
+  cd $TEST_DIR/wrk2_fission/social_network
 }
 
 

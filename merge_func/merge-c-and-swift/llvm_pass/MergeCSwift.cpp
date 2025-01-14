@@ -52,10 +52,20 @@ void MergeCSwiftPass::RenameWrapper(Module* M) {
 void MergeCSwiftPass::MergeCallee(Module* M) {
   Function* callerFunc = M->getFunction("main");
   Function* rpcFunc = getCFunctionByDemangledName(M, "make_rpc(char const*, char*)");
-  if ((!callerFunc) || (!rpcFunc)) {
-    llvm::errs()<<"cannot find caller function or make_rpc function\n";
+  Function* wrapperFunc = getSwiftFunctionByDemangledName(M, "wrapper.wrapper_c2swift(Swift.UnsafePointer<Swift.Int8>) -> Swift.UnsafePointer<Swift.Int8>");
+  if ((!callerFunc) || (!rpcFunc) || (!wrapperFunc)) {
+    llvm::errs()<<"cannot find caller function or make_rpc or wrapper function\n";
+    return;
   }
   CallInst* rpcInst = getCallInstByCalledFunc(callerFunc, rpcFunc);
+  if (!rpcInst) {
+    llvm::errs()<<"caller doesn't contain make_rpc call\n";
+    return;
+  }
+  CallInst* callWrapper = createCallWrapper(rpcInst, wrapperFunc);
+  if (!callWrapper) {
+    llvm::errs()<<"fail to create a call to wrapper\n";
+  }
 }
 
 Function* MergeCSwiftPass::getCFunctionByDemangledName(Module* M, std::string fname) {
@@ -147,3 +157,36 @@ CallInst* MergeCSwiftPass::getCallInstByCalledFunc(Function* callerFunc, Functio
 }
 
 
+CallInst* MergeCSwiftPass::createCallWrapper(CallInst* rpcInst, Function* wrapperFunc) {
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+  for (unsigned i=0; i<rpcInst->getNumOperands(); i++){
+    Value* arg = rpcInst->getOperand(i);
+    if (i==1) {
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+    }
+  }
+
+
+  CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"pointer2dummy", rpcInst);
+
+  std::vector<llvm::User*> users;
+  for (const llvm::Use &use : rpcInst->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+  }
+  for (auto user: users){
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(rpcInst);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(newCall);
+      }
+    }
+  }
+
+  rpcInst->eraseFromParent();
+
+  return newCall;
+}

@@ -47,6 +47,7 @@ public:
   Function* getSwiftFunctionByDemangledName(Module*, std::string);
   Function* getCFunctionByDemangledName(Module*, std::string);
   CallInst* getCallInstByCalledFunc(Function*, Function*);
+  CallInst* createCallWrapper(CallInst*, Function*); 
 
 private:
   std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/bin/swift-demangle";
