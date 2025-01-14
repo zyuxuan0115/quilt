@@ -243,7 +243,6 @@ Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* d
       }
     }
   }
-
   // create a new return value
   CallInst* sendReturnCall;
   for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
@@ -262,5 +261,43 @@ Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* d
   ReturnInst* newRet = ReturnInst::Create(newFunc->getContext(), newRetVal, ret); 
   ret->eraseFromParent();
   sendReturnCall->eraseFromParent();
+
+  // change how the new callee function get arguments
+  CallInst* getArgCall;
+  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)) {
+        CallInst* ci = dyn_cast<CallInst>(IB);
+        std::string demangledName = getDemangledFunctionName(ci->getCalledFunction()->getName().str());
+        if (demangledName == "callee.get_arg_from_caller() -> Swift.String") 
+          getArgCall = ci;
+      }
+    }
+  } 
+
+  Argument* arg1 = &*newFunc->arg_begin();
+  Argument* arg2 = &*(std::next(newFunc->arg_begin(), 1));
+  Value* newArg = UndefValue::get(getArgCall->getType());
+  IRBuilder<> Builder(newFunc->getContext());
+  InsertValueInst* newInsertValue1 = InsertValueInst::Create(newArg, arg1, {0}, "new_arg1", getArgCall);
+  InsertValueInst* newInsertValue2 = InsertValueInst::Create(dyn_cast<Value>(newInsertValue1), arg2, {1}, "new_arg2", getArgCall);
+ 
+  std::vector<llvm::User*> users;
+  for (const llvm::Use &use : getArgCall->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+  }
+  for (auto user: users){
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(getArgCall);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(newInsertValue2);
+      }
+    }
+  }
+
+  getArgCall->eraseFromParent();  
+
   return newFunc;
 }
