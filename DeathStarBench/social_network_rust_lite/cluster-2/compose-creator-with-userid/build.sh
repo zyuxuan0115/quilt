@@ -72,8 +72,10 @@ function deploy_openwhisk {
 
 function deploy_fission_c {
   fission function run-container --name $FUNC \
-    --image docker.io/zyuxuan0115/sn-$FUNC \
-    --port 8888 \
+    --image docker.io/zyuxuan0115/sn-$FUNC --port 8888 \
+    --minscale=1 --maxscale=10 \
+    --minmemory=1 --maxmemory=64 \
+    --mincpu=1  --maxcpu=2000 \
     --namespace fission-function
   fission httptrigger create --method POST \
     --url /$FUNC --function $FUNC \
