@@ -1,0 +1,1029 @@
+Running 10m test @ http://130.127.133.207:32001
+  1 threads and 150 connections
+  Thread calibration: mean lat.: 7611.392ms, rate sampling interval: 17252ms
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+------------------------------
+Response with status: 502
+------------------------------
+[response] Body:
+{"error":"The action did not return a dictionary or array."}
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     5.07m     2.71m    9.67m    56.38%
+    Req/Sec    33.50      6.09    42.00     88.24%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    5.16m 
+ 75.000%    7.35m 
+ 90.000%    8.79m 
+ 99.000%    9.58m 
+ 99.900%    9.66m 
+ 99.990%    9.67m 
+ 99.999%    9.68m 
+100.000%    9.68m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   10698.751     0.000000            1         1.00
+   79101.951     0.100000         2004         1.11
+  130940.927     0.200000         4006         1.25
+  188088.319     0.300000         6008         1.43
+  252706.815     0.400000         8014         1.67
+  309329.919     0.500000        10017         2.00
+  340262.911     0.550000        11024         2.22
+  364118.015     0.600000        12022         2.50
+  388759.551     0.650000        13019         2.86
+  414187.519     0.700000        14018         3.33
+  441188.351     0.750000        15024         4.00
+  463470.591     0.775000        15520         4.44
+  475791.359     0.800000        16022         5.00
+  489422.847     0.825000        16524         5.71
+  503578.623     0.850000        17033         6.67
+  516161.535     0.875000        17529         8.00
+  522190.847     0.887500        17787         8.89
+  527695.871     0.900000        18031        10.00
+  534773.759     0.912500        18276        11.43
+  541589.503     0.925000        18542        13.33
+  547356.671     0.937500        18783        16.00
+  550502.399     0.943750        18906        17.78
+  552599.551     0.950000        19025        20.00
+  556269.567     0.956250        19170        22.86
+  559939.583     0.962500        19290        26.67
+  562561.023     0.968750        19399        32.00
+  564658.175     0.971875        19468        35.56
+  566231.039     0.975000        19530        40.00
+  568328.191     0.978125        19586        45.71
+  570425.343     0.981250        19669        53.33
+  571473.919     0.984375        19716        64.00
+  573046.783     0.985938        19755        71.11
+  574095.359     0.987500        19799        80.00
+  574619.647     0.989062        19826        91.43
+  575143.935     0.990625        19852       106.67
+  575668.223     0.992188        19870       128.00
+  576192.511     0.992969        19894       142.22
+  576716.799     0.993750        19911       160.00
+  577241.087     0.994531        19923       182.86
+  577765.375     0.995313        19946       213.33
+  577765.375     0.996094        19946       256.00
+  578289.663     0.996484        19975       284.44
+  578289.663     0.996875        19975       320.00
+  578289.663     0.997266        19975       365.71
+  578813.951     0.997656        19995       426.67
+  578813.951     0.998047        19995       512.00
+  578813.951     0.998242        19995       568.89
+  578813.951     0.998437        19995       640.00
+  579338.239     0.998633        20013       731.43
+  579338.239     0.998828        20013       853.33
+  579338.239     0.999023        20013      1024.00
+  579338.239     0.999121        20013      1137.78
+  579338.239     0.999219        20013      1280.00
+  579338.239     0.999316        20013      1462.86
+  579338.239     0.999414        20013      1706.67
+  579862.527     0.999512        20018      2048.00
+  579862.527     0.999561        20018      2275.56
+  579862.527     0.999609        20018      2560.00
+  579862.527     0.999658        20018      2925.71
+  580386.815     0.999707        20023      3413.33
+  580386.815     0.999756        20023      4096.00
+  580386.815     0.999780        20023      4551.11
+  580386.815     0.999805        20023      5120.00
+  580386.815     0.999829        20023      5851.43
+  580386.815     0.999854        20023      6826.67
+  580386.815     0.999878        20023      8192.00
+  580386.815     0.999890        20023      9102.22
+  580386.815     0.999902        20023     10240.00
+  580386.815     0.999915        20023     11702.86
+  580386.815     0.999927        20023     13653.33
+  580386.815     0.999939        20023     16384.00
+  580386.815     0.999945        20023     18204.44
+  580911.103     0.999951        20024     20480.00
+  580911.103     1.000000        20024          inf
+#[Mean    =   304412.944, StdDeviation   =   162555.021]
+#[Max     =   580386.816, Total count    =        20024]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%    4.35s 
+ 75.000%    5.01s 
+ 90.000%    5.80s 
+ 99.000%   14.50s 
+ 99.900%   31.70s 
+ 99.990%   33.13s 
+ 99.999%   43.58s 
+100.000%   43.58s 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+     423.167     0.000000            1         1.00
+    2494.463     0.100000         2014         1.11
+    3293.183     0.200000         4020         1.25
+    3713.023     0.300000         6010         1.43
+    4091.903     0.400000         8029         1.67
+    4349.951     0.500000        10015         2.00
+    4497.407     0.550000        11115         2.22
+    4603.903     0.600000        12135         2.50
+    4714.495     0.650000        13018         2.86
+    4894.719     0.700000        14028         3.33
+    5009.407     0.750000        15061         4.00
+    5103.615     0.775000        15560         4.44
+    5197.823     0.800000        16031         5.00
+    5300.223     0.825000        16600         5.71
+    5402.623     0.850000        17052         6.67
+    5591.039     0.875000        17536         8.00
+    5689.343     0.887500        17779         8.89
+    5795.839     0.900000        18033        10.00
+    5906.431     0.912500        18283        11.43
+    6103.039     0.925000        18543        13.33
+    6311.935     0.937500        18775        16.00
+    6496.255     0.943750        18898        17.78
+    6692.863     0.950000        19025        20.00
+    6901.759     0.956250        19149        22.86
+    7196.671     0.962500        19274        26.67
+    7557.119     0.968750        19399        32.00
+    7729.151     0.971875        19461        35.56
+    8007.679     0.975000        19528        40.00
+    8396.799     0.978125        19587        45.71
+    8904.703     0.981250        19654        53.33
+    9699.327     0.984375        19712        64.00
+   10199.039     0.985938        19743        71.11
+   10911.743     0.987500        19774        80.00
+   12402.687     0.989062        19805        91.43
+   15622.143     0.990625        19837       106.67
+   18874.367     0.992188        19868       128.00
+   19709.951     0.992969        19885       142.22
+   20824.063     0.993750        19899       160.00
+   22593.535     0.994531        19916       182.86
+   22822.911     0.995313        19931       213.33
+   23183.359     0.996094        19947       256.00
+   24084.479     0.996484        19954       284.44
+   24395.775     0.996875        19962       320.00
+   24903.679     0.997266        19970       365.71
+   30375.935     0.997656        19978       426.67
+   31031.295     0.998047        19985       512.00
+   31145.983     0.998242        19990       568.89
+   31211.519     0.998437        19994       640.00
+   31309.823     0.998633        19997       731.43
+   31522.815     0.998828        20002       853.33
+   32014.335     0.999023        20005      1024.00
+   32210.943     0.999121        20008      1137.78
+   32260.095     0.999219        20009      1280.00
+   32407.551     0.999316        20012      1462.86
+   32440.319     0.999414        20013      1706.67
+   32505.855     0.999512        20017      2048.00
+   32505.855     0.999561        20017      2275.56
+   32505.855     0.999609        20017      2560.00
+   32522.239     0.999658        20018      2925.71
+   32555.007     0.999707        20019      3413.33
+   32620.543     0.999756        20020      4096.00
+   32620.543     0.999780        20020      4551.11
+   32702.463     0.999805        20021      5120.00
+   32702.463     0.999829        20021      5851.43
+   33128.447     0.999854        20022      6826.67
+   33128.447     0.999878        20022      8192.00
+   33128.447     0.999890        20022      9102.22
+   42827.775     0.999902        20023     10240.00
+   42827.775     0.999915        20023     11702.86
+   42827.775     0.999927        20023     13653.33
+   42827.775     0.999939        20023     16384.00
+   42827.775     0.999945        20023     18204.44
+   43581.439     0.999951        20024     20480.00
+   43581.439     1.000000        20024          inf
+#[Mean    =     4473.808, StdDeviation   =     2429.878]
+#[Max     =    43548.672, Total count    =        20024]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  20027 requests in 10.00m, 9.16MB read
+  Socket errors: connect 0, read 0, write 0, timeout 25038
+  Non-2xx or 3xx responses: 167
+Requests/sec:     33.38
+Transfer/sec:     15.63KB

@@ -1,0 +1,512 @@
+Running 10m test @ http://130.127.133.207:32001
+  1 threads and 9 connections
+  Thread calibration: mean lat.: 9223372036854776.000ms, rate sampling interval: 10ms
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"e86f447c34f346deaf447c34f336de0c"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"0ddbfb02df354efb9bfb02df35defb40"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"0f3260bb428c48a7b260bb428cb8a790"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"faae49df33c44b7eae49df33c48b7e7e"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"94e363c4abe440d8a363c4abe460d83c"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"74159574f2684f18959574f2684f1845"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a23f417b24b14190bf417b24b1c19081"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"e32f4a640f12491baf4a640f12b91b60"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"cba283be1d9e48e7a283be1d9e68e779"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"3d44b3e6c422430184b3e6c4222301c2"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"f6c3fe8ccdc94ee483fe8ccdc96ee4ad"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"9ba134487beb4ae7a134487bebeae75a"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"ae1bec0828544f629bec0828546f62e6"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"43f1cb9f461443b2b1cb9f461463b244"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"f5e314165c374e0ea314165c378e0eda"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"781f172a00ca4a4b9f172a00cafa4b2e"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"187bc467ae0247e2bbc467ae02a7e273"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"db92ec90a931468d92ec90a931f68d84"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"5d691924bb31457ca91924bb31f57cb5"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"e9e161197ec14475a161197ec1d475d0"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"b4a6ede905ea4b04a6ede905eaeb0432"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"6180001f110a481080001f110af8109c"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"cca8af97e19840d2a8af97e19820d26a"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"44da86e0d87f4cd59a86e0d87fccd592"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"97136703df894ff3936703df890ff37f"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"5362c429ef894e5fa2c429ef89ee5fe9"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"d8dbae09bac54a1f9bae09bac5ba1f8c"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"3391aa552c17411391aa552c171113c2"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"4b4f556f4ee7483a8f556f4ee7e83a89"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"27862e445c164574862e445c165574bf"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"51da1e31b76b428f9a1e31b76b828fa3"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"ba26c8fa670e416fa6c8fa670e316f1f"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"6bac0ec980834f03ac0ec98083af03aa"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"f41d14eb16e74e849d14eb16e70e8410"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"8c717b2ddb474acfb17b2ddb47dacf67"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"27f4aa13093c4961b4aa13093ca96188"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"c17edd4b91d241d9bedd4b91d2a1d970"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"0601b66316a34d9b81b66316a33d9b9c"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"2c78ede0519947c2b8ede0519977c219"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"fce15b6083e54ec2a15b6083e53ec264"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a2f35a836eda4c59b35a836edadc5971"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"9d90ad7e78d7448390ad7e78d7748362"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"1e27820e6f444dcfa7820e6f444dcf53"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"09134c4278744c7e934c4278747c7e94"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"4821d26f8e2e478da1d26f8e2ed78dd6"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a8016d6015154228816d6015151228d9"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"1f81997d22764a9581997d2276aa9572"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"d9dc54c921e44c7e9c54c921e48c7ed1"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"a883ec45606c47c883ec45606c37c851"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"bd06ac44aaf14af186ac44aaf15af159"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"f97a60b0f3b94b0cba60b0f3b93b0cc4"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"278f1d1c45494abf8f1d1c45498abfc9"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"39f9001d6561410fb9001d6561710f85"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"38dac15d3c644e4f9ac15d3c643e4fb9"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"3d1d278ab4ea4de09d278ab4eabde09f"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"8ebb1deeaadc47e8bb1deeaadcf7e8b5"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"d3a3917ccf144173a3917ccf14e17393"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"ee57cf597ad6405c97cf597ad6705c2a"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"cdf44c637a1c4de4b44c637a1c8de4dc"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"95f034829b474aecb034829b474aec59"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"bd2e0d167fbd49e3ae0d167fbda9e3e4"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"5626daa4a31447eca6daa4a314e7ec2d"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"0c48733ba4244ba588733ba4242ba588"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"042a959fdbdb4310aa959fdbdb4310e9"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"7e41e77433af496681e77433af0966b2"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"0ae3aa1948ea4cf0a3aa1948eafcf089"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"912653138ac14b10a653138ac1ab10c4"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"24a6d0023b05476ea6d0023b05476e8c"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"7178edb8d24c457cb8edb8d24ca57c43"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"f798b5bdd6664f4898b5bdd6669f48e7"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"f2d29d87cfee4b00929d87cfee2b00ba"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"4aa39341495542d3a39341495582d375"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"615078e116ed48be9078e116edc8be2a"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"1826877898e94e67a6877898e9de6749"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"2b25a2fb80c841cba5a2fb80c8e1cb1b"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"81ed511dea104755ad511dea106755a5"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"7813fe3c66c745d393fe3c66c7e5d32d"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"55c9c41a7f924a1789c41a7f92da17ef"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"d99ad3da7a04428b9ad3da7a04d28bc9"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"1dc38da9b4934b4c838da9b4939b4cdf"}
+------------------------------
+Response with status: 202
+------------------------------
+[response] Body:
+{"activationId":"c64ea72289094dae8ea7228909cdae6f"}
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     5.01m     2.58m    9.01m    55.56%
+    Req/Sec     0.13      7.09   600.00     99.95%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    5.01m 
+ 75.000%    7.01m 
+ 90.000%    9.01m 
+ 99.000%    9.02m 
+ 99.900%    9.02m 
+ 99.990%    9.02m 
+ 99.999%    9.02m 
+100.000%    9.02m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   60325.887     0.000000            4         1.00
+   60784.639     0.100000            9         1.11
+  120389.631     0.200000           17         1.25
+  180486.143     0.300000           26         1.43
+  240517.119     0.400000           35         1.67
+  300679.167     0.500000           44         2.00
+  300941.311     0.550000           45         2.22
+  360710.143     0.600000           53         2.50
+  360710.143     0.650000           53         2.86
+  420741.119     0.700000           62         3.33
+  420741.119     0.750000           62         4.00
+  421003.263     0.775000           63         4.44
+  480509.951     0.800000           66         5.00
+  480772.095     0.825000           71         5.71
+  480772.095     0.850000           71         6.67
+  480772.095     0.875000           71         8.00
+  481034.239     0.887500           72         8.89
+  540540.927     0.900000           78        10.00
+  540540.927     0.912500           78        11.43
+  540540.927     0.925000           78        13.33
+  540540.927     0.937500           78        16.00
+  540540.927     0.943750           78        17.78
+  540540.927     0.950000           78        20.00
+  540540.927     0.956250           78        22.86
+  540540.927     0.962500           78        26.67
+  541065.215     0.968750           81        32.00
+  541065.215     1.000000           81          inf
+#[Mean    =   300490.449, StdDeviation   =   154968.537]
+#[Max     =   540540.928, Total count    =           81]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%    1.00m 
+ 75.000%    1.00m 
+ 90.000%    1.01m 
+ 99.000%    1.01m 
+ 99.900%    1.01m 
+ 99.990%    1.01m 
+ 99.999%    1.01m 
+100.000%    1.01m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   60030.975     0.000000           57         1.00
+   60030.975     0.100000           57         1.11
+   60030.975     0.200000           57         1.25
+   60030.975     0.300000           57         1.43
+   60030.975     0.400000           57         1.67
+   60030.975     0.500000           57         2.00
+   60030.975     0.550000           57         2.22
+   60030.975     0.600000           57         2.50
+   60030.975     0.650000           57         2.86
+   60030.975     0.700000           57         3.33
+   60063.743     0.750000           72         4.00
+   60063.743     0.775000           72         4.44
+   60063.743     0.800000           72         5.00
+   60063.743     0.825000           72         5.71
+   60063.743     0.850000           72         6.67
+   60063.743     0.875000           72         8.00
+   60063.743     0.887500           72         8.89
+   60325.887     0.900000           76        10.00
+   60325.887     0.912500           76        11.43
+   60325.887     0.925000           76        13.33
+   60325.887     0.937500           76        16.00
+   60358.655     0.943750           80        17.78
+   60358.655     0.950000           80        20.00
+   60358.655     0.956250           80        22.86
+   60358.655     0.962500           80        26.67
+   60358.655     0.968750           80        32.00
+   60358.655     0.971875           80        35.56
+   60358.655     0.975000           80        40.00
+   60358.655     0.978125           80        45.71
+   60358.655     0.981250           80        53.33
+   60358.655     0.984375           80        64.00
+   60358.655     0.985938           80        71.11
+   60358.655     0.987500           80        80.00
+   60784.639     0.989062           81        91.43
+   60784.639     1.000000           81          inf
+#[Mean    =    60060.710, StdDeviation   =      121.169]
+#[Max     =    60751.872, Total count    =           81]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  81 requests in 10.00m, 40.90KB read
+  Socket errors: connect 0, read 0, write 0, timeout 2619
+Requests/sec:      0.13
+Transfer/sec:      69.79B
