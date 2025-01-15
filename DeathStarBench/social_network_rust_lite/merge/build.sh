@@ -81,8 +81,9 @@ function deploy_openwhisk {
 
 
 function deploy_fission_c {
-  FUNCS=("compose-post","read-home-timeline","social-graph-follow-with-username")
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username")
   for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
     fission function run-container --name $FUNC-merged \
       --image docker.io/zyuxuan0115/sn-$FUNC-merged \
       --minscale=1 --maxscale=100 \
@@ -112,7 +113,7 @@ merge_fission)
 deploy_openwhisk)
     deploy_openwhisk
     ;;
-deploy_fission)
-    deploy_fission
+deploy_fission_c)
+    deploy_fission_c
     ;;
 esac
