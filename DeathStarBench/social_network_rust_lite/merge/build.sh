@@ -80,15 +80,20 @@ function deploy_openwhisk {
 }
 
 
-function deploy_fission {
-  FUNC=compose-post-merged
-  fission function run-container --name $FUNC \
-    --image docker.io/zyuxuan0115/sn-$FUNC \
-    --port 8888 \
-    --namespace fission-function
-  fission httptrigger create --method POST \
-    --url /$FUNC --function $FUNC \
-    --namespace fission-function
+function deploy_fission_c {
+  FUNCS=("compose-post","read-home-timeline","social-graph-follow-with-username")
+  for FUNC in "${FUNCS[@]}"; do
+    fission function run-container --name $FUNC-merged \
+      --image docker.io/zyuxuan0115/sn-$FUNC-merged \
+      --minscale=1 --maxscale=100 \
+      --minmemory=1 --maxmemory=64 \
+      --mincpu=1  --maxcpu=2000 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-merged --function $FUNC-merged \
+      --namespace fission-function
+  done
 }
 
 case "$1" in

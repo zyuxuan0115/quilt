@@ -38,7 +38,7 @@ function killa {
   kubectl delete namespace $FISSION_NAMESPACE
   kubectl delete namespace fission-function
   rm -rf *.txt *.yaml *.yml
-  ../helper.py kill_port_fwd 31164:80
+  ../helper.py kill_port_fwd 8888:80
 }
 
 case "$1" in
