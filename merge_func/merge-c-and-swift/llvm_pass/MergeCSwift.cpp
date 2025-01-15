@@ -79,8 +79,7 @@ void MergeCSwiftPass::MergeCallee(Module* M) {
   }
 
   Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummyCall); 
-   
-
+  createCall2NewCallee(dummyCall, newCalleeFunc);
 }
 
 Function* MergeCSwiftPass::getCFunctionByDemangledName(Module* M, std::string fname) {
@@ -256,11 +255,30 @@ Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* d
       }
     }
   } 
-  Instruction* sendReturnCallArg = dyn_cast<Instruction>(sendReturnCall->getOperand(0));
-  Value* newRetVal = sendReturnCallArg->getOperand(0);
-  ReturnInst* newRet = ReturnInst::Create(newFunc->getContext(), newRetVal, ret); 
+  Value* sendReturnCallArg0 = sendReturnCall->getOperand(0);
+  Value* sendReturnCallArg1 = sendReturnCall->getOperand(1);
+  Value* newRetVal = UndefValue::get(dummyCall->getType());
+  InsertValueInst* newRet1 = InsertValueInst::Create(newRetVal, sendReturnCallArg0, {0}, "new_ret0", sendReturnCall);
+  InsertValueInst* newRet2 = InsertValueInst::Create(dyn_cast<Value>(newRet1), sendReturnCallArg1, {1}, "new_ret1", sendReturnCall);
+  
+  ReturnInst* newRet = ReturnInst::Create(newFunc->getContext(), dyn_cast<Value>(newRet2), ret); 
+
   ret->eraseFromParent();
   sendReturnCall->eraseFromParent();
+
+  // need to delete swift_bridgeObjectRelease function call because it 
+  // deallocate the memory for the return swift string
+  CallInst* swiftBridgeObjectReleaseCall;
+  for (const llvm::Use &use : dyn_cast<Instruction>(sendReturnCallArg1)->uses()) {
+    User *user = use.getUser();
+    if (isa<CallInst>(user)) {
+      CallInst* ci = dyn_cast<CallInst>(user);
+      std::string calleeName = ci->getCalledFunction()->getName().str();
+      if (calleeName == "swift_bridgeObjectRelease")
+        swiftBridgeObjectReleaseCall = ci;
+    }
+  }
+  swiftBridgeObjectReleaseCall->eraseFromParent();
 
   // change how the new callee function get arguments
   CallInst* getArgCall;
@@ -278,7 +296,6 @@ Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* d
   Argument* arg1 = &*newFunc->arg_begin();
   Argument* arg2 = &*(std::next(newFunc->arg_begin(), 1));
   Value* newArg = UndefValue::get(getArgCall->getType());
-  IRBuilder<> Builder(newFunc->getContext());
   InsertValueInst* newInsertValue1 = InsertValueInst::Create(newArg, arg1, {0}, "new_arg1", getArgCall);
   InsertValueInst* newInsertValue2 = InsertValueInst::Create(dyn_cast<Value>(newInsertValue1), arg2, {1}, "new_arg2", getArgCall);
  
@@ -298,6 +315,34 @@ Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* d
   }
 
   getArgCall->eraseFromParent();  
-
   return newFunc;
+}
+
+
+void MergeCSwiftPass::createCall2NewCallee(CallInst* dummyCall, Function* newCalleeFunc) {
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+  for (unsigned i=0; i<dummyCall->getNumOperands()-1; i++){
+    Value* arg = dummyCall->getOperand(i);
+    arguments.push_back(arg);
+    argumentTypes.push_back(arg->getType());
+  }
+
+  CallInst* newCall = CallInst::Create(newCalleeFunc->getFunctionType(), newCalleeFunc, arguments ,"new_callee_ret", dummyCall);
+
+  std::vector<llvm::User*> users;
+  for (const llvm::Use &use : dummyCall->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+  }
+  for (auto user: users){
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(dummyCall);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(newCall);
+      }
+    }
+  }
+  dummyCall->eraseFromParent();
 }
