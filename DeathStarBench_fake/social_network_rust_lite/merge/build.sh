@@ -81,7 +81,7 @@ function deploy_openwhisk {
 
 
 function deploy_fission_c {
-  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username")
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
