@@ -1,0 +1,9 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  callee-rust:
+    lang: rust
+    handler: ./callee-rust
+    image: zyuxuan0115/sn-callee-rust:latest
