@@ -10,10 +10,10 @@
 
 ### add MergeCSwift pass
 ```bash
-> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeCSwift.h
-> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeCSwift.cpp
+> cp *.h llvm-project/llvm/include/llvm/Transforms/Utils/MergeRustSwift.h
+> cp *.cpp llvm-project/llvm/lib/Transforms/Utils/MergeRustSwift.cpp
 ```
 
-- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeCSwift.cpp`
-- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-c-swift", MergeCSwiftPass())` 
-- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeCSwift.h"`
+- In `llvm-project/llvm/lib/Transforms/Utils/CMakeLists.txt` add `MergeRustSwift.cpp`
+- In `llvm-project/llvm/lib/Passes/PassRegistry.def` add `MODULE_PASS("merge-rust-swift", MergeRustSwiftPass())` 
+- In `llvm-project/llvm/lib/Passes/PassBuilder.cpp` add `#include "llvm/Transforms/Utils/MergeRustSwift.h"`

@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_TRANSFORMS_UTILS_MERGECSWIFT_H
-#define LLVM_TRANSFORMS_UTILS_MERGECSWIFT_H
+#ifndef LLVM_TRANSFORMS_UTILS_MERGERUSTSWIFT_H
+#define LLVM_TRANSFORMS_UTILS_MERGERUSTSWIFT_H
 
 #include "llvm/IR/PassManager.h"
 #include "llvm/ADT/Statistic.h"
@@ -37,7 +37,7 @@
 
 namespace llvm {
 
-class MergeCSwiftPass : public PassInfoMixin<MergeCSwiftPass> {
+class MergeRustSwiftPass : public PassInfoMixin<MergeRustSwiftPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   void RenameCallee(Module*);
@@ -57,4 +57,4 @@ private:
 
 } // namespace llvm
 
-#endif // LLVM_TRANSFORMS_UTILS_MERGECSWIFT_H
+#endif // LLVM_TRANSFORMS_UTILS_MERGERUSTSWIFT_H

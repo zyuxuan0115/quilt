@@ -1,4 +1,4 @@
-//===--------- MergeCSwift.cpp - Transformations --------------------------===//
+//===--------- MergeRustSwift.cpp - Transformations --------------------------===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,50 +6,50 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Transforms/Utils/MergeCSwift.h"
+#include "llvm/Transforms/Utils/MergeRustSwift.h"
 #include <unistd.h>
 #include <sys/wait.h>
 
 using namespace llvm;
 
-static cl::opt<bool> RenameCallee_cs(
-                                     "rename-callee-cs", cl::init(false),
+static cl::opt<bool> RenameCallee_rs(
+                                     "rename-callee-rs", cl::init(false),
                                      cl::desc("rename the wrapper functions"));
 
-static cl::opt<bool> RenameWrapper_cs(
-                                     "rename-wrapper-cs", cl::init(false),
+static cl::opt<bool> RenameWrapper_rs(
+                                     "rename-wrapper-rs", cl::init(false),
                                      cl::desc("rename the wrapper functions"));
 
-static cl::opt<bool> MergeCallee_cs(
-                                     "merge-callee-cs", cl::init(false),
+static cl::opt<bool> MergeCallee_rs(
+                                     "merge-callee-rs", cl::init(false),
                                      cl::desc("merge the given callee functions"));
 
 
-PreservedAnalyses MergeCSwiftPass::run(Module &M,
+PreservedAnalyses MergeRustSwiftPass::run(Module &M,
                                        ModuleAnalysisManager &AM) {
-  if (RenameCallee_cs) {
+  if (RenameCallee_rs) {
     RenameCallee(&M);
   }
-  else if (RenameWrapper_cs) {
+  else if (RenameWrapper_rs) {
     RenameWrapper(&M);
   }
-  else if (MergeCallee_cs) {
+  else if (MergeCallee_rs) {
     MergeCallee(&M);
   }
   return PreservedAnalyses::all();
 }
 
-void MergeCSwiftPass::RenameCallee(Module* M) {
+void MergeRustSwiftPass::RenameCallee(Module* M) {
   Function *mainFunc = M->getFunction("main");
   mainFunc->setName("main_callee");  
 }
 
-void MergeCSwiftPass::RenameWrapper(Module* M) {
+void MergeRustSwiftPass::RenameWrapper(Module* M) {
   Function *mainFunc = M->getFunction("main");
   mainFunc->setName("main_wrapper");  
 }
 
-void MergeCSwiftPass::MergeCallee(Module* M) {
+void MergeRustSwiftPass::MergeCallee(Module* M) {
   Function* callerFunc = M->getFunction("main");
   Function* rpcFunc = getCFunctionByDemangledName(M, "make_rpc(char const*, char*)");
   Function* wrapperFunc = getSwiftFunctionByDemangledName(M, "wrapper.wrapper_c2swift(Swift.UnsafePointer<Swift.Int8>) -> Swift.UnsafePointer<Swift.Int8>");
@@ -82,7 +82,7 @@ void MergeCSwiftPass::MergeCallee(Module* M) {
   createCall2NewCallee(dummyCall, newCalleeFunc);
 }
 
-Function* MergeCSwiftPass::getCFunctionByDemangledName(Module* M, std::string fname) {
+Function* MergeRustSwiftPass::getCFunctionByDemangledName(Module* M, std::string fname) {
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string funcName = func->getName().str();
@@ -94,7 +94,7 @@ Function* MergeCSwiftPass::getCFunctionByDemangledName(Module* M, std::string fn
   return NULL;
 }
 
-std::string MergeCSwiftPass::getDemangledFunctionName(std::string mangledName) {
+std::string MergeRustSwiftPass::getDemangledFunctionName(std::string mangledName) {
   int pipe_to_child[2];   // Pipe for sending data to child (stdin)
   int pipe_from_child[2]; // Pipe for receiving data from child (stdout)
   char buffer[1024];
@@ -143,7 +143,7 @@ std::string MergeCSwiftPass::getDemangledFunctionName(std::string mangledName) {
 }
 
 
-Function* MergeCSwiftPass::getSwiftFunctionByDemangledName(Module* M, std::string fname) {
+Function* MergeRustSwiftPass::getSwiftFunctionByDemangledName(Module* M, std::string fname) {
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string funcName = func->getName().str();
@@ -156,7 +156,7 @@ Function* MergeCSwiftPass::getSwiftFunctionByDemangledName(Module* M, std::strin
 }
 
 
-CallInst* MergeCSwiftPass::getCallInstByCalledFunc(Function* callerFunc, Function* calledFunc) {
+CallInst* MergeRustSwiftPass::getCallInstByCalledFunc(Function* callerFunc, Function* calledFunc) {
   for (Function::iterator BBB = callerFunc->begin(), BBE = callerFunc->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if (isa<CallInst>(IB)) {
@@ -171,7 +171,7 @@ CallInst* MergeCSwiftPass::getCallInstByCalledFunc(Function* callerFunc, Functio
 }
 
 
-CallInst* MergeCSwiftPass::createCallWrapper(CallInst* rpcInst, Function* wrapperFunc) {
+CallInst* MergeRustSwiftPass::createCallWrapper(CallInst* rpcInst, Function* wrapperFunc) {
   std::vector<Value*> arguments;
   std::vector<Type*> argumentTypes;
   for (unsigned i=0; i<rpcInst->getNumOperands(); i++){
@@ -206,7 +206,7 @@ CallInst* MergeCSwiftPass::createCallWrapper(CallInst* rpcInst, Function* wrappe
 
 
 
-Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* dummyCall) {
+Function* MergeRustSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* dummyCall) {
   Module* M = calleeFunc->getParent();
   // copy this function
   std::vector<Value*> arguments;
@@ -319,7 +319,7 @@ Function* MergeCSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst* d
 }
 
 
-void MergeCSwiftPass::createCall2NewCallee(CallInst* dummyCall, Function* newCalleeFunc) {
+void MergeRustSwiftPass::createCall2NewCallee(CallInst* dummyCall, Function* newCalleeFunc) {
   std::vector<Value*> arguments;
   std::vector<Type*> argumentTypes;
   for (unsigned i=0; i<dummyCall->getNumOperands()-1; i++){
