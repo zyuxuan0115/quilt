@@ -1,12 +1,11 @@
-FROM zyuxuan0115/c-env as builder
+FROM zyuxuan0115/rust-env as builder
 # Copy all the sources
-COPY function.cpp ./function.cpp
-COPY caller.c ./caller.c
-COPY Makefile ./Makefile
+COPY Cargo.toml /function/Cargo.toml
+COPY src /function/src
 
 WORKDIR /function
-RUN make
+RUN cargo build
 
 FROM zyuxuan0115/fission-env:latest as final
 
-COPY --from=builder /function/function /bin/userfunc
+COPY --from=builder /function/target/debug /bin/userfunc
