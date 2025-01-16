@@ -16,7 +16,7 @@ function deploy {
 
 function invoke {
   curl -XPOST http://localhost:8888/rust-caller \
-  -d ''
+  -d 'abcdefg'
 }
 
 case "$1" in

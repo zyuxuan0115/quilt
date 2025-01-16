@@ -3,9 +3,11 @@
 LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-17/build/bin
 
 function compile {
-  $LLVM_DIR/clang -emit-llvm -S -o caller.ll ../caller/function.cpp -std=c++17
+  cd ../caller \
+    && RUSTFLAGS="--emit=llvm-ir" cargo build \
+    && cd ../merge_script
   swiftc -emit-ir -o callee.ll ../callee/function.swift
-  swiftc -emit-ir -o wrapper.ll ../wrapper/wrapper.swift
+  swiftc -emit-ir -o wrapper.ll ../wrapper_c2swift/wrapper.swift
 }
 
 function merge {
@@ -22,8 +24,8 @@ function link {
 
 function build {
   compile
-  merge
-  link
+#  merge
+#  link
 }
 
 function clean {

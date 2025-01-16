@@ -8,4 +8,4 @@ RUN cargo build
 
 FROM zyuxuan0115/fission-env:latest as final
 
-COPY --from=builder /function/target/debug /bin/userfunc
+COPY --from=builder /function/target/debug/function /bin/userfunc
