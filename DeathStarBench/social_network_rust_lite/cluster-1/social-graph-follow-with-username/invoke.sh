@@ -14,7 +14,7 @@ function invoke_wsk {
 }
 
 function invoke_fission {
-  url -XPOST http://localhost:8888/$FUNC \
+  curl -XPOST http://localhost:8888/$FUNC \
   -d '{"user_name":"twenisch","followee_name":"todda"}'
 }
 
