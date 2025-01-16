@@ -30,10 +30,10 @@ function compile {
   fi  
   
   # Compile Go source file to LLVM IR  
-  llvm-goc -O1 -fno-inline -emit-llvm -S -o "$COMBINED_LL_GO" "$CALLER_GO" "$WRAPPER_GO"
+  llvm-goc -O0 -fno-inline -emit-llvm -S -o "$COMBINED_LL_GO" "$CALLER_GO" "$WRAPPER_GO"
   
   # Compile C++ source file to LLVM IR 
-  "$LLVM_DIR/clang++" -O1 -fno-inline -S -emit-llvm -o "$CALLEE_LL" "$CALLEE_CPP"  
+  "$LLVM_DIR/clang++" -O0 -fno-inline -S -emit-llvm -o "$CALLEE_LL" "$CALLEE_CPP"  
   
   # Link LLVM IR files
   "$LLVM_DIR/llvm-link" -S -o "$COMBINED_LL" "$COMBINED_LL_GO" "$CALLEE_LL"  
