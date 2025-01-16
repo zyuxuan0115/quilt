@@ -8,6 +8,9 @@ function compile {
     && cd ../merge_script
   swiftc -emit-ir -o callee.ll ../callee/function.swift
   swiftc -emit-ir -o wrapper.ll ../wrapper_c2swift/wrapper.swift
+  cd ../wrapper_rust2c \
+    && RUSTFLAGS="--emit=llvm-ir" cargo build \
+    && cd ../merge_script
 }
 
 function merge {
@@ -32,6 +35,12 @@ function clean {
   rm -f function
   rm -f *.ll
   rm -f *.o
+  cd ../caller \
+    && cargo clean \
+    && cd ../merge_script
+  cd ../wrapper_rust2c \
+    && cargo clean \
+    && cd ../merge_script
 }
 
 case "$1" in
