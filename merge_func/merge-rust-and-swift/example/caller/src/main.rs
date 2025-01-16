@@ -42,6 +42,6 @@ fn main() {
   let buffer = get_arg_from_caller();
   let mut prefix: String = "From Rust Caller: ".to_owned();
   prefix.push_str(&buffer);
-  let result = make_rpc("callee-c", prefix);
+  let result = make_rpc("swift-callee", prefix);
   send_return_value_to_caller(result);
 }
