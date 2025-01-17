@@ -65,23 +65,26 @@ void MergeRustSwiftPass::RenameWrapperRust2C(Module* M) {
 }
 
 void MergeRustSwiftPass::MergeCallee(Module* M) {
-  Function* callerFunc = M->getFunction("main");
-  Function* rpcFunc = getCFunctionByDemangledName(M, "make_rpc(char const*, char*)");
-  Function* wrapperFunc = getSwiftFunctionByDemangledName(M, "wrapper.wrapper_c2swift(Swift.UnsafePointer<Swift.Int8>) -> Swift.UnsafePointer<Swift.Int8>");
-  if ((!callerFunc) || (!rpcFunc) || (!wrapperFunc)) {
+  Function* callerFunc = getRustFunctionByDemangledName(M, "function::main");
+  Function* rpcFunc = getRustFunctionByDemangledName(M, "function::make_rpc");
+  Function* wrapper_rust2cFunc = getRustFunctionByDemangledName(M, "wrapper::wrapper_rust2c");
+
+  if ((!callerFunc) || (!rpcFunc) || (!wrapper_rust2cFunc)) {
     llvm::errs()<<"cannot find caller function or make_rpc or wrapper function\n";
     return;
   }
-  CallInst* rpcInst = getCallInstByCalledFunc(callerFunc, rpcFunc);
+
+  InvokeInst* rpcInst = getInvokeInstByCalledFunc(callerFunc, rpcFunc);
   if (!rpcInst) {
     llvm::errs()<<"caller doesn't contain make_rpc call\n";
     return;
   }
-  CallInst* callWrapper = createCallWrapper(rpcInst, wrapperFunc);
-  if (!callWrapper) {
+
+  CallInst* callWrapper_rust2c = createCallWrapper_rust2c(rpcInst, wrapper_rust2cFunc);
+  if (!callWrapper_rust2c) {
     llvm::errs()<<"fail to create a call to wrapper\n";
   }
-
+/*
   Function* calleeFunc = getSwiftFunctionByDemangledName(M, "callee.function() -> ()");
   Function* dummyFunc = getSwiftFunctionByDemangledName(M, "wrapper.dummy(Swift.String) -> Swift.String");
   if ((!calleeFunc) || (!dummyFunc)) {
@@ -95,6 +98,7 @@ void MergeRustSwiftPass::MergeCallee(Module* M) {
 
   Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummyCall); 
   createCall2NewCallee(dummyCall, newCalleeFunc);
+*/
 }
 
 
@@ -202,33 +206,41 @@ CallInst* MergeRustSwiftPass::getCallInstByCalledFunc(Function* callerFunc, Func
 }
 
 
-CallInst* MergeRustSwiftPass::createCallWrapper(CallInst* rpcInst, Function* wrapperFunc) {
+InvokeInst* MergeRustSwiftPass::getInvokeInstByCalledFunc(Function* callerFunc, Function* calledFunc) {
+  for (Function::iterator BBB = callerFunc->begin(), BBE = callerFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<InvokeInst>(IB)) {
+        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
+        Function* func = ii->getCalledFunction();
+        if (func == calledFunc) 
+          return ii;
+      }
+    }
+  }
+  return NULL; 
+}
+
+
+
+CallInst* MergeRustSwiftPass::createCallWrapper_rust2c(InvokeInst* rpcInst, Function* wrapperFunc) {
   std::vector<Value*> arguments;
   std::vector<Type*> argumentTypes;
+
+  // i=0 is the return value
+  // i=3 is the rust string passed as an argument
   for (unsigned i=0; i<rpcInst->getNumOperands(); i++){
     Value* arg = rpcInst->getOperand(i);
-    if (i==1) {
+    errs()<<"### i="<<i<<": "<<*arg<<"\n"; 
+    if ((i==0) || (i==3)) {
       arguments.push_back(arg);
       argumentTypes.push_back(arg->getType());
     }
   }
 
-  CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"pointer2dummy", rpcInst);
-
-  std::vector<llvm::User*> users;
-  for (const llvm::Use &use : rpcInst->uses()) {
-    llvm::User *user = use.getUser();
-    users.push_back(user);
-  }
-  for (auto user: users){
-    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
-      Value *val = *oi;
-      Value *call_value = dyn_cast<Value>(rpcInst);
-      if (val == call_value){
-        *oi = dyn_cast<Value>(newCall);
-      }
-    }
-  }
+  CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"", rpcInst);
+  BasicBlock* nextBBofRPCInst = dyn_cast<BasicBlock>(rpcInst->getOperand(4));
+  if (nextBBofRPCInst)
+    BranchInst * jumpInst = BranchInst::Create(nextBBofRPCInst, rpcInst);
 
   rpcInst->eraseFromParent();
 

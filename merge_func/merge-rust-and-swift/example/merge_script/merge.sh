@@ -25,8 +25,8 @@ function merge {
   $LLVM_DIR/opt -passes=merge-rust-swift -rename-wrapperc2s-rs -S wrapper_c2s.ll -o wrapper_c2s_rename.ll
   $LLVM_DIR/opt -passes=merge-rust-swift -rename-wrapperr2c-rs -S wrapper_r2c.ll -o wrapper_r2c_rename.ll
   $LLVM_DIR/llvm-link caller.ll wrapper_r2c_rename.ll wrapper_c2s_rename.ll callee_rename.ll -S -o caller_callee.ll
-  cp caller_callee.ll merged.ll
-#  $LLVM_DIR/opt -passes=merge-rust-swift -merge-callee-rs -S caller_callee.ll -o merged.ll 
+  $LLVM_DIR/opt caller_callee.ll -strip-debug -S -o caller_callee_nodebug.ll
+  $LLVM_DIR/opt -passes=merge-rust-swift -merge-callee-rs -S caller_callee_nodebug.ll -o merged.ll 
   cp ../wrapper_rust2c/target/debug/deps/*.ll ../caller/target/debug/deps
   $LLVM_DIR/llvm-link ../caller/target/debug/deps/*.ll -S -o lib.ll
   $LLVM_DIR/llvm-link merged.ll lib.ll -S -o merged_new.ll 

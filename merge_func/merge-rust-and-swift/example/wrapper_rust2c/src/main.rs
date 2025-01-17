@@ -8,7 +8,7 @@ fn dummy_func(input: *const c_char) -> *const c_char {
   input
 }
 
-fn callee_rust_to_c (input: String) -> String {
+fn wrapper_rust2c (input: String) -> String {
   let input_cstring: CString = CString::new(&input[..]).unwrap();
   let input_c: *const c_char = input_cstring.as_ptr();   
   // TODO: test calling a C function
@@ -19,7 +19,7 @@ fn callee_rust_to_c (input: String) -> String {
 
 fn main() {
   let input: String = String::from("hello world!");
-  let output: String = callee_rust_to_c(input);
+  let output: String = wrapper_rust2c(input);
   println!("{}", output);
  
 }

@@ -52,7 +52,8 @@ public:
   Function* getCFunctionByDemangledName(Module*, std::string);
   Function* getRustFunctionByDemangledName(Module*, std::string);
   CallInst* getCallInstByCalledFunc(Function*, Function*);
-  CallInst* createCallWrapper(CallInst*, Function*); 
+  InvokeInst* getInvokeInstByCalledFunc(Function*, Function*);
+  CallInst* createCallWrapper_rust2c(InvokeInst*, Function*); 
   Function* createNewCalleeFunc(Function*, CallInst*);
   void createCall2NewCallee(CallInst*, Function*);
 
