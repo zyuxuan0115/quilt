@@ -1,6 +1,8 @@
 #!/usr/bin/bash
 
 LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-17/build/bin
+RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
+SWIFT_LIB=/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/lib/swift/linux
 
 function compile {
   cd ../caller \
@@ -23,13 +25,16 @@ function merge {
   $LLVM_DIR/opt -passes=merge-rust-swift -rename-wrapperc2s-rs -S wrapper_c2s.ll -o wrapper_c2s_rename.ll
   $LLVM_DIR/opt -passes=merge-rust-swift -rename-wrapperr2c-rs -S wrapper_r2c.ll -o wrapper_r2c_rename.ll
   $LLVM_DIR/llvm-link caller.ll wrapper_r2c_rename.ll wrapper_c2s_rename.ll callee_rename.ll -S -o caller_callee.ll
-  mv caller_callee.ll merged.ll
+  cp caller_callee.ll merged.ll
 #  $LLVM_DIR/opt -passes=merge-rust-swift -merge-callee-rs -S caller_callee.ll -o merged.ll 
+  cp ../wrapper_rust2c/target/debug/deps/*.ll ../caller/target/debug/deps
+  $LLVM_DIR/llvm-link ../caller/target/debug/deps/*.ll -S -o lib.ll
+  $LLVM_DIR/llvm-link merged.ll lib.ll -S -o merged_new.ll 
 }
 
 function link {
-  $LLVM_DIR/llc -filetype=obj -relocation-model=pic -o merged.o merged.ll
-  $LLVM_DIR/clang -fPIC -L/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/lib/swift/linux merged.o -o function -lswiftCore -lswiftSwiftOnoneSupport -lswift_Concurrency -lswift_StringProcessing -lswift_RegexParser -lswiftGlibc -lBlocksRuntime -ldispatch -lswiftDispatch -lFoundation -lFoundationEssentials -lFoundationInternationalization -lFoundationNetworking -lstdc++ -lcrypto -lcurl
+  $LLVM_DIR/llc -filetype=obj -relocation-model=pic -o merged.o merged_new.ll
+  $LLVM_DIR/clang -fPIC -L$RUST_LIB -L$SWIFT_LIB -o function merged.o -lswiftCore -lswiftSwiftOnoneSupport -lswift_Concurrency -lswift_StringProcessing -lswift_RegexParser -lswiftGlibc -lBlocksRuntime -ldispatch -lswiftDispatch -lFoundation -lFoundationEssentials -lFoundationInternationalization -lFoundationNetworking -lstdc++ -lcrypto -lcurl -lstd-66d8041607d2929b -lm -lc -lssl
 }
 
 function build {
