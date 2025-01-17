@@ -7,17 +7,24 @@ function compile {
     && RUSTFLAGS="--emit=llvm-ir" cargo build \
     && cd ../merge_script
   swiftc -emit-ir -o callee.ll ../callee/function.swift
-  swiftc -emit-ir -o wrapper.ll ../wrapper_c2swift/wrapper.swift
+  swiftc -emit-ir -o wrapper_c2s.ll ../wrapper_c2swift/wrapper.swift
   cd ../wrapper_rust2c \
     && RUSTFLAGS="--emit=llvm-ir" cargo build \
     && cd ../merge_script
 }
 
 function merge {
-  $LLVM_DIR/opt -passes=merge-c-swift -rename-callee-cs -S callee.ll -o callee_rename.ll
-  $LLVM_DIR/opt -passes=merge-c-swift -rename-wrapper-cs -S wrapper.ll -o wrapper_rename.ll
-  $LLVM_DIR/llvm-link caller.ll wrapper_rename.ll callee_rename.ll -S -o caller_callee.ll
-  $LLVM_DIR/opt -passes=merge-c-swift -merge-callee-cs -S caller_callee.ll -o merged.ll 
+  CALLER_IR=$(find ../caller/target/debug/deps -type f -name "function-*.ll")
+  mv $CALLER_IR caller.ll
+  WRAPPER_R2C_IR=$(find ../wrapper_rust2c/target/debug/deps -type f -name "wrapper-*.ll")
+  mv $WRAPPER_R2C_IR wrapper_r2c.ll
+
+  $LLVM_DIR/opt -passes=merge-rust-swift -rename-callee-rs -S callee.ll -o callee_rename.ll
+  $LLVM_DIR/opt -passes=merge-rust-swift -rename-wrapperc2s-rs -S wrapper_c2s.ll -o wrapper_c2s_rename.ll
+  $LLVM_DIR/opt -passes=merge-rust-swift -rename-wrapperr2c-rs -S wrapper_r2c.ll -o wrapper_r2c_rename.ll
+  $LLVM_DIR/llvm-link caller.ll wrapper_r2c_rename.ll wrapper_c2s_rename.ll callee_rename.ll -S -o caller_callee.ll
+  mv caller_callee.ll merged.ll
+#  $LLVM_DIR/opt -passes=merge-rust-swift -merge-callee-rs -S caller_callee.ll -o merged.ll 
 }
 
 function link {
@@ -27,8 +34,8 @@ function link {
 
 function build {
   compile
-#  merge
-#  link
+  merge
+  link
 }
 
 function clean {

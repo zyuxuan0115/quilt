@@ -16,8 +16,12 @@ static cl::opt<bool> RenameCallee_rs(
                                      "rename-callee-rs", cl::init(false),
                                      cl::desc("rename the wrapper functions"));
 
-static cl::opt<bool> RenameWrapper_rs(
-                                     "rename-wrapper-rs", cl::init(false),
+static cl::opt<bool> RenameWrapperC2S_rs(
+                                     "rename-wrapperc2s-rs", cl::init(false),
+                                     cl::desc("rename the wrapper functions"));
+
+static cl::opt<bool> RenameWrapperR2C_rs(
+                                     "rename-wrapperr2c-rs", cl::init(false),
                                      cl::desc("rename the wrapper functions"));
 
 static cl::opt<bool> MergeCallee_rs(
@@ -30,8 +34,11 @@ PreservedAnalyses MergeRustSwiftPass::run(Module &M,
   if (RenameCallee_rs) {
     RenameCallee(&M);
   }
-  else if (RenameWrapper_rs) {
-    RenameWrapper(&M);
+  else if (RenameWrapperC2S_rs) {
+    RenameWrapperC2Swift(&M);
+  }
+  else if (RenameWrapperR2C_rs) {
+    RenameWrapperRust2C(&M);
   }
   else if (MergeCallee_rs) {
     MergeCallee(&M);
@@ -44,9 +51,17 @@ void MergeRustSwiftPass::RenameCallee(Module* M) {
   mainFunc->setName("main_callee");  
 }
 
-void MergeRustSwiftPass::RenameWrapper(Module* M) {
+void MergeRustSwiftPass::RenameWrapperC2Swift(Module* M) {
   Function *mainFunc = M->getFunction("main");
-  mainFunc->setName("main_wrapper");  
+  mainFunc->setName("main_wrapper_c2swfit");  
+}
+
+void MergeRustSwiftPass::RenameWrapperRust2C(Module* M) {
+  Function *mainFunc = M->getFunction("main");
+  Function *rustRTFunc = getRustFunctionByDemangledName(M, "std::rt::lang_start");
+  RenameRealRustMain(mainFunc, "real_wrapper");
+  mainFunc->setName("main_for_wrapper_rust2c");
+  rustRTFunc->setName("std_rt_lang_start_for_wrapper_rust2c"); 
 }
 
 void MergeRustSwiftPass::MergeCallee(Module* M) {
@@ -82,6 +97,22 @@ void MergeRustSwiftPass::MergeCallee(Module* M) {
   createCall2NewCallee(dummyCall, newCalleeFunc);
 }
 
+
+void MergeRustSwiftPass::RenameRealRustMain(Function* mainFunc, std::string newCalleeName){
+  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if(isa<CallInst>(IB)){
+        CallInst *ci = dyn_cast<CallInst>(IB);
+        Function* realMainFunc = dyn_cast<Function>(ci->getArgOperand(0));
+	realMainFunc->setName(newCalleeName.c_str());
+      }
+    }
+  }
+  return;    
+}
+
+
+
 Function* MergeRustSwiftPass::getCFunctionByDemangledName(Module* M, std::string fname) {
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
@@ -94,7 +125,7 @@ Function* MergeRustSwiftPass::getCFunctionByDemangledName(Module* M, std::string
   return NULL;
 }
 
-std::string MergeRustSwiftPass::getDemangledFunctionName(std::string mangledName) {
+std::string MergeRustSwiftPass::getDemangledSwiftFunctionName(std::string mangledName) {
   int pipe_to_child[2];   // Pipe for sending data to child (stdin)
   int pipe_from_child[2]; // Pipe for receiving data from child (stdout)
   char buffer[1024];
@@ -147,7 +178,7 @@ Function* MergeRustSwiftPass::getSwiftFunctionByDemangledName(Module* M, std::st
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
     std::string funcName = func->getName().str();
-    std::string demangledName = getDemangledFunctionName(funcName);
+    std::string demangledName = getDemangledSwiftFunctionName(funcName);
     if (demangledName == fname) {
       return func;
     }
@@ -248,7 +279,7 @@ Function* MergeRustSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if (isa<CallInst>(IB)) {
         CallInst* ci = dyn_cast<CallInst>(IB);
-        std::string demangledName = getDemangledFunctionName(ci->getCalledFunction()->getName().str());
+        std::string demangledName = getDemangledSwiftFunctionName(ci->getCalledFunction()->getName().str());
         if (demangledName == "callee.send_return_value_to_caller(Swift.String) -> ()") {
           sendReturnCall = ci;
         }
@@ -286,7 +317,7 @@ Function* MergeRustSwiftPass::createNewCalleeFunc(Function* calleeFunc, CallInst
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if (isa<CallInst>(IB)) {
         CallInst* ci = dyn_cast<CallInst>(IB);
-        std::string demangledName = getDemangledFunctionName(ci->getCalledFunction()->getName().str());
+        std::string demangledName = getDemangledSwiftFunctionName(ci->getCalledFunction()->getName().str());
         if (demangledName == "callee.get_arg_from_caller() -> Swift.String") 
           getArgCall = ci;
       }
@@ -345,4 +376,45 @@ void MergeRustSwiftPass::createCall2NewCallee(CallInst* dummyCall, Function* new
     }
   }
   dummyCall->eraseFromParent();
+}
+
+
+
+std::string MergeRustSwiftPass::getDemangledRustFuncName(std::string MangledFuncName) {
+  std::string command = demangle_bin + " \'" + MangledFuncName + "\'";
+
+  char* command_cstr = new char [command.length()+1];
+  strcpy (command_cstr, command.c_str());
+
+  FILE* fp1 = popen(command_cstr, "r");
+
+  while (fp1 == NULL){
+    sleep(1);
+    fp1 = popen(command_cstr, "r");
+    llvm::errs()<<"[tracer] fail to run demangle_rust_funcname\n";
+    llvm::errs()<<command<<"\n";
+  }
+
+  char path1[3000];
+  std::vector<std::string> lines;
+  while (fgets(path1, sizeof(path1), fp1) != NULL) {
+    std::string line(path1);
+    lines.push_back(line);
+  }
+  pclose(fp1);
+  if (lines.size()==1) { 
+    return lines[0];
+  }
+  return "";
+}
+
+
+
+Function* MergeRustSwiftPass::getRustFunctionByDemangledName(Module* M, std::string fname) {
+  for (Module::iterator f = M->begin(); f != M->end(); f++){
+    Function* func = dyn_cast<Function>(f);
+    std::string demangled = getDemangledRustFuncName(func->getName().str());
+    if (demangled == fname) return func;
+  }
+  return NULL;
 }

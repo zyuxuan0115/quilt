@@ -41,18 +41,23 @@ class MergeRustSwiftPass : public PassInfoMixin<MergeRustSwiftPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   void RenameCallee(Module*);
-  void RenameWrapper(Module*);
+  void RenameWrapperC2Swift(Module*);
+  void RenameWrapperRust2C(Module*); 
   void MergeCallee(Module*);
-  std::string getDemangledFunctionName(std::string);
+
+  void RenameRealRustMain(Function*, std::string);
+  std::string getDemangledSwiftFunctionName(std::string);
+  std::string getDemangledRustFuncName(std::string);
   Function* getSwiftFunctionByDemangledName(Module*, std::string);
   Function* getCFunctionByDemangledName(Module*, std::string);
+  Function* getRustFunctionByDemangledName(Module*, std::string);
   CallInst* getCallInstByCalledFunc(Function*, Function*);
   CallInst* createCallWrapper(CallInst*, Function*); 
   Function* createNewCalleeFunc(Function*, CallInst*);
   void createCall2NewCallee(CallInst*, Function*);
 
 private:
-  std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/bin/swift-demangle";
+  std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
 };
 
 } // namespace llvm
