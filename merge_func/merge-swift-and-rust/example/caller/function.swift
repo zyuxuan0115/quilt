@@ -8,7 +8,6 @@ struct Message: Decodable {
 
 func function() {
   let input = get_arg_from_caller()
-  let json_str = ""
   let res = make_rpc(func_name: "c-callee", jsonStr: input);
   send_return_value_to_caller(res)
 }
