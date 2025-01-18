@@ -3,7 +3,7 @@ use std::io::Write;
 
 fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
-  io::stdin().read_line(&mut buffer);
+  let _ = io::stdin().read_line(&mut buffer);
   buffer
 }
 

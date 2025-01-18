@@ -1,35 +1,58 @@
 #!/usr/bin/bash
 
 LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-17/build/bin
+RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.76-x86_64-unknown-linux-gnu/lib
+SWIFT_LIB=/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/lib/swift/linux
 
 function compile {
+  cd ../callee \
+    && RUSTFLAGS="--emit=llvm-ir" cargo build \
+    && cd ../merge_script
   swiftc -emit-ir -o caller.ll ../caller/function.swift
-  $LLVM_DIR/clang -emit-llvm -S -o callee.ll ../callee/function.cpp -std=c++17
-  swiftc -emit-ir -o wrapper.ll ../wrapper/wrapper.swift
+  swiftc -emit-ir -o wrapper_s2c.ll ../wrapper_swift2c/wrapper.swift
+  cd ../wrapper_c2rust \
+    && RUSTFLAGS="--emit=llvm-ir" cargo build \
+    && cd ../merge_script
 }
 
 function merge {
-  $LLVM_DIR/opt -passes=merge-swift-c -rename-callee-sc -S callee.ll -o callee_rename.ll
-  $LLVM_DIR/opt -passes=merge-swift-c -rename-wrapper-sc -S wrapper.ll -o wrapper_rename.ll
-  $LLVM_DIR/llvm-link caller.ll wrapper_rename.ll callee_rename.ll -S -o caller_callee.ll
-  $LLVM_DIR/opt -passes=merge-swift-c -merge-callee-sc -S caller_callee.ll -o merged.ll 
+  CALLEE_IR=$(find ../callee/target/debug/deps -type f -name "function-*.ll")
+  mv $CALLEE_IR callee.ll
+  WRAPPER_C2R_IR=$(find ../wrapper_c2rust/target/debug/deps -type f -name "wrapper-*.ll")
+  mv $WRAPPER_R2C_IR wrapper_c2r.ll
+
+#  $LLVM_DIR/opt -passes=merge-swift-rust -rename-callee-rs -S callee.ll -o callee_rename.ll
+#  $LLVM_DIR/opt -passes=merge-swift-rust -rename-wrapperc2s-rs -S wrapper_c2s.ll -o wrapper_c2s_rename.ll
+#  $LLVM_DIR/opt -passes=merge-swift-rust -rename-wrapperr2c-rs -S wrapper_r2c.ll -o wrapper_r2c_rename.ll
+#  $LLVM_DIR/llvm-link caller.ll wrapper_r2c_rename.ll wrapper_c2s_rename.ll callee_rename.ll -S -o caller_callee.ll
+#  $LLVM_DIR/opt caller_callee.ll -strip-debug -S -o caller_callee_nodebug.ll
+#  $LLVM_DIR/opt -passes=merge-rust-swift -merge-callee-rs -S caller_callee_nodebug.ll -o merged.ll 
+#  cp ../wrapper_rust2c/target/debug/deps/*.ll ../caller/target/debug/deps
+#  $LLVM_DIR/llvm-link ../caller/target/debug/deps/*.ll -S -o lib.ll
+#  $LLVM_DIR/llvm-link merged.ll lib.ll -S -o merged_new.ll 
 }
 
 function link {
-  $LLVM_DIR/llc -filetype=obj -relocation-model=pic -o merged.o merged.ll
-  $LLVM_DIR/clang -fPIC -L/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/lib/swift/linux merged.o -o function -lswiftCore -lswiftSwiftOnoneSupport -lswift_Concurrency -lswift_StringProcessing -lswift_RegexParser -lswiftGlibc -lBlocksRuntime -ldispatch -lswiftDispatch -lFoundation -lFoundationEssentials -lFoundationInternationalization -lFoundationNetworking -lstdc++ -lcrypto 
+  $LLVM_DIR/llc -filetype=obj -relocation-model=pic -o merged.o merged_new.ll
+  $LLVM_DIR/clang -fPIC -L$RUST_LIB -L$SWIFT_LIB -o function merged.o -lswiftCore -lswiftSwiftOnoneSupport -lswift_Concurrency -lswift_StringProcessing -lswift_RegexParser -lswiftGlibc -lBlocksRuntime -ldispatch -lswiftDispatch -lFoundation -lFoundationEssentials -lFoundationInternationalization -lFoundationNetworking -lstdc++ -lcrypto -lcurl -lstd-66d8041607d2929b -lm -lc -lssl
 }
 
 function build {
   compile
   merge
-  link
+#  link
 }
 
 function clean {
-  rm function
-  rm *.ll
-  rm *.o
+  rm -f function
+  rm -f *.ll
+  rm -f *.o
+  cd ../callee \
+    && cargo clean \
+    && cd ../merge_script
+  cd ../wrapper_c2rust \
+    && cargo clean \
+    && cd ../merge_script
 }
 
 case "$1" in
