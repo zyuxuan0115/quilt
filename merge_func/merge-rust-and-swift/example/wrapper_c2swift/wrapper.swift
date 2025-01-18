@@ -15,7 +15,7 @@ func cCharPointerToSwiftString(_ cString: UnsafePointer<CChar>) -> String {
 func wrapper_c2swift(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
   let inputSwiftString = cCharPointerToSwiftString(input)
    
-  let resultSwiftString = dummy(inputSwiftString)
+  let resultSwiftString = dummy_swift(inputSwiftString)
     
   let outputCCharPointer = swiftStringToCCharPointer(resultSwiftString)  
  
@@ -23,7 +23,7 @@ func wrapper_c2swift(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
 }
 
 
-func dummy(_ input: String) -> String {
+func dummy_swift(_ input: String) -> String {
   let output = input + " processed" 
   return output 
 }

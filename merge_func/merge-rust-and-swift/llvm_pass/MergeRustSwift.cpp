@@ -83,6 +83,19 @@ void MergeRustSwiftPass::MergeCallee(Module* M) {
   CallInst* callWrapper_rust2c = createCallWrapper_rust2c(rpcInst, wrapper_rust2cFunc);
   if (!callWrapper_rust2c) {
     llvm::errs()<<"fail to create a call to wrapper\n";
+    return;
+  }
+
+  Function* dummy_cFunc = getRustFunctionByDemangledName(M, "wrapper::dummy_c");
+  Function* wrapper_c2swiftFunc = getSwiftFunctionByDemangledName(M, "wrapper_c2s.swiftStringToCCharPointer(Swift.String) -> Swift.UnsafePointer<Swift.Int8>");
+  if ((!dummy_cFunc) || (!wrapper_c2swiftFunc)) {
+    llvm::errs()<<"cannot find dummy_c funciton or wrapper_c2swift function\n";
+    return;
+  }
+
+  InvokeInst* CallDummy_c = getInvokeInstByCalledFunc(wrapper_rust2cFunc, dummy_cFunc);
+  if (!CallDummy_c) {
+    llvm::errs()<<"cannot find the call instruction for dummy_c\n";
   }
 /*
   Function* calleeFunc = getSwiftFunctionByDemangledName(M, "callee.function() -> ()");
@@ -230,7 +243,6 @@ CallInst* MergeRustSwiftPass::createCallWrapper_rust2c(InvokeInst* rpcInst, Func
   // i=3 is the rust string passed as an argument
   for (unsigned i=0; i<rpcInst->getNumOperands(); i++){
     Value* arg = rpcInst->getOperand(i);
-    errs()<<"### i="<<i<<": "<<*arg<<"\n"; 
     if ((i==0) || (i==3)) {
       arguments.push_back(arg);
       argumentTypes.push_back(arg->getType());
