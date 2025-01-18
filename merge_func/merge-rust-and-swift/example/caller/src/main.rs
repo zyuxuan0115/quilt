@@ -1,5 +1,6 @@
 use curl::easy::{Easy};
 use std::io::{self, Read};
+use std::io::Write;
 
 fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
@@ -35,13 +36,12 @@ fn get_arg_from_caller() -> String{
 }
 
 fn send_return_value_to_caller(output: String) -> (){
-  println!("{}", output);
+  let _ = io::stdout().write(&output[..].as_bytes());
 }
 
 fn main() {
   let buffer = get_arg_from_caller();
-  let mut prefix: String = "From Rust Caller: ".to_owned();
-  prefix.push_str(&buffer);
+  let prefix = format!("From Rust function (caller): {}", buffer);
   let result = make_rpc("swift-callee", prefix);
   send_return_value_to_caller(result);
 }

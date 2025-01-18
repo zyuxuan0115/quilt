@@ -103,21 +103,21 @@ void MergeRustSwiftPass::MergeCallee(Module* M) {
     llvm::errs()<<"fail to create a call to wrapper_c2swift\n";
   } 
 
-/*
+
   Function* calleeFunc = getSwiftFunctionByDemangledName(M, "callee.function() -> ()");
-  Function* dummyFunc = getSwiftFunctionByDemangledName(M, "wrapper.dummy(Swift.String) -> Swift.String");
-  if ((!calleeFunc) || (!dummyFunc)) {
+  Function* dummy_swiftFunc = getSwiftFunctionByDemangledName(M, "wrapper_c2s.dummy_swift(Swift.String) -> Swift.String");
+  if ((!calleeFunc) || (!dummy_swiftFunc)) {
     llvm::errs()<<"callee function or dummy function is not presented in IR\n";
   }
  
-  CallInst* dummyCall = getCallInstByCalledFunc(wrapperFunc, dummyFunc); 
+  CallInst* dummyCall = getCallInstByCalledFunc(wrapper_c2swiftFunc, dummy_swiftFunc); 
   if (!dummyCall) {
     llvm::errs()<<"dummy call doesn't exist\n";
   }
 
   Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummyCall); 
   createCall2NewCallee(dummyCall, newCalleeFunc);
-*/
+
 }
 
 
