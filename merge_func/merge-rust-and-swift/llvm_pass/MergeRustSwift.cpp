@@ -82,12 +82,12 @@ void MergeRustSwiftPass::MergeCallee(Module* M) {
 
   CallInst* callWrapper_rust2c = createCallWrapper_rust2c(rpcInst, wrapper_rust2cFunc);
   if (!callWrapper_rust2c) {
-    llvm::errs()<<"fail to create a call to wrapper\n";
+    llvm::errs()<<"fail to create a call to wrapper_rust2c\n";
     return;
   }
 
   Function* dummy_cFunc = getRustFunctionByDemangledName(M, "wrapper::dummy_c");
-  Function* wrapper_c2swiftFunc = getSwiftFunctionByDemangledName(M, "wrapper_c2s.swiftStringToCCharPointer(Swift.String) -> Swift.UnsafePointer<Swift.Int8>");
+  Function* wrapper_c2swiftFunc = getSwiftFunctionByDemangledName(M, "wrapper_c2s.wrapper_c2swift(Swift.UnsafePointer<Swift.Int8>) -> Swift.UnsafePointer<Swift.Int8>");
   if ((!dummy_cFunc) || (!wrapper_c2swiftFunc)) {
     llvm::errs()<<"cannot find dummy_c funciton or wrapper_c2swift function\n";
     return;
@@ -97,6 +97,12 @@ void MergeRustSwiftPass::MergeCallee(Module* M) {
   if (!CallDummy_c) {
     llvm::errs()<<"cannot find the call instruction for dummy_c\n";
   }
+
+  CallInst* callWrapper_c2swift = createCallWrapper_c2swift(CallDummy_c , wrapper_c2swiftFunc);
+  if (!callWrapper_c2swift) {
+    llvm::errs()<<"fail to create a call to wrapper_c2swift\n";
+  } 
+
 /*
   Function* calleeFunc = getSwiftFunctionByDemangledName(M, "callee.function() -> ()");
   Function* dummyFunc = getSwiftFunctionByDemangledName(M, "wrapper.dummy(Swift.String) -> Swift.String");
@@ -258,6 +264,48 @@ CallInst* MergeRustSwiftPass::createCallWrapper_rust2c(InvokeInst* rpcInst, Func
 
   return newCall;
 }
+
+
+
+CallInst* MergeRustSwiftPass::createCallWrapper_c2swift(InvokeInst* callDummyCInst, Function* wrapperFunc) {
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+
+  for (unsigned i=0; i<callDummyCInst->getNumOperands(); i++){
+    Value* arg = callDummyCInst->getOperand(i);
+    llvm::errs()<<"@@@ i="<<i<<*arg<<"\n";
+    if (i==0) {
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+    }
+  }
+
+  CallInst* newCall = CallInst::Create(wrapperFunc->getFunctionType(), wrapperFunc, arguments ,"output_c_new", callDummyCInst);
+
+  std::vector<llvm::User*> users;
+  for (const llvm::Use &use : callDummyCInst->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+  }
+  for (auto user: users){
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(callDummyCInst);
+      if (val == call_value){
+        *oi = dyn_cast<Value>(newCall);
+      }
+    }
+  }
+
+  BasicBlock* nextBBofRPCInst = dyn_cast<BasicBlock>(callDummyCInst->getOperand(1));
+  if (nextBBofRPCInst)
+    BranchInst * jumpInst = BranchInst::Create(nextBBofRPCInst, callDummyCInst);
+
+  callDummyCInst->eraseFromParent();
+
+  return newCall;
+}
+
 
 
 

@@ -54,6 +54,7 @@ public:
   CallInst* getCallInstByCalledFunc(Function*, Function*);
   InvokeInst* getInvokeInstByCalledFunc(Function*, Function*);
   CallInst* createCallWrapper_rust2c(InvokeInst*, Function*); 
+  CallInst* createCallWrapper_c2swift(InvokeInst*, Function*);
   Function* createNewCalleeFunc(Function*, CallInst*);
   void createCall2NewCallee(CallInst*, Function*);
 
