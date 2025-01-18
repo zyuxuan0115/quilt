@@ -1,21 +1,21 @@
 #!/bin/bash
 function build {
-  sudo docker build --no-cache  -t zyuxuan0115/rust-caller:latest -f Dockerfile . 
-  sudo docker push zyuxuan0115/rust-caller:latest
+  sudo docker build --no-cache  -t zyuxuan0115/rust-callee:latest -f Dockerfile . 
+  sudo docker push zyuxuan0115/rust-callee:latest
 }
 
 function deploy {
-  fission function run-container --name rust-caller \
-    --image docker.io/zyuxuan0115/rust-caller:latest \
+  fission function run-container --name rust-callee \
+    --image docker.io/zyuxuan0115/rust-callee:latest \
     --port 8888 \
     --namespace fission-function
   fission httptrigger create --method POST \
-    --url /rust-caller --function rust-caller \
+    --url /rust-callee --function rust-callee \
     --namespace fission-function
 }
 
 function invoke {
-  curl -XPOST http://localhost:8888/rust-caller \
+  curl -XPOST http://localhost:8888/rust-callee \
   -d 'abcdefg'
 }
 
