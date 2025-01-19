@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_TRANSFORMS_UTILS_MERGESWIFTC_H
-#define LLVM_TRANSFORMS_UTILS_MERGESWIFTC_H
+#ifndef LLVM_TRANSFORMS_UTILS_MERGESWIFTRUST_H
+#define LLVM_TRANSFORMS_UTILS_MERGESWIFTRUST_H
 
 #include "llvm/IR/PassManager.h"
 #include "llvm/ADT/Statistic.h"
@@ -37,23 +37,26 @@
 
 namespace llvm {
 
-class MergeSwiftCPass : public PassInfoMixin<MergeSwiftCPass> {
+class MergeSwiftRustPass : public PassInfoMixin<MergeSwiftRustPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   void RenameCallee(Module*);
-  void RenameWrapper(Module*);
+  void RenameWrapperC2Rust(Module*);
+  void RenameWrapperSwift2C(Module*);
   void MergeCallee(Module*);
-  std::string getDemangledFunctionName(std::string);
-  Function* getFunctionByDemangledName(Module*, std::string);
+  std::string getDemangledSwiftFunctionName(std::string);
+  std::string getDemangledRustFunctionName(std::string);
+  Function* getRustFunctionByDemangledName(Module*, std::string);
+  Function* getSwiftFunctionByDemangledName(Module*, std::string);
   CallInst* getCallInstByCalledFunc(Function*, Function*);
   CallInst* createCallWrapper(CallInst*, Function*);
   Function* createNewCalleeFunc(Function*, CallInst*);
   void createCall2NewCallee(CallInst*, Function*);
+  void RenameRealRustMain(Function*, std::string);
 
 private:
-  std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/swift-6.0.3/usr/bin/swift-demangle";
+  std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
 };
 
 } // namespace llvm
-
-#endif // LLVM_TRANSFORMS_UTILS_MERGESWIFTC_H
+#endif // LLVM_TRANSFORMS_UTILS_MERGESWIFTRUST_H
