@@ -40,8 +40,8 @@ fn send_return_value_to_caller(output: String) -> (){
 }
 
 fn main() {
-  let buffer = get_arg_from_caller();
-  let prefix = format!("From Rust function (caller): {}", buffer);
-  let result = make_rpc("swift-callee", prefix);
+  let input = get_arg_from_caller();
+  let data = format!("From Rust function (caller): {}", input);
+  let result = make_rpc("swift-callee", data);
   send_return_value_to_caller(result);
 }
