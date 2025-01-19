@@ -37,7 +37,7 @@ function compile {
   llvm-goc -O0 -fno-inline -emit-llvm -S -o "$COMBINED_LL_GO" "$CALLER_GO" "$WRAPPER_GO"
   
   # Compile C++ source file to LLVM IR 
-  "$LLVM_DIR/clang++" -O0 -fno-inline -S -emit-llvm -o "$CALLEE_LL" "$CALLEE_CPP" 
+  "$LLVM_DIR/clang++" -O0 -fno-discard-value-names -fno-inline -S -emit-llvm -o "$CALLEE_LL" "$CALLEE_CPP" 
 }
 
 function merge {  
@@ -51,7 +51,9 @@ function link {
   # Link LLVM IR files
   $LLVM_DIR/llvm-link -S -o $COMBINED_LL $REPLACE_MAKE_RPC $CALLEE_CLONE_LL
 
-  $LLVM_DIR/llc -filetype=obj $COMBINED_LL -o $CALLER_LIB
+  $LLVM_DIR/opt -passes=merge-go-c-func -replace-dummy -S $COMBINED_LL -o $MERGED_LL
+
+  $LLVM_DIR/llc -filetype=obj $MERGED_LL -o $CALLER_LIB
 
   clang++ $CALLER_LIB $INSTALL_LIB_DIR/libgobegin.a $INSTALL_LIB_DIR/libgolibbegin.a $INSTALL_LIB_DIR/libgo.a -o caller -pthread -lm -lcrypto
 }
