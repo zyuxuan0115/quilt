@@ -19,17 +19,17 @@ function merge {
   CALLEE_IR=$(find ../callee/target/debug/deps -type f -name "function-*.ll")
   mv $CALLEE_IR callee.ll
   WRAPPER_C2R_IR=$(find ../wrapper_c2rust/target/debug/deps -type f -name "wrapper-*.ll")
-  mv $WRAPPER_R2C_IR wrapper_c2r.ll
+  mv $WRAPPER_C2R_IR wrapper_c2r.ll
 
-#  $LLVM_DIR/opt -passes=merge-swift-rust -rename-callee-rs -S callee.ll -o callee_rename.ll
-#  $LLVM_DIR/opt -passes=merge-swift-rust -rename-wrapperc2s-rs -S wrapper_c2s.ll -o wrapper_c2s_rename.ll
-#  $LLVM_DIR/opt -passes=merge-swift-rust -rename-wrapperr2c-rs -S wrapper_r2c.ll -o wrapper_r2c_rename.ll
-#  $LLVM_DIR/llvm-link caller.ll wrapper_r2c_rename.ll wrapper_c2s_rename.ll callee_rename.ll -S -o caller_callee.ll
-#  $LLVM_DIR/opt caller_callee.ll -strip-debug -S -o caller_callee_nodebug.ll
-#  $LLVM_DIR/opt -passes=merge-rust-swift -merge-callee-rs -S caller_callee_nodebug.ll -o merged.ll 
-#  cp ../wrapper_rust2c/target/debug/deps/*.ll ../caller/target/debug/deps
-#  $LLVM_DIR/llvm-link ../caller/target/debug/deps/*.ll -S -o lib.ll
-#  $LLVM_DIR/llvm-link merged.ll lib.ll -S -o merged_new.ll 
+  $LLVM_DIR/opt -passes=merge-swift-rust -rename-callee-sr -S callee.ll -o callee_rename.ll
+  $LLVM_DIR/opt -passes=merge-swift-rust -rename-wrappers2c-sr -S wrapper_s2c.ll -o wrapper_s2c_rename.ll
+  $LLVM_DIR/opt -passes=merge-swift-rust -rename-wrapperc2r-sr -S wrapper_c2r.ll -o wrapper_c2r_rename.ll
+  $LLVM_DIR/llvm-link caller.ll wrapper_c2r_rename.ll wrapper_s2c_rename.ll callee_rename.ll -S -o caller_callee.ll
+  $LLVM_DIR/opt caller_callee.ll -strip-debug -S -o caller_callee_nodebug.ll
+  $LLVM_DIR/opt -passes=merge-swift-rust -merge-callee-sr -S caller_callee_nodebug.ll -o merged.ll 
+  cp ../wrapper_c2rust/target/debug/deps/*.ll ../callee/target/debug/deps
+  $LLVM_DIR/llvm-link ../callee/target/debug/deps/*.ll -S -o lib.ll
+  $LLVM_DIR/llvm-link merged.ll lib.ll -S -o merged_new.ll 
 }
 
 function link {
@@ -40,7 +40,7 @@ function link {
 function build {
   compile
   merge
-#  link
+  link
 }
 
 function clean {

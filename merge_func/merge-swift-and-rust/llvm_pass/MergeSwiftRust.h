@@ -49,7 +49,8 @@ public:
   Function* getRustFunctionByDemangledName(Module*, std::string);
   Function* getSwiftFunctionByDemangledName(Module*, std::string);
   CallInst* getCallInstByCalledFunc(Function*, Function*);
-  CallInst* createCallWrapper(CallInst*, Function*);
+  CallInst* createCallWrapper_swift2c(CallInst*, Function*);
+  CallInst* createCallWrapper_c2rust(CallInst*, Function*);
   Function* createNewCalleeFunc(Function*, CallInst*);
   void createCall2NewCallee(CallInst*, Function*);
   void RenameRealRustMain(Function*, std::string);

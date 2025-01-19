@@ -16,7 +16,7 @@ func wrapper_swift2c(jsonStr: String) -> String {
   // Convert Swift String to a C-style string
   let inputCString = swiftStringToCCharPointer(jsonStr)
    
-  let resultCString = dummy(inputCString)
+  let resultCString = dummy_c(inputCString)
     
   let swiftResultString = cCharPointerToSwiftString(resultCString)  
  
@@ -25,7 +25,7 @@ func wrapper_swift2c(jsonStr: String) -> String {
 }
 
 
-func dummy(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
+func dummy_c(_ input: UnsafePointer<CChar>) -> UnsafePointer<CChar> {
 
   // Convert the C-style string to a Swift string
   let swiftString = String(cString: input)
