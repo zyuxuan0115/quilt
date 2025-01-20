@@ -103,12 +103,27 @@ void MergeSwiftRustPass::MergeCallee(Module* M) {
     llvm::errs()<<"fail to create a call to wrapper_c2rust\n";
   }
 
-/*
   Function* calleeFunc = M->getFunction("main_callee");
-  Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummyCall);
+  Function* dummy_rustFunction = getRustFunctionByDemangledName(M, "wrapper::dummy_rust");
+  if ((!calleeFunc) || (!dummy_rustFunction)) {
+    llvm::errs()<<"callee function or dummy_rust function doesn't exist\n";
+  }
 
-  createCall2NewCallee(dummyCall, newCalleeFunc); 
-*/ 
+  CallInst* dummy_rustCall = getCallInstByCalledFunc(wrapper_c2rustFunc, dummy_rustFunction);
+  if (!dummy_rustCall) {
+    llvm::errs()<<"dummy_rust call doesn't exist\n";
+  }
+   
+  Function* newCalleeFunc = createNewCalleeFunc(calleeFunc, dummy_rustCall);
+  if (!newCalleeFunc) {
+    llvm::errs()<<"fail to create new callee function\n";
+  }
+
+  createCall2NewCallee(dummy_rustCall, newCalleeFunc); 
+
+  // remove drop function in wrapper_c2rust
+  removeRustFuncWithVoidRetType(wrapper_c2rustFunc,"core::ptr::drop_in_place<alloc::ffi::c_str::CString>");
+ 
 }
 
 std::string MergeSwiftRustPass::getDemangledSwiftFunctionName(std::string mangledName) {
@@ -249,6 +264,21 @@ CallInst* MergeSwiftRustPass::getCallInstByCalledFunc(Function* callerFunc, Func
   return NULL; 
 }
 
+InvokeInst* MergeSwiftRustPass::getInvokeInstByInvokedFunction(Function* callerFunc, Function* calledFunc) {
+  for (Function::iterator BBB = callerFunc->begin(), BBE = callerFunc->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<InvokeInst>(IB)) {
+        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
+        Function* func = ii->getCalledFunction();
+        if (func == calledFunc) 
+          return ii;
+      }
+    }
+  }
+  return NULL; 
+ 
+}
+
 
 CallInst* MergeSwiftRustPass::createCallWrapper_swift2c(CallInst* rpcInst, Function* wrapperFunc) {
   std::vector<Value*> arguments;
@@ -314,8 +344,6 @@ CallInst* MergeSwiftRustPass::createCallWrapper_c2rust(CallInst* callDummyCInst,
 
 
 
-
-
 Function* MergeSwiftRustPass::createNewCalleeFunc(Function* calleeFunc, CallInst* dummyCall) {
 
   Module* M = calleeFunc->getParent();
@@ -344,70 +372,69 @@ Function* MergeSwiftRustPass::createNewCalleeFunc(Function* calleeFunc, CallInst
  
   CloneFunctionInto(newFunc, calleeFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
 
-  // change how the new callee function returns
-  ReturnInst* ret;
-  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<ReturnInst>(IB)) {
-        ret = dyn_cast<ReturnInst>(IB); 
-      }
-    }
-  }
-
-  CallInst* sendReturnCall;
-  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<CallInst>(IB)) {
-        CallInst* ci = dyn_cast<CallInst>(IB);
-        std::string demangledName = llvm::demangle(ci->getCalledFunction()->getName());
-        if (demangledName == "send_return_value_to_caller(char*)") {
-          sendReturnCall = ci;
-        }
-      }
-    }
-  } 
-
-  Value* newRetVal = sendReturnCall->getOperand(0);
-
-  ReturnInst* newRet = ReturnInst::Create(newFunc->getContext(), newRetVal, ret); 
-  ret->eraseFromParent();
-  sendReturnCall->eraseFromParent();
-
   // change how the new callee function get arguments
-  CallInst* getArgCall;
-  for (Function::iterator BBB = newFunc->begin(), BBE = newFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<CallInst>(IB)) {
-        CallInst* ci = dyn_cast<CallInst>(IB);
-        std::string demangledName = llvm::demangle(ci->getCalledFunction()->getName());
-        if (demangledName == "get_arg_from_caller()") 
-          getArgCall = ci;
-      }
-    }
-  }
+  Function* getArgFunc = getRustFunctionByDemangledName(M, "function::get_arg_from_caller");
+  CallInst* getArgCall = getCallInstByCalledFunc (newFunc, getArgFunc);
 
-  AllocaInst* allocFuncArg = new AllocaInst(newFunc->getArg(0)->getType(), 0, NULL, "", getArgCall);
-  StoreInst *storeInst1 = new StoreInst(newFunc->getArg(0), allocFuncArg, getArgCall);
-  LoadInst *loadInst1 = new LoadInst (newFunc->getArg(0)->getType(), allocFuncArg, "", getArgCall);
+  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+  //                                         ptr align 8 %buffer, 
+  //                                         i64 24, i1 false)
+  // the is the LLVM Intrinsc. The way to create such a call 
+  // is different from normal CallInst create 
+  Value* allocValue = getArgCall->getOperand(0);
+  std::vector<Type*> IntrinTypes;
+  IntrinTypes.push_back(allocValue->getType());
+  IntrinTypes.push_back(newFunc->getArg(1)->getType());
+  IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
 
-  std::vector<llvm::User*> users;
-  for (const llvm::Use &use : getArgCall->uses()) {
-    llvm::User *user = use.getUser();
-    users.push_back(user);
-  }
-  for (auto user: users){
-    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
-      Value *val = *oi;
-      Value *call_value = dyn_cast<Value>(getArgCall);
-      if (val == call_value){
-        *oi = dyn_cast<Value>(loadInst1);
-      }
-    }
-  }
+  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
+
+  std::vector<Value*> IntrinArguments;
+  IntrinArguments.push_back(allocValue);
+  IntrinArguments.push_back(newFunc->getArg(1));
+  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24/*value*/, true);
+  IntrinArguments.push_back(dyn_cast<Value>(i64_24));
+  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0/*value*/, true);
+  IntrinArguments.push_back(dyn_cast<Value>(i1_false));
+
+  IRBuilder<> Builder(M->getContext());
+  CallInst* llvmMemcpyCall0 = Builder.CreateCall(llvmMemcpyFunc, IntrinArguments);
+  llvmMemcpyCall0->insertBefore(getArgCall);
 
   getArgCall->eraseFromParent();
 
-  return newFunc;  
+  // change how the new callee functon return value
+  Function* sendRetFunc = getRustFunctionByDemangledName(M, "function::send_return_value_to_caller");
+  InvokeInst* sendRetCall = getInvokeInstByInvokedFunction(newFunc, sendRetFunc);
+
+  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+  //                                         ptr align 8 %buffer, 
+  //                                         i64 24, i1 false)
+  // the is the LLVM Intrinsc. The way to create such a call 
+  // is different from normal CallInst create 
+
+  std::vector<Value*> IntrinsicArguments;
+  IntrinsicArguments.push_back(newFunc->getArg(0));
+  IntrinsicArguments.push_back(sendRetCall->getOperand(0));
+  IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
+  IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
+  ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
+
+  CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
+  llvmMemcpyCall->insertBefore(sendRetCall);
+
+  // delete the send_return_value_to_caller() function call
+  // this function call is a invoke function, so we have to
+  // first create a branch instruction as the terminator and 
+  // then delete this call 
+
+  BasicBlock* nextBB = dyn_cast<BasicBlock>(sendRetCall->getOperand(1));
+  if (nextBB)
+    BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, sendRetCall);
+
+  sendRetCall->eraseFromParent(); 
+
+  return newFunc; 
 }
 
 
@@ -420,7 +447,7 @@ void MergeSwiftRustPass::createCall2NewCallee(CallInst* dummyCall, Function* new
     argumentTypes.push_back(arg->getType());
   }
 
-  CallInst* newCall = CallInst::Create(newCalleeFunc->getFunctionType(), newCalleeFunc, arguments ,"new_callee_ret", dummyCall);
+  CallInst* newCall = CallInst::Create(newCalleeFunc->getFunctionType(), newCalleeFunc, arguments ,"", dummyCall);
 
   std::vector<llvm::User*> users;
   for (const llvm::Use &use : dummyCall->uses()) {
@@ -437,4 +464,38 @@ void MergeSwiftRustPass::createCall2NewCallee(CallInst* dummyCall, Function* new
     }
   }
   dummyCall->eraseFromParent();
+}
+
+
+
+void MergeSwiftRustPass::removeRustFuncWithVoidRetType(Function* f, std::string name) {
+  std::vector<CallInst*> calls;
+  std::vector<InvokeInst*> invokes;
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (isa<CallInst>(IB)) {
+        CallInst* ci = dyn_cast<CallInst>(IB);
+        std::string funcname= ci->getCalledFunction()->getName().str();
+        if (getDemangledRustFunctionName(funcname) == name) {
+          calls.push_back(ci);
+        }
+      }
+      else if (isa<InvokeInst>(IB)) {
+        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
+        std::string funcname= ii->getCalledFunction()->getName().str();
+        if (getDemangledRustFunctionName(funcname) == name) {
+          invokes.push_back(ii);
+        }
+      }
+    }
+  }
+  for (auto ci: calls) {
+    ci->eraseFromParent();
+  }
+  for (auto ii: invokes) {
+    BasicBlock* nextBB = dyn_cast<BasicBlock>(ii->getOperand(1));
+    if (nextBB)
+      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, ii);
+    ii->eraseFromParent();
+  }
 }

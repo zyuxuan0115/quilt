@@ -48,10 +48,10 @@ function clean {
   rm -f *.ll
   rm -f *.o
   cd ../callee \
-    && cargo clean \
+    && cargo clean && rm -f Cargo.lock \
     && cd ../merge_script
   cd ../wrapper_c2rust \
-    && cargo clean \
+    && cargo clean && rm -f Cargo.lock \
     && cd ../merge_script
 }
 

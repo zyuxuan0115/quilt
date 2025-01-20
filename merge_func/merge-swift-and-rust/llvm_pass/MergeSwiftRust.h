@@ -49,11 +49,13 @@ public:
   Function* getRustFunctionByDemangledName(Module*, std::string);
   Function* getSwiftFunctionByDemangledName(Module*, std::string);
   CallInst* getCallInstByCalledFunc(Function*, Function*);
+  InvokeInst* getInvokeInstByInvokedFunction(Function*, Function*);
   CallInst* createCallWrapper_swift2c(CallInst*, Function*);
   CallInst* createCallWrapper_c2rust(CallInst*, Function*);
   Function* createNewCalleeFunc(Function*, CallInst*);
   void createCall2NewCallee(CallInst*, Function*);
   void RenameRealRustMain(Function*, std::string);
+  void removeRustFuncWithVoidRetType(Function*, std::string);
 
 private:
   std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
