@@ -19,7 +19,7 @@ function deploy_swift {
 
 function invoke_swift {
   curl -XPOST http://localhost:8888/swift-caller \
-  -d ''
+  -d 'abcdefg'
 }
 
 case "$1" in

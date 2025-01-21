@@ -9,7 +9,8 @@ struct Message: Decodable {
 func function() {
   let input = get_arg_from_caller()
   let res = make_rpc(func_name: "rust-callee", jsonStr: input);
-  send_return_value_to_caller(res)
+  let output = "From swift caller: "+res
+  send_return_value_to_caller(output)
 }
 
 func get_arg_from_caller() -> String {
@@ -46,9 +47,10 @@ func make_rpc(func_name: String, jsonStr: String) -> String {
   let task = URLSession.shared.dataTask(with: request) { data, response, error in
     if let res = data {
       do {
-        let decoder = JSONDecoder()
-        let message_err = try! decoder.decode(Message.self, from: res)
-        resp = message_err.msg
+        resp = String(data: res, encoding: .utf8) ?? ""
+        //let decoder = JSONDecoder()
+        //let message_err = try! decoder.decode(Message.self, from: res)
+        //resp = message_err.msg
       }
     }
     semaphore.signal()

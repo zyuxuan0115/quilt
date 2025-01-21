@@ -34,7 +34,7 @@ function merge {
 
 function link {
   $LLVM_DIR/llc -filetype=obj -relocation-model=pic -o merged.o merged_new.ll
-  $LLVM_DIR/clang -fPIC -L$RUST_LIB -L$SWIFT_LIB -o function merged.o -lswiftCore -lswiftSwiftOnoneSupport -lswift_Concurrency -lswift_StringProcessing -lswift_RegexParser -lswiftGlibc -lBlocksRuntime -ldispatch -lswiftDispatch -lFoundation -lFoundationEssentials -lFoundationInternationalization -lFoundationNetworking -lstdc++ -lcrypto -lcurl -lstd-66d8041607d2929b -lm -lc -lssl
+  $LLVM_DIR/clang -fPIC -L$RUST_LIB -L$SWIFT_LIB -o function merged.o -lswiftCore -lswiftSwiftOnoneSupport -lswift_Concurrency -lswift_StringProcessing -lswift_RegexParser -lswiftGlibc -lBlocksRuntime -ldispatch -lswiftDispatch -lFoundation -lFoundationEssentials -lFoundationInternationalization -lFoundationNetworking -lstdc++ -lcrypto -lcurl -lstd-66d8041607d2929b -lm -lc -lssl -lrustc_driver-ef0b2e016afc8182
 }
 
 function build {
