@@ -5,6 +5,6 @@ COPY caller.go ./caller.go
 WORKDIR /home/go/function
 RUN go build caller.go
 
-FROM zyuxuan0115/openwhisk-skeleton:latest as final
+FROM zyuxuan0115/fission-env:latest as final
 
-COPY --from=builder /home/go/function/caller /action/exec
+COPY --from=builder /home/go/function/caller /bin/userfunc

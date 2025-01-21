@@ -1,6 +1,4 @@
 #!/bin/bash
-AUTH=23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP
-APIHOST=localhost:9999
 FUNC=go-caller
 
 function build {
@@ -9,12 +7,17 @@ function build {
 }
 
 function deploy {
-  wsk action create $FUNC --docker zyuxuan0115/$FUNC:latest
+  fission function run-container --name $FUNC \
+    --image docker.io/zyuxuan0115/$FUNC:latest \
+    --port 8888 \
+    --namespace fission-function
+  fission httptrigger create --method POST \
+    --url /$FUNC --function $FUNC \
+    --namespace fission-function
 }
 
 function invoke {
-  curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
-  -X POST -H "Content-Type: application/json" \
+  curl -XPOST http://localhost:8888/$FUNC \
   -d '{"msg":""}'
 }
 
