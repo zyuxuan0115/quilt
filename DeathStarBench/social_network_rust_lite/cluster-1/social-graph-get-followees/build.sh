@@ -71,11 +71,38 @@ function deploy_openwhisk {
 }
 
 function deploy_fission_c {
+  FISSION_CONFIG=../../FissionRPC/fission.config
+  MINCPU=1
+  MAXCPU=1
+  MINMEM=1
+  MAXMEM=1
+  MINSCALE=1
+  MAXSCALE=1
+  while IFS= read -r line; do
+    first_word=$(echo "$line" | awk '{print $1}')
+    second_word=$(echo "$line" | awk '{print $2}')
+    if [[ "$first_word" == "MINCPU" ]]; then
+      MINCPU=$second_word
+    elif [[ "$first_word" == "MAXCPU" ]]; then
+      MAXCPU=$second_word
+    elif [[ "$first_word" == "MINMEM" ]]; then
+      MINMEM=$second_word
+    elif [[ "$first_word" == "MAXMEM" ]]; then
+      MAXMEM=$second_word
+    elif [[ "$first_word" == "MINSCALE" ]]; then
+      MINSCALE=$second_word
+    elif [[ "$first_word" == "MAXSCALE" ]]; then
+      MAXSCALE=$second_word
+    fi
+  done < "$FISSION_CONFIG"
+ 
+  echo $MINCPU $MAXCPU $MINMEM $MAXMEM $MINSCALE $MAXSCALE
+
   fission function run-container --name $FUNC \
     --image docker.io/zyuxuan0115/sn-$FUNC --port 8888 \
-    --minscale=1 --maxscale=10 \
-    --minmemory=1 --maxmemory=64 \
-    --mincpu=1  --maxcpu=2000 \
+    --minscale=$MINSCALE --maxscale=$MAXSCALE \
+    --minmemory=$MINMEM --maxmemory=$MAXMEM \
+    --mincpu=$MINCPU  --maxcpu=$MAXCPU \
     --namespace fission-function
   fission httptrigger create --method POST \
     --url /$FUNC --function $FUNC \
