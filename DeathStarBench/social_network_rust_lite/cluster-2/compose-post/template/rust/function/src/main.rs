@@ -99,9 +99,11 @@ fn main() {
 //  println!("{:?}, ", time_5.duration_since(time_4));
 //  println!("{:?}, ", time_7.duration_since(time_6));
 //  println!("{:?}, ", time_9.duration_since(time_8));
-//  let fina = format!("{:?}.", time_11.duration_since(time_10));
-
-  send_return_value_to_caller("".to_string());
+  let duration = time_11.duration_since(time_0);
+  let millis = duration.as_secs() * 1000 + u64::from(duration.subsec_millis());
+  let fina = format!("{} ms", millis);
+  send_return_value_to_caller(fina);
+//  send_return_value_to_caller("".to_string());
 
 }
 
