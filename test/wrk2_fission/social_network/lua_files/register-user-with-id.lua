@@ -35,16 +35,11 @@ request = function(req_id)
   local first_name = stringRandom(8)
   local last_name = stringRandom(8)
 
-  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
-  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
-  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
-
   local method = "POST"
   local path = "/register-user-with-id"
   local headers = {}
   local body
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = auth
 
   body = '{"first_name":"' .. first_name .. '","last_name":"' .. last_name 
          .. '","username":"' .. username .. '","password":"123456","user_id":'
