@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  read-home-timeline:
+    lang: rust
+    handler: ./read-home-timeline
+    image: zyuxuan0115/sn-read-home-timeline:latest
+    secrets:
+    - mongodb-password
+    - redis-password
