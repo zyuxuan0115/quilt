@@ -22,7 +22,7 @@ FROM ubuntu:focal as final
 WORKDIR /app
 
 RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates libssl-dev libcurl4-openssl-dev binutils \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y ca-certificates libssl-dev libcurl4-openssl-dev \
   && rm -rf /var/lib/apt/lists/*
   
 COPY --from=builder /binary/server /app/server
