@@ -52,9 +52,8 @@ void generate_random_string(char *str, size_t length) {
 
 int main() {
   char* input = get_arg_from_caller();
-  char random_string[LENGTH + 1]; 
-  generate_random_string(random_string, LENGTH);
-  
+  char* random_string = (char*)malloc((LENGTH+1) * sizeof(char));
+  generate_random_string(random_string, LENGTH); 
   send_return_value_to_caller(random_string);
   return 0;
 }
