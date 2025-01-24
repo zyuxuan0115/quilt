@@ -74,13 +74,14 @@ def update_func_map(func_map):
 
 
 def main():
+  functions_we_care = ['text-service', 'user-mention-service', 'url-shorten-service']
+
   os.system("./test_resource.sh deploy")
-  process = subprocess.Popen(["./test_resource.sh", "run_wrk", "text-service", "sync"])
+  process = subprocess.Popen(["./test_resource.sh", "run_wrk", functions_we_care[0], "sync"])
 
   func_map = {}
   CPU_usage = {}
   memory_usage = {}
-  functions_we_care = ['text-service', 'user-mention-service', 'url-shorten-service']
   for i in range(100):
     update_func_map(func_map)
     collect_func_metrics(func_map, CPU_usage, memory_usage)
