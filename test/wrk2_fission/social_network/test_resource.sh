@@ -23,7 +23,7 @@ function run_wrk {
   WRK_SCRIPT="lua_files/$FUNC_NAME.lua"
   $WRK_BIN -t 1 -c 10 -d 600 -L -U \
 	   -s $WRK_SCRIPT \
-	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
+	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$FUNC.log
 }
 
 
