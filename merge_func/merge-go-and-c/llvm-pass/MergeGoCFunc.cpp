@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Transforms/Utils/MergeGoCFunc.h"
+#include "llvm/ADT/SmallVector.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Module.h"
@@ -116,11 +117,8 @@ void MergeGoCFuncPass::cloneAndReplaceFunc(Module *M) {
 
   LLVMContext &Context = M->getContext();
 
-  std::vector<Type *> ParamTypes;
-  ParamTypes.push_back(Type::getInt8PtrTy(Context));
-
-  FunctionType *NewFuncType =
-      FunctionType::get(Type::getInt8PtrTy(Context), ParamTypes, false);
+  FunctionType *NewFuncType = FunctionType::get(
+      Type::getInt8PtrTy(Context), {Type::getInt8PtrTy(Context)}, false);
 
   std::string NewFuncName = MainFunc->getName().str() + "_callee";
   GlobalValue::LinkageTypes Linkage = MainFunc->getLinkage();
@@ -139,83 +137,111 @@ void MergeGoCFuncPass::cloneAndReplaceFunc(Module *M) {
   CloneFunctionInto(newCalleeFunc, MainFunc, VMap,
                     CloneFunctionChangeType::LocalChangesOnly, Returns);
 
-  Instruction *callGetArgInst = nullptr;
-  Instruction *storeCallToInputInst = nullptr;
-  Instruction *callSendReturnInst = nullptr;
-  ReturnInst *returnInst = nullptr;
-  Value *arraydecay1 = nullptr;
-  AllocaInst *inputAlloca = nullptr;
-  AllocaInst *randomStringAlloca = nullptr;
+  // change how the new callee function returns
+  std::vector<ReturnInst *> RetInsts;
+  for (Function::iterator BBB = newCalleeFunc->begin(),
+                          BBE = newCalleeFunc->end();
+       BBB != BBE; ++BBB) {
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE;
+         ++IB) {
+      if (ReturnInst *ret = dyn_cast<ReturnInst>(&*IB)) {
+        RetInsts.push_back(ret);
+      }
+    }
+  }
 
-  for (auto &I : newCalleeFunc->getEntryBlock()) {
-    if (AllocaInst *AI = dyn_cast<AllocaInst>(&I)) {
-      Type *allocaType = AI->getAllocatedType();
-      if (allocaType == Type::getInt8PtrTy(Context)) {
-        inputAlloca = AI;
-      } else if (ArrayType *arrType = dyn_cast<ArrayType>(allocaType)) {
-        if (arrType->getElementType() == Type::getInt8Ty(Context) &&
-            arrType->getNumElements() == 17) {
-          randomStringAlloca = AI;
+  CallInst *sendReturnCall = nullptr;
+  Value *newRetVal = nullptr;
+  for (Function::iterator BBB = newCalleeFunc->begin(),
+                          BBE = newCalleeFunc->end();
+       BBB != BBE; ++BBB) {
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE;
+         ++IB) {
+      if (CallInst *ci = dyn_cast<CallInst>(&*IB)) {
+        Function *CalledFunction = ci->getCalledFunction();
+        if (CalledFunction &&
+            CalledFunction->getName() == "_Z27send_return_value_to_callerPc") {
+          sendReturnCall = ci;
+          if (ci->arg_size() > 0) {
+            newRetVal = ci->getArgOperand(0);
+          } else {
+            errs() << "send_return_value_to_caller() has no arguments.\n";
+          }
+          break;
         }
       }
     }
-    if (inputAlloca && randomStringAlloca)
+    if (sendReturnCall)
       break;
   }
 
-  if (!inputAlloca || !randomStringAlloca) {
-    errs() << "Failed to find expected allocas\n";
-    return;
+  if (sendReturnCall && newRetVal) {
+    sendReturnCall->eraseFromParent();
+    for (ReturnInst *ret : RetInsts) {
+      IRBuilder<> builder(ret);
+      ReturnInst::Create(newCalleeFunc->getContext(), newRetVal, ret);
+      ret->eraseFromParent();
+    }
+  } else {
+    errs() << "Failed to find send_return_value_to_caller() or its argument.\n";
   }
 
-  for (auto &BB : *newCalleeFunc) {
-    for (auto InstIter = BB.begin(), E = BB.end(); InstIter != E;) {
-      Instruction *I = &*InstIter++;
-      if (CallInst *CI = dyn_cast<CallInst>(I)) {
-        if (Function *Callee = CI->getCalledFunction()) {
-          StringRef CalleeName = Callee->getName();
+  // change how the new callee function get arguments
+  CallInst *getArgCall = nullptr;
+  for (Function::iterator BBB = newCalleeFunc->begin(),
+                          BBE = newCalleeFunc->end();
+       BBB != BBE; ++BBB) {
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE;
+         ++IB) {
+      if (CallInst *ci = dyn_cast<CallInst>(&*IB)) {
+        Function *CalledFunction = ci->getCalledFunction();
+        if (CalledFunction) {
+          StringRef CalleeName = CalledFunction->getName();
+          // errs() << "Called function name is: " << CalleeName << "\n";
           if (CalleeName == "_Z19get_arg_from_callerv") {
-            callGetArgInst = CI;
-          } else if (CalleeName == "_Z27send_return_value_to_callerPc") {
-            CI->eraseFromParent();
-            continue;
+            getArgCall = ci;
+            break;
           }
         }
-      } else if (StoreInst *SI = dyn_cast<StoreInst>(I)) {
-        if (SI->getPointerOperand() == inputAlloca) {
-          if (SI->getValueOperand() == callGetArgInst) {
-            storeCallToInputInst = SI;
-          }
-        }
-      } else if (ReturnInst *RI = dyn_cast<ReturnInst>(I)) {
-        returnInst = RI;
-      } else if (GetElementPtrInst *GEP = dyn_cast<GetElementPtrInst>(I)) {
-        if (GEP->getPointerOperand() == randomStringAlloca &&
-            GEP->getNumIndices() == 2) {
-          arraydecay1 = GEP;
-        }
+      }
+    }
+    if (getArgCall)
+      break;
+  }
+
+  if (getArgCall) {
+    unsigned numArgs = sendReturnCall->arg_size();
+    if (numArgs > 0) {
+      Value *arg = sendReturnCall->getArgOperand(0);
+    } else {
+      errs() << "Not enough arguments in get_arg_from_caller().\n";
+    }
+  } else
+    errs() << "get_arg_from_caller() is not found.\n";
+
+  AllocaInst *allocFuncArg = new AllocaInst(newCalleeFunc->getArg(0)->getType(),
+                                            0, NULL, "", getArgCall);
+  StoreInst *storeInst1 =
+      new StoreInst(newCalleeFunc->getArg(0), allocFuncArg, getArgCall);
+  LoadInst *loadInst1 = new LoadInst(newCalleeFunc->getArg(0)->getType(),
+                                     allocFuncArg, "", getArgCall);
+
+  SmallVector<llvm::User *> users;
+  for (const llvm::Use &use : getArgCall->uses()) {
+    llvm::User *user = use.getUser();
+    users.push_back(user);
+  }
+  for (auto user : users) {
+    for (auto oi = user->op_begin(); oi != user->op_end(); oi++) {
+      Value *val = *oi;
+      Value *call_value = dyn_cast<Value>(getArgCall);
+      if (val == call_value) {
+        *oi = dyn_cast<Value>(loadInst1);
       }
     }
   }
 
-  if (callGetArgInst) {
-    callGetArgInst->eraseFromParent();
-  }
-
-  if (storeCallToInputInst) {
-    storeCallToInputInst->eraseFromParent();
-  }
-
-  IRBuilder<> Builder(inputAlloca->getNextNode());
-  Builder.CreateStore(arg1, inputAlloca);
-
-  if (returnInst && arraydecay1) {
-    IRBuilder<> RetBuilder(returnInst);
-    RetBuilder.CreateRet(arraydecay1);
-    returnInst->eraseFromParent();
-  } else {
-    errs() << "Failed to find return instruction or arraydecay1\n";
-  }
+  getArgCall->eraseFromParent();
 
   errs() << "Function '" << MainFunc->getName() << "' cloned to '"
          << newCalleeFunc->getName() << "' with modifications.\n";
@@ -243,25 +269,20 @@ CallInst *MergeGoCFuncPass::getCallInstByCalledFunc(Function *callerFunc,
 
 void MergeGoCFuncPass::replaceMakeRpcCall(Module *M) {
   Function *makeRpc = M->getFunction("main.make__rpc");
-  if (makeRpc) {
-    errs() << "Function " << makeRpc->getName() << " found. \n";
-  } else {
+  if (!makeRpc) {
     errs() << "Function 'main.make__rpc' not found!\n";
     return;
   }
 
   Function *wrapperGoToC = M->getFunction("main.wrapper__go2c");
-  if (wrapperGoToC) {
-    errs() << "Function " << wrapperGoToC->getName() << " found. \n";
-  } else {
-    errs() << "Function 'main.make__rpc' not found!\n";
+  if (!wrapperGoToC) {
+    errs() << "Function 'main.wrapper__go2c' not found!\n";
     return;
   }
 
   Function *callerFunc = M->getFunction("main.main");
   CallInst *rpcInst = getCallInstByCalledFunc(callerFunc, makeRpc);
   std::vector<Value *> arguments;
-  errs() << "NumOperands: " << rpcInst->getNumOperands() << "\n";
   for (unsigned i = 0; i < rpcInst->getNumOperands(); i++) {
     if (i == 0 || i == 3 || i == 4) {
       Value *arg = rpcInst->getOperand(i);
@@ -293,32 +314,25 @@ void MergeGoCFuncPass::replaceMakeRpcCall(Module *M) {
 
 void MergeGoCFuncPass::replaceDummy(Module *M) {
   Function *dummyFun = M->getFunction("main.dummy");
-  if (dummyFun) {
-    errs() << "Function " << dummyFun->getName() << " found. \n";
-  } else {
+  if (!dummyFun) {
     errs() << "Function 'main.dummy' not found!\n";
     return;
   }
 
   Function *mainCallee = M->getFunction("main_callee");
-  if (mainCallee) {
-    errs() << "Function " << mainCallee->getName() << " found. \n";
-  } else {
+  if (!mainCallee) {
     errs() << "Function 'main_callee' not found!\n";
     return;
   }
 
   Function *callerFunc = M->getFunction("main.wrapper__go2c");
-  if (callerFunc) {
-    errs() << "Function " << callerFunc->getName() << " found. \n";
-  } else {
+  if (!callerFunc) {
     errs() << "Call Function 'main.wrapper__go2c' not found!\n";
     return;
   }
 
   CallInst *callDummy = getCallInstByCalledFunc(callerFunc, dummyFun);
   std::vector<Value *> arguments;
-  errs() << "NumOperands: " << callDummy->getNumOperands() << "\n";
   for (unsigned i = 0; i < callDummy->getNumOperands(); i++) {
     if (i == 1) {
       Value *arg = callDummy->getOperand(i);
