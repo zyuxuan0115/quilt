@@ -18,6 +18,23 @@ fn main() {
     hotel_id_not_cached.insert(hotelid, hotel_id.to_owned());
   }
 
+  let addr: Address = serde_json::from_str(&address).unwrap();
+  let img: Vec<Image> = serde_json::from_str(&images).unwrap();
+  let p_info = HotelProfile {
+    hotel_id: hotel_id.clone(),
+    name: name,
+    phone_number: phone_number,
+    description: description,
+    address: addr,
+    images: img,
+  }; 
+  // update memcached
+  let key = format!("{}:profile",hotel_id);
+  let value = serde_json::to_string(&p_info).unwrap(); 
+  memcache_client.set(&key[..],&value[..],0).unwrap();
+  hotel_profiles.push(p_info);
+
+/*
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
@@ -75,7 +92,7 @@ fn main() {
       }
     }
   }
-
+*/
   let serialized = serde_json::to_string(&hotel_profiles).unwrap();
 
   //let new_now =  Instant::now();
