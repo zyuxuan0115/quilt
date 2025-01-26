@@ -5,6 +5,23 @@ use knn::PointCloud;
 use std::collections::HashMap;
 use redis::{Commands, Iter};
 use std::process;
+use rand::Rng;
+use rand::distributions::Alphanumeric;
+
+fn gen_rand_str() -> String {
+  let s: String = rand::thread_rng()
+    .sample_iter(&Alphanumeric)
+    .take(10)
+    .map(char::from)
+    .collect();
+  s
+}
+
+fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
+  let mut rng = rand::thread_rng();
+  let x: f64 = rng.gen_range(lower_bound..upper_bound);
+  x
+}
 
 fn main() {
   let time_0 = Instant::now();
@@ -22,6 +39,7 @@ fn main() {
   let prefix = "cinema:*"; // Change to your actual prefix
 
   // Use SCAN command to get matching keys
+/*
   let result: redis::RedisResult<Iter<String>> = con.scan_match(prefix);
   let mut keys: Vec<String> = Vec::new();
   match result {
@@ -52,6 +70,18 @@ fn main() {
         process::exit(0);
       }
     }
+  }
+*/
+  for i in 0..100 {
+    let cid: String = format!("c{}", i);
+    let cinema_info = Cinema {
+      cinema_id: cid,
+      latitude: gen_rand_num(32.0,39.9),
+      longitude: gen_rand_num(112.0, 119.9),
+      cinema_name: gen_rand_str(),
+      cinema_type: gen_rand_str(),
+    };
+    cinemas.push(cinema_info);
   }
 
   let cinema_hashmap: HashMap<String, String> = cinemas.iter().map(|x| {
