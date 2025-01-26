@@ -9,3 +9,17 @@ go build caller.go
 ```bash
 echo "{\"msg\":\"\"}" | ./caller
 ```
+
+### Deploy go function
+
+```bash
+./build.sh build
+./build.sh deploy
+```
+
+### Invoke go function (you must have c callee function deployed)
+
+```bash
+./build.sh invoke
+```
+
