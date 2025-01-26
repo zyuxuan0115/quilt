@@ -1,9 +1,6 @@
 --require "socket"
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
-package.path = package.path .. ";/usr/share/lua/5.1/?.lua"
-package.cpath = package.cpath .. ";/usr/lib/x86_64-linux-gnu/lua/5.1/?.so"
-local mime = require("mime")
 
 local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
   'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q',
@@ -42,16 +39,11 @@ request = function(req_id)
 --  local cinema_id = 'cinema_' .. tostring(counter%100)
   local cinema_id = 'cinema_' .. tostring(counter%500)
 
-  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
-  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
-  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
-
   local method = "POST"
-  local path = "/api/v1/namespaces/_/actions/set-cinema?blocking=true&result=true"
+  local path = "/set-cinema"
   local headers = {}
   local body
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = auth
 
   body = '{"latitude":' .. lat .. ',"longitude":' .. long .. ',"cinema_id":"' 
          .. cinema_id .. '","cinema_name":"' .. stringRandom(10) .. '","cinema_type":"'

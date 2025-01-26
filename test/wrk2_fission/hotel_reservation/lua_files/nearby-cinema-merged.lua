@@ -1,9 +1,6 @@
 --require "socket"
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
-package.path = package.path .. ";/usr/share/lua/5.1/?.lua"
-package.cpath = package.cpath .. ";/usr/lib/x86_64-linux-gnu/lua/5.1/?.so"
-local mime = require("mime")
 
 local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
   'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q',
@@ -37,16 +34,11 @@ end
 request = function(req_id)
   local hotel_id = 'hotel_' .. tostring(math.random(0,499))
 
-  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
-  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
-  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
-
   local method = "POST"
-  local path = "/api/v1/namespaces/_/actions/nearby-cinema-merged?blocking=true&result=true"
+  local path = "/nearby-cinema-merged"
   local headers = {}
   local body = '{"hotel_id":"' .. hotel_id .. '"}'
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = auth
 
   local body_write = body .. '\n'
   file = io.open('req_data_log_nearby-cinema-merged.txt', 'a')

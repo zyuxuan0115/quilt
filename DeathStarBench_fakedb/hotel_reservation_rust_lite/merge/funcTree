@@ -1,2 +1,1 @@
-reservation-handler make-reservation
-reservation-handler check-user
+nearby-cinema get-nearby-points-cinema
