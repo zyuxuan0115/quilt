@@ -64,6 +64,7 @@ function merge_fission {
   cp merge_tree.py temp
   cp funcTree temp
   cp rm_redundant_bc.py temp
+  echo "$CALLER-merged" > temp/metadata.txt
   sudo docker build --no-cache -t zyuxuan0115/hr-$CALLER-async-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
@@ -75,21 +76,28 @@ function merge_fission {
 
 
 function deploy_openwhisk {
-  wsk action create page-service-merged --docker zyuxuan0115/hr-page-service-async-merged
-  wsk action create compose-review-merged --docker zyuxuan0115/hr-compose-review-async-merged
-  wsk action create read-user-review-merged --docker zyuxuan0115/hr-read-user-review-async-merged
+  FUNCS=("nearby-cinema" "nearby-cinema-merged" "search-handler" "reservation-handler")
+  for FUNC in "${FUNCS[@]}"; do
+    wsk action create $FUNC --docker zyuxuan0115/hr-$FUNC-merged
+  done
 }
 
 
 function deploy_fission {
-  FUNC=compose-review-async
-  fission function run-container --name $FUNC-merged \
-    --image docker.io/zyuxuan0115/hr-$FUNC-merged \
-    --port 8888 \
-    --namespace fission-function
-  fission httptrigger create --method POST \
-    --url /$FUNC-merged --function $FUNC-merged \
-    --namespace fission-function
+  FUNCS=("nearby-cinema" "nearby-cinema-merged" "search-handler" "reservation-handler")
+  for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
+    fission function run-container --name $FUNC-merged \
+      --image docker.io/zyuxuan0115/hr-$FUNC-merged \
+      --minscale=1 --maxscale=30 \
+      --minmemory=1 --maxmemory=64 \
+      --mincpu=1  --maxcpu=2000 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-merged --function $FUNC-merged \
+      --namespace fission-function
+  done
 }
 
 case "$1" in
