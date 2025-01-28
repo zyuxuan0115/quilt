@@ -73,7 +73,7 @@ fn main() {
 */
   let time_0 = Instant::now();
 
-  for i in 0..20000 {
+  for i in 0..100 {
     let cid: String = format!("c{}", i);
     let cinema_info = Cinema {
       cinema_id: cid,
