@@ -4,6 +4,18 @@
       "cluster_id":1
     },
     {
+      "function_name":"get-nearby-points-cinema-1",
+      "cluster_id":1
+    },
+    {
+      "function_name":"get-nearby-points-cinema-2",
+      "cluster_id":1
+    },
+    {
+      "function_name":"get-nearby-points-cinema-3",
+      "cluster_id":1
+    },
+    {
       "function_name":"get-nearby-points-mus",
       "cluster_id":1
     },
@@ -17,6 +29,14 @@
     },
     {
       "function_name":"nearby-cinema",
+      "cluster_id":1
+    },
+    {
+      "function_name":"nearby-cinema-parallel",
+      "cluster_id":1
+    },
+    {
+      "function_name":"nearby-cinema-parallel",
       "cluster_id":1
     },
     {
