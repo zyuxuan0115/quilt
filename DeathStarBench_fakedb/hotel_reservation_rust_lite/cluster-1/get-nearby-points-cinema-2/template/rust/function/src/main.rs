@@ -7,6 +7,11 @@ use redis::{Commands, Iter};
 use std::process;
 use rand::Rng;
 use rand::distributions::Alphanumeric;
+use libc;
+
+fn get_core_id() -> i32 {
+  unsafe { libc::sched_getcpu() }
+}
 
 fn gen_rand_str() -> String {
   let s: String = rand::thread_rng()
@@ -28,11 +33,11 @@ fn main() {
   let hotel_loc: GetNearbyPointsCinemaArgs = serde_json::from_str(&input).unwrap();
 
   let mut cinemas: Vec<Cinema> = Vec::new();
-
+/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
-
+*/
   // Start scanning for keys with a specific prefix
   let mut cursor: u64 = 0;
   let prefix = "cinema:*"; // Change to your actual prefix
@@ -72,7 +77,7 @@ fn main() {
   }
 */
   let time_0 = Instant::now();
-
+/*
   for i in 0..100 {
     let cid: String = format!("c{}", i);
     let cinema_info = Cinema {
@@ -93,7 +98,8 @@ fn main() {
 
   let cinema_p: Vec<[f64;2]> = cinemas.iter().map(|x|{
     let new_v: [f64;2] = [x.latitude, x.longitude]; new_v}).collect();
-
+*/
+/*
   let compute_dist = |p: &[f64;2], q: &[f64;2]| -> f64 { ((p[0]-q[0])*(p[0]-q[0])+(p[1]-q[1])*(p[1]-q[1])).sqrt() as f64};
   let mut pc = PointCloud::new(compute_dist);
   for i in 0..cinema_p.len() {
@@ -101,8 +107,9 @@ fn main() {
   }
   let center: [f64;2] = [hotel_loc.latitude, hotel_loc.longitude];
   let results = pc.get_nearest_k(&center, maxSearchResults);
-
+*/
   let mut cinema_points: Vec<Point> = Vec::new();
+/*
   for item in results {
     let new_p = (item.1[0], item.1[1]);
     let new_p_str = serde_json::to_string(&new_p).unwrap();
@@ -114,12 +121,16 @@ fn main() {
     };
     cinema_points.push(new_p);
   }
+*/
   let serialized = serde_json::to_string(&cinema_points).unwrap();
   let time_1 = Instant::now();
   let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
 //  println!("{}",result);
-  send_return_value_to_caller(serialized);
-  
+  let core_id = get_core_id();
+  let res = format!("Thread 3 is running on core {}, time is {}", core_id, result);
+//  send_return_value_to_caller(serialized);
+  send_return_value_to_caller(res);  
+
 //  println!("get-nearby-points-cinema: {}",result);
 }
 

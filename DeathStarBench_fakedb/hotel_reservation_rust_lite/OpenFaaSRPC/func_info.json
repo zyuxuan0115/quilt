@@ -36,6 +36,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"nearby-cinema-parallel-man",
+      "cluster_id":1
+    },
+    {
       "function_name":"nearby-cinema-parallel",
       "cluster_id":1
     },
