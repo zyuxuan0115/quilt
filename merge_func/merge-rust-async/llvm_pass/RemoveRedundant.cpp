@@ -13,6 +13,7 @@ using namespace llvm;
 
 PreservedAnalyses RemoveRedundantPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
+/*
   Function *mainFunc = M.getFunction("main");
   std::unordered_set<Function*> visitedFuncs;
   std::vector<Function*> FuncsToBeVisited;
@@ -59,7 +60,7 @@ PreservedAnalyses RemoveRedundantPass::run(Module &M,
     functionCount++;
   }
   llvm::errs()<<functionCount<<"\n";
-
+*/
   std::unordered_map<CallInst*, Function*> curl_call_and_func;
   CallInst* call_curl_init = NULL;
   Function* curl_init_func = NULL;
