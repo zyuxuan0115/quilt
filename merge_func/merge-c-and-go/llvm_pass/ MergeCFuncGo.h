@@ -1,4 +1,4 @@
-//===-- MergeCGo.h - Example Transformations ---------------*- C++ -*-===//
+//===-- MergeCFuncGo.h - Example Transformations ---------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_TRANSFORMS_UTILS_MERGEGOCFUNC_H
-#define LLVM_TRANSFORMS_UTILS_MERGEGOCFUNC_H
+#ifndef LLVM_TRANSFORMS_UTILS_MERGECFUNCGO_H  
+#define LLVM_TRANSFORMS_UTILS_MERGECFUNCGO_H
 
 #include "llvm/ADT/IndexedMap.h"
 #include "llvm/ADT/Statistic.h"
@@ -33,7 +33,7 @@
 
 namespace llvm {
 
-class MergeCGoPass : public PassInfoMixin<MergeCGoPass> {
+class MergeCFuncGoPass : public PassInfoMixin<MergeCFuncGoPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
 };
