@@ -2,6 +2,14 @@
 import os
 import sys 
 import json
+import subprocess
+from multiprocessing import Pool
+
+def run_command(cmd):
+  process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  stdout, stderr = process.communicate()
+  return cmd, stdout.decode(), stderr.decode()
+
 
 def move_functions(json_file):
   funcTree = sys.argv[2]
@@ -42,12 +50,18 @@ def merge(f_name):
       new_func=word
       if new_func not in func_visited:
         func_visited[new_func] = 1
-  func_to_be_compiled = ""
+  compile_cmds = []
   for func in func_visited:
-    func_to_be_compiled = func_to_be_compiled + func + " "
-  cmd = "./merge.sh compile "+func_to_be_compiled
-  print(cmd)
-  os.system(cmd)
+    cmd = "./merge.sh compile "+func
+    compile_cmds.append(cmd)
+  with Pool(processes=len(compile_cmds)) as pool:
+    results = pool.map(run_command, compile_cmds)
+#  func_to_be_compiled = ""
+#  for func in func_visited:
+#    func_to_be_compiled = func_to_be_compiled + func + " "
+#  cmd = "./merge.sh compile "+func_to_be_compiled
+#  print(cmd)
+#  os.system(cmd)
   # rename caller
   cmd = "./merge.sh rename_caller "+entry_func
   print(cmd)
@@ -101,7 +115,7 @@ def clean(f_name):
   func_to_be_compiled = ""
   for func in func_visited:
     func_to_be_compiled = func_to_be_compiled + func + " "
-  cmd = "rm -rf "+func_to_be_compiled+" *.o *.bc *.txt function Implib.so"
+  cmd = "rm -rf "+func_to_be_compiled+" *.o *.bc *.txt function Implib.so ir"
   print(cmd)
   os.system(cmd)
 
