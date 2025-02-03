@@ -41,6 +41,8 @@ namespace llvm {
 class RemoveRedundantPass : public PassInfoMixin<RemoveRedundantPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
+  void moveCurlInit(Module*);
+  void renameCurlInit(Module*);
   std::vector<Function*> getCalleeVec(Function*);
   std::string getDemangledRustFuncName(std::string);
   std::string demangle_bin = "/llvm/demangle_rust_funcname";

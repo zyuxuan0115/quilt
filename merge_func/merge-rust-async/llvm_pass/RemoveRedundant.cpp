@@ -10,85 +10,74 @@
 
 using namespace llvm;
 
+static cl::opt<bool> renameLibcurl(
+                                   "rename-libcurl", cl::init(false),
+                                   cl::desc("llvm pass to rename libcurl"));
+
+static cl::opt<bool> moveLibcurl(
+                                   "move-libcurl", cl::init(false),
+                                   cl::desc("llvm pass to move libcurl functions"));
+
+static cl::opt<std::string> libcurlIndex(
+                                   "index", cl::Hidden,
+                                   cl::desc("the index of libcurl"),
+                                   cl::init(""));
+
+static cl::opt<std::string> totalNum(
+                                   "total-num", cl::Hidden,
+                                   cl::desc("the total number of libcurl"),
+                                   cl::init(""));
 
 PreservedAnalyses RemoveRedundantPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
-/*
-  Function *mainFunc = M.getFunction("main");
-  std::unordered_set<Function*> visitedFuncs;
-  std::vector<Function*> FuncsToBeVisited;
-
-  visitedFuncs.insert(mainFunc);
-  FuncsToBeVisited.push_back(mainFunc);
-
-  while (!FuncsToBeVisited.empty()) {
-    Function* func = FuncsToBeVisited.front();
-    std::vector<Function*> calleeVec = getCalleeVec(func);
-    for (auto calleeFunc: calleeVec) {
-      if (visitedFuncs.find(calleeFunc) == visitedFuncs.end()) {
-        FuncsToBeVisited.push_back(calleeFunc);
-        visitedFuncs.insert(calleeFunc);
-      }
-    }
-    FuncsToBeVisited.erase(FuncsToBeVisited.begin());
-  } 
-
-  int functionCount = 0;
-  for (auto f = M.begin(); f!=M.end(); f++) {
-    functionCount++;
+  if (moveLibcurl) {
+    moveCurlInit(&M);
   }
-
-  llvm::errs()<<visitedFuncs.size()<<"\n";
-  llvm::errs()<<functionCount<<"\n";
-    
-  std::vector<Function*> funcToBeErased;
-  do {
-    funcToBeErased.clear();
-    for (auto f=M.begin(); f != M.end(); f++) {
-      Function* func = dyn_cast<Function>(f);
-      if ((func->use_empty()) && (visitedFuncs.find(func) == visitedFuncs.end())) {
-        funcToBeErased.push_back(func);
-      }
-    }
-    for (auto func: funcToBeErased) {
-      func->eraseFromParent();
-    }
-  } while (!funcToBeErased.empty());
-
-  functionCount = 0;
-  for (auto f = M.begin(); f!=M.end(); f++) {
-    functionCount++;
+  else if (renameLibcurl) {
+    renameCurlInit(&M);
   }
-  llvm::errs()<<functionCount<<"\n";
-*/
-  std::unordered_map<CallInst*, Function*> curl_call_and_func;
-  CallInst* call_curl_init = NULL;
-  Function* curl_init_func = NULL;
-  for (auto f = M.begin(); f != M.end(); f++) {
-    for (auto bb = f->begin(); bb != f->end(); bb++) {
-      for (auto inst = bb->begin(); inst!=bb->end(); inst++) {
-        if (isa<CallInst>(inst)) {
-          CallInst* ci = dyn_cast<CallInst>(inst);
-          Function* func = ci->getCalledFunction();
-          if (func){
-            std::string demangledFuncName = getDemangledRustFuncName(func->getName().str());
-            if (demangledFuncName == "curl::init::{{closure}}") {
-              curl_call_and_func[ci] = func;
-            }
-          }
+  return PreservedAnalyses::all();
+}
+
+void RemoveRedundantPass::moveCurlInit(Module* M) {
+  int num = std::stoi(totalNum);
+  std::vector<Function*> funcs;
+  for (int i=0; i<num; i++) {
+    std::string idx = std::to_string(i);
+    std::string fname = "curl_init_"+idx;
+    Function* f = M->getFunction(fname);
+    funcs.push_back(f);
+  }
+  std::vector<CallInst*> callSites;
+  for (auto func: funcs) {
+    for (llvm::User *U : func->users()) { 
+      if (llvm::Instruction *Inst = llvm::dyn_cast<llvm::Instruction>(U)) {
+        if (llvm::CallInst *CI = llvm::dyn_cast<llvm::CallInst>(Inst)) {
+          callSites.push_back(CI);
         }
       }
     }
-  }  
-
-  for (auto it = curl_call_and_func.begin(); it != curl_call_and_func.end(); it++) {
-    llvm::errs()<<"@@@ "<<*it->first<<"\n";
-
-    it->first->eraseFromParent();
-    it->second->eraseFromParent();
   }
+  for (auto call: callSites) {
+    call->eraseFromParent();
+  }
+  for (auto func: funcs) {
+    func->eraseFromParent();
+  }
+}
 
-  return PreservedAnalyses::all();
+
+void RemoveRedundantPass::renameCurlInit(Module* M) {
+  Function* curlInitFunc; 
+  for (auto f = M->begin(); f != M->end(); f++) {
+    Function* func = dyn_cast<Function>(f);
+    std::string funcName = func->getName().str();
+    std::string demangledFuncName = getDemangledRustFuncName(funcName);
+    if (demangledFuncName == "curl::init::{{closure}}") {
+      curlInitFunc = func;
+    }
+  }
+  curlInitFunc->setName("curl_init_"+libcurlIndex);
 }
 
 
