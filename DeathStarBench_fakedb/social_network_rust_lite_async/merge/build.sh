@@ -81,14 +81,20 @@ function deploy_openwhisk {
 
 
 function deploy_fission {
-  FUNC=compose-post-async
-  fission function run-container --name $FUNC-merged \
-    --image docker.io/zyuxuan0115/sn-$FUNC-merged \
-    --port 8888 \
-    --namespace fission-function
-  fission httptrigger create --method POST \
-    --url /$FUNC-merged --function $FUNC-merged \
-    --namespace fission-function
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
+    fission function run-container --name $FUNC-merged \
+      --image docker.io/zyuxuan0115/sn-$FUNC-async-merged \
+      --minscale=1 --maxscale=30 \
+      --minmemory=1 --maxmemory=128 \
+      --mincpu=1  --maxcpu=2000 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-merged --function $FUNC-merged \
+      --namespace fission-function
+  done
 }
 
 
