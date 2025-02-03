@@ -70,11 +70,10 @@ func main() {
   var request Request
   err := json.Unmarshal([]byte(input), &request)
   if err != nil {
-    fmt.Println("Error converting string to json:", err)
-    os.Exit(0)
+    request.Msg = input
   }
   uuid_request := Request {
-    Msg: "",
+    Msg: request.Msg,
   }
   jsonData, _ := json.Marshal(uuid_request)
   resp := make_rpc("c-callee", string(jsonData))
