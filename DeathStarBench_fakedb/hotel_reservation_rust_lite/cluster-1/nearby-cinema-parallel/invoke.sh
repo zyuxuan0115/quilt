@@ -15,12 +15,12 @@ function invoke_wsk {
 
 function invoke_fission {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"hotel_id":"h1347234"}'
+  -d '{"num":300000}'
 }
 
 function invoke_fission_merged {
   curl -XPOST http://localhost:8888/$FUNC-merged \
-  -d '{"hotel_id":"h1347234"}'
+  -d '{"num":300000}'
 }
 
 case "$1" in

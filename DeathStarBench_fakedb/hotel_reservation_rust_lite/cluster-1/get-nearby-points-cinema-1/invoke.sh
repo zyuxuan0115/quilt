@@ -15,7 +15,7 @@ function invoke_wsk {
 
 function invoke_fission {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"latitude":32.7157, "longitude":117.1611}'
+  -d '{"num":300000}'
 }
 
 case "$1" in

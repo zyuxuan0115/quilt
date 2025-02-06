@@ -30,24 +30,20 @@ fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let hotel_loc: GetNearbyPointsCinemaArgs = serde_json::from_str(&input).unwrap();
-
-  let mut cinemas: Vec<Cinema> = Vec::new();
-
-  // Start scanning for keys with a specific prefix
-  let mut cursor: u64 = 0;
-  let prefix = "cinema:*"; // Change to your actual prefix
+  let input_arg: NearbyCinemaParallelArgs = serde_json::from_str(&input).unwrap();
+  let num = input_arg.num;
 
   // Use SCAN command to get matching keys
   let time_0 = Instant::now();
 
-  for i in 0..100 {
+  let mut cinemas: Vec<Cinema> = Vec::new(); 
+  for i in 0..num {
     let idx: f64 = i.into();
     let cid: String = format!("c{}", i);
     let cinema_info = Cinema {
       cinema_id: cid,
-      latitude: 32.0+0.08*idx,
-      longitude: 32.0+0.08*idx,
+      latitude: 32.0+0.0001*idx,
+      longitude: 32.0+0.0001*idx,
       cinema_name: "ABC".to_string(),
       cinema_type: "romance".to_string(),
     };
@@ -91,7 +87,7 @@ fn main() {
   let time_1 = Instant::now();
   let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
   let core_id = get_core_id();
-  let res = format!("Thread 4 is running on core {}, time is {}", core_id, result);
+  let res = format!("Thread 1 is running on core {}, time is {}", core_id, result);
 //  println!("{}",result);
 //  send_return_value_to_caller(serialized);
   send_return_value_to_caller(res);

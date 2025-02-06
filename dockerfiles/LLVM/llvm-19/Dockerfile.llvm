@@ -54,6 +54,7 @@ COPY --from=builder /faas-test/merge_func/merge-rust-async/demangle_rust_funcnam
 ENV CARGO_TARGET_DIR=/home/rust/target
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup toolchain install nightly
+RUN rustup default 1.78
 RUN rustup default nightly
 RUN rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
 ENV PATH="/llvm/bin:${PATH}"

@@ -6,6 +6,11 @@ pub static maxSearchResults: usize = 5;
 pub static maxSearchRadius: f64  = 10.0;
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct NearbyCinemaParallelArgs {
+  pub num: i32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct GetNearbyPointsRestArgs {
   pub latitude: f64,
   pub longitude: f64,

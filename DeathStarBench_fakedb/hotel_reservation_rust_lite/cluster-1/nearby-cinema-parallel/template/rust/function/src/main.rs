@@ -29,61 +29,36 @@ fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
 fn main() {
   let input: String = get_arg_from_caller();
 
-  let input_args: NearbyCinemaArgs = serde_json::from_str(&input).unwrap();
-  let hotel_id: String = input_args.hotel_id;
-
-  let mut hid = format!("geo:{}", hotel_id);
-  let mut cinema_pids: Vec<String> = Vec::new(); 
-
-  let args = GetNearbyPointsCinemaArgs {
-    latitude: gen_rand_num(31.0, 39.0),
-    longitude: gen_rand_num(112.0, 119.9),
-  };
-  let serialized = serde_json::to_string(&args).unwrap();
-
-  let args2 = GetNearbyPointsCinemaArgs {
-    latitude: gen_rand_num(31.0, 39.0),
-    longitude: gen_rand_num(112.0, 119.9),
-  };
-  let serialized2 = serde_json::to_string(&args2).unwrap();
-
-  let args3 = GetNearbyPointsCinemaArgs {
-    latitude: gen_rand_num(31.0, 39.0),
-    longitude: gen_rand_num(112.0, 119.9),
-  };
-  let serialized3 = serde_json::to_string(&args3).unwrap();
-
-  let args4 = GetNearbyPointsCinemaArgs {
-    latitude: gen_rand_num(31.0, 39.0),
-    longitude: gen_rand_num(112.0, 119.9),
-  };
-  let serialized4 = serde_json::to_string(&args4).unwrap();
-
+  let input_args: NearbyCinemaParallelArgs = serde_json::from_str(&input).unwrap();
+  let num: i32 = input_args.num;
   let time_0 = Instant::now();
 
+  let input1 = input.clone();
   let cinema_points_str_future = thread::spawn(move || {
 //    let core_id = get_core_id();
 //    print!("Thread 1 is running on core {}, ", core_id);
-    make_rpc("get-nearby-points-cinema-4", serialized)
+    make_rpc("get-nearby-points-cinema-1", input1)
   });
 
-
+  let input2 = input.clone();
   let cinema_points_str2_future = thread::spawn(move || {
 //    let core_id = get_core_id();
 //    print!("Thread 2 is running on core {}, ", core_id);
-    make_rpc("get-nearby-points-cinema-1", serialized2)
+    make_rpc("get-nearby-points-cinema-2", input2)
   });
 
+  let input3 = input.clone();
   let cinema_points_str3_future = thread::spawn(move || {
 //    let core_id = get_core_id();
 //    print!("Thread 3 is running on core {}, ", core_id);
-    make_rpc("get-nearby-points-cinema-2", serialized3)
+    make_rpc("get-nearby-points-cinema-3", input3)
   });
 
+  let input4 = input.clone();
   let cinema_points_str4_future = thread::spawn(move || {
 //    let core_id = get_core_id();
 //    print!("Thread 4 is running on core {}, ", core_id);
-    make_rpc("get-nearby-points-cinema-3", serialized4)
+    make_rpc("get-nearby-points-cinema-4", input4)
   });
 
   let cinema_points_str = cinema_points_str_future.join().unwrap();

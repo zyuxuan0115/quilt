@@ -30,66 +30,27 @@ fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
 
 fn main() {
   let input: String = get_arg_from_caller();
-  let hotel_loc: GetNearbyPointsCinemaArgs = serde_json::from_str(&input).unwrap();
-
-  let mut cinemas: Vec<Cinema> = Vec::new();
-/*
-  let redis_uri = get_redis_rw_uri();
-  let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
-  let mut con = redis_client.get_connection().unwrap();
-*/
-  // Start scanning for keys with a specific prefix
-  let mut cursor: u64 = 0;
-  let prefix = "cinema:*"; // Change to your actual prefix
+  let input_arg: NearbyCinemaParallelArgs = serde_json::from_str(&input).unwrap();
+  let num = input_arg.num;
 
   // Use SCAN command to get matching keys
-/*
-  let result: redis::RedisResult<Iter<String>> = con.scan_match(prefix);
-  let mut keys: Vec<String> = Vec::new();
-  match result {
-    Ok(iter) => {
-      keys = iter.map(|x| x).collect();
-    },
-    Err(err) => {
-      println!("Error: finding any of the cinema record");
-      panic!("Error: finding any of the cinema record");
-    },
-  }
-  for key in keys {
-    let result: redis::RedisResult<(String, f64, f64, String, String)> = redis::cmd("HMGET").arg(&key[..]).arg("cinema_id").arg("latitude").arg("longitude").arg("cinema_name").arg("cinema_type").query(&mut con);
-    match result {
-      Ok((id,lat,long,name,mtype)) => {
-        let cinema_info = Cinema {
-            cinema_id: id,
-            latitude: lat,
-            longitude: long,
-            cinema_name: name,
-            cinema_type: mtype,
-        };
-        cinemas.push(cinema_info);
-      },
-      Err(_) => {
-        let err_msg = format!("error in loading cinema info, with id: {}", key);
-        send_return_value_and_err_msg("".to_string(), err_msg);
-        process::exit(0);
-      }
-    }
-  }
-*/
   let time_0 = Instant::now();
-/*
-  for i in 0..100 {
+
+  let mut cinemas: Vec<Cinema> = Vec::new(); 
+  for i in 0..num {
+    let idx: f64 = i.into();
     let cid: String = format!("c{}", i);
     let cinema_info = Cinema {
       cinema_id: cid,
-      latitude: gen_rand_num(32.0,39.9),
-      longitude: gen_rand_num(112.0, 119.9),
-      cinema_name: gen_rand_str(),
-      cinema_type: gen_rand_str(),
+      latitude: 32.0+0.0001*idx,
+      longitude: 32.0+0.0001*idx,
+      cinema_name: "ABC".to_string(),
+      cinema_type: "romance".to_string(),
     };
     cinemas.push(cinema_info);
   }
 
+/*
   let cinema_hashmap: HashMap<String, String> = cinemas.iter().map(|x| {
     let new_p: (f64,f64) = (x.latitude, x.longitude); 
     let new_p_str = serde_json::to_string(&new_p).unwrap();
@@ -126,7 +87,7 @@ fn main() {
   let time_1 = Instant::now();
   let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
   let core_id = get_core_id();
-  let res = format!("Thread 4 is running on core {}, time is {}", core_id, result);
+  let res = format!("Thread 1 is running on core {}, time is {}", core_id, result);
 //  println!("{}",result);
 //  send_return_value_to_caller(serialized);
   send_return_value_to_caller(res);

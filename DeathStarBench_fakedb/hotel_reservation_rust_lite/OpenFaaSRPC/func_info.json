@@ -16,6 +16,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"get-nearby-points-cinema-4",
+      "cluster_id":1
+    },
+    {
       "function_name":"get-nearby-points-mus",
       "cluster_id":1
     },
@@ -40,7 +44,7 @@
       "cluster_id":1
     },
     {
-      "function_name":"nearby-cinema-parallel",
+      "function_name":"nearby-cinema-serial",
       "cluster_id":1
     },
     {
