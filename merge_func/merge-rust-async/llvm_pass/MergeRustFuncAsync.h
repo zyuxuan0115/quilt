@@ -41,6 +41,7 @@ class MergeRustFuncAsyncPass : public PassInfoMixin<MergeRustFuncAsyncPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   std::string getRPCCalleeName(CallInst* RPCInst);
+  std::string getRPCCalleeName(InvokeInst* RPCInst);
   CallInst* getCallByDemangledName(Function*, std::string);
   std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
@@ -52,15 +53,15 @@ public:
   void changeNewCalleeOutput(Function*);
   void changeNewCalleeInput(Function*);
   bool IsStringStartWith(std::string, std::string);
-  Function* getMainClosure(Module*, std::string, std::string);
-  CallInst* getRPCinst(Function*, std::string);
+  Function* getRPCCallerFunc(Module*, std::string, std::string);
+  Instruction* getRPCinst(Function*, std::string);
   bool hasSuffix(std::string, std::string);
+  bool hasPrefix(std::string, std::string);
   std::string stripSuffix(std::string, std::string);
   void RenameCallee(Module*);
   void RenameCaller(Module*);
   void MergeCallee(Module*);
   void MergeExistingCallee(Module*);
-  void RenameFunctionMainClosure(Module*, std::string);
 
 private:
   std::string demangle_bin = "/llvm/demangle_rust_funcname";
