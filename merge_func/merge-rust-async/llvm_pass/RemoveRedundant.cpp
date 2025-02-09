@@ -61,31 +61,36 @@ PreservedAnalyses RemoveRedundantPass::run(Module &M,
   }
   llvm::errs()<<functionCount<<"\n";
 */
-  std::unordered_map<CallInst*, Function*> curl_call_and_func;
-  CallInst* call_curl_init = NULL;
-  Function* curl_init_func = NULL;
-  for (auto f = M.begin(); f != M.end(); f++) {
-    for (auto bb = f->begin(); bb != f->end(); bb++) {
-      for (auto inst = bb->begin(); inst!=bb->end(); inst++) {
-        if (isa<CallInst>(inst)) {
-          CallInst* ci = dyn_cast<CallInst>(inst);
-          Function* func = ci->getCalledFunction();
-          if (func){
-            std::string demangledFuncName = getDemangledRustFuncName(func->getName().str());
-            if (demangledFuncName == "curl::init::{{closure}}") {
-              curl_call_and_func[ci] = func;
-            }
-          }
+  Function* curl_global_init_func = M.getFunction("curl_global_init");
+  std::vector<llvm::CallInst*> callSites;    
+  for (User* U : curl_global_init_func->users()) { // Iterate over all uses of the function
+    if (CallInst* callInst = llvm::dyn_cast<llvm::CallInst>(U)) {
+      callSites.push_back(callInst);
+    }
+  }
+
+  for (auto call: callSites) {
+    AllocaInst* ptr = new llvm::AllocaInst(llvm::Type::getInt32Ty(M.getContext()), 0, "ptr", call);
+
+    ConstantInt* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(M.getContext()), 0);
+    StoreInst* store = new llvm::StoreInst(zero, ptr, call);
+    LoadInst* load = new llvm::LoadInst(llvm::Type::getInt32Ty(M.getContext()), ptr, "load_val", call);
+
+    std::vector<Instruction*> users;
+    for (User* u: call->users()) {
+      Instruction* userInst = dyn_cast<Instruction>(u);
+      users.push_back(userInst);
+    }
+    for (Instruction* inst: users) {
+      for (unsigned i=0; i<inst->getNumOperands(); i++) {
+        Value* op = inst->getOperand(i);
+        if (op == dyn_cast<Value>(call)) {
+          inst->setOperand(i, dyn_cast<Value>(load));
         }
       }
     }
-  }  
+    call->eraseFromParent();
 
-  for (auto it = curl_call_and_func.begin(); it != curl_call_and_func.end(); it++) {
-    llvm::errs()<<"@@@ "<<*it->first<<"\n";
-
-    it->first->eraseFromParent();
-    it->second->eraseFromParent();
   }
 
   return PreservedAnalyses::all();
@@ -96,15 +101,21 @@ std::vector<Function*> RemoveRedundantPass::getCalleeVec(Function* f) {
   std::vector<Function*> calleeVec;
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<CallInst>(IB)) { 
-        CallInst* ci = dyn_cast<CallInst>(IB);
-        Function* callee = ci->getCalledFunction();
-        if (callee) calleeVec.push_back(callee);
+      if (CallInst* ci = dyn_cast<CallInst>(IB)) {
+        if (!ci->isInlineAsm()) {
+          Value* calledValue = ci->getCalledOperand();
+          if (Function* calledFunc = dyn_cast<Function>(calledValue)) {
+            calleeVec.push_back(calledFunc);
+          }
+        }
       }
-      else if (isa<InvokeInst>(IB)) {
-        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
-        Function* callee = ii->getCalledFunction();
-        if (callee) calleeVec.push_back(callee);
+      else if (InvokeInst* ii = dyn_cast<InvokeInst>(IB)) {
+        if (!ii->isInlineAsm()) {
+          Value* calledValue = ii->getCalledOperand();
+          if (Function* calledFunc = dyn_cast<Function>(calledValue)) {
+            calleeVec.push_back(calledFunc);
+          }
+        }
       }
     }
   }
