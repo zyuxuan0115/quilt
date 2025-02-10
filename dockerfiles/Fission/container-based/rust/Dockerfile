@@ -4,10 +4,12 @@ COPY function ./function
 COPY FissionRPC ./OpenFaaSRPC
 COPY DbInterface ./DbInterface
 COPY metadata.txt ./metadata.txt
+
+ARG BIN_NAME=""
  
 WORKDIR /home/rust/function
 RUN cargo build --release 
-RUN objcopy --add-section .metadata=/home/rust/metadata.txt /home/rust/function/target/release/function function_new
+RUN objcopy --add-section .metadata=/home/rust/metadata.txt /home/rust/function/target/release/$BIN_NAME function_new
 
 FROM zyuxuan0115/fission-env:latest as final
 
