@@ -49,10 +49,14 @@ def compile_to_bitcode(f_name):
       new_func=word
       if new_func not in func_visited:
         func_visited[new_func] = 1
-  func_to_be_compiled = ""
+  func_to_be_compiled = '\"'
   for func in func_visited:
-    func_to_be_compiled = func_to_be_compiled + func + " "
-  cmd = "./merge.sh compile "+func_to_be_compiled
+    func_to_be_compiled = func_to_be_compiled + func + '\", \"'
+  with open("Cargo.toml", "w") as file:
+    file.write("[workspace]\n")
+    file.write('members = ['+func_to_be_compiled[:-2]+']')
+
+  cmd = "./merge.sh compile"
   print(cmd)
   os.system(cmd)
 
@@ -136,7 +140,7 @@ def clean(f_name):
   func_to_be_compiled = ""
   for func in func_visited:
     func_to_be_compiled = func_to_be_compiled + func + " "
-  cmd = "rm -rf "+func_to_be_compiled+" *.o *.bc *.txt *.ll Cargo.lock function"
+  cmd = "rm -rf "+func_to_be_compiled+" *.o *.bc *.txt *.ll Cargo.* function"
   print(cmd)
   os.system(cmd)
   cmd = "rm -rf Implib.so DbInterface OpenFaaSRPC target"
