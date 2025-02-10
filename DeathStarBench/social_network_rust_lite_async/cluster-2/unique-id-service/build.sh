@@ -34,6 +34,7 @@ function build_fission_container {
     echo $FUNC > $ROOT_DIR/template/rust/metadata.txt
     sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC-async:latest \
         -f $DOCKERFILE_DIR/Fission/container-based/rust/Dockerfile \
+        --build-arg BIN_NAME="$FUNC" \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/FissionRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface
@@ -101,7 +102,7 @@ function deploy_fission_c {
   echo $MINCPU $MAXCPU $MINMEM $MAXMEM $MINSCALE $MAXSCALE
 
   fission function run-container --name $FUNC \
-    --image docker.io/zyuxuan0115/sn-$FUNC-async --port 8888 \
+    --image docker.io/zyuxuan0115/sn-$FUNC --port 8888 \
     --minscale=$MINSCALE --maxscale=$MAXSCALE \
     --minmemory=$MINMEM --maxmemory=$MAXMEM \
     --mincpu=$MINCPU  --maxcpu=$MAXCPU \
