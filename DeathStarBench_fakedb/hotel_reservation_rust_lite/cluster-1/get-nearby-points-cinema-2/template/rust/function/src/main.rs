@@ -87,7 +87,7 @@ fn main() {
   let time_1 = Instant::now();
   let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
   let core_id = get_core_id();
-  let res = format!("Thread 1 is running on core {}, time is {}", core_id, result);
+  let res = format!("Thread 2 is running on core {}, time is {}", core_id, result);
 //  println!("{}",result);
 //  send_return_value_to_caller(serialized);
   send_return_value_to_caller(res);
