@@ -53,6 +53,16 @@ function merge_openwhisk {
   wsk action create $CALLER-merged --docker zyuxuan0115/sn-$CALLER-async-merged
 }
 
+function pre_compile {
+  mkdir tmp0
+  cp -r ../cluster-1/* tmp0
+  cp -r ../cluster-2/* tmp0
+  rm -rf tmp0/build.sh
+  sudo docker build --no-cache -t zyuxuan0115/sn-bitcode-async:latest \
+    -f $DOCKERFILE_DIR/Dockerfile.pre_compile \
+    tmp0
+}
+
 function merge_fission {
   rm -rf temp && mkdir temp
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
@@ -101,6 +111,9 @@ function deploy_fission {
 case "$1" in
 llvm)
     build_llvm
+    ;;
+pre_compile)
+    pre_compile
     ;;
 merge_openwhisk)
     merge_openwhisk 
