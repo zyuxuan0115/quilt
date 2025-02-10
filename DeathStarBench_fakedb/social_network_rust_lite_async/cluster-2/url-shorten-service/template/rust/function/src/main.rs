@@ -21,11 +21,14 @@ fn main() {
   let input_args: UrlShortenServiceArgs = serde_json::from_str(&input).unwrap();
   let urls: Vec<String> = input_args.urls;
 
+/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
+*/
 
   let mut docs: Vec<UrlPair> = Vec::new();
+/*
   for url in urls {
     let s = gen_short_url();
     let new_pair = UrlPair{
@@ -36,6 +39,7 @@ fn main() {
     let _: isize = con.hset("url-shorten","expanded_url", &new_pair.expanded_url[..]).unwrap();
     docs.push(new_pair);
   }
+*/
   let serialized = serde_json::to_string(&docs).unwrap();
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));

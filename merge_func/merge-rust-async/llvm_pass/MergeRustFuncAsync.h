@@ -50,6 +50,7 @@ public:
   std::string getDemangledRustFuncName(std::string);
   Function* cloneAndReplaceFunc(CallInst*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst*, Function*, std::string);
+  Function* cloneAndReplaceFuncWithDiffSignature(InvokeInst*, Function*, std::string);
   void changeNewCalleeOutput(Function*);
   void changeNewCalleeInput(Function*);
   bool IsStringStartWith(std::string, std::string);
@@ -58,13 +59,14 @@ public:
   bool hasSuffix(std::string, std::string);
   bool hasPrefix(std::string, std::string);
   std::string stripSuffix(std::string, std::string);
+  std::string replaceDashWithUnderscore(std::string);
   void RenameCallee(Module*);
   void RenameCaller(Module*);
   void MergeCallee(Module*);
   void MergeExistingCallee(Module*);
 
 private:
-  std::string demangle_bin = "/llvm/demangle_rust_funcname";
+  std::string demangle_bin = "/proj/zyuxuanssf-PG0/zyuxuan/faas-test/merge_func/merge-rust-async/demangle_rust_funcname/target/debug/demangle_rust_funcname";
 };
 
 } // namespace llvm

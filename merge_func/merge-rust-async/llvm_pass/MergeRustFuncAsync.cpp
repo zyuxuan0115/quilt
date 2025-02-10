@@ -87,7 +87,7 @@ void MergeRustFuncAsyncPass::RenameCallee(Module* M) {
   if ((!mainFunc) || (!rustRTFunc)) {
     llvm::errs()<<"RenameCallee Error: cannot find main function or rust runtime function\n";
   }
-  renameRealCallee(mainFunc, "main_2nd_for_"+CalleeName_rra);
+  renameRealCallee(mainFunc, CalleeName_rra);
   mainFunc->setName("main_for_"+CalleeName_rra);
   rustRTFunc->setName("std_rt_lang_start_for_"+CalleeName_rra);
 
@@ -159,14 +159,29 @@ void MergeRustFuncAsyncPass::MergeCallee(Module* M) {
     llvm::errs()<<"MergeCallee Error: cannot find main closure\n"
                 <<"                   caller name: "+CallerName_rra+"\n"
                 <<"                   callee name: "+CalleeName_rra+"\n";
+    return;
   }
   Instruction* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
+  if (!rpcInst) {
+    llvm::errs()<<"MergeCallee Error: rpc Instruction is not found\n";
+    return;
+  }
 
   // create a function that has theesame arguments as `make_rpc`
   // but the function body is the callee function
   Function* CalleeFunc = M->getFunction("main_2nd_for_"+CalleeName_rra);
+  if (!CalleeFunc) {
+    llvm::errs()<<"MergeCallee Error: callee function is not found\n";
+    return;
+  }
 
   if (CallInst* rpcCallInst = dyn_cast<CallInst>(rpcInst)) { 
+    Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcCallInst, CalleeFunc, 
+                                        "new_callee_"+CalleeName_rra);
+    changeNewCalleeInput(newCalleeFunc);
+    changeNewCalleeOutput(newCalleeFunc);
+  }
+  else if (InvokeInst* rpcCallInst = dyn_cast<InvokeInst>(rpcInst)) {
     Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcCallInst, CalleeFunc, 
                                         "new_callee_"+CalleeName_rra);
     changeNewCalleeInput(newCalleeFunc);
@@ -465,17 +480,28 @@ Function* MergeRustFuncAsyncPass::getFunctionByDemangledName(Module* M, std::str
 
 
 // rename the callee function (main) to be "callee"
-void MergeRustFuncAsyncPass::renameRealCallee(Function* mainFunc, std::string newCalleeName){
+void MergeRustFuncAsyncPass::renameRealCallee(Function* mainFunc, std::string CalleeName){
   Module* M = mainFunc->getParent(); 
+  std::string newCalleeName = "main_2nd_for_"+CalleeName;
   for (auto f = M->begin(); f != M->end(); f++) {
     Function* func = dyn_cast<Function>(f);
     std::string demangledFname = getDemangledRustFuncName(func->getName().str());
-    if (demangledFname=="function::main") {
+    std::string calleeName = replaceDashWithUnderscore(CalleeName);
+    if (demangledFname==(calleeName+"::main")) {
       func->setName(newCalleeName.c_str());
     }
   }
-
   return;    
+}
+
+
+std::string MergeRustFuncAsyncPass::replaceDashWithUnderscore(std::string s) {
+  std::string ret;
+  for (unsigned i=0; i<s.size(); i++) {
+    if (s[i]=='-') ret.push_back('_');
+    else ret.push_back(s[i]);
+  }
+  return ret;
 }
 
 
@@ -587,6 +613,52 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 }
 
 
+Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(InvokeInst* call, Function* targetFunc, std::string newFuncName) {
+  Module* M = targetFunc->getParent();
+  std::vector<Value*> arguments;
+  std::vector<Type*> argumentTypes;
+
+  for (unsigned i=0; i<call->getNumOperands()-1; i++){
+    Value* arg = call->getOperand(i);
+    if ((i==0) || (i==3)) {
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+    }
+  }
+
+  FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), argumentTypes, false);
+  Function * newCalleeFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, "new_callee_"+CalleeName_rra, M);
+  ValueToValueMapTy VMap;
+  SmallVector<ReturnInst*, 8> Returns;
+
+  CloneFunctionInto(newCalleeFunc, targetFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
+
+  // set attributes for the new callee function's arguments
+  std::vector<AttributeSet> argumentAttrs;
+  Function* RPCFunction = call->getCalledFunction();
+  AttributeList AttrList = RPCFunction->getAttributes();
+  argumentAttrs.push_back(AttrList.getParamAttrs(0));
+  argumentAttrs.push_back(AttrList.getParamAttrs(3));
+
+  AttributeList newCalleeAttrList  = newCalleeFunc->getAttributes();
+  AttributeSet returnAttr = newCalleeAttrList.getRetAttrs();
+  AttributeSet funcAttr = newCalleeAttrList.getFnAttrs();
+
+  newCalleeFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+
+  // convert the RPC into normal function call 
+  CallInst* newCall = CallInst::Create(FuncType, newCalleeFunc, arguments ,"", call);
+  AttributeList callInstAttr = call->getAttributes();
+  newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+  BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(call->getOperand(4));
+  if (nextBBofRPC)
+    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, call);
+  call->eraseFromParent();
+
+  return newCalleeFunc;
+}
+
+
 
 void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   Module* M = newCalleeFunc->getParent();
@@ -654,7 +726,7 @@ void MergeRustFuncAsyncPass::changeNewCalleeInput(Function* newCalleeFunc) {
   for (Argument &ag : newCalleeFunc->args()) {
     args_of_new_callee.push_back(&ag);
   }
-  Value* func_arg = args_of_new_callee[3];
+  Value* func_arg = args_of_new_callee[1];
   Value* arg_input = get_arg_call->getOperand(0);
 
   IRBuilder<> Builder(M->getContext());
