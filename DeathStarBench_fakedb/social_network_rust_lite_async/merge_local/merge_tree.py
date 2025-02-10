@@ -2,6 +2,14 @@
 import os
 import sys 
 import json
+import subprocess
+from multiprocessing import Pool
+
+def run_command(cmd):
+  process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  stdout, stderr = process.communicate()
+  return cmd, stdout.decode(), stderr.decode()
+
 
 def move_functions(json_file):
   funcTree = sys.argv[2]
@@ -129,6 +137,8 @@ def clean(f_name):
   for func in func_visited:
     func_to_be_compiled = func_to_be_compiled + func + " "
   cmd = "rm -rf "+func_to_be_compiled+" *.o *.bc *.txt *.ll Cargo.lock function"
+  print(cmd)
+  os.system(cmd)
   cmd = "rm -rf Implib.so DbInterface OpenFaaSRPC target"
   print(cmd)
   os.system(cmd)
