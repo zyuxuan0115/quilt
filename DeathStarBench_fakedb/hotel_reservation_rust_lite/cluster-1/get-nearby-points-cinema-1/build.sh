@@ -9,7 +9,7 @@ CLUSTER_ID="${PARENT_DIR: -1}"
 function build_openfaas {
     cp -r $ROOT_DIR/../../OpenFaaSRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build -t zyuxuan0115/hr-$FUNC:latest \
+    sudo docker build -t zyuxuan0115/sn-$FUNC:latest \
         -f $DOCKERFILE_DIR/OpenFaaS/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenFaaSRPC
@@ -20,7 +20,7 @@ function build_openfaas {
 function build_openwhisk {
     cp -r $ROOT_DIR/../../OpenWhiskRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/hr-$FUNC:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
         -f $DOCKERFILE_DIR/OpenWhisk/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/OpenWhiskRPC
@@ -32,25 +32,26 @@ function build_fission_container {
     cp -r $ROOT_DIR/../../FissionRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
     echo $FUNC > $ROOT_DIR/template/rust/metadata.txt
-    sudo docker build --no-cache -t zyuxuan0115/hr-$FUNC:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
         -f $DOCKERFILE_DIR/Fission/container-based/rust/Dockerfile \
+        --build-arg BIN_NAME="$FUNC" \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/FissionRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface
     rm -rf $ROOT_DIR/template/rust/metadata.txt
-#    sudo docker system prune -f
+    sudo docker system prune -f
 }
 
 function build_fission_bin {
     cp -r $ROOT_DIR/../../FissionRPC $ROOT_DIR/template/rust
     cp -r $ROOT_DIR/../../DbInterface $ROOT_DIR/template/rust
-    sudo docker build --no-cache -t zyuxuan0115/hr-$FUNC:latest \
+    sudo docker build --no-cache -t zyuxuan0115/sn-$FUNC:latest \
         -f $DOCKERFILE_DIR/Fission/binary-based/rust/Dockerfile \
         $ROOT_DIR/template/rust
     rm -rf $ROOT_DIR/template/rust/FissionRPC
     rm -rf $ROOT_DIR/template/rust/DbInterface
     sudo docker system prune -f
-    sudo docker create --name temp-container zyuxuan0115/hr-$FUNC:latest
+    sudo docker create --name temp-container zyuxuan0115/sn-$FUNC:latest
     sudo docker cp temp-container:/home/rust/function/target/release/function ./function_orig
     sudo docker rm temp-container
     echo $FUNC > metadata.txt
@@ -61,7 +62,7 @@ function build_fission_bin {
 }
 
 function push {
-  sudo docker push zyuxuan0115/hr-$FUNC:latest
+  sudo docker push zyuxuan0115/sn-$FUNC:latest
 }
 
 function deploy_openfaas {
@@ -69,7 +70,7 @@ function deploy_openfaas {
 }
 
 function deploy_openwhisk {
-  wsk action create $FUNC --docker zyuxuan0115/hr-$FUNC:latest    
+  wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC:latest    
 }
 
 function deploy_fission_c {
@@ -101,7 +102,7 @@ function deploy_fission_c {
   echo $MINCPU $MAXCPU $MINMEM $MAXMEM $MINSCALE $MAXSCALE
 
   fission function run-container --name $FUNC \
-    --image docker.io/zyuxuan0115/hr-$FUNC --port 8888 \
+    --image docker.io/zyuxuan0115/sn-$FUNC --port 8888 \
     --minscale=$MINSCALE --maxscale=$MAXSCALE \
     --minmemory=$MINMEM --maxmemory=$MAXMEM \
     --mincpu=$MINCPU  --maxcpu=$MAXCPU \
