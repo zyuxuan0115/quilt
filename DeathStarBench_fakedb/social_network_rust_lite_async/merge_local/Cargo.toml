@@ -1,0 +1,2 @@
+[workspace]
+members = ["text-service", "url-shorten-service", "user-mention-service"]
