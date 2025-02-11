@@ -48,7 +48,6 @@ public:
   Function* createRustNewCallee(Function* CalleeFunc, InvokeInst* call, std::string newName);
   Function* createRustNewCallee2(Function* CalleeFunc, CallInst* call, std::string newName);
   Function* getRustRuntimeFunction(Function* mainFunc);
-  void renameRealCallee(Function* mainFunc, std::string newCalleeName);
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
   Instruction* findRPCbyCalleeName(Function*, std::string);
   bool IsStringStartWith(std::string,std::string);
@@ -57,6 +56,7 @@ public:
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
   CallInst* getCallByDemangledName(Function*, std::string);
   std::string getDemangledRustFuncName(std::string);
+  std::string replaceDashWithUnderscore(std::string);
 
 private:
   std::string demangle_bin = "/llvm/demangle_rust_funcname";

@@ -80,36 +80,44 @@ PreservedAnalyses MergeRustFuncPass::run(Module &M,
 
 
 void MergeRustFuncPass::renameCaller(Module* M){
-  Function *mainFunc = M->getFunction("main");
-  renameRealCallee(mainFunc, "NewCallee_" + CallerName_rr);
+  std::string demangledFuncName = replaceDashWithUnderscore(CallerName_rr)+"::main";
+  Function *mainFunc = getFunctionByDemangledName(M, demangledFuncName); 
+  mainFunc->setName("NewCallee_" + CallerName_rr);
+
+  FunctionType *FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), false);    
+  Function *DummyFunc = Function::Create(FuncType, Function::ExternalLinkage, "dummy", M);
+  BasicBlock *EntryBB = BasicBlock::Create(M->getContext(), "entry", DummyFunc);
+  ReturnInst *ret = ReturnInst::Create(M->getContext(), EntryBB);
+/*
+  IRBuilder<> Builder(M->getContext());
+  Builder.SetInsertPoint(EntryBB);
+  Builder.CreateRetVoid();
+*/
 }
 
 
 
 void MergeRustFuncPass::renameCallee(Module* M){
   Function *mainFunc = M->getFunction("main");
-  Function *rustRTFunc = getRustRuntimeFunction(mainFunc);
-  renameRealCallee(mainFunc, "callee_"+CalleeName_rr);
+  Function *rustRTFunc = getFunctionByDemangledName(M, "std::rt::lang_start_internal");
+  std::string demangledFuncName = replaceDashWithUnderscore(CalleeName_rr)+"::main";
+  Function *realCalleeFunc = getFunctionByDemangledName(M, demangledFuncName);
   mainFunc->setName("main_callee_rust_"+CalleeName_rr);
-  rustRTFunc->setName("_std_rt_lang_start_callee_"+CalleeName_rr);
+ // rustRTFunc->setName("_std_rt_lang_start_callee_"+CalleeName_rr);
+  realCalleeFunc->setName("callee_" + CalleeName_rr);
 }
 
 
 
-void MergeRustFuncPass::renameRealCallee(Function* mainFunc, std::string newCalleeName){
-  Function *rustRTFunc; 
-  for (Function::iterator BBB = mainFunc->begin(), BBE = mainFunc->end(); BBB != BBE; ++BBB){
-    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if(isa<CallInst>(IB)){
-        CallInst *ci = dyn_cast<CallInst>(IB);
-        Function* realMainFunc = dyn_cast<Function>(ci->getArgOperand(0));
-        rustRTFunc = ci->getCalledFunction();
-	realMainFunc->setName(newCalleeName.c_str());
-      }
-    }
+std::string MergeRustFuncPass::replaceDashWithUnderscore(std::string s) {
+  std::string ret;
+  for (unsigned i=0; i<s.size(); i++) {
+    if (s[i]=='-') ret.push_back('_');
+    else ret.push_back(s[i]);
   }
-  return; 
+  return ret;
 }
+
 
 
 
@@ -135,13 +143,14 @@ void MergeRustFuncPass::mergeCallee(Module* M) {
     CallInst* RPCInst = dyn_cast<CallInst>(RPCInst_i);
     NewCalleeFunc = createRustNewCallee2(CalleeFunc, RPCInst, CalleeName_rr);
   }
+
   deleteCalleeInputOutputFunc(NewCalleeFunc);
-    
+/*    
   Function* f1 = M->getFunction("main_callee_rust_"+CalleeName_rr);
-  Function* f2 = M->getFunction("_std_rt_lang_start_callee_"+CalleeName_rr);
   f1->eraseFromParent();
-  f2->eraseFromParent();
+
   CalleeFunc->eraseFromParent();
+*/
 }
 
 
@@ -328,7 +337,10 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
    // In the new callee function, change the way to get input 
   CallInst* InputFuncCall = getCallByDemangledName(NewCalleeFunc, "OpenFaaSRPC::get_arg_from_caller");
   Value* allocValue = InputFuncCall->getOperand(0);
-  if (!InputFuncCall) return;
+  if (!InputFuncCall) { 
+    llvm::errs()<<"MergeCallee Error: cannot find OpenFaaSRPC::get_arg_from_caller\n";
+    return;
+  }
 
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
@@ -357,6 +369,7 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
   InputFuncCall->eraseFromParent();
 
+
   // In the new callee function, change the way to send output back to caller
   InvokeInst* OutputFuncCall_i = getInvokeByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
   CallInst* OutputFuncCall_c = getCallByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
@@ -367,11 +380,13 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
   Instruction* OutputFuncCall;
   if (OutputFuncCall_i) OutputFuncCall = dyn_cast<InvokeInst>(OutputFuncCall_i);
   else OutputFuncCall = dyn_cast<CallInst>(OutputFuncCall_c);
+
   // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
   //                                         ptr align 8 %buffer, 
   //                                         i64 24, i1 false)
   // the is the LLVM Intrinsc. The way to create such a call 
   // is different from normal CallInst create 
+
   std::vector<Value*> IntrinsicArguments;
   IntrinsicArguments.push_back(NewCalleeFunc->getArg(0));
   IntrinsicArguments.push_back(OutputFuncCall->getOperand(0));
@@ -381,17 +396,33 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(OutputFuncCall);
+  llvm::errs()<<"@@@ "<<*llvmMemcpyCall<<"\n";
+  llvm::errs()<<"### "<<*OutputFuncCall<<"\n";
 
   // delete the send_return_value_to_caller() function call
   // this function call is a invoke function, so we have to
   // first create a branch instruction as the terminator and 
   // then delete this call 
+
   if (isa<InvokeInst>(OutputFuncCall)) {
+    llvm::errs()<<"@@@ this is a invoke inst \n";
     BasicBlock* nextBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(1));
-    if (nextBB)
-      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
+    BasicBlock* anotherBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(2));
+    if (nextBB && anotherBB) {
+/*
+      llvm::Type *Int32Ty = llvm::Type::getInt32Ty(NewCalleeFunc->getContext());
+      Constant* LHS = llvm::ConstantInt::get(Type::getInt32Ty(M->getContext()), 0, true);
+      Constant* RHS = llvm::ConstantInt::get(Type::getInt32Ty(M->getContext()), 100, true);
+      ICmpInst* cmp = new ICmpInst(OutputFuncCall, ICmpInst::ICMP_SLT, LHS, RHS, "cmp"); 
+      BranchInst::Create(nextBB, anotherBB, cmp, OutputFuncCall);
+*/
+      Function* dummy = M->getFunction("dummy");
+      InvokeInst *ivk = InvokeInst::Create(dummy, nextBB, anotherBB, {}, "", OutputFuncCall);
+//      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
+    }
   }
   OutputFuncCall->eraseFromParent();
+
 }
 
 
@@ -426,11 +457,14 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
 CallInst* MergeRustFuncPass::getCallByDemangledName(Function* f, std::string fname) {
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<CallInst>(IB)){
-        CallInst *ci = dyn_cast<CallInst>(IB);
-        Function* CalledFunc = ci->getCalledFunction();
-        std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
-        if (demangled == fname) return ci;
+      if (CallInst *ci = dyn_cast<CallInst>(IB)) {
+        if (!ci->isInlineAsm()) {
+          Value *calledValue = ci->getCalledOperand();
+          if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
+            std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
+            if (demangled == fname) return ci;
+          }
+        }
       }
     }
   }
@@ -442,10 +476,14 @@ CallInst* MergeRustFuncPass::getCallByDemangledName(Function* f, std::string fna
 InvokeInst* MergeRustFuncPass::getInvokeByDemangledName(Function* f, std::string fname) {
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if (isa<InvokeInst>(IB)) {
-        InvokeInst* ii = dyn_cast<InvokeInst>(IB);
-        std::string demangled = getDemangledRustFuncName(ii->getCalledFunction()->getName().str());
-        if (demangled == fname) return ii; 
+     if (InvokeInst *ii = dyn_cast<InvokeInst>(IB)) {
+        if (!ii->isInlineAsm()) {
+          Value *calledValue = ii->getCalledOperand();
+          if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
+            std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
+            if (demangled == fname) return ii;
+          }
+        }
       } 
     }
   }
