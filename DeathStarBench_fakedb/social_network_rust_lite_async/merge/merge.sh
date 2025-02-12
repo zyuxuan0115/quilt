@@ -26,7 +26,6 @@ function compile_to_ir {
 function remove_redundant {
   CALLER_FUNC=${ARGS[1]}
   rm -rf $WORK_DIR/panic_abort-*.bc
-  rm -rf $WORK_DIR/panic_unwind-*.bc
   rm -rf $WORK_DIR/*no-opt*
   rm -rf $WORK_DIR/*.d
   rm -rf $WORK_DIR/*.o
