@@ -32,6 +32,14 @@ def compile_to_bitcode(f_name):
   cmd = "./merge.sh compile"
   print(cmd)
   os.system(cmd)
+  # delete useless files
+  all_callees = ""
+  for func in func_visited:
+    if func != entry_func:
+      all_callees = all_callees + func + " "
+  cmd = "./merge.sh remove_redundant_files "
+  print(cmd)
+  os.system(cmd)
 
 
 def merge(f_name):
@@ -40,7 +48,6 @@ def merge(f_name):
  
   func_visited = {}
   entry_func = ""
-
   for line in Lines:
     words = line.split()
     func_str = ""
@@ -53,14 +60,6 @@ def merge(f_name):
     words = Lines[0].split();
     if len(words) > 0:
       entry_func = words[0]
-  # delete useless files
-  all_callees = ""
-  for func in func_visited:
-    if func != entry_func:
-      all_callees = all_callees + func + " "
-  cmd = "./merge.sh remove_redundant_files "+entry_func + " " + all_callees
-  print(cmd)
-  os.system(cmd)
   # rename caller
   cmd = "./merge.sh rename_caller "+entry_func
   print(cmd)
