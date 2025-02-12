@@ -74,11 +74,11 @@ function merge_fission {
   cp funcTree temp
   cp rm_redundant_bc.py temp
   echo "$CALLER-merged" > temp/metadata.txt
-  sudo DOCKER_BUILDKIT=1 docker build --no-cache -t zyuxuan0115/sn-$CALLER-async-merged:latest \
+  sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-async-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
-  rm -rf temp
-  sudo docker system prune -f
+  #rm -rf temp
+  #sudo docker system prune -f
   sudo docker push zyuxuan0115/sn-$CALLER-async-merged:latest
 }
 
