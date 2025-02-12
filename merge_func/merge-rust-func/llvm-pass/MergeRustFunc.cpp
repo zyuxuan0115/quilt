@@ -396,8 +396,6 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
   CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
   llvmMemcpyCall->insertBefore(OutputFuncCall);
-  llvm::errs()<<"@@@ "<<*llvmMemcpyCall<<"\n";
-  llvm::errs()<<"### "<<*OutputFuncCall<<"\n";
 
   // delete the send_return_value_to_caller() function call
   // this function call is a invoke function, so we have to
@@ -405,20 +403,11 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
   // then delete this call 
 
   if (isa<InvokeInst>(OutputFuncCall)) {
-    llvm::errs()<<"@@@ this is a invoke inst \n";
     BasicBlock* nextBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(1));
     BasicBlock* anotherBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(2));
     if (nextBB && anotherBB) {
-/*
-      llvm::Type *Int32Ty = llvm::Type::getInt32Ty(NewCalleeFunc->getContext());
-      Constant* LHS = llvm::ConstantInt::get(Type::getInt32Ty(M->getContext()), 0, true);
-      Constant* RHS = llvm::ConstantInt::get(Type::getInt32Ty(M->getContext()), 100, true);
-      ICmpInst* cmp = new ICmpInst(OutputFuncCall, ICmpInst::ICMP_SLT, LHS, RHS, "cmp"); 
-      BranchInst::Create(nextBB, anotherBB, cmp, OutputFuncCall);
-*/
       Function* dummy = M->getFunction("dummy");
       InvokeInst *ivk = InvokeInst::Create(dummy, nextBB, anotherBB, {}, "", OutputFuncCall);
-//      BranchInst * jumpInst = llvm::BranchInst::Create(nextBB, OutputFuncCall);
     }
   }
   OutputFuncCall->eraseFromParent();

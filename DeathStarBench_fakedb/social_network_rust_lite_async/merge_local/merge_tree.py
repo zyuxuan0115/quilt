@@ -11,6 +11,7 @@ def run_command(cmd):
   return cmd, stdout.decode(), stderr.decode()
 
 
+
 def move_functions(json_file):
   funcTree = sys.argv[2]
   f = open(sys.argv[2], 'r')
@@ -29,6 +30,8 @@ def move_functions(json_file):
       if item['function_name'] in funcs:
         cmd = "cp -r ../cluster-"+str(item['cluster_id'])+"/"+item['function_name']+"/template/rust/function "+item['function_name']
         os.system(cmd)
+
+
 
 def compile_to_bitcode(f_name):
   f = open(f_name, 'r')
@@ -81,12 +84,6 @@ def merge(f_name):
       new_func=word
       if new_func not in func_visited:
         func_visited[new_func] = 1
-#  func_to_be_compiled = ""
-#  for func in func_visited:
-#    func_to_be_compiled = func_to_be_compiled + func + " "
-#  cmd = "./merge.sh compile "+func_to_be_compiled
-#  print(cmd)
-#  os.system(cmd)
   # delete useless files
   all_callees = ""
   for func in func_visited:
@@ -125,6 +122,7 @@ def merge(f_name):
   os.system(cmd)
 
 
+
 def clean(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
@@ -148,6 +146,7 @@ def clean(f_name):
   os.system(cmd)
 
 
+
 def main():
   if len(sys.argv) < 3:
     print("usage: ./merge_tree.py <'merge' or 'clean'> <input file>")
@@ -156,7 +155,7 @@ def main():
   if arg == "merge":
     move_functions("../OpenFaaSRPC/func_info.json")
     compile_to_bitcode(sys.argv[2])
-    merge(sys.argv[2])
+#    merge(sys.argv[2])
   elif arg == "compile":
     move_functions("../OpenFaaSRPC/func_info.json")
     compile_to_bitcode(sys.argv[2])

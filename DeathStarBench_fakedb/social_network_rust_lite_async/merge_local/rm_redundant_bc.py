@@ -20,6 +20,9 @@ def main():
         if len(words)>2 and words[2]=="__rust_alloc" and words[1]=="T":
           print(file)
           os.system("mv "+file+" "+sys.argv[1]+"/function_keep.bc")
+        elif len(words)>2 and words[2]=="__rust_start_panic" and words[1]=="T":
+          print(file)
+          os.system("mv "+file+" "+sys.argv[1]+"/function_keep2.bc")
     os.system("rm -rf "+sys.argv[1]+"/*.rcgu.bc");
     
     lto_optimized_files = list_files_with_suffix(sys.argv[1], ".after-restriction.bc")

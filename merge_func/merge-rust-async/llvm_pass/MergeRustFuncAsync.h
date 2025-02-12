@@ -34,6 +34,8 @@
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
+#include <chrono>
+#include <unordered_set>
 
 namespace llvm {
 

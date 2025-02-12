@@ -7,8 +7,6 @@
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Transforms/Utils/MergeRustFuncAsync.h"
-#include <chrono>
-#include <unordered_set>
 using namespace llvm;
 
 static cl::opt<bool> RenameCallee_rra(

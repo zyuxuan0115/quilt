@@ -24,7 +24,6 @@ function compile_to_ir {
 
 
 function remove_redundant {
-  CALLER_FUNC=${ARGS[1]}
   rm -rf $WORK_DIR/panic_abort-*.bc
   rm -rf $WORK_DIR/*no-opt*
   rm -rf $WORK_DIR/*.d
@@ -115,16 +114,7 @@ function link {
 
 
 function clean {
-  for i in $(seq 1 $(($NUM_ARGS-1)) );
-  do
-    FUNC_NAME=${ARGS[$i]}
-    rm -rf $FUNC_NAME/template/rust/OpenFaaSRPC \
-    && rm -rf $FUNC_NAME/template/rust/DbInterface \
-    && cd $FUNC_NAME/template/rust/function && cargo clean \
-    && cd ../../../../ \
-    && rm -rf $FUNC_NAME/template/rust/function/Cargo.lock
-  done
-  rm -rf *.ll *.o *.bc function *.txt Implib.so
+  rm -rf *.ll *.o *.bc function *.txt Implib.so target
 }
 
 
