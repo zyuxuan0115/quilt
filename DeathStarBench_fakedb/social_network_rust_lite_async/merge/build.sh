@@ -77,16 +77,16 @@ function merge_fission {
   sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-async-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
-  #rm -rf temp
-  #sudo docker system prune -f
+  rm -rf temp
+  sudo docker system prune -f
   sudo docker push zyuxuan0115/sn-$CALLER-async-merged:latest
 }
 
 function deploy_openwhisk {
-  wsk action create text-service-merged --docker zyuxuan0115/sn-text-service-async-merged
-  wsk action create compose-post-merged --docker zyuxuan0115/sn-compose-post-async-merged
-  wsk action create social-graph-follow-with-username-merged --docker zyuxuan0115/sn-social-graph-follow-with-username-async-merged
-  wsk action create read-home-timeline-merged --docker zyuxuan0115/sn-read-home-timeline-async-merged
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  for FUNC in "${FUNCS[@]}"; do
+    wsk action create $FUNC-merged --docker zyuxuan0115/sn-$FUNC-async-merged
+  done
 }
 
 

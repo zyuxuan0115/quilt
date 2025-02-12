@@ -40,7 +40,6 @@ function rename_caller {
   CALLER_FUNC=${ARGS[1]}
   CALLER_FUNC_="${CALLER_FUNC//-/_}"
   CALLER_IR=$(find $WORK_DIR/ -type f -name "$CALLER_FUNC_-*.bc" -not -name "*.*.*")
-  echo "caller ir: $CALLER_IR"
   $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -rename-caller-rra -caller-name-rra=$CALLER_FUNC -o caller.bc
   cp caller.bc $CALLER_IR
 }
@@ -50,7 +49,6 @@ function rename_callee {
   CALLEE_FUNC=${ARGS[1]}
   CALLEE_FUNC_="${CALLEE_FUNC//-/_}"
   CALLEE_IR=$(find $WORK_DIR/ -type f -name "$CALLEE_FUNC_-*.bc" -not -name "*.*.*")
-  echo "callee ir: $CALLEE_IR"
   $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.bc
   mv callee.bc $CALLEE_IR
 }
@@ -61,11 +59,9 @@ function merge {
   CALLER_FUNC=${ARGS[1]}
   CALLER_FUNC_="${CALLER_FUNC//-/_}"
   CALLER_IR=$(find $WORK_DIR/ -type f -name "$CALLER_FUNC_-*.bc" -not -name "*.*.*")
-  echo $CALLER_IR
   CALLEE_FUNC=${ARGS[2]}
   CALLEE_FUNC_="${CALLEE_FUNC//-/_}"
   CALLEE_IR=$(find $WORK_DIR/ -type f -name "$CALLEE_FUNC_-*.bc" -not -name "*.*.*")
-  echo $CALLEE_IR
   REAL_CALLER_FUNC=${ARGS[3]}
   $LLVM_DIR/llvm-link $CALLER_IR $CALLEE_IR -o caller_and_callee.bc
   $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
