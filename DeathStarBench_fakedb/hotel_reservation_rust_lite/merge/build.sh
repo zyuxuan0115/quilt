@@ -75,9 +75,10 @@ function merge_fission {
 
 
 function deploy_openwhisk {
-  wsk action create text-service-merged --docker zyuxuan0115/hr-text-service-merged
-  wsk action create compose-post-merged --docker zyuxuan0115/hr-compose-post-merged
-  wsk action create social-graph-follow-with-username-merged --docker zyuxuan0115/hr-social-graph-follow-with-username-merged
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  for FUNC in "${FUNCS[@]}"; do
+    wsk action create $FUNC-merged --docker zyuxuan0115/hr-$FUNC-merged
+  done
 }
 
 

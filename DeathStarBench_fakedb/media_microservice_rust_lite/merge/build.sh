@@ -8,13 +8,6 @@ ARGS=("$@")
 
 CALLER=${ARGS[1]}
 
-function build_llvm {
-  sudo docker build --no-cache -t zyuxuan0115/llvm-19:latest \
-       -f $DOCKERFILE_DIR/Dockerfile.llvm \
-       .
-  sudo docker push zyuxuan0115/llvm-19:latest
-}
-
 function merge_openfaas {
   rm -rf temp && mkdir temp
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
@@ -100,9 +93,6 @@ function deploy_fission_c {
 }
 
 case "$1" in
-llvm)
-    build_llvm
-    ;;
 merge_openwhisk)
     merge_openwhisk 
     ;;

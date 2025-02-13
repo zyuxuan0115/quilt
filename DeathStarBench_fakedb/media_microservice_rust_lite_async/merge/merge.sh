@@ -1,178 +1,113 @@
 #!/bin/bash
-LLVM_DIR=/llvm/bin
-RUST_LIB=/root/.rustup/toolchains/1.78-x86_64-unknown-linux-gnu/lib
-C_LIB=/lib/x86_64-linux-gnu
 
-WORK_DIR=debug/deps
-
-RUST_LIBRUSTC_PATH=$(ls $RUST_LIB/librustc_driver-*.so)
-RUST_LIBRUSTC_NAME=$(basename $RUST_LIBRUSTC_PATH)
-RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_NAME#"librustc_driver"}
-RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_LINKER_FLAG%".so"}
-
-#LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -ldl"
-LINKER_FLAGS="-lm -lz -ldl -lpthread"
-
+#ROOT_DIR=`realpath $(dirname $0)/..`
+ROOT_DIR=$(pwd)
+echo $ROOT_DIR
+DOCKERFILE_DIR=$ROOT_DIR/../../../dockerfiles/LLVM
 ARGS=("$@")
-NUM_ARGS=$#
 
+CALLER=${ARGS[1]}
 
-function compile_to_ir {
-  for i in $(seq 1 $(($NUM_ARGS-1)) );
-  do
-    FUNC_NAME=${ARGS[$i]}
-    cp -r OpenFaaSRPC $FUNC_NAME/template/rust \
-    && cp -r DbInterface $FUNC_NAME/template/rust \
-    && cd $FUNC_NAME/template/rust/function \
-    && RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build \
-       -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu \
-    && cd ../../../../
-    rm -rf $FUNC_NAME
-    mv target/x86_64-unknown-linux-gnu $FUNC_NAME
-    rm -rf target
-  done
+function build_llvm {
+  sudo docker build --no-cache -t zyuxuan0115/llvm-19:latest \
+       -f $DOCKERFILE_DIR/Dockerfile.llvm \
+       .
+  sudo docker push zyuxuan0115/llvm-19:latest
 }
 
-
-function remove_redundant {
-  CALLER_FUNC=${ARGS[1]}
-  rm -rf $CALLER_FUNC/$WORK_DIR/panic_abort-*.*
-  rm -rf $CALLER_FUNC/$WORK_DIR/*no-opt*
-  ./rm_redundant_bc.py $CALLER_FUNC/$WORK_DIR
-
-  for i in $(seq 2 $(($NUM_ARGS-1)) );
-  do
-    CALLEE_FUNC=${ARGS[$i]}
-    rm -rf $CALLEE_FUNC/$WORK_DIR/std-*.bc
-    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_abort-*.bc
-    rm -rf $CALLEE_FUNC/$WORK_DIR/panic_unwind-*.bc
-    rm -rf $CALLEE_FUNC/$WORK_DIR/*no-opt*
-    rm -rf $CALLEE_FUNC/$WORK_DIR/*.d
-    rm -rf $CALLEE_FUNC/$WORK_DIR/*.o
-    rm -rf $CALLEE_FUNC/$WORK_DIR/*.rlib
-    rm -rf $CALLEE_FUNC/$WORK_DIR/*.rmeta
-    ./rm_redundant_bc.py $CALLEE_FUNC/$WORK_DIR
-  done 
+function merge_openfaas {
+  rm -rf temp && mkdir temp
+  ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
+  cp -r ../OpenFaaSRPC temp
+  cp -r ../DbInterface temp
+  cp merge.sh temp
+  cp merge_tree.py temp
+  cp funcTree temp
+  cp rm_redundant_bc.py temp 
+e sudo docker build --no-cache -t zyuxuan0115/mm-$CALLER-async-merged:latest \
+    -f $DOCKERFILE_DIR/Dockerfile \
+    temp
+  rm -rf temp
+  sudo docker system prune -f
+  sudo docker push zyuxuan0115/mm-$CALLER-async-merged:latest
 }
 
-
-
-function rename_caller {
-  CALLER_FUNC=${ARGS[1]}
-  CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -rename-caller-rra -caller-name-rra=$CALLER_FUNC -o caller.bc
-  cp caller.bc $CALLER_IR
+function merge_openwhisk {
+  rm -rf temp && mkdir temp
+  ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
+  cp -r ../OpenWhiskRPC temp
+  cp -r ../DbInterface temp
+  mv temp/OpenWhiskRPC temp/OpenFaaSRPC
+  cp merge.sh temp
+  cp merge_tree.py temp
+  cp funcTree temp
+  cp rm_redundant_bc.py temp
+  sudo docker build --no-cache -t zyuxuan0115/mm-$CALLER-async-merged:latest \
+    -f $DOCKERFILE_DIR/Dockerfile.wsk \
+    temp
+  rm -rf temp
+  sudo docker system prune -f
+  sudo docker push zyuxuan0115/mm-$CALLER-async-merged:latest
+  wsk action delete $CALLER-merged
+  sleep 5
+  wsk action create $CALLER-merged --docker zyuxuan0115/mm-$CALLER-async-merged
 }
 
-
-function rename_callee {
-  CALLEE_FUNC=${ARGS[1]}
-  CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  $LLVM_DIR/opt $CALLEE_IR -passes=merge-rust-func-async -rename-callee-rra -callee-name-rra=$CALLEE_FUNC -o callee.bc
-  mv callee.bc $CALLEE_IR
-}
-
-
-function merge {
-  # prepare for merging
-  CALLER_FUNC=${ARGS[1]}
-  CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  CALLEE_FUNC=${ARGS[2]}
-  CALLEE_IR=$(find $CALLEE_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  REAL_CALLER_FUNC=${ARGS[3]}
-  $LLVM_DIR/llvm-link $CALLER_IR $CALLEE_IR -o caller_and_callee.bc
-  $LLVM_DIR/opt caller_and_callee.bc -strip-debug -o caller_and_callee_nodebug.bc
-  $LLVM_DIR/opt caller_and_callee_nodebug.bc -passes=merge-rust-func-async \
-                 -merge-callee-rra -callee-name-rra=$CALLEE_FUNC \
-                 -caller-name-rra=$REAL_CALLER_FUNC -o merged.bc
-  rm $CALLEE_IR
-  cp $CALLEE_FUNC/$WORK_DIR/*.bc $CALLER_FUNC/$WORK_DIR
-  mv merged.bc $CALLER_IR
+function merge_fission {
+  rm -rf temp && mkdir temp
+  ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
+  cp -r ../FissionRPC temp
+  cp -r ../DbInterface temp
+  mv temp/FissionRPC temp/OpenFaaSRPC
+  cp merge.sh temp
+  cp merge_tree.py temp
+  cp funcTree temp
+  cp rm_redundant_bc.py temp
+  sudo docker build --no-cache -t zyuxuan0115/mm-$CALLER-async-merged:latest \
+    -f $DOCKERFILE_DIR/Dockerfile.fission \
+    temp
+  rm -rf temp
+  sudo docker system prune -f
+  sudo docker push zyuxuan0115/mm-$CALLER-async-merged:latest
 }
 
 
 
-function merge_existing {
-  CALLER_FUNC=${ARGS[1]} 
-  CALLER_IR=$(find $CALLER_FUNC/$WORK_DIR/ -type f -name "function-*.bc" -not -name "*.*.*")
-  CALLEE_FUNC=${ARGS[2]}
-  REAL_CALLER_FUNC=${ARGS[3]}
-  $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -merge-existing-rra \
-                 -caller-name-rra=$REAL_CALLER_FUNC -callee-name-rra=$CALLEE_FUNC \
-                 -o merged.bc
-  mv merged.bc $CALLER_IR
+function deploy_openwhisk {
+  wsk action create page-service-merged --docker zyuxuan0115/mm-page-service-async-merged
+  wsk action create compose-review-merged --docker zyuxuan0115/mm-compose-review-async-merged
+  wsk action create read-user-review-merged --docker zyuxuan0115/mm-read-user-review-async-merged
 }
 
 
-
-function wrap_shared_lib {
-  git clone https://github.com/yugr/Implib.so.git
-  cd Implib.so && ./implib-gen.py $RUST_LIBRUSTC_PATH 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py $C_LIB/libcrypto.so.1.1 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c 
-
-  cd .. && cp Implib.so/*.o .  && rm -rf Implib.so
+function deploy_fission {
+  FUNC=compose-review-async
+  fission function run-container --name $FUNC-merged \
+    --image docker.io/zyuxuan0115/mm-$FUNC-merged \
+    --port 8888 \
+    --namespace fission-function
+  fission httptrigger create --method POST \
+    --url /$FUNC-merged --function $FUNC-merged \
+    --namespace fission-function
 }
-
-
-function link {
-  CALLER_FUNC=${ARGS[1]}
-  $LLVM_DIR/llvm-link $CALLER_FUNC/$WORK_DIR/*.bc -o lib_with_debug_info.bc
-  $LLVM_DIR/opt lib_with_debug_info.bc -strip-debug -o lib.bc
-  $LLVM_DIR/opt lib.bc -passes=strip-dead-prototypes -o func.bc
-  $LLVM_DIR/opt func.bc -passes=remove-redundant -o function.bc
-  $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.bc -o function.o
-  wrap_shared_lib
-  #gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
-  gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
-}
-
-
-function clean {
-  for i in $(seq 1 $(($NUM_ARGS-1)) );
-  do
-    FUNC_NAME=${ARGS[$i]}
-    rm -rf $FUNC_NAME/template/rust/OpenFaaSRPC \
-    && rm -rf $FUNC_NAME/template/rust/DbInterface \
-    && cd $FUNC_NAME/template/rust/function && cargo clean \
-    && cd ../../../../ \
-    && rm -rf $FUNC_NAME/template/rust/function/Cargo.lock
-  done
-  rm -rf *.ll *.o *.bc function *.txt Implib.so
-}
-
 
 case "$1" in
-compile)
-    compile_to_ir
+llvm)
+    build_llvm
     ;;
-merge)
-    merge
+merge_openwhisk)
+    merge_openwhisk 
     ;;
-merge_existing)
-    merge_existing
+merge_openfaas)
+    merge_openfaas 
     ;;
-rename_caller)
-    rename_caller
+merge_fission)
+    merge_fission
     ;;
-rename_callee)
-    rename_callee
+deploy_openwhisk)
+    deploy_openwhisk
     ;;
-remove_redundant_files)
-    remove_redundant
-    ;;
-link)
-    link
-    ;;
-clean)
-    clean
+deploy_fission)
+    deploy_fission
     ;;
 esac
-
-<<'###BLOCK-COMMENT'
-
-###BLOCK-COMMENT
-

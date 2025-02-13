@@ -74,21 +74,24 @@ function merge_fission {
 
 
 function deploy_openwhisk {
-  wsk action create page-service-merged --docker zyuxuan0115/mm-page-service-async-merged
-  wsk action create compose-review-merged --docker zyuxuan0115/mm-compose-review-async-merged
-  wsk action create read-user-review-merged --docker zyuxuan0115/mm-read-user-review-async-merged
+  FUNCS=("page-service" "compose-review")
+  for FUNC in "${FUNCS[@]}"; do
+    wsk action create $FUNC-merged --docker zyuxuan0115/mm-$FUNC-async-merged
+  done
 }
 
 
 function deploy_fission {
-  FUNC=compose-review-async
-  fission function run-container --name $FUNC-merged \
-    --image docker.io/zyuxuan0115/mm-$FUNC-merged \
-    --port 8888 \
-    --namespace fission-function
-  fission httptrigger create --method POST \
-    --url /$FUNC-merged --function $FUNC-merged \
-    --namespace fission-function
+  FUNC=("page-service" "compose-review")
+  for FUNC in "${FUNCS[@]}"; do
+    fission function run-container --name $FUNC-merged \
+      --image docker.io/zyuxuan0115/mm-$FUNC-async-merged \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-merged --function $FUNC-merged \
+      --namespace fission-function
+  done
 }
 
 case "$1" in
