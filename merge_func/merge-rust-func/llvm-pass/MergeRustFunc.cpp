@@ -88,11 +88,6 @@ void MergeRustFuncPass::renameCaller(Module* M){
   Function *DummyFunc = Function::Create(FuncType, Function::ExternalLinkage, "dummy", M);
   BasicBlock *EntryBB = BasicBlock::Create(M->getContext(), "entry", DummyFunc);
   ReturnInst *ret = ReturnInst::Create(M->getContext(), EntryBB);
-/*
-  IRBuilder<> Builder(M->getContext());
-  Builder.SetInsertPoint(EntryBB);
-  Builder.CreateRetVoid();
-*/
 }
 
 
@@ -177,8 +172,11 @@ void MergeRustFuncPass::MergeExistingCallee(Module* M) {
     CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments ,"", RPCInst_i);
     if (isa<InvokeInst>(RPCInst_i)) {
       BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst_i->getOperand(4));
-      if (nextBBofRPC)
-        BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, RPCInst_i);
+      BasicBlock* anotherBB = dyn_cast<BasicBlock>(RPCInst_i->getOperand(5));
+      if (nextBBofRPC && anotherBB) {
+        Function* dummy = M->getFunction("dummy");
+        InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", RPCInst_i);
+      }
     }
     RPCInst_i->eraseFromParent();
   }
@@ -270,9 +268,14 @@ Function* MergeRustFuncPass::createRustNewCallee(Function* CalleeFunc, InvokeIns
   CallInst* newCall = CallInst::Create(FuncType, NewCalleeFunc, arguments ,"", call);
   AttributeList callInstAttr = call->getAttributes();
   newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
+
   BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(call->getOperand(4));
-  if (nextBBofRPC)
-    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, call);
+  BasicBlock* anotherBB = dyn_cast<BasicBlock>(call->getOperand(5));
+
+  if (nextBBofRPC && anotherBB) {
+    Function* dummy = M->getFunction("dummy");
+    InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", call);
+  }
   call->eraseFromParent();
 
   return NewCalleeFunc;
@@ -420,20 +423,22 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
   std::string prefix = "OpenFaaSRPC::make_rpc";
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
-      if ( isa<InvokeInst>(IB) ){
-        InvokeInst* invoke = dyn_cast<InvokeInst>(IB);
-        std::string realname = demangle(invoke->getCalledFunction()->getName());
-        if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix)) {
-          std::string CalleeName = getRPCCalleeName(invoke);
-          if (CalleeName == calleeName) return dyn_cast<Instruction>(invoke);
+      if (CallInst *ci = dyn_cast<CallInst>(IB)) {
+        if (!ci->isInlineAsm()) {
+          Value *calledValue = ci->getCalledOperand();
+          if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
+            std::string CalleeName = getRPCCalleeName(ci);
+            if (CalleeName == calleeName) return dyn_cast<Instruction>(ci);
+          }
         }
       }
-      else if (isa<CallInst>(IB)) {
-        CallInst* call = dyn_cast<CallInst>(IB);
-        std::string realname = demangle(call->getCalledFunction()->getName());
-        if ((realname.size()>=prefix.size()) && (realname.substr(0, prefix.size())==prefix)) {
-          std::string CalleeName = getRPCCalleeName(call);
-          if (CalleeName == calleeName) return dyn_cast<CallInst>(call);
+      else if (InvokeInst *ii = dyn_cast<InvokeInst>(IB)) {
+        if (!ii->isInlineAsm()) {
+          Value *calledValue = ii->getCalledOperand();
+          if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
+            std::string CalleeName = getRPCCalleeName(ii);
+            if (CalleeName == calleeName) return dyn_cast<Instruction>(ii);
+          }
         }
       }
     }
