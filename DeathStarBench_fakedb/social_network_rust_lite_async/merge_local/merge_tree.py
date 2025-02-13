@@ -155,7 +155,7 @@ def main():
   if arg == "merge":
     move_functions("../OpenFaaSRPC/func_info.json")
     compile_to_bitcode(sys.argv[2])
-#    merge(sys.argv[2])
+    merge(sys.argv[2])
   elif arg == "compile":
     move_functions("../OpenFaaSRPC/func_info.json")
     compile_to_bitcode(sys.argv[2])

@@ -92,8 +92,8 @@ fn main() {
 
   let time_11 = Instant::now();
 
-  make_rpc("write-home-timeline", write_h_tl_arg_str); 
-
+  let result = make_rpc("write-home-timeline", write_h_tl_arg_str); 
+  let result_clone = result.clone();
 //  println!("{:?}, ", time_1.duration_since(time_0));
 //  println!("{:?}, ", time_3.duration_since(time_2));
 //  println!("{:?}, ", time_5.duration_since(time_4));

@@ -7,6 +7,8 @@
 //===----------------------------------------------------------------------===//
 
 #include "llvm/Transforms/Utils/MergeRustFuncAsync.h"
+#include <chrono>
+#include <unordered_set>
 using namespace llvm;
 
 static cl::opt<bool> RenameCallee_rra(
@@ -145,6 +147,11 @@ void MergeRustFuncAsyncPass::RenameCaller(Module* M) {
     std::string timestampStr = std::to_string(timestamp); 
     f->setName("make_rpc_caller_in_"+CallerName_rra+"_"+timestampStr);
   }
+  FunctionType *FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), false);    
+  Function *DummyFunc = Function::Create(FuncType, Function::ExternalLinkage, "dummy", M);
+  BasicBlock *EntryBB = BasicBlock::Create(M->getContext(), "entry", DummyFunc);
+  ReturnInst *ret = ReturnInst::Create(M->getContext(), EntryBB);
+
 }
 
 
@@ -190,8 +197,6 @@ void MergeRustFuncAsyncPass::MergeCallee(Module* M) {
 
 
 void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
-  // get function::main::{{closure}}
-  // because it contains RPC (OpenFaaSRPC::make_rpc())
   Function* mainClosure = getRPCCallerFunc(M, CallerName_rra, CalleeName_rra);
   Instruction* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
   Function *CalleeFunc = M->getFunction("new_callee_" + CalleeName_rra);
@@ -199,10 +204,20 @@ void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
   if (CalleeFunc) {
     std::vector<Value*> arguments;
     for (unsigned i=0; i<rpcInst->getNumOperands()-1; i++){
-      Value* arg = rpcInst->getOperand(i);
-      arguments.push_back(arg);
+      if ((i==0) || (i==3)) {
+        Value* arg = rpcInst->getOperand(i);
+        arguments.push_back(arg);
+      }
     }
+
     CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments,"", rpcInst);
+    BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(rpcInst->getOperand(4));
+    BasicBlock* anotherBB = dyn_cast<BasicBlock>(rpcInst->getOperand(5));
+
+    if (nextBBofRPC && anotherBB) {
+      Function* dummy = M->getFunction("dummy");
+      InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", rpcInst);
+    }
     rpcInst->eraseFromParent();
   }
   else {
@@ -649,8 +664,12 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(InvokeIns
   AttributeList callInstAttr = call->getAttributes();
   newCall->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
   BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(call->getOperand(4));
-  if (nextBBofRPC)
-    BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofRPC, call);
+  BasicBlock* anotherBB = dyn_cast<BasicBlock>(call->getOperand(5));
+
+  if (nextBBofRPC && anotherBB) {
+    Function* dummy = M->getFunction("dummy");
+    InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", call);
+  }
   call->eraseFromParent();
 
   return newCalleeFunc;
@@ -704,8 +723,11 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   // since the instruction is a InvokeInst, also needs to create a branch instruction
   if (isa<InvokeInst>(send_return_value_call)) {
     BasicBlock* nextBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(1));
-    if (nextBBofsend_ret_value_call)
-      BranchInst * jumpInst = llvm::BranchInst::Create(nextBBofsend_ret_value_call, send_return_value_call);
+    BasicBlock* anotherBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(2));
+    if (nextBBofsend_ret_value_call && anotherBBofsend_ret_value_call ) {
+      Function* dummy = M->getFunction("dummy");
+      InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofsend_ret_value_call, anotherBBofsend_ret_value_call, {}, "", send_return_value_call);
+    }
     send_return_value_call->eraseFromParent();
   }
 } 

@@ -9,7 +9,8 @@ def list_files_with_suffix(directory, suffix):
     return files
 
 def main():
-    files = list_files_with_suffix(sys.argv[1], ".rcgu.bc")
+#    files = list_files_with_suffix(sys.argv[1], ".rcgu.bc")
+    files = list_files_with_suffix(sys.argv[1], ".bc")
     for file in files:
       # Run the command and capture its output
       result = subprocess.run(["llvm-nm", file], capture_output=True, text=True)
@@ -20,9 +21,9 @@ def main():
         if len(words)>2 and words[2]=="__rust_alloc" and words[1]=="T":
           print(file)
           os.system("mv "+file+" "+sys.argv[1]+"/function_keep.bc")
-        elif len(words)>2 and words[2]=="__rust_start_panic" and words[1]=="T":
-          print(file)
-          os.system("mv "+file+" "+sys.argv[1]+"/function_keep2.bc")
+        #elif len(words)>2 and words[2]=="__rust_start_panic" and words[1]=="T":
+          #print(file)
+          #os.system("mv "+file+" "+sys.argv[1]+"/function_keep2.bc")
     os.system("rm -rf "+sys.argv[1]+"/*.rcgu.bc");
     
     lto_optimized_files = list_files_with_suffix(sys.argv[1], ".after-restriction.bc")
