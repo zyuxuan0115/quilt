@@ -18,7 +18,7 @@ def read_func_info(json_file, funcTree):
     func_info = json.load(json_file)
     for item in func_info:
       if item['function_name'] in funcs:
-        cmd = "cp -r ../cluster-"+str(item['cluster_id'])+"/"+item['function_name']+" temp/"
+        cmd = "cp -r ../cluster-"+str(item['cluster_id'])+"/"+item['function_name']+"/template/rust/function/ temp/"+item['function_name']
         os.system(cmd)
 def main():
   if len(sys.argv) < 3:
