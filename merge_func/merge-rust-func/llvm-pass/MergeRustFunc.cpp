@@ -427,8 +427,11 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
         if (!ci->isInlineAsm()) {
           Value *calledValue = ci->getCalledOperand();
           if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
-            std::string CalleeName = getRPCCalleeName(ci);
-            if (CalleeName == calleeName) return dyn_cast<Instruction>(ci);
+            std::string fname = getDemangledRustFuncName(CalledFunc->getName().str());
+            if (fname == "OpenFaaSRPC::make_rpc") {
+              std::string CalleeName = getRPCCalleeName(ci);
+              if (CalleeName == calleeName) return dyn_cast<Instruction>(ci);
+            }
           }
         }
       }
@@ -436,8 +439,11 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
         if (!ii->isInlineAsm()) {
           Value *calledValue = ii->getCalledOperand();
           if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
-            std::string CalleeName = getRPCCalleeName(ii);
-            if (CalleeName == calleeName) return dyn_cast<Instruction>(ii);
+            std::string fname = getDemangledRustFuncName(CalledFunc->getName().str());
+            if (fname == "OpenFaaSRPC::make_rpc") {
+              std::string CalleeName = getRPCCalleeName(ii);
+              if (CalleeName == calleeName) return dyn_cast<Instruction>(ii);
+            }
           }
         }
       }

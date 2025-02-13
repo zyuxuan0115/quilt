@@ -30,6 +30,8 @@ def move_functions(json_file):
         cmd = "cp -r ../cluster-"+str(item['cluster_id'])+"/"+item['function_name']+"/template/rust/function "+item['function_name']
         os.system(cmd)
 
+
+
 def compile_to_bitcode(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
@@ -81,12 +83,6 @@ def merge(f_name):
       new_func=word
       if new_func not in func_visited:
         func_visited[new_func] = 1
-#  func_to_be_compiled = ""
-#  for func in func_visited:
-#    func_to_be_compiled = func_to_be_compiled + func + " "
-#  cmd = "./merge.sh compile "+func_to_be_compiled
-#  print(cmd)
-#  os.system(cmd)
   # delete useless files
   all_callees = ""
   for func in func_visited:
@@ -119,6 +115,8 @@ def merge(f_name):
       merged_funcs[callee] = 1
     else:
       cmd = "./merge.sh merge_existing "+entry_func+" "+callee+" "+caller
+      print(cmd)
+      os.system(cmd)
   # link
   cmd = "./merge.sh link " + entry_func
   print(cmd)
