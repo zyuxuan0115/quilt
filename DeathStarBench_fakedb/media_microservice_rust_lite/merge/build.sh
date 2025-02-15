@@ -17,12 +17,12 @@ function merge_openfaas {
   cp merge_tree.py temp
   cp funcTree temp
   cp rm_redundant_bc.py temp 
-e sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-merged:latest \
+e sudo docker build --no-cache -t zyuxuan0115/mm-$CALLER-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile \
     temp
   rm -rf temp
   sudo docker system prune -f
-  sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
+  sudo docker push zyuxuan0115/mm-$CALLER-merged:latest
 }
 
 function merge_openwhisk {
@@ -35,15 +35,15 @@ function merge_openwhisk {
   cp merge_tree.py temp
   cp funcTree temp
   cp rm_redundant_bc.py temp
-  sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-merged:latest \
+  sudo docker build --no-cache -t zyuxuan0115/mm-$CALLER-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.wsk \
     temp
   rm -rf temp
   sudo docker system prune -f
-  sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
+  sudo docker push zyuxuan0115/mm-$CALLER-merged:latest
   wsk action delete $CALLER-merged
   sleep 5
-  wsk action create $CALLER-merged --docker zyuxuan0115/sn-$CALLER-merged
+  wsk action create $CALLER-merged --docker zyuxuan0115/mm-$CALLER-merged
 }
 
 function merge_fission {
@@ -57,12 +57,12 @@ function merge_fission {
   cp funcTree temp
   cp rm_redundant_bc.py temp
   echo "$CALLER-merged" > temp/metadata.txt
-  sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-merged:latest \
+  sudo docker build --no-cache -t zyuxuan0115/mm-$CALLER-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
   rm -rf temp
   sudo docker system prune -f
-  sudo docker push zyuxuan0115/sn-$CALLER-merged:latest
+  sudo docker push zyuxuan0115/mm-$CALLER-merged:latest
 }
 
 
@@ -70,7 +70,7 @@ function merge_fission {
 function deploy_openwhisk {
   FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
   for FUNC in "${FUNCS[@]}"; do
-    wsk action create text-service-merged --docker zyuxuan0115/sn-$FUNC-merged
+    wsk action create text-service-merged --docker zyuxuan0115/mm-$FUNC-merged
   done
 }
 
@@ -80,7 +80,7 @@ function deploy_fission_c {
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
-      --image docker.io/zyuxuan0115/sn-$FUNC-merged \
+      --image docker.io/zyuxuan0115/mm-$FUNC-merged \
       --minscale=1 --maxscale=30 \
       --minmemory=1 --maxmemory=64 \
       --mincpu=1  --maxcpu=2000 \
