@@ -8,13 +8,6 @@ ARGS=("$@")
 
 CALLER=${ARGS[1]}
 
-function build_llvm {
-  sudo docker build --no-cache -t zyuxuan0115/llvm-19:latest \
-       -f $DOCKERFILE_DIR/Dockerfile.llvm \
-       .
-  sudo docker push zyuxuan0115/llvm-19:latest
-}
-
 function merge_openfaas {
   rm -rf temp && mkdir temp
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
@@ -83,7 +76,7 @@ function merge_fission {
 }
 
 function deploy_openwhisk {
-  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  FUNCS=("compose-review" "page-service")
   for FUNC in "${FUNCS[@]}"; do
     wsk action create $FUNC-merged --docker zyuxuan0115/hr-$FUNC-async-merged
   done
@@ -91,7 +84,7 @@ function deploy_openwhisk {
 
 
 function deploy_fission {
-  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  FUNCS=("compose-review" "page-service")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
@@ -109,9 +102,7 @@ function deploy_fission {
 
 
 case "$1" in
-llvm)
-    build_llvm
-    ;;
+
 pre_compile)
     pre_compile
     ;;
