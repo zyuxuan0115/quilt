@@ -24,7 +24,6 @@ def main():
         if len(words)>2 and words[2]=="__rust_alloc" and words[1]=="T":
           print(file)
           os.system("mv "+file+" "+sys.argv[1]+"/function_keep.bc")
-    
     os.system("rm -rf "+sys.argv[1]+"/*.rcgu.bc");
     os.system("rm -rf "+sys.argv[1]+"/*.rcgu.o");
 
