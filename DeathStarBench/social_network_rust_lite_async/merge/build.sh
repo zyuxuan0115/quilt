@@ -8,13 +8,6 @@ ARGS=("$@")
 
 CALLER=${ARGS[1]}
 
-function build_llvm {
-  sudo docker build --no-cache -t zyuxuan0115/llvm-19:latest \
-       -f $DOCKERFILE_DIR/Dockerfile.llvm \
-       .
-  sudo docker push zyuxuan0115/llvm-19:latest
-}
-
 function merge_openfaas {
   rm -rf temp && mkdir temp
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
@@ -53,6 +46,16 @@ function merge_openwhisk {
   wsk action create $CALLER-merged --docker zyuxuan0115/sn-$CALLER-async-merged
 }
 
+function pre_compile {
+  mkdir tmp0
+  cp -r ../cluster-1/* tmp0
+  cp -r ../cluster-2/* tmp0
+  rm -rf tmp0/build.sh
+  sudo docker build --no-cache -t zyuxuan0115/sn-bitcode-async:latest \
+    -f $DOCKERFILE_DIR/Dockerfile.pre_compile \
+    tmp0
+}
+
 function merge_fission {
   rm -rf temp && mkdir temp
   ./build_helper.py ../OpenFaaSRPC/func_info.json funcTree
@@ -63,6 +66,7 @@ function merge_fission {
   cp merge_tree.py temp
   cp funcTree temp
   cp rm_redundant_bc.py temp
+  echo "$CALLER-merged" > temp/metadata.txt
   sudo docker build --no-cache -t zyuxuan0115/sn-$CALLER-async-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
@@ -72,28 +76,35 @@ function merge_fission {
 }
 
 function deploy_openwhisk {
-  wsk action create text-service-merged --docker zyuxuan0115/sn-text-service-async-merged
-  wsk action create compose-post-merged --docker zyuxuan0115/sn-compose-post-async-merged
-  wsk action create social-graph-follow-with-username-merged --docker zyuxuan0115/sn-social-graph-follow-with-username-async-merged
-  wsk action create read-home-timeline-merged --docker zyuxuan0115/sn-read-home-timeline-async-merged
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  for FUNC in "${FUNCS[@]}"; do
+    wsk action create $FUNC-merged --docker zyuxuan0115/sn-$FUNC-async-merged
+  done
 }
 
 
 function deploy_fission {
-  FUNC=compose-post-async
-  fission function run-container --name $FUNC-merged \
-    --image docker.io/zyuxuan0115/sn-$FUNC-merged \
-    --port 8888 \
-    --namespace fission-function
-  fission httptrigger create --method POST \
-    --url /$FUNC-merged --function $FUNC-merged \
-    --namespace fission-function
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
+    fission function run-container --name $FUNC-merged \
+      --image docker.io/zyuxuan0115/sn-$FUNC-async-merged \
+      --minscale=1 --maxscale=30 \
+      --minmemory=1 --maxmemory=128 \
+      --mincpu=1  --maxcpu=2000 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-merged --function $FUNC-merged \
+      --namespace fission-function
+  done
 }
 
 
 case "$1" in
-llvm)
-    build_llvm
+
+pre_compile)
+    pre_compile
     ;;
 merge_openwhisk)
     merge_openwhisk 

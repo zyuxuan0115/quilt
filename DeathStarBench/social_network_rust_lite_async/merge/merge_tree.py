@@ -3,11 +3,10 @@ import os
 import sys 
 import json
 
-
-def merge(f_name):
+def compile_to_bitcode(f_name):
   f = open(f_name, 'r')
   Lines = f.readlines()
- 
+
   func_visited = {}
   entry_func = ""
   # get the entry function
@@ -23,14 +22,14 @@ def merge(f_name):
       new_func=word
       if new_func not in func_visited:
         func_visited[new_func] = 1
-  func_to_be_compiled = ""
+  func_to_be_compiled = '\"'
   for func in func_visited:
-    func_to_be_compiled = func_to_be_compiled + func + " "
-  cmd = "./merge.sh compile "+func_to_be_compiled
-  print(cmd)
-  os.system(cmd)
-  # rename caller
-  cmd = "./merge.sh rename_caller "+entry_func
+    func_to_be_compiled = func_to_be_compiled + func + '\", \"'
+  with open("Cargo.toml", "w") as file:
+    file.write("[workspace]\n")
+    file.write('members = ['+func_to_be_compiled[:-2]+']')
+
+  cmd = "./merge.sh compile"
   print(cmd)
   os.system(cmd)
   # delete useless files
@@ -38,7 +37,31 @@ def merge(f_name):
   for func in func_visited:
     if func != entry_func:
       all_callees = all_callees + func + " "
-  cmd = "./merge.sh remove_redundant_files "+entry_func + " " + all_callees
+  cmd = "./merge.sh remove_redundant_files "
+  print(cmd)
+  os.system(cmd)
+
+
+def merge(f_name):
+  f = open(f_name, 'r')
+  Lines = f.readlines()
+ 
+  func_visited = {}
+  entry_func = ""
+  for line in Lines:
+    words = line.split()
+    func_str = ""
+    for word in words:
+      new_func=word
+      if new_func not in func_visited:
+        func_visited[new_func] = 1
+  # get the entry function
+  if len(Lines) > 0:
+    words = Lines[0].split();
+    if len(words) > 0:
+      entry_func = words[0]
+  # rename caller
+  cmd = "./merge.sh rename_caller "+entry_func
   print(cmd)
   os.system(cmd)
   # rename callee
@@ -105,7 +128,9 @@ def main():
     print("usage: ./merge_tree.py <'merge' or 'clean'> <input file>")
     exit(1)
   arg = sys.argv[1]
-  if arg == "merge":
+  if arg == "compile":
+    compile_to_bitcode(sys.argv[2])
+  elif arg == "merge":
     merge(sys.argv[2])
   elif arg == "link":
     link(sys.argv[2])
