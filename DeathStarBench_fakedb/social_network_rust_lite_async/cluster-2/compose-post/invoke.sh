@@ -18,11 +18,19 @@ function invoke_fission {
   -d '{"username":"twenisch","user_id":11028,"text":"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk ","media_ids":[],"media_types":[],"post_type":"POST"}'
 }
 
+function invoke_fission_merged {
+  curl -XPOST http://localhost:8888/$FUNC-merged \
+  -d '{"username":"twenisch","user_id":11028,"text":"Hey, this is @twenisch! Nice to meet you and welcome to my personal web: https://eecs.umich.edu/~twenisch @bobk ","media_ids":[],"media_types":[],"post_type":"POST"}'
+}
+
 case "$1" in
 wsk)
     invoke_wsk
     ;;
 fission)
     invoke_fission
+    ;;
+fission_merged)
+    invoke_fission_merged
     ;;
 esac
