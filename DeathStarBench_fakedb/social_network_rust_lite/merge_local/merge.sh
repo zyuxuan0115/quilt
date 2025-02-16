@@ -24,7 +24,8 @@ function compile_to_ir {
   && mv $PLATFORM OpenFaaSRPC \
   && cp -r ../DbInterface . 
   RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build --release \
-    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu 
+    -Z build-std=std,panic_abort --target x86_64-unknown-linux-gnu 
+#    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu 
 }
 
 

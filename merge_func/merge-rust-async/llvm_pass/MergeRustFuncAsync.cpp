@@ -592,10 +592,12 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
   for (unsigned i=0; i<call->getNumOperands()-1; i++){
     Value* arg = call->getOperand(i);
-    arguments.push_back(arg);
-    argumentTypes.push_back(arg->getType());
+    if ((i==0) || (i==3)) {
+      arguments.push_back(arg);
+      argumentTypes.push_back(arg->getType());
+    }
   }
-  FunctionType* FuncType = originalCalledFunc->getFunctionType();
+  FunctionType* FuncType = FunctionType::get(Type::getVoidTy(M->getContext()), argumentTypes, false);
   Function * newCalleeFunc = Function::Create(FuncType, llvm::GlobalValue::ExternalLinkage, newFuncName, M);
   // update VMap, the targetFunc has less args than the original callee function
   // so we need to remap the arguments
@@ -604,22 +606,9 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(CallInst*
 
   CloneFunctionInto(newCalleeFunc, targetFunc, VMap, llvm::CloneFunctionChangeType::LocalChangesOnly, Returns);
 
-  // set attributes for the new callee function's arguments
-  std::vector<AttributeSet> argumentAttrs;
-  AttributeList newCalleeAttrList = originalCalledFunc->getAttributes();
-  for (unsigned i=0; i<arguments.size(); i++){
-    argumentAttrs.push_back(newCalleeAttrList.getParamAttrs(i));
-  }
-  AttributeSet returnAttr = newCalleeAttrList.getRetAttrs();
-  AttributeSet funcAttr = newCalleeAttrList.getFnAttrs();
-
-  newCalleeFunc->setAttributes(AttributeList::get(M->getContext(), funcAttr, returnAttr, argumentAttrs));
-
   // create a new before the OpenFaaS::make_rpc (call) that 
   // points to the new function
-  CallInst* newCall = CallInst::Create(FuncType, newCalleeFunc, arguments ,"", call);
-  AttributeList attr = call->getAttributes();
-  newCall->setAttributes(attr);
+  CallInst* newCall = CallInst::Create(newCalleeFunc->getFunctionType(), newCalleeFunc, arguments ,"", call);
   call->eraseFromParent();
 
   return newCalleeFunc;

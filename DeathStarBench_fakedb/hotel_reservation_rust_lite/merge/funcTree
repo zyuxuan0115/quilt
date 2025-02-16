@@ -1,4 +1,5 @@
-nearby-cinema-parallel get-nearby-points-cinema-4
-nearby-cinema-parallel get-nearby-points-cinema-1
-nearby-cinema-parallel get-nearby-points-cinema-2
-nearby-cinema-parallel get-nearby-points-cinema-3
+search-handler search-nearby
+search-handler check-availability
+search-handler get-profiles
+search-nearby get-rates
+search-nearby nearby-hotel

@@ -105,7 +105,8 @@ function link {
   $LLVM_DIR/llvm-link $WORK_DIR/*.bc -o lib_with_debug_info.bc
   $LLVM_DIR/opt lib_with_debug_info.bc -strip-debug -o lib.bc
   $LLVM_DIR/opt lib.bc -passes=strip-dead-prototypes -o func.bc
-  $LLVM_DIR/opt func.bc -passes=remove-redundant -o function.bc
+  $LLVM_DIR/opt func.bc -passes=remove-redundant -o function0.bc
+  $LLVM_DIR/opt -O3 function0.bc -o function.bc
   $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.bc -o function.o
   wrap_shared_lib
   #gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS

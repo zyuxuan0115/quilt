@@ -57,7 +57,7 @@ function merge_fission {
   cp funcTree temp
   cp rm_redundant_bc.py temp
   echo "$CALLER-merged" > temp/metadata.txt
-  sudo docker build --no-cache -t zyuxuan0115/mm-$CALLER-merged:latest \
+  sudo DOCKER_BUILDKIT=1 docker build --no-cache -t zyuxuan0115/mm-$CALLER-merged:latest \
     -f $DOCKERFILE_DIR/Dockerfile.fission \
     temp
   rm -rf temp
@@ -68,7 +68,7 @@ function merge_fission {
 
 
 function deploy_openwhisk {
-  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  FUNCS=("compose-review" "page-service")
   for FUNC in "${FUNCS[@]}"; do
     wsk action create text-service-merged --docker zyuxuan0115/mm-$FUNC-merged
   done
@@ -76,7 +76,7 @@ function deploy_openwhisk {
 
 
 function deploy_fission_c {
-  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service")
+  FUNCS=("compose-review" "page-service")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
