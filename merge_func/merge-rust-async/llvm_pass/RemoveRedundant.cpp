@@ -13,54 +13,6 @@ using namespace llvm;
 
 PreservedAnalyses RemoveRedundantPass::run(Module &M,
                                          ModuleAnalysisManager &AM) {
-/*
-  Function *mainFunc = M.getFunction("main");
-  std::unordered_set<Function*> visitedFuncs;
-  std::vector<Function*> FuncsToBeVisited;
-
-  visitedFuncs.insert(mainFunc);
-  FuncsToBeVisited.push_back(mainFunc);
-
-  while (!FuncsToBeVisited.empty()) {
-    Function* func = FuncsToBeVisited.front();
-    std::vector<Function*> calleeVec = getCalleeVec(func);
-    for (auto calleeFunc: calleeVec) {
-      if (visitedFuncs.find(calleeFunc) == visitedFuncs.end()) {
-        FuncsToBeVisited.push_back(calleeFunc);
-        visitedFuncs.insert(calleeFunc);
-      }
-    }
-    FuncsToBeVisited.erase(FuncsToBeVisited.begin());
-  } 
-
-  int functionCount = 0;
-  for (auto f = M.begin(); f!=M.end(); f++) {
-    functionCount++;
-  }
-
-  llvm::errs()<<visitedFuncs.size()<<"\n";
-  llvm::errs()<<functionCount<<"\n";
-    
-  std::vector<Function*> funcToBeErased;
-  do {
-    funcToBeErased.clear();
-    for (auto f=M.begin(); f != M.end(); f++) {
-      Function* func = dyn_cast<Function>(f);
-      if ((func->use_empty()) && (visitedFuncs.find(func) == visitedFuncs.end())) {
-        funcToBeErased.push_back(func);
-      }
-    }
-    for (auto func: funcToBeErased) {
-      func->eraseFromParent();
-    }
-  } while (!funcToBeErased.empty());
-
-  functionCount = 0;
-  for (auto f = M.begin(); f!=M.end(); f++) {
-    functionCount++;
-  }
-  llvm::errs()<<functionCount<<"\n";
-*/
   Function* curl_global_init_func = M.getFunction("curl_global_init");
   std::vector<llvm::CallInst*> callSites;    
   for (User* U : curl_global_init_func->users()) { // Iterate over all uses of the function
@@ -90,9 +42,28 @@ PreservedAnalyses RemoveRedundantPass::run(Module &M,
       }
     }
     call->eraseFromParent();
-
   }
 
+  // newly added: move curl_global_init to the beginning of make_rpc
+  Function* targetFunc;
+  for (auto f = M.begin(); f != M.end(); f++) {  
+    Function* func = dyn_cast<Function>(f); 
+    std::string fname = func->getName().str();
+    std::string demangledName = getDemangledRustFuncName(fname);
+    if (demangledName == "OpenFaaSRPC::make_rpc") {
+      targetFunc = func;
+      break;
+    }
+  }
+
+  if (targetFunc) {
+    auto firstInst = targetFunc->begin()->begin();
+    Instruction* firstI = dyn_cast<Instruction>(firstInst);
+    ConstantInt *val = ConstantInt::get(Type::getInt64Ty(M.getContext()), 3);
+    std::vector<Value*> args = {dyn_cast<Value>(val)};
+    CallInst* newCall = CallInst::Create(curl_global_init_func, args, "", firstI);
+  }
+  
   return PreservedAnalyses::all();
 }
 
