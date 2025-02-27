@@ -18,8 +18,10 @@ NUM_ARGS=$#
 
 
 function compile_to_ir {
-  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build --release \
-    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu
+  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" \
+    cargo +nightly-2024-12-19 build --release \
+    -Z build-std=std,panic_abort \
+    --target x86_64-unknown-linux-gnu
 }
 
 
