@@ -159,76 +159,103 @@ void MergeRustFuncAsyncPass::RenameCaller(Module* M) {
 void MergeRustFuncAsyncPass::MergeCallee(Module* M) {
   // get function::main::{{closure}}
   // because it contains RPC (OpenFaaSRPC::make_rpc())
-  Function* mainClosure = getRPCCallerFunc(M, CallerName_rra, CalleeName_rra);
-  if (!mainClosure) {
+  std::vector<Function*> RPCCallerFuncs = getRPCCallerFunc(M, CallerName_rra, CalleeName_rra);
+  if (RPCCallerFuncs.empty()) {
     llvm::errs()<<"MergeCallee Error: cannot find main closure\n"
                 <<"                   caller name: "+CallerName_rra+"\n"
                 <<"                   callee name: "+CalleeName_rra+"\n";
     return;
   }
-  Instruction* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
-  if (!rpcInst) {
-    llvm::errs()<<"MergeCallee Error: rpc Instruction is not found\n";
-    return;
-  }
+  for (Function* RPCCallerFunc: RPCCallerFuncs) {
+    Instruction* rpcInst = getRPCinst(RPCCallerFunc, CalleeName_rra);
+    if (!rpcInst) {
+      llvm::errs()<<"MergeCallee Error: rpc Instruction is not found\n";
+      return;
+    }
 
-  // create a function that has theesame arguments as `make_rpc`
-  // but the function body is the callee function
-  Function* CalleeFunc = M->getFunction("main_2nd_for_"+CalleeName_rra);
-  if (!CalleeFunc) {
-    llvm::errs()<<"MergeCallee Error: callee function is not found\n";
-    return;
-  }
+    // create a function that has theesame arguments as `make_rpc`
+    // but the function body is the callee function
+    Function* CalleeFunc = M->getFunction("main_2nd_for_"+CalleeName_rra);
+    if (!CalleeFunc) {
+      llvm::errs()<<"MergeCallee Error: callee function is not found\n";
+      return;
+    }
 
-  if (CallInst* rpcCallInst = dyn_cast<CallInst>(rpcInst)) { 
-    Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcCallInst, CalleeFunc, 
+    Function* newCalleeFunc = M->getFunction("new_callee_"+CalleeName_rra);
+    if (newCalleeFunc) {
+      std::vector<Value*> arguments;
+      for (unsigned i=0; i<rpcInst->getNumOperands()-1; i++){
+        if ((i==0) || (i==3)) {
+          Value* arg = rpcInst->getOperand(i);
+          arguments.push_back(arg);
+        }
+      }
+      CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments,"", rpcInst);
+      if (isa<InvokeInst>(rpcInst)) {
+        BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(rpcInst->getOperand(4));
+        BasicBlock* anotherBB = dyn_cast<BasicBlock>(rpcInst->getOperand(5));
+        if (nextBBofRPC && anotherBB) {
+          Function* dummy = M->getFunction("dummy");
+          InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", rpcInst);
+        }
+      }
+      rpcInst->eraseFromParent();
+    }
+    else {
+      if (CallInst* rpcCallInst = dyn_cast<CallInst>(rpcInst)) {
+        newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcCallInst, CalleeFunc, 
                                         "new_callee_"+CalleeName_rra);
-    changeNewCalleeInput(newCalleeFunc);
-    changeNewCalleeOutput(newCalleeFunc);
-  }
-  else if (InvokeInst* rpcCallInst = dyn_cast<InvokeInst>(rpcInst)) {
-    Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcCallInst, CalleeFunc, 
+        changeNewCalleeInput(newCalleeFunc);
+        changeNewCalleeOutput(newCalleeFunc);
+      }
+      else if (InvokeInst* rpcCallInst = dyn_cast<InvokeInst>(rpcInst)) {
+        newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(rpcCallInst, CalleeFunc, 
                                         "new_callee_"+CalleeName_rra);
-    changeNewCalleeInput(newCalleeFunc);
-    changeNewCalleeOutput(newCalleeFunc);
+        changeNewCalleeInput(newCalleeFunc);
+        changeNewCalleeOutput(newCalleeFunc);
+      }
+    }
   }
 }
 
 
 
 void MergeRustFuncAsyncPass::MergeExistingCallee(Module* M) {
-  Function* mainClosure = getRPCCallerFunc(M, CallerName_rra, CalleeName_rra);
-  Instruction* rpcInst = getRPCinst(mainClosure, CalleeName_rra);
-  Function *CalleeFunc = M->getFunction("new_callee_" + CalleeName_rra);
+  std::vector<Function*> RPCCallerFuncs = getRPCCallerFunc(M, CallerName_rra, CalleeName_rra);
 
-  if (CalleeFunc) {
-    std::vector<Value*> arguments;
-    for (unsigned i=0; i<rpcInst->getNumOperands()-1; i++){
-      if ((i==0) || (i==3)) {
-        Value* arg = rpcInst->getOperand(i);
-        arguments.push_back(arg);
+  for (Function* RPCCallerFunc: RPCCallerFuncs) {
+    Instruction* rpcInst = getRPCinst(RPCCallerFunc, CalleeName_rra);
+    Function *CalleeFunc = M->getFunction("new_callee_" + CalleeName_rra);
+
+    if (CalleeFunc) {
+      std::vector<Value*> arguments;
+      for (unsigned i=0; i<rpcInst->getNumOperands()-1; i++){
+        if ((i==0) || (i==3)) {
+          Value* arg = rpcInst->getOperand(i);
+          arguments.push_back(arg);
+        }
       }
-    }
 
-    CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments,"", rpcInst);
-    BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(rpcInst->getOperand(4));
-    BasicBlock* anotherBB = dyn_cast<BasicBlock>(rpcInst->getOperand(5));
+      CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments,"", rpcInst);
+      BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(rpcInst->getOperand(4));
+      BasicBlock* anotherBB = dyn_cast<BasicBlock>(rpcInst->getOperand(5));
 
-    if (nextBBofRPC && anotherBB) {
-      Function* dummy = M->getFunction("dummy");
-      InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", rpcInst);
+      if (nextBBofRPC && anotherBB) {
+        Function* dummy = M->getFunction("dummy");
+        InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", rpcInst);
+      }
+      rpcInst->eraseFromParent();
     }
-    rpcInst->eraseFromParent();
-  }
-  else {
-    llvm::errs()<<"MergeExistingCallee error: cannot find the callee function: new_callee_"
+    else {
+      llvm::errs()<<"MergeExistingCallee error: cannot find the callee function: new_callee_"
                 <<CalleeName_rra<<"\n";
-  } 
+    } 
+  }
 }
 
 
 
-Function* MergeRustFuncAsyncPass::getRPCCallerFunc(Module* M, std::string caller_name, std::string callee_name) {
+std::vector<Function*> MergeRustFuncAsyncPass::getRPCCallerFunc(Module* M, std::string caller_name, std::string callee_name) {
   std::vector<Function*> main_funcs;
   for (Module::iterator f = M->begin(); f != M->end(); f++){
     Function* func = dyn_cast<Function>(f);
@@ -237,6 +264,7 @@ Function* MergeRustFuncAsyncPass::getRPCCallerFunc(Module* M, std::string caller
       main_funcs.push_back(func);
     }
   }
+  std::vector<Function*> realRPCCallerFuncs;
   for (auto f: main_funcs) {
     for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
       for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
@@ -248,7 +276,7 @@ Function* MergeRustFuncAsyncPass::getRPCCallerFunc(Module* M, std::string caller
               std::string demangledName = getDemangledRustFuncName(calledFuncName);
               if (demangledName == "OpenFaaSRPC::make_rpc") {
                 if (getRPCCalleeName(ci) == callee_name) {
-                  return f;
+                  realRPCCallerFuncs.push_back(f);
                 }
               } 
             }
@@ -262,7 +290,7 @@ Function* MergeRustFuncAsyncPass::getRPCCallerFunc(Module* M, std::string caller
               std::string demangledName = getDemangledRustFuncName(calledFuncName);
               if (demangledName == "OpenFaaSRPC::make_rpc") {
                 if (getRPCCalleeName(ii) == callee_name) {
-                  return f;
+                  realRPCCallerFuncs.push_back(f);
                 }
               } 
             }
@@ -271,7 +299,7 @@ Function* MergeRustFuncAsyncPass::getRPCCallerFunc(Module* M, std::string caller
       }
     }
   }
-  return NULL;
+  return realRPCCallerFuncs;
 }
 
 
@@ -717,8 +745,8 @@ void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
       Function* dummy = M->getFunction("dummy");
       InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofsend_ret_value_call, anotherBBofsend_ret_value_call, {}, "", send_return_value_call);
     }
-    send_return_value_call->eraseFromParent();
   }
+  send_return_value_call->eraseFromParent();
 } 
 
 

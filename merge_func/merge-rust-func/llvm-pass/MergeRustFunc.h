@@ -49,7 +49,7 @@ public:
   Function* createRustNewCallee2(Function* CalleeFunc, CallInst* call, std::string newName);
   Function* getRustRuntimeFunction(Function* mainFunc);
   void deleteCalleeInputOutputFunc(Function* NewCalleeFunc);
-  Instruction* findRPCbyCalleeName(Function*, std::string);
+  std::vector<Instruction*> findRPCbyCalleeName(Function*, std::string);
   bool IsStringStartWith(std::string,std::string);
   CallInst* getRPCinst(Function*,std::string);
   Function* getFunctionByDemangledName(Module*, std::string);

@@ -123,23 +123,47 @@ void MergeRustFuncPass::mergeCallee(Module* M) {
     return;
   }
   Function *CalleeFunc = M->getFunction("callee_"+CalleeName_rr);
-  Instruction* RPCInst_i = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
-  if (!RPCInst_i) {
+  std::vector<Instruction*> RPCInsts = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
+  if (RPCInsts.empty()) {
     llvm::errs()<<"MergeCallee Error: no RPC callee find in the caller function\n";
     return;
   }
 
-  Function* NewCalleeFunc;
-  if (isa<InvokeInst>(RPCInst_i)) {
-    InvokeInst* RPCInst = dyn_cast<InvokeInst>(RPCInst_i);
-    NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst, CalleeName_rr);
-  }
-  else if (isa<CallInst>(RPCInst_i)) {
-    CallInst* RPCInst = dyn_cast<CallInst>(RPCInst_i);
-    NewCalleeFunc = createRustNewCallee2(CalleeFunc, RPCInst, CalleeName_rr);
+  Function* NewCalleeFunc = NULL;
+  for (Instruction* RPCInst_i: RPCInsts) {
+    if (!NewCalleeFunc) {
+      if (isa<InvokeInst>(RPCInst_i)) {
+        InvokeInst* RPCInst = dyn_cast<InvokeInst>(RPCInst_i);
+        NewCalleeFunc = createRustNewCallee(CalleeFunc, RPCInst, CalleeName_rr);
+      }
+      else if (isa<CallInst>(RPCInst_i)) {
+        CallInst* RPCInst = dyn_cast<CallInst>(RPCInst_i);
+        NewCalleeFunc = createRustNewCallee2(CalleeFunc, RPCInst, CalleeName_rr);
+      }
+      deleteCalleeInputOutputFunc(NewCalleeFunc);
+    }
+    else {
+      std::vector<Value*> arguments;
+      for (unsigned i=0; i<RPCInst_i->getNumOperands(); i++){
+        Value* arg = RPCInst_i->getOperand(i);
+        if ((i==0) || (i==3) ){
+          arguments.push_back(arg);
+        }
+      }
+      CallInst* newCall = CallInst::Create(NewCalleeFunc->getFunctionType(), 
+                                           NewCalleeFunc, arguments ,"", RPCInst_i);
+      if (isa<InvokeInst>(RPCInst_i)) {
+        BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst_i->getOperand(4));
+        BasicBlock* anotherBB = dyn_cast<BasicBlock>(RPCInst_i->getOperand(5));
+        if (nextBBofRPC && anotherBB) {
+          Function* dummy = M->getFunction("dummy");
+          InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", RPCInst_i);
+        }
+      }
+      RPCInst_i->eraseFromParent();
+    }
   }
 
-  deleteCalleeInputOutputFunc(NewCalleeFunc);
 /*    
   Function* f1 = M->getFunction("main_callee_rust_"+CalleeName_rr);
   f1->eraseFromParent();
@@ -157,28 +181,30 @@ void MergeRustFuncPass::MergeExistingCallee(Module* M) {
     return;
   }
 
-  Instruction* RPCInst_i = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
+  std::vector<Instruction*> RPCInsts = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
 
-  Function *CalleeFunc = M->getFunction("NewCallee_"+CalleeName_rr);
-  if (CalleeFunc) {
-    std::vector<Value*> arguments;
-    for (unsigned i=0; i<RPCInst_i->getNumOperands(); i++){
-      Value* arg = RPCInst_i->getOperand(i);
-      if ((i==0) || (i==3) ){
-        arguments.push_back(arg);
+  for (Instruction* RPCInst_i: RPCInsts) {
+    Function *CalleeFunc = M->getFunction("NewCallee_"+CalleeName_rr);
+    if (CalleeFunc) {
+      std::vector<Value*> arguments;
+      for (unsigned i=0; i<RPCInst_i->getNumOperands(); i++){
+        Value* arg = RPCInst_i->getOperand(i);
+        if ((i==0) || (i==3) ){
+          arguments.push_back(arg);
+        }
       }
-    }
 
-    CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments ,"", RPCInst_i);
-    if (isa<InvokeInst>(RPCInst_i)) {
-      BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst_i->getOperand(4));
-      BasicBlock* anotherBB = dyn_cast<BasicBlock>(RPCInst_i->getOperand(5));
-      if (nextBBofRPC && anotherBB) {
-        Function* dummy = M->getFunction("dummy");
-        InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", RPCInst_i);
+      CallInst* newCall = CallInst::Create(CalleeFunc->getFunctionType(), CalleeFunc, arguments ,"", RPCInst_i);
+      if (isa<InvokeInst>(RPCInst_i)) {
+        BasicBlock* nextBBofRPC = dyn_cast<BasicBlock>(RPCInst_i->getOperand(4));
+        BasicBlock* anotherBB = dyn_cast<BasicBlock>(RPCInst_i->getOperand(5));
+        if (nextBBofRPC && anotherBB) {
+          Function* dummy = M->getFunction("dummy");
+          InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofRPC, anotherBB, {}, "", RPCInst_i);
+        }
       }
+      RPCInst_i->eraseFromParent();
     }
-    RPCInst_i->eraseFromParent();
   }
 }
 
@@ -419,8 +445,8 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
 
 
-Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string calleeName){
-  std::string prefix = "OpenFaaSRPC::make_rpc";
+std::vector<Instruction*> MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string calleeName){
+  std::vector<Instruction*> RPCInsts;
   for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
     for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
       if (CallInst *ci = dyn_cast<CallInst>(IB)) {
@@ -430,7 +456,7 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
             std::string fname = getDemangledRustFuncName(CalledFunc->getName().str());
             if (fname == "OpenFaaSRPC::make_rpc") {
               std::string CalleeName = getRPCCalleeName(ci);
-              if (CalleeName == calleeName) return dyn_cast<Instruction>(ci);
+              if (CalleeName == calleeName) RPCInsts.push_back(dyn_cast<Instruction>(ci));
             }
           }
         }
@@ -442,14 +468,14 @@ Instruction* MergeRustFuncPass::findRPCbyCalleeName(Function* f, std::string cal
             std::string fname = getDemangledRustFuncName(CalledFunc->getName().str());
             if (fname == "OpenFaaSRPC::make_rpc") {
               std::string CalleeName = getRPCCalleeName(ii);
-              if (CalleeName == calleeName) return dyn_cast<Instruction>(ii);
+              if (CalleeName == calleeName) RPCInsts.push_back(dyn_cast<Instruction>(ii));
             }
           }
         }
       }
     }
   }
-  return NULL; 
+  return RPCInsts; 
 }
 
 

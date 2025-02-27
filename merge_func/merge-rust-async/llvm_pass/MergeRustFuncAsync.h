@@ -34,8 +34,6 @@
 #include <fstream>
 #include <sstream>
 #include <unistd.h>
-#include <chrono>
-#include <unordered_set>
 
 namespace llvm {
 
@@ -56,7 +54,7 @@ public:
   void changeNewCalleeOutput(Function*);
   void changeNewCalleeInput(Function*);
   bool IsStringStartWith(std::string, std::string);
-  Function* getRPCCallerFunc(Module*, std::string, std::string);
+  std::vector<Function*> getRPCCallerFunc(Module*, std::string, std::string);
   Instruction* getRPCinst(Function*, std::string);
   bool hasSuffix(std::string, std::string);
   bool hasPrefix(std::string, std::string);
