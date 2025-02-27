@@ -18,7 +18,7 @@ NUM_ARGS=$#
 
 
 function compile_to_ir {
-  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build --release \
+  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly-2024-12-19 build --release \
     -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu
 }
 
@@ -94,6 +94,8 @@ function wrap_shared_lib {
   && ./implib-gen.py $C_LIB/libcrypto.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
+  && ./implib-gen.py $C_LIB/libcurl.so.4.6.0 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c 
 
   cd .. && cp Implib.so/*.o .  && rm -rf Implib.so

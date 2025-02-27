@@ -279,6 +279,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut url = String::new();
 
   url = String::from("http://router.fission.svc.cluster.local.:80/");
+//  url = String::from("http://localhost:8888/");
   url.push_str(func_name);
 
   let mut input_to_be_sent = (&input).as_bytes();

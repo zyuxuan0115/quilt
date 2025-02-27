@@ -7,7 +7,7 @@ fn main() {
   let time_0 = Instant::now();
 
   let input: String = get_arg_from_caller();
-  println!("@@@: {}", input);
+
   let input_args: TextServiceArgs = serde_json::from_str(&input).unwrap();
   let mut text = input_args.text;
 
@@ -27,13 +27,22 @@ fn main() {
   };
   let urls_serialized = serde_json::to_string(&url_shorten_svc_args).unwrap();
   let user_mention_svc_args = UserMentionServiceArgs {
-    usernames: mentioned_usernames,
+    usernames: mentioned_usernames.clone(),
   };
   let mentioned_usernames_serialized = serde_json::to_string(&user_mention_svc_args).unwrap();
 
   let time_1 = Instant::now();
+  let size = mentioned_usernames.len();
   let handle = thread::spawn(move || {
-    make_rpc("user-mention-service", mentioned_usernames_serialized)
+    let mut ret: String = String::new();
+    if size == 2 {
+      ret = make_rpc("user-mention-service", mentioned_usernames_serialized);
+    }
+    else {
+      let v: Vec<UserMention> = Vec::new();
+      ret = serde_json::to_string(&v).unwrap();
+    }
+    ret
   });
 
   let time_2 = Instant::now();
@@ -46,7 +55,8 @@ fn main() {
   let urls_str = handle2.join().unwrap();
   let time_4 = Instant::now();
 
-  let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap();
+
+  let user_mentions: Vec<UserMention> = serde_json::from_str(&user_mentions_str).unwrap(); 
   let url_pairs: Vec<UrlPair> = serde_json::from_str(&urls_str).unwrap();
   for item in &url_pairs {
     let text_str: &str = &text[..];
@@ -67,4 +77,5 @@ fn main() {
   //println!("after rpcs: {:?}", time_5.duration_since(time_4));
 
   send_return_value_to_caller(serialized);
+
 }
