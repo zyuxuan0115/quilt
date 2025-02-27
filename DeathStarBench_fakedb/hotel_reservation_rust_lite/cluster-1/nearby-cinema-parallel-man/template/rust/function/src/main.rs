@@ -34,7 +34,7 @@ fn compute(input: String) -> String {
   let hotel_loc: GetNearbyPointsCinemaArgs = serde_json::from_str(&input).unwrap();
   let mut cinemas: Vec<Cinema> = Vec::new();
 
-  for i in 0..5000 {
+  for i in 0..3000 {
     let idx: f64 = i.into();
     let cid: String = format!("c{}", i);
     let cinema_info = Cinema {

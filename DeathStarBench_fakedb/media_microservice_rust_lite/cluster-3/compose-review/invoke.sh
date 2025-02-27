@@ -18,11 +18,19 @@ function invoke_fission {
   -d '{"req_id":8039,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 }
 
+function invoke_fission_merged {
+  curl -XPOST http://localhost:8888/$FUNC-merged \
+  -d '{"req_id":8039,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
+}
+
 case "$1" in
 wsk)
     invoke_wsk
     ;;
 fission)
     invoke_fission
+    ;;
+fission_merged)
+    invoke_fission_merged
     ;;
 esac

@@ -1,8 +1,8 @@
 #!/bin/bash
-LLVM_DIR=/llvm/bin
-RUST_LIB=/root/.rustup/toolchains/1.78-x86_64-unknown-linux-gnu/lib
+LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-19/build/bin
+RUST_LIB=/users/zyuxuan/.rustup/toolchains/1.78-x86_64-unknown-linux-gnu/lib
+#RUST_LIB=/users/zyuxuan/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/lib
 C_LIB=/lib/x86_64-linux-gnu
-
 WORK_DIR=target/x86_64-unknown-linux-gnu/release/deps
 
 RUST_LIBRUSTC_PATH=$(ls $RUST_LIB/librustc_driver-*.so)
@@ -13,22 +13,29 @@ RUST_LIBRUSTC_LINKER_FLAG=${RUST_LIBRUSTC_LINKER_FLAG%".so"}
 #LINKER_FLAGS="-lstd$RUST_LIBSTD_LINKER_FLAG -lcurl -lcrypto -lm -lssl -lz -ldl"
 LINKER_FLAGS="-lm -lz -ldl -lpthread"
 
+PLATFORM=FissionRPC
+
 ARGS=("$@")
 NUM_ARGS=$#
-
+CALLER_FUNC=${ARGS[1]}
 
 function compile_to_ir {
-  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build --release \
+  cp -r ../$PLATFORM . \
+  && mv $PLATFORM OpenFaaSRPC \
+  && cp -r ../DbInterface . 
+  RUSTFLAGS="-C save-temps -Zprint-llvm-passes -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc --print link-args" cargo +nightly build --release \
     -Z build-std=std,panic_abort --target x86_64-unknown-linux-gnu
-#    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu
+#    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu 
+
 }
 
 
 function remove_redundant {
-  rm -rf $WORK_DIR/panic_abort-*.bc
+  CALLER_FUNC=${ARGS[1]}
+  rm -rf $WORK_DIR/panic_abort-*.*
   rm -rf $WORK_DIR/*no-opt*
   rm -rf $WORK_DIR/*.d
-  rm -rf $WORK_DIR/*.o
+#  rm -rf $WORK_DIR/*.o
   rm -rf $WORK_DIR/*.rlib
   rm -rf $WORK_DIR/*.rmeta
   ./rm_redundant_bc.py $WORK_DIR
@@ -40,6 +47,7 @@ function rename_caller {
   CALLER_FUNC=${ARGS[1]}
   CALLER_FUNC_="${CALLER_FUNC//-/_}"
   CALLER_IR=$(find $WORK_DIR/ -type f -name "$CALLER_FUNC_-*.bc" -not -name "*.*.*")
+  echo $CALLER_IR
   $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -rename-caller-rra -caller-name-rra=$CALLER_FUNC -o caller.bc
   cp caller.bc $CALLER_IR
 }
@@ -69,7 +77,8 @@ function merge {
                  -merge-callee-rra -callee-name-rra=$CALLEE_FUNC \
                  -caller-name-rra=$REAL_CALLER_FUNC -o merged.bc
   rm $CALLEE_IR
-  mv merged.bc $CALLER_IR
+  cp merged.bc $CALLER_IR
+  
 }
 
 
@@ -80,10 +89,11 @@ function merge_existing {
   CALLER_IR=$(find $WORK_DIR/ -type f -name "$CALLER_FUNC_-*.bc" -not -name "*.*.*")
   CALLEE_FUNC=${ARGS[2]}
   REAL_CALLER_FUNC=${ARGS[3]}
+  echo "merge.sh merge_existing is called"
   $LLVM_DIR/opt $CALLER_IR -passes=merge-rust-func-async -merge-existing-rra \
                  -caller-name-rra=$REAL_CALLER_FUNC -callee-name-rra=$CALLEE_FUNC \
                  -o merged.bc
-  mv merged.bc $CALLER_IR
+  cp merged.bc $CALLER_IR
 }
 
 
@@ -95,30 +105,53 @@ function wrap_shared_lib {
   && ./implib-gen.py $C_LIB/libcrypto.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py $C_LIB/libcurl.so.4.6.0 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c 
 
   cd .. && cp Implib.so/*.o .  && rm -rf Implib.so
 }
 
 
 function link {
+  CURL_IR=$(find $WORK_DIR/ -type f -name "curl-*.bc" -not -name "*.*.*")
+  $LLVM_DIR/opt $CURL_IR -passes=remove-redundant -o curl.bc
+  mv curl.bc $CURL_IR
+  for FILE in $WORK_DIR/*.bc; do
+    BASE="${FILE%.bc}"
+    $LLVM_DIR/opt -passes="pre-isel-intrinsic-lowering,atomic-expand,loop-simplify,loop-reduce,expand-large-div-rem,expand-large-fp-convert,mergeicmps,expand-memcmp,gc-lowering,shadow-stack-gc-lowering,lower-constant-intrinsics,consthoist,partially-inline-libcalls,scalarize-masked-mem-intrin,indirectbr-expand,interleaved-access,tlshoist,dwarf-eh-prepare" $FILE -o $BASE-new.bc
+    mv $BASE-new.bc $FILE
+    $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections $FILE -o $BASE.o
+  done
+  mv $WORK_DIR/*.o .
+  wrap_shared_lib
+  gcc -B/users/zyuxuan/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/lib/rustlib/x86_64-unknown-linux-gnu/bin/gcc-ld/ -fuse-ld=lld -no-pie -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -Wl,-O1 *.o -o function $LINKER_FLAGS
+}
+
+function link_0 {
   CALLER_FUNC=${ARGS[1]}
   $LLVM_DIR/llvm-link $WORK_DIR/*.bc -o lib_with_debug_info.bc
   $LLVM_DIR/opt lib_with_debug_info.bc -strip-debug -o lib.bc
   $LLVM_DIR/opt lib.bc -passes=strip-dead-prototypes -o func.bc
   $LLVM_DIR/opt func.bc -passes=remove-redundant -o function0.bc
-  $LLVM_DIR/opt -O3 function0.bc -o function.bc
+  $LLVM_DIR/opt -O3 -debug-pass-manager function0.bc -o function1.bc 2>aaa
+  $LLVM_DIR/opt -passes="mem2reg,dse" -debug-pass-manager function1.bc -o function.bc 2>bbb
   $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.bc -o function.o
   wrap_shared_lib
   #gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
-  gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
+  gcc -O3 -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
 }
 
 
 function clean {
-  rm -rf *.ll *.o *.bc function *.txt Implib.so target
+  for i in $(seq 1 $(($NUM_ARGS-1)) );
+  do
+    FUNC_NAME=${ARGS[$i]}
+    rm -rf $FUNC_NAME/template/rust/OpenFaaSRPC \
+    && rm -rf $FUNC_NAME/template/rust/DbInterface \
+    && cd $FUNC_NAME/template/rust/function && cargo clean \
+    && cd ../../../../ \
+    && rm -rf $FUNC_NAME/template/rust/function/Cargo.lock
+  done
+  rm -rf *.ll *.o *.bc function *.txt Implib.so
 }
 
 

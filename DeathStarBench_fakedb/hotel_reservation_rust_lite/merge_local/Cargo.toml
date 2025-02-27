@@ -1,0 +1,2 @@
+[workspace]
+members = ["nearby-cinema-parallel", "get-nearby-points-cinema-1", "get-nearby-points-cinema-2", "get-nearby-points-cinema-3", "get-nearby-points-cinema-4",]

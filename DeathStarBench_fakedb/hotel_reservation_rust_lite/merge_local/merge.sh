@@ -116,7 +116,7 @@ function link {
   $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.bc -o function.o
   wrap_shared_lib
   #gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
-  gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
+  clang -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
 }
 
 

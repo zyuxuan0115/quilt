@@ -37,12 +37,8 @@ fn main() {
   let time_0 = Instant::now();
 
   let mut cinemas: Vec<Cinema> = Vec::new(); 
-  let mut sum: f64 = 0.0;
   for i in 0..num {
     let idx: f64 = i.into();
-    let idx_square = idx * idx;
-    sum = sum + 1.0/idx_square;
-/*
     let cid: String = format!("c{}", i);
     let cinema_info = Cinema {
       cinema_id: cid,
@@ -54,7 +50,6 @@ fn main() {
       cinema_type: "romance".to_string(),
     };
     cinemas.push(cinema_info);
-*/
   }
 
 /*
@@ -94,7 +89,7 @@ fn main() {
   let time_1 = Instant::now();
   let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
   let core_id = get_core_id();
-  let res = format!("Thread 3 is running on core {}, time is {}, result = {}", core_id, result, sum);
+  let res = format!("Thread 1 is running on core {}, time is {}", core_id, result);
 //  println!("{}",result);
 //  send_return_value_to_caller(serialized);
   send_return_value_to_caller(res);

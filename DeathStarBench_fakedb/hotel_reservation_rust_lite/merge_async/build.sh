@@ -76,7 +76,7 @@ function merge_fission {
 }
 
 function deploy_openwhisk {
-  FUNCS=("search-handler" "reservation-handler" "search-nearby" "search-nearby-parallel")
+  FUNCS=("search-handler" "reservation-handler" "search-nearby" "nearby-cinema-parallel")
   for FUNC in "${FUNCS[@]}"; do
     wsk action create $FUNC-merged --docker zyuxuan0115/hr-$FUNC-async-merged
   done
@@ -84,7 +84,7 @@ function deploy_openwhisk {
 
 
 function deploy_fission {
-  FUNCS=("search-handler" "reservation-handler" "search-nearby" "search-nearby-parallel")
+  FUNCS=("search-handler" "reservation-handler" "search-nearby" "nearby-cinema-parallel")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
