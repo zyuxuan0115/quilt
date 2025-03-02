@@ -1,9 +1,6 @@
 --require "socket"
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
-package.path = package.path .. ";/usr/share/lua/5.1/?.lua"
-package.cpath = package.cpath .. ";/usr/lib/x86_64-linux-gnu/lua/5.1/?.so"
-local mime = require("mime")
 
 local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
   'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q',
@@ -40,33 +37,28 @@ request = function(req_id)
   local title_idx = math.random(1,999)
   local title = "movie_" .. tostring(title_idx) 
 
-  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
-  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
-  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
-
   local method = "POST"
   local path
   local headers = {}
   local body
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = auth
 
   count = count + 1
 
   if count % 4 == 1 then
-    path = "/api/v1/namespaces/_/actions/unique-id-service?blocking=true&result=true"
+    path = "/unique-id-service"
     local content =  tostring(request_id) 
     body = content
   elseif count % 4 == 2 then
-    path = "/api/v1/namespaces/_/actions/text-service?blocking=true&result=true"
+    path = "/text-service"
     local content = '{"req_id":' .. tostring(request_id) .. ',"text":"' .. text .. '"}'
     body = content
   elseif count % 4 == 3 then
-    path = "/api/v1/namespaces/_/actions/upload-user-with-username?blocking=true&result=true"
+    path = "/upload-user-with-username"
     local content = '{"username":"' .. username .. '","req_id":' .. tostring(request_id) .. '}'
     body = content
   else 
-    path = "/api/v1/namespaces/_/actions/upload-movie-id?blocking=true&result=true"
+    path = "/upload-movie-id"
     local content = '{"title":"' .. title .. '","rating":' .. rating .. ',"req_id":' .. tostring(request_id) .. '}'
     body = content
     request_id = request_id + 1

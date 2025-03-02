@@ -1,9 +1,6 @@
 --require "socket"
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
-package.path = package.path .. ";/usr/share/lua/5.1/?.lua"
-package.cpath = package.cpath .. ";/usr/lib/x86_64-linux-gnu/lua/5.1/?.so"
-local mime = require("mime")
 
 local charset = {'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
   'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q',
@@ -34,16 +31,11 @@ request = function(req_id)
   local movie_idx = math.random(1,999) + 5999000
   local movie_id = "tt" .. tostring(movie_idx)
 
-  local uname = "23bc46b1-71f6-4ed5-8c54-816aa4f8c502"
-  local pw = "123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP"
-  local auth = "Basic " .. mime.b64(uname .. ":" .. pw)
-
   local method = "POST"
-  local path = "/api/v1/namespaces/_/actions/page-service-merged?blocking=true&result=true"
+  local path = "/page-service-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/json"
-  headers["Authorization"] = auth
 
   body = '{"movie_id":"' .. tostring(movie_id) .. '","review_start":0,"review_stop":1}'
 
@@ -60,13 +52,13 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
-  if status ~= 200 then
+--  if status ~= 200 then
       io.write("------------------------------\n")
       io.write("Response with status: ".. status .."\n")
       io.write("------------------------------\n")
       io.write("[response] Body:\n")
       io.write(body .. "\n")
-  end
+--  end
 end
 
 function init(rand_seed)

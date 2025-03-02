@@ -1,9 +1,6 @@
 --require "socket"
 --math.randomseed(socket.gettime()*1000)
 math.random(); math.random(); math.random()
-package.path = package.path .. ";/usr/share/lua/5.1/?.lua"
-package.cpath = package.cpath .. ";/usr/lib/x86_64-linux-gnu/lua/5.1/?.so"
-local mime = require("mime")
 
 request_id = 77891
 count = 0
@@ -49,19 +46,19 @@ request = function(req_id)
   count = count + 1
 
   if count % 4 == 1 then
-    path = "/function/unique-id-service-merged"
+    path = "/unique-id-service-merged"
     local content =  tostring(request_id) 
     body = content
   elseif count % 4 == 2 then
-    path = "/function/text-service-merged"
+    path = "/text-service-merged"
     local content = '{"req_id":' .. tostring(request_id) .. ',"text":"' .. text .. '"}'
     body = content
   elseif count % 4 == 3 then
-    path = "/function/upload-user-with-username-merged"
+    path = "/upload-user-with-username-merged"
     local content = '{"username":"' .. username .. '","req_id":' .. tostring(request_id) .. '}'
     body = content
   else 
-    path = "/function/upload-movie-id-merged"
+    path = "/upload-movie-id-merged"
     local content = '{"title":"' .. title .. '","rating":' .. rating .. ',"req_id":' .. tostring(request_id) .. '}'
     body = content
     request_id = request_id + 1
