@@ -9,7 +9,7 @@ function generate_graph {
   g++ edge.cpp -o edge
   g++ resource.cpp -o resource
   ./edge ${ARGS[1]} ${ARGS[2]} $EDGE_FILE
-#  ./resource $EDGE_FILE $RESOURCE_FILE
+  ./resource $EDGE_FILE $RESOURCE_FILE
 }
 
 function clean {
