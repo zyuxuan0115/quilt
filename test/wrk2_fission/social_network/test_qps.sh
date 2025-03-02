@@ -27,7 +27,7 @@ fi
 
 function measure_perf {
 #  CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 70 90 110 130 160 190 230 270)
-  CON=(30)
+  CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
@@ -84,6 +84,7 @@ function init {
   redeploy 
   run_wrk register-user-with-id 60
   run_wrk social-graph-follow-with-username 60
+#  run_wrk compose-post 300
 }
 
 

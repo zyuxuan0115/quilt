@@ -5,7 +5,6 @@ RESOURCE_FILE=resource.txt
 ARGS=("$@")
 
 function generate_graph {
-  echo $ARGS
   g++ edge.cpp -o edge
   g++ resource.cpp -o resource
   ./edge ${ARGS[1]} ${ARGS[2]} $EDGE_FILE

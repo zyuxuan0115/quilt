@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void Graph::addEdge(int node1, int node2) {
+void Graph::addEdge(int node1, int node2, int weight) {
   if (nodes.find(node1) == nodes.end()) {
     nodes[node1] = new Node(node1);
   }
@@ -11,14 +11,14 @@ void Graph::addEdge(int node1, int node2) {
   }
 
   // Directed edge: node1 → node2
-  nodes[node1]->neighbors.push_back(nodes[node2]);
+  nodes[node1]->children.push_back(make_pair(nodes[node2], weight));
 }
 
 void Graph::printGraph() {
   for (const auto& [id, node] : nodes) {
     cout << "Node " << id << " -> ";
-    for (Node* neighbor : node->neighbors) {
-      cout << neighbor->id << " ";
+    for (auto child : node->children) {
+      cout << child.first->id << " ";
     }
     cout << endl;
   }

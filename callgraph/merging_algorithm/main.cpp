@@ -8,21 +8,25 @@
 
 using namespace std;
 
+vector<vector<Node*>> FormGroup(Node*) {
+  return {};
+}
+
 int main(int argc, char** argv) {
-  // read edge info and resource info
   if (argc != 3) {
     printf("wrong number of arguments\n");
     exit(0);
   }
 
-
+  // read edge info and resource info
   string edge_file(argv[1]);
   string resource_file(argv[2]);
   ifstream edge_f(edge_file);
-  
-  Graph G;
-  string line;
 
+  // construct the graph  
+  Graph G;
+
+  string line;
   while (getline(edge_f, line)) {
     istringstream iss(line);
     vector<string> words;
@@ -30,10 +34,14 @@ int main(int argc, char** argv) {
     while (iss >> word) {
       words.push_back(word);
     }
-    G.addEdge(stoi(words[0]), stoi(words[1]));
+    cout<<words[0]<<","<<words[1]<<","<<words[2]<<"\n";
+    G.addEdge(stoi(words[0]), stoi(words[1]), stoi(words[2]));
   }
   
   G.printGraph();
+
+  // start from root form group
+  
 
   return 0;
 }

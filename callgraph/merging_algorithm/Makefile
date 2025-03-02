@@ -6,6 +6,7 @@ OBJ = $(SRC:.cpp=.o)
 EXEC = main
 
 all: $(EXEC)
+	cd gen_graph && ./build.sh build 10 15 && cd ..
 
 $(EXEC): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -15,5 +16,6 @@ $(EXEC): $(OBJ)
 
 clean:
 	rm -f $(OBJ) $(EXEC)
+	cd gen_graph && ./build.sh clean && cd ..
 
 .PHONY: all clean
