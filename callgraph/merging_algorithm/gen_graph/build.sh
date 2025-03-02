@@ -5,11 +5,9 @@ RESOURCE_FILE=resource.txt
 ARGS=("$@")
 
 function generate_graph {
-  if [ "$#" -lt 4 ]; then
-    echo "#args != 3"
-  fi
+  echo $ARGS
   g++ edge.cpp -o edge
-#  g++ resource.cpp -o resource
+  g++ resource.cpp -o resource
   ./edge ${ARGS[1]} ${ARGS[2]} $EDGE_FILE
 #  ./resource $EDGE_FILE $RESOURCE_FILE
 }
