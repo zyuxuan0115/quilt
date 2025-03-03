@@ -68,27 +68,42 @@ long overallMemory(unordered_set<Node*> nodes) {
 // form a compound node
 Node* formNode(Node* oldRoot, unordered_set<Node*> selectedChildNodes) {
   Node* newNode = new Node();
+
+  // update resource usage
   newNode->cpu = oldRoot->cpu + overallCPU(selectedChildNodes);
   newNode->memory = oldRoot->memory + overallMemory(selectedChildNodes);
+
+  // update chlid nodes field
   unordered_map<Node*, int> newChildren;
-/*
   for (Node* node: selectedChildNodes) {
-    if (newChildren.find(node) == newChildren.end()) {
-      newChildren.insert(make_pair(node);
+    unordered_map<Node*, int> grandchildren = node->children;
+    for (auto grandchild: grandchildren) {
+      if (newChildren.find(grandchild.first) == newChildren.end()) {
+        newChildren.insert(grandchild);
+      }
+      else {
+        newChildren[grandchild.first] += grandchild.second; 
+      }
     }
   }
-  for (Node* node: newChildren) {
-    newNode->children.insert(node);
-  }
-  // update merged field of the new node
+
+  // update merged nodes field
   for (Node* node: oldRoot->merged) {
     newNode->merged.insert(node);
   }
   for (Node* node: selectedChildNodes) {
-    newNode->merged.insert(node);
+    if (newNode->merged.find(node) == newNode->merged.end()) 
+      newNode->merged.insert(node);
   }
   // update unmerged field of the new node
-  newNode->unmerged = computeSetDifference(oldRoot->children, selectedChildNodes);
-*/
+  for (Node* node: oldRoot->notMerged) {
+    newNode->notMerged.insert(node);
+  }
+  unordered_set<Node*> newUnmerged = computeSetDifference(oldRoot->getChildNodes(), selectedChildNodes);
+  for (Node* node: selectedChildNodes) {
+    if (newNode->notMerged.find(node) == newNode->notMerged.end()) {
+      newNode->notMerged.insert(node);
+    }
+  }
   return newNode;
 }
