@@ -2,6 +2,14 @@
 
 using namespace std;
 
+vector<Node*> Node::getChildNodes() {
+  vector<Node*> results;
+  for (auto it = children.begin(); it != children.end(); it++) {
+    results.push_back(it->first);
+  }
+  return results;
+}
+
 void Graph::addEdge(int node1, int node2, int weight) {
   if (nodes.find(node1) == nodes.end()) {
     nodes[node1] = new Node(node1);
@@ -9,9 +17,8 @@ void Graph::addEdge(int node1, int node2, int weight) {
   if (nodes.find(node2) == nodes.end()) {
     nodes[node2] = new Node(node2);
   }
-
   // Directed edge: node1 → node2
-  nodes[node1]->children.push_back(make_pair(nodes[node2], weight));
+  nodes[node1]->children.insert(make_pair(nodes[node2], weight));
 }
 
 void Graph::printGraph() {
@@ -21,6 +28,16 @@ void Graph::printGraph() {
       cout << child.first->id << " ";
     }
     cout << endl;
+  }
+}
+
+Node* Graph::getNode(int id) {
+  if (nodes.find(id) != nodes.end()) {
+    return nodes[id];
+  }
+  else {
+    printf("Error: cannot find the node with id %d\n", id);
+    return NULL;
   }
 }
 

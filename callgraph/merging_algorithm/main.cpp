@@ -6,15 +6,19 @@
 #include <vector>
 #include "Graph.h"
 
+#define MAX_CPU 512
+#define MAX_MEM 150
+
 using namespace std;
 
-vector<vector<Node*>> FormGroup(Node*) {
+vector<vector<Node*>> FormGroup(Node* root) {
+  vector<Node*> childNodes = root->getChildNodes();
   return {};
 }
 
 int main(int argc, char** argv) {
   if (argc != 3) {
-    printf("wrong number of arguments\n");
+    printf("Error: wrong number of arguments\n");
     exit(0);
   }
 
@@ -34,14 +38,14 @@ int main(int argc, char** argv) {
     while (iss >> word) {
       words.push_back(word);
     }
-    cout<<words[0]<<","<<words[1]<<","<<words[2]<<"\n";
     G.addEdge(stoi(words[0]), stoi(words[1]), stoi(words[2]));
   }
   
   G.printGraph();
 
   // start from root form group
-  
+  Node* root = G.getNode(0);
+  vector<vector<Node*>> groups = FormGroup(root);  
 
   return 0;
 }
