@@ -1,16 +1,20 @@
 #include "helper.h"
 
 // Function to generate all subsets
-vector<vector<Node*>> getAllSubsets(vector<Node*> nodes) {
-  vector<vector<Node*>> subsets;
+vector<unordered_set<Node*>> getAllSubsets(unordered_set<Node*> nodes) {
+  vector<unordered_set<Node*>> subsets;
   int n = nodes.size();
+  vector<Node*> nodes_vec;
+  for (Node* node: nodes) {
+    nodes_vec.push_back(node);
+  }
   int totalSubsets = 1 << n;  // 2^n subsets
 
   for (int mask = 0; mask < totalSubsets; ++mask) {
-    vector<Node*> subset;
+    unordered_set<Node*> subset;
     for (int i = 0; i < n; ++i) {
       if (mask & (1 << i)) {  // Check if the ith element is included
-        subset.push_back(nodes[i]);
+        subset.insert(nodes_vec[i]);
       }
     }
     subsets.push_back(subset);
@@ -20,7 +24,7 @@ vector<vector<Node*>> getAllSubsets(vector<Node*> nodes) {
 
 
 // Helper function to print subsets
-void printSubsets(const vector<vector<Node*>>& subsets) {
+void printSubsets(const vector<unordered_set<Node*>>& subsets) {
   for (const auto& subset : subsets) {
     cout << "{ ";
     for (const auto& node : subset) {
@@ -32,16 +36,59 @@ void printSubsets(const vector<vector<Node*>>& subsets) {
 
 
 // compute set difference 
-vector<Node*> computeSetDifference(vector<Node*> universalSet, vector<Node*> subset) {
-  unordered_set<Node*> subset_;
-  vector<Node*> difference;
-  for (Node* n: subset) {
-    subset_.insert(n);
-  }
+unordered_set<Node*> computeSetDifference(unordered_set<Node*> universalSet, 
+                                          unordered_set<Node*> subset) {
+  unordered_set<Node*> difference;
   for (Node* n: universalSet) {
-    if (subset_.find(n) == subset_.end()) {
-      difference.push_back(n);
+    if (subset.find(n) == subset.end()) {
+      difference.insert(n);
     }
   }
   return difference;
+}
+
+
+long overallCPU(unordered_set<Node*> nodes) {
+  long sum = 0;
+  for (Node* node: nodes) {
+    sum += node->cpu;
+  }
+  return sum;
+}
+
+long overallMemory(unordered_set<Node*> nodes) {
+  long sum = 0;
+  for (Node* node: nodes) {
+    sum += node->memory;
+  }
+  return sum;
+}
+
+
+// form a compound node
+Node* formNode(Node* oldRoot, unordered_set<Node*> selectedChildNodes) {
+  Node* newNode = new Node();
+  newNode->cpu = oldRoot->cpu + overallCPU(selectedChildNodes);
+  newNode->memory = oldRoot->memory + overallMemory(selectedChildNodes);
+  unordered_map<Node*, int> newChildren;
+/*
+  for (Node* node: selectedChildNodes) {
+    if (newChildren.find(node) == newChildren.end()) {
+      newChildren.insert(make_pair(node);
+    }
+  }
+  for (Node* node: newChildren) {
+    newNode->children.insert(node);
+  }
+  // update merged field of the new node
+  for (Node* node: oldRoot->merged) {
+    newNode->merged.insert(node);
+  }
+  for (Node* node: selectedChildNodes) {
+    newNode->merged.insert(node);
+  }
+  // update unmerged field of the new node
+  newNode->unmerged = computeSetDifference(oldRoot->children, selectedChildNodes);
+*/
+  return newNode;
 }

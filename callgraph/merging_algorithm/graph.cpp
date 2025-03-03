@@ -2,10 +2,10 @@
 
 using namespace std;
 
-vector<Node*> Node::getChildNodes() {
-  vector<Node*> results;
+unordered_set<Node*> Node::getChildNodes() {
+  unordered_set<Node*> results;
   for (auto it = children.begin(); it != children.end(); it++) {
-    results.push_back(it->first);
+    results.insert(it->first);
   }
   return results;
 }

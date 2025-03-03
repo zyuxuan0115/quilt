@@ -2,9 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
 #include "helper.h"
 
 #define MAX_CPU 512
@@ -12,21 +9,33 @@
 
 using namespace std;
 
-vector<vector<Node*>> FormGroup(Node*);
+vector<unordered_set<Node*>> FormGroup(Node*);
 
-vector<vector<Node*>> FormGroup(Node* root) {
-  vector<Node*> childNodes = root->getChildNodes();
-  vector<vector<Node*>> subsets = getAllSubsets(childNodes);
+vector<unordered_set<Node*>> FormGroup(Node* root) {
+  unordered_set<Node*> childNodes = root->getChildNodes();
+  vector<unordered_set<Node*>> subsets = getAllSubsets(childNodes);
   cout<<"@@@ root node id = "<<root->id<<"\n";
+
   printSubsets(subsets);  
   for (auto subset: subsets) {
     if (subset.empty()) {
-      vector<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset); 
+      unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset); 
       for (Node* childNode: childNodeNotInSubset) {
         FormGroup(childNode);
       }      
     }
+    else {
+/*
+      Node* compoundNode = formNode(root, subset);
+      FormGroup(compoundNode);
+      unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset);
+      for (Node* childNode: childNodeNotInSubset) {
+        FormGroup(childNode);
+      }    
+*/
+    }
   }
+
   return {};
 }
 
@@ -60,7 +69,7 @@ int main(int argc, char** argv) {
 
   // start from root form group
   Node* root = G.getNode(0);
-  vector<vector<Node*>> groups = FormGroup(root);  
+  vector<unordered_set<Node*>> groups = FormGroup(root);  
 
   return 0;
 }
