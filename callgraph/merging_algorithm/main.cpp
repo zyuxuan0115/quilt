@@ -3,18 +3,33 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
-#include "Graph.h"
+#include "helper.h"
 
 #define MAX_CPU 512
 #define MAX_MEM 150
 
 using namespace std;
 
+vector<vector<Node*>> FormGroup(Node*);
+
 vector<vector<Node*>> FormGroup(Node* root) {
   vector<Node*> childNodes = root->getChildNodes();
+  vector<vector<Node*>> subsets = getAllSubsets(childNodes);
+  cout<<"@@@ root node id = "<<root->id<<"\n";
+  printSubsets(subsets);  
+  for (auto subset: subsets) {
+    if (subset.empty()) {
+      vector<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset); 
+      for (Node* childNode: childNodeNotInSubset) {
+        FormGroup(childNode);
+      }      
+    }
+  }
   return {};
 }
+
 
 int main(int argc, char** argv) {
   if (argc != 3) {
