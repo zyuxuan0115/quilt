@@ -13,9 +13,11 @@ unordered_set<Node*> Node::getChildNodes() {
 void Graph::addEdge(int node1, int node2, int weight) {
   if (nodes.find(node1) == nodes.end()) {
     nodes[node1] = new Node(node1);
+    nodes[node1]->merged.insert(nodes[node1]);
   }
   if (nodes.find(node2) == nodes.end()) {
     nodes[node2] = new Node(node2);
+    nodes[node2]->merged.insert(nodes[node2]);
   }
   // Directed edge: node1 → node2
   nodes[node1]->children.insert(make_pair(nodes[node2], weight));

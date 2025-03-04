@@ -16,7 +16,9 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
   vector<unordered_set<Node*>> subsets = getAllSubsets(childNodes);
   cout<<"@@@ root node id = "<<root->id<<"\n";
 
-  printSubsets(subsets);  
+  //printGroups(subsets);  
+  int minCut = std::numeric_limits<int>::max();
+  vector<unordered_set<Node*>> PartitionWithMinCut;
   for (auto subset: subsets) {
     if (subset.empty()) {
       unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset);
@@ -38,6 +40,13 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
       // the root node itself is also a group 
       // of course it might be a compound node.
       finalGroups.push_back(root->merged);
+      long cut = computeCrossGroupCut(finalGroups);
+      if (cut<minCut) {
+        minCut = cut;
+        PartitionWithMinCut = finalGroups;
+      }
+      printGroups(finalGroups);
+      cout<<"   ### cut = "<<cut<<"\n";
     }
     else {
       if ((root->cpu + overallCPU(subset) < MAX_CPU) 
@@ -48,7 +57,10 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
         unordered_map<Node*, unordered_set<Node*>> mergedResult;
         for (auto group: result0) {
           Node* root = getRootNode(group);
-          if (mergedResult.find(root)== mergedResult.end()) {
+          if (root->id == (-1)) {
+            //TODO 
+          }
+          else if (mergedResult.find(root)== mergedResult.end()) {
             mergedResult[root] = group;
           }
         }
@@ -63,12 +75,24 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
             }
           }
         }
-   
+        vector<unordered_set<Node*>> finalGroups;
+        for (auto group: mergedResult) {
+          finalGroups.push_back(group.second);
+        }
+        printGroups(finalGroups);
+        long cut = computeCrossGroupCut(finalGroups);
+        if (cut<minCut) {
+          minCut = cut;
+          PartitionWithMinCut = finalGroups;
+        }
+
+        cout<<"   ### cut = "<<cut<<"\n";
       }
     }
   }
-
-  return {};
+  cout<<"   ### finally select: \n";
+  printGroups(PartitionWithMinCut);
+  return PartitionWithMinCut;
 }
 
 
@@ -102,6 +126,6 @@ int main(int argc, char** argv) {
   // start from root form group
   Node* root = G.getNode(0);
   vector<unordered_set<Node*>> groups = FormGroup(root);  
-
+  printGroups(groups);
   return 0;
 }

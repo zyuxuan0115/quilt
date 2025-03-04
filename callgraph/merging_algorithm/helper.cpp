@@ -24,14 +24,17 @@ vector<unordered_set<Node*>> getAllSubsets(unordered_set<Node*> nodes) {
 
 
 // Helper function to print subsets
-void printSubsets(const vector<unordered_set<Node*>>& subsets) {
+void printGroups(const vector<unordered_set<Node*>>& subsets) {
+  cout<<"   ";
   for (const auto& subset : subsets) {
+    if (subset.empty()) continue;
     cout << "{ ";
     for (const auto& node : subset) {
       cout << node->id << " ";
     }
-    cout << "}" << endl;
+    cout << "} ";
   }
+  cout<<"\n";
 }
 
 
@@ -67,7 +70,7 @@ long overallMemory(unordered_set<Node*> nodes) {
 
 // form a compound node
 Node* formNode(Node* oldRoot, unordered_set<Node*> selectedChildNodes) {
-  Node* newNode = new Node(99999);
+  Node* newNode = new Node(-1);
 
   // update resource usage
   newNode->cpu = oldRoot->cpu + overallCPU(selectedChildNodes);
