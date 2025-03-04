@@ -9,7 +9,9 @@
 using namespace std;
 
 vector<unordered_set<Node*>> getAllSubsets(unordered_set<Node*>);
-void printGroups(const vector<unordered_set<Node*>>&);
+void printGroups(vector<unordered_set<Node*>>&);
+void printGroup(unordered_set<Node*>);
+void printNodeInfo(Node*);
 unordered_set<Node*> computeSetDifference(unordered_set<Node*>, unordered_set<Node*>);
 long overallCPU(unordered_set<Node*> nodes);
 long overallMemory(unordered_set<Node*> nodes);

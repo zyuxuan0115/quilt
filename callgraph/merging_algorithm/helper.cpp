@@ -24,12 +24,12 @@ vector<unordered_set<Node*>> getAllSubsets(unordered_set<Node*> nodes) {
 
 
 // Helper function to print subsets
-void printGroups(const vector<unordered_set<Node*>>& subsets) {
+void printGroups(vector<unordered_set<Node*>>& subsets) {
   cout<<"   ";
-  for (const auto& subset : subsets) {
+  for (auto subset : subsets) {
     if (subset.empty()) continue;
     cout << "{ ";
-    for (const auto& node : subset) {
+    for (auto node : subset) {
       cout << node->id << " ";
     }
     cout << "} ";
@@ -37,6 +37,29 @@ void printGroups(const vector<unordered_set<Node*>>& subsets) {
   cout<<"\n";
 }
 
+// helper function to print group
+void printGroup(unordered_set<Node*> group) {
+  cout << "{ ";
+  for (auto node : group) {
+    cout << node->id << " ";
+  }
+  cout << "}\n";
+}
+
+// helper function to print node info
+void printNodeInfo (Node* node) {
+  if (node->id != (-1)) {
+    cout<<"@@@ node id = "<<node->id<<"\n";
+  }
+  else {
+    Node* root = getRootNode(node->merged);
+    cout<<"@@@ compound node, root id="<<root->id<<"\n";
+    cout<<"@@@ other nodes: ";
+    printGroup(node->merged);
+    cout<<"@@@ child nodes: ";
+    printGroup(node->getChildNodes());
+  } 
+}
 
 // compute set difference 
 unordered_set<Node*> computeSetDifference(unordered_set<Node*> universalSet, 
@@ -71,21 +94,19 @@ long overallMemory(unordered_set<Node*> nodes) {
 // form a compound node
 Node* formNode(Node* oldRoot, unordered_set<Node*> selectedChildNodes) {
   Node* newNode = new Node(-1);
-
   // update resource usage
   newNode->cpu = oldRoot->cpu + overallCPU(selectedChildNodes);
   newNode->memory = oldRoot->memory + overallMemory(selectedChildNodes);
 
   // update chlid nodes field
-  unordered_map<Node*, int> newChildren;
-  for (Node* node: selectedChildNodes) {
+  for (Node* node: selectedChildNodes) {    
     unordered_map<Node*, int> grandchildren = node->children;
     for (auto grandchild: grandchildren) {
-      if (newChildren.find(grandchild.first) == newChildren.end()) {
-        newChildren.insert(grandchild);
+      if (newNode->children.find(grandchild.first) == newNode->children.end()) {
+        newNode->children.insert(grandchild);
       }
       else {
-        newChildren[grandchild.first] += grandchild.second; 
+        newNode->children[grandchild.first] += grandchild.second; 
       }
     }
   }
@@ -95,15 +116,16 @@ Node* formNode(Node* oldRoot, unordered_set<Node*> selectedChildNodes) {
     newNode->merged.insert(node);
   }
   for (Node* node: selectedChildNodes) {
-    if (newNode->merged.find(node) == newNode->merged.end()) 
+    if (newNode->merged.find(node) == newNode->merged.end()) {
       newNode->merged.insert(node);
+    }
   }
   // update unmerged field of the new node
   for (Node* node: oldRoot->notMerged) {
     newNode->notMerged.insert(node);
   }
   unordered_set<Node*> newUnmerged = computeSetDifference(oldRoot->getChildNodes(), selectedChildNodes);
-  for (Node* node: selectedChildNodes) {
+  for (Node* node: newUnmerged) {
     if (newNode->notMerged.find(node) == newNode->notMerged.end()) {
       newNode->notMerged.insert(node);
     }

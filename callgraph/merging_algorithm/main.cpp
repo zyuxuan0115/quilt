@@ -14,7 +14,7 @@ vector<unordered_set<Node*>> FormGroup(Node*);
 vector<unordered_set<Node*>> FormGroup(Node* root) {
   unordered_set<Node*> childNodes = root->getChildNodes();
   vector<unordered_set<Node*>> subsets = getAllSubsets(childNodes);
-  cout<<"@@@ root node id = "<<root->id<<"\n";
+  printNodeInfo(root);
 
   //printGroups(subsets);  
   int minCut = std::numeric_limits<int>::max();
@@ -51,6 +51,11 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
     else {
       if ((root->cpu + overallCPU(subset) < MAX_CPU) 
         &&(root->memory + overallMemory(subset) < MAX_MEM)) {
+        printGroup(subset);
+        cout<<"overall CPU: "<< overallCPU(subset)<<"\n";
+        cout<<"overall memory: "<< overallMemory(subset)<<"\n";
+        cout<<"root CPU: "<< root->cpu<<"\n";
+        cout<<"root mem: "<< root->memory<<"\n";
         // we form a compound root
         Node* compoundNode = formNode(root, subset);
         vector<unordered_set<Node*>> result0 = FormGroup(compoundNode);
@@ -59,6 +64,11 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
           Node* root = getRootNode(group);
           if (root->id == (-1)) {
             //TODO 
+            std::unordered_set<Node*> unionSet = root->merged;
+            unionSet.insert(group.begin(), group.end());
+            unionSet.erase(root);
+            Node* newRoot = getRootNode(unionSet);
+            mergedResult[newRoot] = unionSet;
           }
           else if (mergedResult.find(root)== mergedResult.end()) {
             mergedResult[root] = group;
@@ -106,7 +116,7 @@ int main(int argc, char** argv) {
   string edge_file(argv[1]);
   string resource_file(argv[2]);
   ifstream edge_f(edge_file);
-
+  ifstream resource_f(resource_file);
   // construct the graph  
   Graph G;
 
@@ -122,6 +132,18 @@ int main(int argc, char** argv) {
   }
   
   G.printGraph();
+
+  while (getline(resource_f, line)) {
+    istringstream iss(line);
+    vector<string> words;
+    string word; 
+    while (iss >> word) {
+      words.push_back(word);
+    }
+    Node* n = G.getNode(stoi(words[0]));
+    n->cpu = stoi(words[1]);
+    n->memory = stoi(words[2]);
+  }
 
   // start from root form group
   Node* root = G.getNode(0);
