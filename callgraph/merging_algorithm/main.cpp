@@ -19,20 +19,52 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
   printSubsets(subsets);  
   for (auto subset: subsets) {
     if (subset.empty()) {
-      unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset); 
+      unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset);
+      unordered_map<Node*, unordered_set<Node*>> mergedResult; 
       for (Node* childNode: childNodeNotInSubset) {
-        FormGroup(childNode);
-      }      
+        vector<unordered_set<Node*>> result = FormGroup(childNode);
+        // update result to mergedResult
+        for (auto group: result) {
+          Node* root = getRootNode(group);
+          if (mergedResult.find(root)== mergedResult.end()) {
+            mergedResult[root] = group;
+          }
+        }
+      }
+      vector<unordered_set<Node*>> finalGroups;
+      for (auto group: mergedResult) {
+        finalGroups.push_back(group.second);
+      }
+      // the root node itself is also a group 
+      // of course it might be a compound node.
+      finalGroups.push_back(root->merged);
     }
     else {
-/*
-      Node* compoundNode = formNode(root, subset);
-      FormGroup(compoundNode);
-      unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset);
-      for (Node* childNode: childNodeNotInSubset) {
-        FormGroup(childNode);
-      }    
-*/
+      if ((root->cpu + overallCPU(subset) < MAX_CPU) 
+        &&(root->memory + overallMemory(subset) < MAX_MEM)) {
+        // we form a compound root
+        Node* compoundNode = formNode(root, subset);
+        vector<unordered_set<Node*>> result0 = FormGroup(compoundNode);
+        unordered_map<Node*, unordered_set<Node*>> mergedResult;
+        for (auto group: result0) {
+          Node* root = getRootNode(group);
+          if (mergedResult.find(root)== mergedResult.end()) {
+            mergedResult[root] = group;
+          }
+        }
+        unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset);
+        for (Node* childNode: childNodeNotInSubset) {
+          vector<unordered_set<Node*>> result = FormGroup(childNode);
+          // update result to mergedResult
+          for (auto group: result) {
+            Node* root = getRootNode(group);
+            if (mergedResult.find(root)== mergedResult.end()) {
+              mergedResult[root] = group;
+            }
+          }
+        }
+   
+      }
     }
   }
 

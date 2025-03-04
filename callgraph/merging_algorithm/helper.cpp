@@ -67,7 +67,7 @@ long overallMemory(unordered_set<Node*> nodes) {
 
 // form a compound node
 Node* formNode(Node* oldRoot, unordered_set<Node*> selectedChildNodes) {
-  Node* newNode = new Node();
+  Node* newNode = new Node(99999);
 
   // update resource usage
   newNode->cpu = oldRoot->cpu + overallCPU(selectedChildNodes);
@@ -106,4 +106,52 @@ Node* formNode(Node* oldRoot, unordered_set<Node*> selectedChildNodes) {
     }
   }
   return newNode;
+}
+
+
+
+// compute cross group cut
+long computeCrossGroupCut(vector<unordered_set<Node*>> groups) {
+  long cut = 0;
+  for (unsigned i=1; i<groups.size(); i++) {
+    for (unsigned j=0; j<i; j++) {
+      // compute the cross-group edges from j to i
+      for (Node* node: groups[i]) {
+        if (groups[j].find(node)==groups[j].end()) {
+          for (Node* n: groups[j]) {
+            if (n->children.find(node) != n->children.end()) {
+              cut += n->children[node];
+            }
+          }
+        }
+      }
+      // compute the cross-group edges from i to j
+      for (Node* node: groups[j]) {
+        if (groups[i].find(node)==groups[i].end()) {
+          for (Node* n: groups[i]) {
+            unordered_set<Node*> childNodes = n->getChildNodes();
+            if (n->children.find(node) != n->children.end()) {
+              cut += n->children[node];
+            }
+          }
+        }
+      }
+    }
+  }
+  return cut;
+}
+
+
+
+// get root node of a group
+Node* getRootNode(unordered_set<Node*> group) {
+  int minIdx = std::numeric_limits<int>::max();
+  Node* root = NULL;
+  for (Node* n: group) {
+    if (n->id < minIdx) {
+      minIdx = n->id;
+      root = n;
+    }
+  }
+  return root;
 }
