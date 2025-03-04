@@ -5,7 +5,7 @@
 #include "helper.h"
 
 #define MAX_CPU 512
-#define MAX_MEM 150
+#define MAX_MEM 128
 
 using namespace std;
 
