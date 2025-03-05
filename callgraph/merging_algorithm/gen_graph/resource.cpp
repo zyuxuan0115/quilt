@@ -43,11 +43,11 @@ int main(int argc, char** argv) {
 
   random_device rd;
   mt19937 gen(rd());
-  uniform_int_distribution<int> node_dist(30, 500);
+  uniform_int_distribution<int> node_dist(50, 400);
 
   random_device rd_mem;
   mt19937 gen_mem(rd_mem());
-  uniform_int_distribution<int> node_dist_mem(20, 150);
+  uniform_int_distribution<int> node_dist_mem(25, 75);
 
   string input_file(argv[1]);
   string output_file(argv[2]);

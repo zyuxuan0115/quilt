@@ -4,7 +4,7 @@
 #include <sstream>
 #include "helper.h"
 
-#define MAX_CPU 512
+#define MAX_CPU 1000
 #define MAX_MEM 128
 
 using namespace std;
@@ -49,55 +49,64 @@ vector<unordered_set<Node*>> FormGroup(Node* root) {
       cout<<"   ### cut = "<<cut<<"\n";
     }
     else {
-      if ((root->cpu + overallCPU(subset) < MAX_CPU) 
-        &&(root->memory + overallMemory(subset) < MAX_MEM)) {
-        printGroup(subset);
-        cout<<"overall CPU: "<< overallCPU(subset)<<"\n";
-        cout<<"overall memory: "<< overallMemory(subset)<<"\n";
-        cout<<"root CPU: "<< root->cpu<<"\n";
-        cout<<"root mem: "<< root->memory<<"\n";
-        // we form a compound root
-        Node* compoundNode = formNode(root, subset);
-        vector<unordered_set<Node*>> result0 = FormGroup(compoundNode);
-        unordered_map<Node*, unordered_set<Node*>> mergedResult;
-        for (auto group: result0) {
+      // the resource constraints
+      if ( (root->cpu + overallCPU(subset) > MAX_CPU) 
+        || (root->memory + overallMemory(subset) > MAX_MEM)) 
+        continue;
+
+      // if any one of the child nodes in the subset is already 
+      // marked as cannot be merged with the root node, t
+      // then we should skip this subset 
+      bool canMerge = true;
+      for (Node* n: subset) {
+        if (root->notMerged.find(n) != root->notMerged.end()) {
+          canMerge = false;
+          break;
+        }
+      }
+      if (!canMerge) continue;
+
+      // we form a compound root
+      Node* compoundNode = formNode(root, subset);
+      vector<unordered_set<Node*>> result0 = FormGroup(compoundNode);
+      unordered_map<Node*, unordered_set<Node*>> mergedResult;
+      for (auto group: result0) {
+        Node* root = getRootNode(group);
+        if (root->id == (-1)) {
+          // compound node
+          std::unordered_set<Node*> unionSet = root->merged;
+          unionSet.insert(group.begin(), group.end());
+          unionSet.erase(root);
+          Node* newRoot = getRootNode(unionSet);
+          mergedResult[newRoot] = unionSet;
+        }
+        else if (mergedResult.find(root)== mergedResult.end()) {
+          mergedResult[root] = group;
+        }
+      }
+      unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset);
+      for (Node* childNode: childNodeNotInSubset) {
+        vector<unordered_set<Node*>> result = FormGroup(childNode);
+        // update result to mergedResult
+        for (auto group: result) {
           Node* root = getRootNode(group);
-          if (root->id == (-1)) {
-            //TODO 
-            std::unordered_set<Node*> unionSet = root->merged;
-            unionSet.insert(group.begin(), group.end());
-            unionSet.erase(root);
-            Node* newRoot = getRootNode(unionSet);
-            mergedResult[newRoot] = unionSet;
-          }
-          else if (mergedResult.find(root)== mergedResult.end()) {
+          if (mergedResult.find(root)== mergedResult.end()) {
             mergedResult[root] = group;
           }
         }
-        unordered_set<Node*> childNodeNotInSubset = computeSetDifference(childNodes, subset);
-        for (Node* childNode: childNodeNotInSubset) {
-          vector<unordered_set<Node*>> result = FormGroup(childNode);
-          // update result to mergedResult
-          for (auto group: result) {
-            Node* root = getRootNode(group);
-            if (mergedResult.find(root)== mergedResult.end()) {
-              mergedResult[root] = group;
-            }
-          }
-        }
-        vector<unordered_set<Node*>> finalGroups;
-        for (auto group: mergedResult) {
-          finalGroups.push_back(group.second);
-        }
-        printGroups(finalGroups);
-        long cut = computeCrossGroupCut(finalGroups);
-        if (cut<minCut) {
-          minCut = cut;
-          PartitionWithMinCut = finalGroups;
-        }
-
-        cout<<"   ### cut = "<<cut<<"\n";
       }
+      vector<unordered_set<Node*>> finalGroups;
+      for (auto group: mergedResult) {
+        finalGroups.push_back(group.second);
+      }
+      printGroups(finalGroups);
+      long cut = computeCrossGroupCut(finalGroups);
+      if (cut<minCut) {
+        minCut = cut;
+        PartitionWithMinCut = finalGroups;
+      }
+
+      cout<<"   ### cut = "<<cut<<"\n";
     }
   }
   cout<<"   ### finally select: \n";
