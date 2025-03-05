@@ -7,7 +7,7 @@ EXEC = main
 
 all: $(EXEC)
 	rm *.o
-	cd ../gen_graph && ./build.sh build 12 15 && cd ../exact_algorithm
+	cd ../gen_graph && ./build.sh build 12 15 && cd ../approx_algorithm
 
 $(EXEC): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -17,6 +17,6 @@ $(EXEC): $(OBJ)
 
 clean:
 	rm -f $(OBJ) $(EXEC)
-	cd ../gen_graph && ./build.sh clean && cd ../exact_algorithm
+	cd ../gen_graph && ./build.sh clean && cd ../approx_algorithm
 
 .PHONY: all clean
