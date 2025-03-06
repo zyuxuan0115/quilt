@@ -102,10 +102,11 @@ function deploy_fission_c {
   echo $MINCPU $MAXCPU $MINMEM $MAXMEM $MINSCALE $MAXSCALE
 
   fission function run-container --name $FUNC \
-    --image docker.io/zyuxuan0115/sn-$FUNC --port 8888 \
+    --image docker.io/zyuxuan0115/sn-$FUNC-async --port 8888 \
     --minscale=$MINSCALE --maxscale=$MAXSCALE \
     --minmemory=$MINMEM --maxmemory=$MAXMEM \
     --mincpu=$MINCPU  --maxcpu=$MAXCPU \
+    --secret tracing \
     --namespace fission-function
   fission httptrigger create --method POST \
     --url /$FUNC --function $FUNC \
