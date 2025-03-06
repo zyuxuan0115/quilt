@@ -28,6 +28,29 @@ function setup {
     --minmemory 64 --maxmemory 128 \
     --poolsize 4 \
     --namespace=fission-function
+  kubectl -n fission-function create secret generic tracing --from-literal=ingress-enable="true"
+
+  kubectl -n fission apply -f - <<EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-gateway
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: router
+            port:
+              number: 80
+EOF
+
+
+
 }
 
 function killa {
@@ -37,6 +60,7 @@ function killa {
   kubectl delete all --all -n fission-function
   kubectl delete namespace $FISSION_NAMESPACE
   kubectl delete namespace fission-function
+  kubectl delete secret tracing -n fission-function
   rm -rf *.txt *.yaml *.yml
   ../helper.py kill_port_fwd 8888:80
 }

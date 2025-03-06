@@ -78,7 +78,7 @@ function setup_ingress_nginx2 {
 
 function setup {
   setup_ingress_nginx
-  setup_ingress_nginx2
+#  setup_ingress_nginx2
 }
 
 
@@ -96,7 +96,7 @@ function kill_nginx2 {
 
 function killa {
   kill_nginx
-  kill_nginx2
+#  kill_nginx2
   rm *.yaml
 }
 
