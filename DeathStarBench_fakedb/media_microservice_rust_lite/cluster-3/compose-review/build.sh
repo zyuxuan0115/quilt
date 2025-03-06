@@ -103,6 +103,7 @@ function deploy_fission_c {
     --minscale=$MINSCALE --maxscale=$MAXSCALE \
     --minmemory=$MINMEM --maxmemory=$MAXMEM \
     --mincpu=$MINCPU  --maxcpu=$MAXCPU \
+    --secret tracing \
     --namespace fission-function
   fission httptrigger create --method POST \
     --url /$FUNC --function $FUNC \
