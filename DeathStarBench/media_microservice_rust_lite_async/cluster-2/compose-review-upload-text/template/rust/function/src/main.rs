@@ -6,7 +6,6 @@ use std::thread;
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
-  
   let args: ComposeReviewUploadTextArgs = serde_json::from_str(&input).unwrap();
 
   let mut key_counter:String = args.req_id.to_string();
@@ -25,6 +24,7 @@ fn main() {
   let compose_and_upload_args = ComposeAndUploadArgs {
     req_id: args.req_id,
   };
+
   let compose_and_upload_args_str = serde_json::to_string(&compose_and_upload_args).unwrap();
   if counter_value == NUM_COMPONENTS {
     let handle = thread::spawn(move || {

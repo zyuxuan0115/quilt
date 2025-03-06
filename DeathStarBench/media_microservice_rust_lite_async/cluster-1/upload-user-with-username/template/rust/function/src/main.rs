@@ -6,6 +6,7 @@ use std::{thread, process};
 
 fn main() {
   let input: String = get_arg_from_caller();
+
   let user_info: UploadUserWithUsernameArgs = serde_json::from_str(&input).unwrap();
   //let now = Instant::now();
   let mut username_uid = user_info.username.clone();
@@ -58,5 +59,6 @@ fn main() {
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());
+
 }
 
