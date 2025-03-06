@@ -133,6 +133,7 @@ func (bs *BinaryServer) InvocationHandler(w http.ResponseWriter, r *http.Request
 	execEnv.SetEnv(&EnvVar{"REQUEST_URI", r.RequestURI})
 	execEnv.SetEnv(&EnvVar{"CONTENT_LENGTH", fmt.Sprintf("%d", r.ContentLength)})
 	execEnv.SetEnv(&EnvVar{"PATH", "$PATH:/userfunc/deployarchive:/userfunc"})
+        execEnv.SetEnv(&EnvVar{"ingress-enable", os.Getenv("ingress-enable")})
 
 	for header, val := range r.Header {
 		execEnv.SetEnv(&EnvVar{fmt.Sprintf("HTTP_%s", strings.ToUpper(header)), val[0]})

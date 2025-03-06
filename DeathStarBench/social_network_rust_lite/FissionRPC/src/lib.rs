@@ -1,6 +1,7 @@
 use curl::easy::{Easy};
 use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MemcachedUserLoginInfo {
@@ -256,15 +257,6 @@ pub struct RetMsg {
   pub err: String,
 }
 
-fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
-  // Open the file in read-only mode with buffer.
-  let file = File::open(path)?;
-  let reader = BufReader::new(file);
- 
-  // Read the JSON contents of the file as an instance of `User`.
-  let u: Vec<FuncInfo> = serde_json::from_reader(reader)?;
-  Ok(u)
-}
 
 pub fn read_lines(filename: &str) -> Vec<String> {
   read_to_string(filename)
@@ -274,11 +266,32 @@ pub fn read_lines(filename: &str) -> Vec<String> {
                  .collect()  // gather them together into a vector
 }
 
+pub fn get_env(env_var: String) -> String {
+  let mut env_value: String = String::new();
+  match env::var(&env_var[..]) {
+    Ok(value) => env_value = value,
+    Err(e) => {
+      println!("Couldn't read ingress-enable: {}", e);
+      // print all env var for the program
+      //for (key, value) in env::vars() {
+      //  println!("{}: {}", key, value);
+      //}
+    },
+  }
+  env_value
+}
+
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::new();
 
-  url = String::from("http://router.fission.svc.cluster.local.:80/");
+  let ingress_enable = get_env("ingress-enable".to_string()); 
+  if ingress_enable == "true" {
+    url = String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/");
+  }
+  else {
+    url = String::from("http://router.fission.svc.cluster.local.:80/");
+  }
   url.push_str(func_name);
 
   let mut input_to_be_sent = (&input).as_bytes();
