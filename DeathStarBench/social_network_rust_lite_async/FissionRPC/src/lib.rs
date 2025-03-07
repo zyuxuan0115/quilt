@@ -1,6 +1,7 @@
 use curl::easy::{Easy};
 use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MemcachedUserLoginInfo {
@@ -256,16 +257,6 @@ pub struct RetMsg {
   pub err: String,
 }
 
-fn read_func_info_from_file<P: AsRef<Path>>(path: P) -> Result<Vec<FuncInfo>, Box<dyn Error>> {
-  // Open the file in read-only mode with buffer.
-  let file = File::open(path)?;
-  let reader = BufReader::new(file);
- 
-  // Read the JSON contents of the file as an instance of `User`.
-  let u: Vec<FuncInfo> = serde_json::from_reader(reader)?;
-  Ok(u)
-}
-
 pub fn read_lines(filename: &str) -> Vec<String> {
   read_to_string(filename)
                  .unwrap()  // panic on possible file-reading errors
@@ -273,6 +264,7 @@ pub fn read_lines(filename: &str) -> Vec<String> {
                  .map(String::from)  // make each slice into a string
                  .collect()  // gather them together into a vector
 }
+
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
@@ -310,6 +302,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let msg: RetMsg = serde_json::from_str(&html_data).unwrap();
   msg.msg
 }
+
 
 pub fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
