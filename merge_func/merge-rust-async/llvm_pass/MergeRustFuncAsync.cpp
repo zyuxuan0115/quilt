@@ -499,13 +499,37 @@ InvokeInst* MergeRustFuncAsyncPass::getInvokeByDemangledName(Function* f, std::s
         Value *calledValue = ii->getCalledOperand();
         if (Function* CalledFunc = dyn_cast<Function>(calledValue)) {
           std::string demangled = getDemangledRustFuncName(ii->getCalledFunction()->getName().str());
-          if (demangled == fname) return ii; 
+          if (demangled == fname) { 
+            return ii;
+          }
         }
       }
     }
   }
   return NULL; 
 }
+
+
+
+std::vector<InvokeInst*> MergeRustFuncAsyncPass::getInvokesByDemangledName(Function* f, std::string fname) {
+  std::vector<InvokeInst*> invokes;
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (InvokeInst* ii = dyn_cast<InvokeInst>(IB)) {
+        Value *calledValue = ii->getCalledOperand();
+        if (Function* CalledFunc = dyn_cast<Function>(calledValue)) {
+          std::string demangled = getDemangledRustFuncName(ii->getCalledFunction()->getName().str());
+          if (demangled == fname) {
+            invokes.push_back(ii); 
+          }
+        }
+      }
+    }
+  }
+  return invokes; 
+}
+
+
 
 
 
@@ -696,57 +720,77 @@ Function* MergeRustFuncAsyncPass::cloneAndReplaceFuncWithDiffSignature(InvokeIns
 
 void MergeRustFuncAsyncPass::changeNewCalleeOutput(Function* newCalleeFunc) {
   Module* M = newCalleeFunc->getParent();
-  Instruction* send_return_value_call;
-  InvokeInst* send_return_value_call_invoke = getInvokeByDemangledName(newCalleeFunc, 
+  std::vector<InvokeInst*> invokes = getInvokesByDemangledName(newCalleeFunc, 
        "OpenFaaSRPC::send_return_value_to_caller");
+  for (InvokeInst* send_return_value_call_invoke: invokes) {
+    Instruction* send_return_value_call = dyn_cast<Instruction>(send_return_value_call_invoke);
+    // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+    //                                         ptr align 8 %buffer, 
+    //                                         i64 24, i1 false)
+    // the is the LLVM Intrinsc. The way to create such a call 
+    // is different from normal CallInst create 
+    std::vector<Type*> IntrinTypes;
+    IntrinTypes.push_back(newCalleeFunc->getArg(0)->getType());
+    IntrinTypes.push_back(send_return_value_call->getOperand(0)->getType());
+    IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
 
-  CallInst* send_return_value_call_call = getCallByDemangledName(newCalleeFunc, 
-       "OpenFaaSRPC::send_return_value_to_caller");
-
-  if ((!send_return_value_call_call) && (!send_return_value_call_invoke)) {
-    llvm::errs()<<"Function "<<newCalleeFunc->getName();
-    llvm::errs()<<" doesn't have the send_return_value_to_caller call\n";
-    return;
-  }
-
-  if (send_return_value_call_invoke) send_return_value_call = send_return_value_call_invoke;
-  else send_return_value_call = send_return_value_call_call;
-
-  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
-  //                                         ptr align 8 %buffer, 
-  //                                         i64 24, i1 false)
-  // the is the LLVM Intrinsc. The way to create such a call 
-  // is different from normal CallInst create 
-  std::vector<Type*> IntrinTypes;
-  IntrinTypes.push_back(newCalleeFunc->getArg(0)->getType());
-  IntrinTypes.push_back(send_return_value_call->getOperand(0)->getType());
-  IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
-
-  Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
-  Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0, true);
-  Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
+    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
+    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0, true);
+    Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
   
-  std::vector<Value*> IntrinsicArguments;
-  IntrinsicArguments.push_back(newCalleeFunc->getArg(0));
-  IntrinsicArguments.push_back(send_return_value_call->getOperand(0));
-  IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
-  IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
-  ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
+    std::vector<Value*> IntrinsicArguments;
+    IntrinsicArguments.push_back(newCalleeFunc->getArg(0));
+    IntrinsicArguments.push_back(send_return_value_call->getOperand(0));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
+    ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
 
-  IRBuilder<> Builder(M->getContext());
-  CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
-  llvmMemcpyCall->insertBefore(send_return_value_call);
+    IRBuilder<> Builder(M->getContext());
+    CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
+    llvmMemcpyCall->insertBefore(send_return_value_call);
 
-  // since the instruction is a InvokeInst, also needs to create a branch instruction
-  if (isa<InvokeInst>(send_return_value_call)) {
+    // since the instruction is a InvokeInst, also needs to create a branch instruction
     BasicBlock* nextBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(1));
     BasicBlock* anotherBBofsend_ret_value_call = dyn_cast<BasicBlock>(send_return_value_call->getOperand(2));
     if (nextBBofsend_ret_value_call && anotherBBofsend_ret_value_call ) {
       Function* dummy = M->getFunction("dummy");
       InvokeInst *ivk = InvokeInst::Create(dummy, nextBBofsend_ret_value_call, anotherBBofsend_ret_value_call, {}, "", send_return_value_call);
     }
+    send_return_value_call->eraseFromParent(); 
   }
-  send_return_value_call->eraseFromParent();
+
+  std::vector<CallInst*> calls = getCallsByDemangledName(newCalleeFunc,
+       "OpenFaaSRPC::send_return_value_to_caller");
+
+  for (CallInst* call: calls) {
+    Instruction* send_return_value_call = dyn_cast<Instruction>(call);
+ 
+    // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+    //                                         ptr align 8 %buffer, 
+    //                                         i64 24, i1 false)
+    // the is the LLVM Intrinsc. The way to create such a call 
+    // is different from normal CallInst create 
+    std::vector<Type*> IntrinTypes;
+    IntrinTypes.push_back(newCalleeFunc->getArg(0)->getType());
+    IntrinTypes.push_back(send_return_value_call->getOperand(0)->getType());
+    IntrinTypes.push_back(Type::getInt64Ty(M->getContext()));
+
+    Constant* i64_24 = llvm::ConstantInt::get(Type::getInt64Ty(M->getContext()), 24, true);
+    Constant* i1_false = llvm::ConstantInt::get(Type::getInt1Ty(M->getContext()), 0, true);
+    Function* llvmMemcpyFunc = Intrinsic::getDeclaration(M, Intrinsic::memcpy, IntrinTypes);
+  
+    std::vector<Value*> IntrinsicArguments;
+    IntrinsicArguments.push_back(newCalleeFunc->getArg(0));
+    IntrinsicArguments.push_back(send_return_value_call->getOperand(0));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
+    ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
+
+    IRBuilder<> Builder(M->getContext());
+    CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
+    llvmMemcpyCall->insertBefore(send_return_value_call);
+    send_return_value_call->eraseFromParent();
+  }
 } 
 
 

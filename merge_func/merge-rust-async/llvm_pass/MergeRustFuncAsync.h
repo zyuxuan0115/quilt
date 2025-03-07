@@ -45,6 +45,7 @@ public:
   CallInst* getCallByDemangledName(Function*, std::string);
   std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
+  std::vector<InvokeInst*> getInvokesByDemangledName(Function*, std::string);
   Function* getFunctionByDemangledName(Module*, std::string);
   void renameRealCallee(Function* mainFunc, std::string newCalleeName);
   std::string getDemangledRustFuncName(std::string);
@@ -67,6 +68,7 @@ public:
 
 private:
   std::string demangle_bin = "/llvm/demangle_rust_funcname";
+
 };
 
 } // namespace llvm
