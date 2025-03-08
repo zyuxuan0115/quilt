@@ -18,12 +18,13 @@ fn main() {
   //let now = Instant::now();
   let input_args: GetUserIdArgs = serde_json::from_str(&input).unwrap();
   let mut username = String::from(&input_args.username[..]);
-  username.push_str(":user_id");
 
   let user_id_str = &username[9..];
   let user_id: i64 = user_id_str.parse().unwrap();
 
 /*
+  username.push_str(":user_id");
+
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap();  
  
