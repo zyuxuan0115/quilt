@@ -3,7 +3,8 @@ use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::collections::HashMap;
 use memcache::Client;
-//use std::{Duration, Instant};
+use std::thread;
+use std::time::{Duration, Instant};
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {
@@ -49,6 +50,10 @@ fn main() {
     user_mentions.push(new_user_mention);
   }
 */
+  
+  // fake db op 
+  thread::sleep(Duration::from_millis(2));
+
   let unames_not_cached:Vec<String> = usernames_not_cached.into_iter().map(|(k, _v)| {let mut new_k = "user:".to_string(); new_k.push_str(&k); new_k}).collect();
 
   let mut uname_not_cached: Vec<&str> = Vec::new();
@@ -72,6 +77,19 @@ fn main() {
     };
   }
 */
+
+  // fake db op
+  thread::sleep(Duration::from_millis(2));
+  for username in &usernames {
+    let user_id_str = &username[9..];
+    let user_id: i64 = user_id_str.parse().unwrap();
+    let new_user_mention = UserMention {
+      user_id: user_id,
+      user_name: username.to_string(),
+    };
+    user_mentions.push(new_user_mention);
+  }
+
   let serialized = serde_json::to_string(&user_mentions).unwrap();
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));
