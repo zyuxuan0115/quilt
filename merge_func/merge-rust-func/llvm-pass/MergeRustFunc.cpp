@@ -400,47 +400,62 @@ void MergeRustFuncPass::deleteCalleeInputOutputFunc(Function* NewCalleeFunc){
 
 
   // In the new callee function, change the way to send output back to caller
-  InvokeInst* OutputFuncCall_i = getInvokeByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
-  CallInst* OutputFuncCall_c = getCallByDemangledName(NewCalleeFunc, "OpenFaaSRPC::send_return_value_to_caller");
-  if ((!OutputFuncCall_i) && (!OutputFuncCall_c)) {
-    llvm::errs()<<"Error: cannot find the OpenFaaSRPC::send_return_value_to_caller call\n";
-    return;
-  }
-  Instruction* OutputFuncCall;
-  if (OutputFuncCall_i) OutputFuncCall = dyn_cast<InvokeInst>(OutputFuncCall_i);
-  else OutputFuncCall = dyn_cast<CallInst>(OutputFuncCall_c);
+  std::vector<InvokeInst*> OutputFuncInvokes = getInvokesByDemangledName(NewCalleeFunc, 
+                                                 "OpenFaaSRPC::send_return_value_to_caller");
+  for (InvokeInst* invoke: OutputFuncInvokes) {
+    // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+    //                                         ptr align 8 %buffer, 
+    //                                         i64 24, i1 false)
+    // the is the LLVM Intrinsc. The way to create such a call 
+    // is different from normal CallInst create 
+    Instruction* OutputFuncCall = dyn_cast<Instruction>(invoke);
 
-  // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
-  //                                         ptr align 8 %buffer, 
-  //                                         i64 24, i1 false)
-  // the is the LLVM Intrinsc. The way to create such a call 
-  // is different from normal CallInst create 
+    std::vector<Value*> IntrinsicArguments;
+    IntrinsicArguments.push_back(NewCalleeFunc->getArg(0));
+    IntrinsicArguments.push_back(OutputFuncCall->getOperand(0));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
+    ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
 
-  std::vector<Value*> IntrinsicArguments;
-  IntrinsicArguments.push_back(NewCalleeFunc->getArg(0));
-  IntrinsicArguments.push_back(OutputFuncCall->getOperand(0));
-  IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
-  IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
-  ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
+    CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
+    llvmMemcpyCall->insertBefore(OutputFuncCall);
 
-  CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
-  llvmMemcpyCall->insertBefore(OutputFuncCall);
+    // delete the send_return_value_to_caller() function call
+    // this function call is a invoke function, so we have to
+    // first create a branch instruction as the terminator and 
+    // then delete this call 
 
-  // delete the send_return_value_to_caller() function call
-  // this function call is a invoke function, so we have to
-  // first create a branch instruction as the terminator and 
-  // then delete this call 
-
-  if (isa<InvokeInst>(OutputFuncCall)) {
     BasicBlock* nextBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(1));
     BasicBlock* anotherBB = dyn_cast<BasicBlock>(OutputFuncCall->getOperand(2));
     if (nextBB && anotherBB) {
       Function* dummy = M->getFunction("dummy");
       InvokeInst *ivk = InvokeInst::Create(dummy, nextBB, anotherBB, {}, "", OutputFuncCall);
     }
+    OutputFuncCall->eraseFromParent();
   }
-  OutputFuncCall->eraseFromParent();
+  std::vector<CallInst*> OutputFuncCalls = getCallsByDemangledName(NewCalleeFunc, 
+                                             "OpenFaaSRPC::send_return_value_to_caller");
+  for (CallInst* call: OutputFuncCalls) {
+    Instruction* OutputFuncCall = dyn_cast<Instruction>(call);
+    // create call void @llvm.memcpy.p0.p0.i64(ptr align 8 %_0, 
+    //                                         ptr align 8 %buffer, 
+    //                                         i64 24, i1 false)
+    // the is the LLVM Intrinsc. The way to create such a call 
+    // is different from normal CallInst create 
 
+    std::vector<Value*> IntrinsicArguments;
+    IntrinsicArguments.push_back(NewCalleeFunc->getArg(0));
+    IntrinsicArguments.push_back(OutputFuncCall->getOperand(0));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i64_24));
+    IntrinsicArguments.push_back(dyn_cast<Value>(i1_false));
+    ArrayRef<Value*> IntrinsicArgs(IntrinsicArguments);
+
+    CallInst* llvmMemcpyCall = Builder.CreateCall(llvmMemcpyFunc, IntrinsicArgs);
+    llvmMemcpyCall->insertBefore(OutputFuncCall);
+
+    // delete the send_return_value_to_caller() function call
+    OutputFuncCall->eraseFromParent();
+  }
 }
 
 
@@ -515,6 +530,48 @@ InvokeInst* MergeRustFuncPass::getInvokeByDemangledName(Function* f, std::string
   }
   return NULL; 
 }
+
+
+
+std::vector<InvokeInst*> MergeRustFuncPass::getInvokesByDemangledName(Function* f, std::string fname) {
+  std::vector<InvokeInst*> invokes;
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+     if (InvokeInst *ii = dyn_cast<InvokeInst>(IB)) {
+        if (!ii->isInlineAsm()) {
+          Value *calledValue = ii->getCalledOperand();
+          if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
+            std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
+            if (demangled == fname) invokes.push_back(ii);
+          }
+        }
+      } 
+    }
+  }
+  return invokes; 
+}
+
+
+
+std::vector<CallInst*> MergeRustFuncPass::getCallsByDemangledName(Function* f, std::string fname) {
+  std::vector<CallInst*> calls;
+  for (Function::iterator BBB = f->begin(), BBE = f->end(); BBB != BBE; ++BBB){
+    for (BasicBlock::iterator IB = BBB->begin(), IE = BBB->end(); IB != IE; IB++){
+      if (CallInst *ci = dyn_cast<CallInst>(IB)) {
+        if (!ci->isInlineAsm()) {
+          Value *calledValue = ci->getCalledOperand();
+          if (Function* CalledFunc = llvm::dyn_cast<llvm::Function>(calledValue)) {
+            std::string demangled = getDemangledRustFuncName(CalledFunc->getName().str());
+            if (demangled == fname) calls.push_back(ci);
+          }
+        }
+      }
+    }
+  }
+  return calls; 
+}
+
+
 
 
 

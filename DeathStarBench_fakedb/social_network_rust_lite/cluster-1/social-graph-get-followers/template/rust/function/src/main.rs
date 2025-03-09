@@ -61,7 +61,7 @@ fn main() {
   }
   let followers_vec: Vec<i64> = followers.keys().copied().collect();
   thread::sleep(Duration::from_millis(6));
-  let serialized = serde_json::to_string(&followers).unwrap();
+  let serialized = serde_json::to_string(&followers_vec).unwrap();
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);

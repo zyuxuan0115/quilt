@@ -55,6 +55,8 @@ public:
   Function* getFunctionByDemangledName(Module*, std::string);
   InvokeInst* getInvokeByDemangledName(Function*, std::string);
   CallInst* getCallByDemangledName(Function*, std::string);
+  std::vector<InvokeInst*> getInvokesByDemangledName(Function*, std::string);
+  std::vector<CallInst*> getCallsByDemangledName(Function*, std::string);
   std::string getDemangledRustFuncName(std::string);
   std::string replaceDashWithUnderscore(std::string);
 
