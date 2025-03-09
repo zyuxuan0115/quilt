@@ -3,6 +3,7 @@ use OpenFaaSRPC::{get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use redis::Commands;
 use std::time::{Duration, Instant};
+use std::thread;
 
 fn gen_short_url()->String{
   let mut short_url: String = String::from("http://short-url.com/");
@@ -28,18 +29,19 @@ fn main() {
 */
 
   let mut docs: Vec<UrlPair> = Vec::new();
-/*
+
   for url in urls {
     let s = gen_short_url();
     let new_pair = UrlPair{
       shortened_url: s.clone(), 
       expanded_url: url.clone(),
     };
-    let _: isize = con.hset("url-shorten","shortened_url", &new_pair.shortened_url[..]).unwrap();
-    let _: isize = con.hset("url-shorten","expanded_url", &new_pair.expanded_url[..]).unwrap();
+    thread::sleep(Duration::from_millis(4));
+//    let _: isize = con.hset("url-shorten","shortened_url", &new_pair.shortened_url[..]).unwrap();
+//    let _: isize = con.hset("url-shorten","expanded_url", &new_pair.expanded_url[..]).unwrap();
     docs.push(new_pair);
   }
-*/
+
   let serialized = serde_json::to_string(&docs).unwrap();
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));

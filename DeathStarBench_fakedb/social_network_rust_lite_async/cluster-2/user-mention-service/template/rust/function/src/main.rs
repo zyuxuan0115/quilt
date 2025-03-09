@@ -4,6 +4,7 @@ use DbInterface::*;
 use std::collections::HashMap;
 use memcache::Client;
 use std::time::{Duration, Instant};
+use std::thread;
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {
@@ -14,7 +15,7 @@ fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
 
 fn main() {
   let input: String = get_arg_from_caller();
-//  let now = Instant::now();
+  //let now = Instant::now();
   let input_arg: UserMentionServiceArgs = serde_json::from_str(&input).unwrap();
   let usernames: Vec<String> = input_arg.usernames;
 /*
@@ -38,6 +39,7 @@ fn main() {
 
 /*
   let result: HashMap<String, i64> = memcache_client.gets(&usernames_array).unwrap();
+
   for (key, value) in &result {
     let username: String = remove_suffix(&key[..], ":user_id").to_string();
     usernames_not_cached.remove(&username);
@@ -48,6 +50,10 @@ fn main() {
     user_mentions.push(new_user_mention);
   }
 */
+  
+  // fake db op 
+  thread::sleep(Duration::from_millis(2));
+
   let unames_not_cached:Vec<String> = usernames_not_cached.into_iter().map(|(k, _v)| {let mut new_k = "user:".to_string(); new_k.push_str(&k); new_k}).collect();
 
   let mut uname_not_cached: Vec<&str> = Vec::new();
@@ -57,6 +63,7 @@ fn main() {
   let uname_not_cached_array: &[&str] = &uname_not_cached;
 /*
   for uname in unames_not_cached {
+//    let (name, id): (String, i64) 
     let res: Result<(String, i64), redis::RedisError>= redis::cmd("HMGET").arg(&uname[..]).arg("username").arg("user_id").query(&mut con); 
     match res {
       Ok((name, id)) => {
@@ -70,9 +77,23 @@ fn main() {
     };
   }
 */
+
+  // fake db op
+  thread::sleep(Duration::from_millis(2));
+  for username in &usernames {
+    let user_id_str = &username[9..];
+    let user_id: i64 = user_id_str.parse().unwrap();
+    let new_user_mention = UserMention {
+      user_id: user_id,
+      user_name: username.to_string(),
+    };
+    user_mentions.push(new_user_mention);
+  }
+
   let serialized = serde_json::to_string(&user_mentions).unwrap();
-  let new_now =  Instant::now();
-//  println!("{:?}", new_now.duration_since(now));
+  //let new_now =  Instant::now();
+  //println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
 }
+
 
