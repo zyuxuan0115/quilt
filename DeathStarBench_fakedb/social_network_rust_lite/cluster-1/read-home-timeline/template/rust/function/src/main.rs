@@ -4,6 +4,7 @@ use DbInterface::*;
 use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
 use rand::{Rng, thread_rng};
+use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -36,6 +37,7 @@ fn main() {
     post_ids: post_ids,
   };
   let serialized = serde_json::to_string(&read_posts_args).unwrap(); 
+  thread::sleep(Duration::from_millis(4));
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));
   let posts_str= make_rpc("read-posts", serialized); 
