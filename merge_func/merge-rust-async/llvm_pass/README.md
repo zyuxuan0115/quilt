@@ -11,9 +11,9 @@
 ### install rust and switch to +nightly
 ```bash
 > curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-> rustup toolchain install nightly
-> rustup default nightly
-> rustup component add rust-src --toolchain nightly-x86_64-unknown-linux-gnu
+> rustup default 1.78
+> rustup install nightly-2024-12-19
+> rustup component add rust-src --toolchain nightly-2024-12-19-x86_64-unknown-linux-gnu
 ```
 
 ### install libcurl
