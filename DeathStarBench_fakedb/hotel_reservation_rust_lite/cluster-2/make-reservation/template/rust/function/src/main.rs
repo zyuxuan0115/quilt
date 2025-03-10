@@ -4,7 +4,8 @@ use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
 use redis::Commands;
-use std::process;
+use std::{process, thread};
+use rand::Rng;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -12,6 +13,8 @@ fn main() {
   let args: MakeReservationArgs = serde_json::from_str(&input).unwrap();
   let hotel_id: String = args.hotel_id.clone();
 
+  let hotel_capacity: i32 = 400;
+/*
   // get capacity
   // (1) connect to memcached
   let memcache_uri = get_memcached_uri();
@@ -48,24 +51,36 @@ fn main() {
       }
     },
   }
- 
+ */
   // create keys for memcached to get the reservation number for each date
   let mut in_date = NaiveDate::parse_from_str(&args.in_date[..], "%Y-%m-%d").unwrap();
   let out_date = NaiveDate::parse_from_str(&args.out_date[..], "%Y-%m-%d").unwrap();
   let mut next_day = in_date.succ_opt().unwrap();
 
-  let mut hotel_ids_mmc: Vec<String> = Vec::new();
+  //let mut hotel_ids_mmc: Vec<String> = Vec::new();
+  let mut reservation_info: Vec<HotelReservation> = Vec::new();
+  let mut rng = rand::thread_rng();
   while next_day <= out_date {
     let indate = in_date.format("%Y-%m-%d").to_string();
     let next = next_day.format("%Y-%m-%d").to_string();
-    let hotel_id_mmc: String = format!("{}_{}_{}", hotel_id, indate, next);
-    hotel_ids_mmc.push(hotel_id_mmc);
+    // let hotel_id_mmc: String = format!("{}_{}_{}", hotel_id, indate, next);
+    // hotel_ids_mmc.push(hotel_id_mmc);
+    let hotel_resv = HotelReservation {
+      hotel_id : hotel_id.clone(),
+      in_date: indate,
+      out_date: next,
+      number: rng.gen_range(50..395),
+    };
+    reservation_info.push(hotel_resv);
+    thread::sleep(Duration::from_millis(2));
     in_date = next_day;
     next_day = next_day.succ_opt().unwrap();
   }
 
+/*
   let hotel_ids_strslice: Vec<&str> = hotel_ids_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_ids_strslice;
+
 
   // get the resv number of each date
   let mut hotel_ids_not_cached: HashMap<String, bool> = HashMap::new();
@@ -127,6 +142,9 @@ fn main() {
       }
     }
   }
+*/
+
+  
 
   let mut make_resv_successful = true;
   for item in &reservation_info {
@@ -135,6 +153,8 @@ fn main() {
     }
   }
 
+  
+/*
   // update memcached and redis
   let mut hotel_id_ret: Vec<String> = Vec::new();
   if make_resv_successful == true {
@@ -156,7 +176,11 @@ fn main() {
       }
     }
   }
-  
+*/  
+  let mut hotel_id_ret: Vec<String> = Vec::new();
+  if make_resv_successful == true {
+    hotel_id_ret.push(args.hotel_id.clone());
+  }
   let serialized = serde_json::to_string(&hotel_id_ret).unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));

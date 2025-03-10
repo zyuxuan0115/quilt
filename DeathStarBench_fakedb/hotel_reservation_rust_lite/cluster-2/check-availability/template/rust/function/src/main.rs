@@ -4,7 +4,7 @@ use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
 use redis::{Iter,Commands};
-use std::process;
+use std::{process, thread};
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -12,6 +12,11 @@ fn main() {
   let args: CheckAvailabilityArgs = serde_json::from_str(&input).unwrap();
 
   let hotel_ids: Vec<String> = args.hotel_id;
+  let mut capacity_info: Vec<HotelCapacity> = Vec::new();
+
+  
+
+/*
   let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut y = x.clone(); y.push_str("_cap"); y}).collect();
   let hotel_id_strslice: Vec<&str> = hotel_id_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_id_strslice;
@@ -82,6 +87,7 @@ fn main() {
   }
 
   let mut capacity_info_hash: HashMap<String, HotelCapacity> = capacity_info.iter().map(|x| (x.hotel_id.clone(), x.to_owned() )).collect::<HashMap<_, _>>();
+*/
 
   let mut hotel_ids_return: Vec<String> = Vec::new();
   for hotel_id in &hotel_ids {
