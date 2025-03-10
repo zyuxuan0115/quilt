@@ -3,6 +3,8 @@ use DbInterface::*;
 use std::{fs::read_to_string, collections::HashMap, time::SystemTime};
 use sha256::digest;
 use redis::Commands;
+use std::thread;
+use std::time::{Duration, Instant};
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -11,15 +13,15 @@ fn main() {
   let mut password = user_info.password;
   let mut pw_sha: String = String::from(&password[..]);
   pw_sha = digest(pw_sha);
-
+/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
-
+*/
   let key = format!("user:{}",username);
 
-  let mut pw_correct = false;
-
+  let mut pw_correct = true;
+/*
   let res: redis::RedisResult<String> = con.hget(&key[..], "password");
   match res {
     Ok(x) => {
@@ -29,6 +31,8 @@ fn main() {
     },
     Err(_) => (),
   }; 
+*/
+  thread::sleep(Duration::from_millis(2));
 
   let serialized: String = serde_json::to_string(&pw_correct).unwrap();
 
