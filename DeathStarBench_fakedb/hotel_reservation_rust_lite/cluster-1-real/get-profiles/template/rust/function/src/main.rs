@@ -3,36 +3,62 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use redis::Commands;
+use rand::Rng;
+use rand::distributions::Alphanumeric;
+use std::thread;
+
+fn gen_rand_str(len: usize) -> String {
+  let s: String = rand::thread_rng()
+    .sample_iter(&Alphanumeric)
+    .take(len)
+    .map(char::from)
+    .collect();
+  s
+}
+
+fn gen_rand_num(lower_bound: f32, upper_bound: f32) -> f32 {
+  let mut rng = rand::thread_rng();
+  let x: f32 = rng.gen_range(lower_bound..upper_bound);
+  x
+}
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let input_args: GetProfilesArgs = serde_json::from_str(&input).unwrap(); 
   let hotel_ids: Vec<String> = input_args.hotel_ids;
-  let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut new_x = x.clone(); new_x.push_str(":profile"); new_x}).collect();
-  let mut hotel_id_not_cached: HashMap<String, String> = HashMap::new();
  
+  let mut hotel_profiles: Vec<HotelProfile> = Vec::new();
   for hotel_id in &hotel_ids {
-    let mut hotelid = hotel_id.to_owned();
-    hotelid.push_str(":profile");
-    hotel_id_not_cached.insert(hotelid, hotel_id.to_owned());
+    let addr = Address {
+      street_number: gen_rand_str(2),
+      street_name: gen_rand_str(10),
+      city: gen_rand_str(6),
+      state: gen_rand_str(2),
+      country: gen_rand_str(6),
+      postal_code: gen_rand_str(6),
+      latitude: gen_rand_num(112.0, 119.9),
+      longitude: gen_rand_num(32.0, 39.9), 
+    };
+    let mut imgs: Vec<Image> = Vec::new();
+    for i in 0..5 {
+      let img = Image {
+        url: gen_rand_str(10),
+        default: true,
+      };
+      imgs.push(img);
+    }
+    let p_info = HotelProfile {
+      hotel_id: hotel_id.clone(),
+      name: gen_rand_str(6),
+      phone_number: gen_rand_str(10),
+      description: gen_rand_str(20),
+      address: addr,
+      images: imgs,
+    };
+    hotel_profiles.push(p_info);    
   }
 
-  let addr: Address = serde_json::from_str(&address).unwrap();
-  let img: Vec<Image> = serde_json::from_str(&images).unwrap();
-  let p_info = HotelProfile {
-    hotel_id: hotel_id.clone(),
-    name: name,
-    phone_number: phone_number,
-    description: description,
-    address: addr,
-    images: img,
-  }; 
-  // update memcached
-  let key = format!("{}:profile",hotel_id);
-  let value = serde_json::to_string(&p_info).unwrap(); 
-  memcache_client.set(&key[..],&value[..],0).unwrap();
-  hotel_profiles.push(p_info);
 
 /*
   let memcache_uri = get_memcached_uri();

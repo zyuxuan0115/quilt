@@ -6,6 +6,13 @@ use kdtree::ErrorKind;
 use kdtree::distance::squared_euclidean;
 use redis::{Iter,Commands};
 use std::process;
+use rand::Rng;
+
+fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
+  let mut rng = rand::thread_rng();
+  let x: f64 = rng.gen_range(lower_bound..upper_bound);
+  x
+}
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -15,6 +22,7 @@ fn main() {
   let dimensions = 2;
   let mut kdtree = KdTree::new(dimensions);
 
+/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
@@ -49,6 +57,15 @@ fn main() {
         process::exit(0);
       }
     }
+  }
+*/
+  let mut hotels: Vec<([f64;2], String)> = Vec::new();
+  for i in 0..100 {
+    let hotel_id = format!("hotel_{}", i);
+    let latitude = gen_rand_num(32.0,39.9);
+    let longitude = gen_rand_num(112.0, 119.9);
+    let new_v: [f64;2] = [latitude, longitude];
+    hotels.push((new_v, hotel_id));
   }
 
   for i in 0..hotels.len() {
