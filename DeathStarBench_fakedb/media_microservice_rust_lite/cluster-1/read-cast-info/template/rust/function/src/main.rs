@@ -26,9 +26,9 @@ fn main() {
   let mut cast_infos: Vec<CastInfoEntry> = Vec::new();
   for cast_id in &cast_ids {
     let cast_info = CastInfoEntry {
-      cast_info_id: cast_id,
+      cast_info_id: *cast_id,
       name: gen_rand_str(10),
-      gender: "male".to_string(),
+      gender: true, 
       intro: gen_rand_str(20),
     };
     cast_infos.push(cast_info);
