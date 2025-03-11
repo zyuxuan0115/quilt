@@ -1,6 +1,7 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{Duration, Instant};
+use std::thread;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -9,6 +10,7 @@ fn main() {
   let mut key_counter:String = args.req_id.to_string();
   key_counter.push_str(":counter"); 
 
+/*
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
   memcache_client.add(&key_counter[..], 0, 0);
@@ -27,6 +29,9 @@ fn main() {
   if counter_value == NUM_COMPONENTS {
     make_rpc("compose-and-upload", compose_and_upload_args_str);
   }
+*/
+
+  thread::sleep(Duration::from_millis(2));
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());

@@ -2,6 +2,8 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{fs::read_to_string, collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::{Commands};
+use std::thread;
+use rand::Rng;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -19,7 +21,20 @@ fn main() {
  
   let mut review_ids: Vec<i64> = res.iter().map(|x| x[..].parse::<i64>().unwrap()).collect();
 */
-  for 
+  let mut review_ids: Vec<i64> = Vec::new();
+
+  let mut rng = rand::thread_rng();
+  let random_number = rng.gen_range(1..6);
+  for i in 1..random_number {
+    let review_id: i64 = rng.gen();
+    review_ids.push(review_id);
+  }
+
+  thread::sleep(Duration::from_millis(2));
+  
+  let read_reviews_args = ReadReviewsArgs {
+    review_ids:  review_ids,
+  }; 
 
   let read_reviews_args = ReadReviewsArgs {
     review_ids: review_ids,
