@@ -2,6 +2,24 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::time::{Duration, Instant};
 use std::time::SystemTime;
+use rand::Rng;
+use rand::distributions::Alphanumeric;
+use std::thread;
+
+fn gen_rand_str(len: usize) -> String {
+  let s: String = rand::thread_rng()
+    .sample_iter(&Alphanumeric)
+    .take(len)
+    .map(char::from)
+    .collect();
+  s
+}
+
+fn gen_rand_num(lower_bound: f32, upper_bound: f32) -> f32 {
+  let mut rng = rand::thread_rng();
+  let x: f32 = rng.gen_range(lower_bound..upper_bound);
+  x
+}
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -19,19 +37,27 @@ fn main() {
   let key_str_slice: Vec<&str> = keys.iter().map(|x| &**x).collect();
   let key_strs: &[&str] = &key_str_slice;
 
+/*
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
   let result: std::collections::HashMap<String, String> = memcache_client.gets(key_strs).unwrap(); 
-
+ */
+  let mut rng = rand::thread_rng();
+  let movie_idx = 5999000 + rng.gen_range(0..1000);
+  let movie_id = format("tt{}", movie_idx);
   let mut new_review = ReviewEntry {
-    review_id: 0,
-    user_id: 0,
+    review_id: rng.gen(),
+    user_id: rng.gen(),
     req_id: req_id,
-    text: String::new(),
-    movie_id: String::new(),
-    rating: 0,
-    timestamp: 0,
+    text: gen_rand_str(30),
+    movie_id: movie_id,
+    rating: gen_rand_num(0.0, 5.0),
+    timestamp: rng.gen(),
   };
+
+  thread::sleep(Duration::from_millis(3));
+
+/*
   for (key, value) in result {
     if key == key_unique_id {
       new_review.review_id = value[..].parse::<i64>().unwrap();
@@ -50,9 +76,8 @@ fn main() {
     }
   }
   new_review.timestamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs() as i64;
-
+ */
   let new_review_str: String = serde_json::to_string(&new_review).unwrap();
-
 
   let _ = make_rpc("store-review", new_review_str);
 

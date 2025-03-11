@@ -16,9 +16,9 @@ fn gen_rand_str(len: usize) -> String {
   s
 }
 
-fn gen_rand_num(lower_bound: f32, upper_bound: f32) -> f32 {
+fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
   let mut rng = rand::thread_rng();
-  let x: f32 = rng.gen_range(lower_bound..upper_bound);
+  let x: f64 = rng.gen_range(lower_bound..upper_bound);
   x
 }
 
@@ -32,32 +32,32 @@ fn main() {
   let mut movie_info = String::new();
 
   let mut real_casts: Vec<Cast> = Vec::new(); 
-  let num_casts: i32 = rng::gen_range(0..20);
+  let num_casts: i32 = rng.gen_range(0..20);
   for i in 0..num_casts {
     let real_cast = Cast {
-      cast_id: rng::gen(),
+      cast_id: rng.gen(),
       character: gen_rand_str(15),
-      cast_info_id: rng::gen(),
+      cast_info_id: rng.gen(),
     };
     real_casts.push(real_cast);
   }
 
   let mut real_thumbnail: Vec<String> = Vec::new();
-  let num_thumbnails: i32 = rng::gen_range(0..20);
+  let num_thumbnails: i32 = rng.gen_range(0..20);
   for i in 0..num_thumbnails {
     let thumbnail = gen_rand_str(15);
     real_thumbnail.push(thumbnail);
   }
 
   let mut real_photos: Vec<String> = Vec::new();
-  let num_photos: i32 = rng::gen_range(0..20);
+  let num_photos: i32 = rng.gen_range(0..20);
   for i in 0..num_photos {
     let photo = gen_rand_str(15);
     real_photos.push(photo);
   }
 
   let mut real_videos: Vec<String> = Vec::new();
-  let num_videos: i32 = rng::gen_range(0..20);
+  let num_videos: i32 = rng.gen_range(0..20);
   for i in 0..num_videos {
     let video = gen_rand_str(15);
     real_videos.push(video);
@@ -71,8 +71,8 @@ fn main() {
     num_rating: rng.gen(),
     casts: real_casts,
     thumbnail_ids: real_thumbnail,
-    photo_ids: real_photo,
-    video_ids: real_video,
+    photo_ids: real_photos,
+    video_ids: real_videos,
   };
 
   thread::sleep(Duration::from_millis(4));
