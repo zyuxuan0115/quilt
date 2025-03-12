@@ -10,6 +10,25 @@ fn main() {
   //let now = Instant::now();
   let input_args: ReadReviewsArgs = serde_json::from_str(&input).unwrap();
   let review_ids = input_args.review_ids;
+
+  let mut rng = rand::thread_rng();
+  let mut reviews: Vec<ReviewEntry> = Vec::new();
+  for review_id in review_ids {
+    let movie_idx: i64 = rng.gen_range(1..=100);
+    let movie_id = format!("movie_{}", movie_idx);
+    let new_review = ReviewEntry {
+      review_id: review_id,
+      user_id: rng.gen(),
+      req_id: rng.gen(),
+      text: generate_random_string(20),
+      movie_id: movie_id,
+      rating: rng.gen_range(1..5),
+      timestamp: rng.gen(),
+    };
+    reviews.push(new_review);
+  }
+
+/*
   let review_id_strs: Vec<String> = review_ids.iter().map(|x| x.to_string()).collect();
 
   let mut review_ids_not_cached: HashMap<String, bool> = HashMap::new();
@@ -66,7 +85,9 @@ fn main() {
       };
     }
   }
+ */
   let serialized = serde_json::to_string(&reviews).unwrap();
+  thread::sleep(Duration::from_millis(3));
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));

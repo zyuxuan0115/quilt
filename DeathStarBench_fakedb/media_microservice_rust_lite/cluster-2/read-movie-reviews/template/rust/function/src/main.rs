@@ -36,9 +36,6 @@ fn main() {
     review_ids:  review_ids,
   }; 
 
-  let read_reviews_args = ReadReviewsArgs {
-    review_ids: review_ids,
-  };
   let serialized = serde_json::to_string(&read_reviews_args).unwrap(); 
 
   let reviews = make_rpc("read-reviews", serialized);
