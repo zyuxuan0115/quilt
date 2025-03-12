@@ -20,8 +20,7 @@ function invoke_fission {
 
 function invoke_fission_merged {
   curl -XPOST http://localhost:8888/$FUNC-merged \
-  -d '{"req_id":13004,"title":"movie_874","rating":3,"username":"username_617","password":"123456","text":"eK1SGer3V8qVtjks6VxoZEU4cqsELrYHbk2HE2El8z4tPOhzSi3lKESkNgLqA7r0uDcK0queETh7CtP7p8hznJ7upz3hifc0YEhE"}'
-#  -d '{"req_id":8039,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
+  -d '{"req_id":8039,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 }
 
 case "$1" in
