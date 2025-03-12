@@ -3,7 +3,16 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use redis::Commands;
-use std::process;
+use std::{process, thread};
+use rand::{Rng, thread_rng, distributions::Alphanumeric};
+
+fn generate_random_string(length: usize) -> String {
+  thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(length)
+        .map(char::from)
+        .collect()
+}
 
 fn main() {
   let input: String = get_arg_from_caller();
