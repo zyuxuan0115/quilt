@@ -21,6 +21,7 @@ fn main() {
   
   let _ = handle.join().unwrap();
 
+/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
@@ -32,9 +33,10 @@ fn main() {
   let mut movie_id2 = rating_info.movie_id.clone();
   movie_id2.push_str(":uncommit_num");
   let _: i64 = con.incr(&movie_id2[..], 1).unwrap();
+ */
+  thread::sleep(Duration::from_millis(4));
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-
   send_return_value_to_caller("".to_string());
 }
 

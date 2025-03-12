@@ -15,9 +15,9 @@ fn gen_rand_str(len: usize) -> String {
   s
 }
 
-fn gen_rand_num(lower_bound: f32, upper_bound: f32) -> f32 {
+fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
   let mut rng = rand::thread_rng();
-  let x: f32 = rng.gen_range(lower_bound..upper_bound);
+  let x: f64 = rng.gen_range(lower_bound..upper_bound);
   x
 }
 
@@ -44,14 +44,14 @@ fn main() {
  */
   let mut rng = rand::thread_rng();
   let movie_idx = 5999000 + rng.gen_range(0..1000);
-  let movie_id = format("tt{}", movie_idx);
+  let movie_id = format!("tt{}", movie_idx);
   let mut new_review = ReviewEntry {
     review_id: rng.gen(),
     user_id: rng.gen(),
     req_id: req_id,
     text: gen_rand_str(30),
     movie_id: movie_id,
-    rating: gen_rand_num(0.0, 5.0),
+    rating: rng.gen_range(0..=5),
     timestamp: rng.gen(),
   };
 
