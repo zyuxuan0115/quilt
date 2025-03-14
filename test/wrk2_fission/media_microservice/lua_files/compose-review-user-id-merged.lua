@@ -26,29 +26,30 @@ local function decRandom(length)
   end
 end
 
-counter = 199000
+counter = 2000
 
 request = function(req_id)
   counter = counter + 1
   local req_id = counter
   local user_index = math.random(1, 999)
-  local username = "username_" .. tostring(user_index)
+  local user_id = tostring(user_index)
   local title = 'movie_' .. tostring(math.random(1,999))
   local rating = math.random(1,5)
   local text = stringRandom(100)
 
   local method = "POST"
-  local path = "/compose-review-merged"
+  local path = "/compose-review-user-id-merged"
   local headers = {}
   local body
   headers["Content-Type"] = "application/json"
 
   body = '{"req_id":' .. tostring(req_id) .. ',"title":"' .. title .. '","rating":'
-         .. rating .. ',"username":"' .. username .. '","password":"123456","text":"'
+         .. rating .. ',"user_id":' .. user_id .. ',"password":"123456","text":"'
          .. text .. '"}' 
 
   local body_write = body .. '\n'
-  file = io.open('req_data_log_compose-review-merged.txt', 'a')
+
+  file = io.open('req_data_log_compose-review_user_id.txt', 'a')
   file:write(body_write)
   file:close()
 

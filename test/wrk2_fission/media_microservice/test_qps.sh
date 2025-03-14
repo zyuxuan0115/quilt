@@ -9,7 +9,7 @@ SETUP_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/setup
 TEST_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/test
 WORKLOAD=media_microservice_rust_lite
 
-QPS=1000
+QPS=200
 
 if [ "${ARGS[2]}" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
@@ -50,9 +50,9 @@ function measure_perf {
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
-    cd $SETUP_DIR/fission \
-      && ./build.sh kill \
-      && ./build.sh setup
+#    cd $SETUP_DIR/fission \
+#      && ./build.sh kill \
+#      && ./build.sh setup
     cd $TEST_DIR/wrk2_fission/media_microservice
   done
 }
@@ -90,7 +90,8 @@ function init {
   run_wrk write-plot 60
   run_wrk register-user 60
   run_wrk register-user-with-id 60
-  # run_wrk compose-review 300
+#  run_wrk compose-review-merged 300
+#  run_wrk compose-review-user-id-merged 300
 }
 
 
