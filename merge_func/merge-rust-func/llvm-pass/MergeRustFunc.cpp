@@ -125,7 +125,7 @@ void MergeRustFuncPass::mergeCallee(Module* M) {
   Function *CalleeFunc = M->getFunction("callee_"+CalleeName_rr);
   std::vector<Instruction*> RPCInsts = findRPCbyCalleeName(CallerFunc, CalleeName_rr);
   if (RPCInsts.empty()) {
-    llvm::errs()<<"MergeCallee Error: no RPC callee find in the caller function\n";
+    llvm::errs()<<"MergeCallee Error: no RPC callee find in the caller function: "<<CallerFunc->getName()<<"\n";
     return;
   }
 
@@ -164,12 +164,24 @@ void MergeRustFuncPass::mergeCallee(Module* M) {
     }
   }
 
-/*    
+/////    
   Function* f1 = M->getFunction("main_callee_rust_"+CalleeName_rr);
   f1->eraseFromParent();
 
   CalleeFunc->eraseFromParent();
-*/
+
+
+  // final check
+  // llvm::errs()<<"### "<<NewCalleeFunc->getName()<<"\n";
+  for (auto BBI = NewCalleeFunc->begin(); BBI != NewCalleeFunc->end(); BBI++) {
+    for (auto II = BBI->begin(); II != BBI->end(); II++) {
+      if ((isa<CallInst>(II)) || (isa<InvokeInst>(II))) {
+     //   if (NewCalleeFunc->getName().str()=="NewCallee_compose-review-upload-rating")
+    //      llvm::errs()<<">>> "<<*II<<"\n";
+      }
+    }
+  }
+
 }
 
 
@@ -206,6 +218,20 @@ void MergeRustFuncPass::MergeExistingCallee(Module* M) {
       RPCInst_i->eraseFromParent();
     }
   }
+
+  // final check
+//  llvm::errs()<<"### "<<CallerFunc->getName()<<"\n";
+  for (auto BBI = CallerFunc->begin(); BBI != CallerFunc->end(); BBI++) {
+    for (auto II = BBI->begin(); II != BBI->end(); II++) {
+      if ((isa<CallInst>(II)) || (isa<InvokeInst>(II))) {
+      //  if (CallerFunc->getName().str()=="NewCallee_compose-review-upload-rating")
+      //    llvm::errs()<<">>> "<<*II<<"\n";
+      }
+    }
+  }
+
+
+
 }
 
 
