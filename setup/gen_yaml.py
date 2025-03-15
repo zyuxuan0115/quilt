@@ -45,9 +45,11 @@ def nginx():
   if os.path.exists("ingress-nginx-values.yaml"):
     os.remove("ingress-nginx-values.yaml")
   docs2 = []
+  docs0 = []
   with open('ingress-nginx-values.yaml', 'a') as outfile:
     for doc in docs:
       docs2.append(doc)
+      docs0.append(doc)
       if doc['kind'] == 'Service' and doc['metadata']['name'] == 'ingress-nginx-controller':
         for item in doc['spec']['ports']:
           if item['appProtocol'] == 'http':
@@ -61,6 +63,18 @@ def nginx():
         doc_yaml = yaml.dump(doc)
         outfile.write('---\n')
         outfile.write(doc_yaml)
+  outfile.close()
+  if os.path.exists("ingress-nginx.yaml"):
+    os.remove("ingress-nginx.yaml")
+  with open('ingress-nginx.yaml', 'a') as outfile:
+    for doc in docs0:
+      if doc['kind'] == 'Namespace':
+        print(doc['metadata']['labels'])
+        doc['metadata']['annotations'] = {}
+        doc['metadata']['annotations']['scheduler.alpha.kubernetes.io/node-selector'] = 'exec=fission' 
+      doc_yaml = yaml.dump(doc)
+      outfile.write('---\n')
+      outfile.write(doc_yaml)
   outfile.close()
   # generate the yaml file for nginx-ingress-controller2
   if os.path.exists("ingress-nginx2.yaml"): 

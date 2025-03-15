@@ -22,18 +22,39 @@ function setup_k8s {
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
+  while [[ $(kubectl get nodes fastar --no-headers | awk '{print $2}') != "Ready" ]]; do 
+    sleep 1; 
+  done
+  echo "fastar is Ready!"
+  while [[ $(kubectl get nodes slamdunk --no-headers | awk '{print $2}') != "Ready" ]]; do 
+    sleep 1; 
+  done
+  echo "slamdunk is Ready!"
+  while [[ $(kubectl get nodes hilbit0 --no-headers | awk '{print $2}') != "Ready" ]]; do 
+    sleep 1; 
+  done
+  echo "hilbit0 is Ready!"
+  while [[ $(kubectl get nodes hilbit1 --no-headers | awk '{print $2}') != "Ready" ]]; do 
+    sleep 1; 
+  done
+  echo "hilbit1 is Ready!"
+  while [[ $(kubectl get nodes hilbit2 --no-headers | awk '{print $2}') != "Ready" ]]; do 
+    sleep 1; 
+  done
+  echo "hilbit2 is Ready!"
+
 }
 
 
 function setup {
   setup_k8s
-  cd grafana_tempo && ./build.sh setup && cd ..
-  cd open-telemetry && ./build.sh setup && cd ..
-#  cd ingress-nginx && ./build.sh setup && cd ..
+  cd grafana_tempo && ./install.sh setup && cd ..
+  cd open-telemetry && ./install.sh setup && cd ..
+  cd ingress-nginx && ./install.sh setup && cd ..
 #  cd openfaas && ./build.sh setup && cd ..
 #  cd openwhisk && ./build.sh setup && cd ..
-  cd fission && ./build.sh setup && cd ..
-  cd redis_memcached && ./build.sh setup && cd ..
+  cd fission && ./install.sh setup && cd ..
+  cd redis_memcached && ./install.sh setup && cd ..
 }
 
 function kill_k8s {
