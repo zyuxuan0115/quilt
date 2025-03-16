@@ -6,8 +6,8 @@ import json
 
 def main():
   args = sys.argv
-  if len(args) > 1 and args[1] == 'load_machine_info':
-    load_machine_info()
+  if len(args) > 2 and args[1] == 'load_machine_info':
+    load_machine_info(args[2])
   elif len(args) > 1 and args[1] == 'kill_port_fwd':
     kill_ports()
 
@@ -25,9 +25,9 @@ def kill_ports():
       cmd = "kill -9 "+words[1]
       os.system(cmd)
 
-def load_machine_info():
+def load_machine_info(filename):
   machine_info = {}
-  with open('machine.json', 'r') as file:
+  with open(filename, 'r') as file:
     machine_info = json.load(file)
   hostnames = ""
   for item in machine_info:

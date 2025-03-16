@@ -1,6 +1,7 @@
 #!/bin/bash
 
 USER="zyuxuan"
+MACHINE_INFO="machine.json"
 
 function setup_k8s {
   sudo chmod -R 777 /users/$USER/.docker
@@ -10,7 +11,7 @@ function setup_k8s {
   sudo touch /etc/rancher/k3s/config.yaml
   sudo echo -e "kube-apiserver-arg:\n  - \"enable-admission-plugins=PodNodeSelector\"" | sudo tee -a /etc/rancher/k3s/config.yaml
   ### setup the kubernetes cluster
-  k3sup plan machine.json \
+  k3sup plan $MACHINE_INFO \
     --user $USER \
     --servers 1 \
     --server-k3s-extra-args "--disable traefik" \
@@ -58,7 +59,7 @@ function setup {
 }
 
 function kill_k8s {
-  ALL_ENGINE_NODES=$(./helper.py load_machine_info)
+  $ALL_ENGINE_NODES=$(./helper.py load_machine_info $MACHINE_INFO)
   for host in $ALL_ENGINE_NODES; do
     ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-killall.sh
     ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-uninstall.sh
