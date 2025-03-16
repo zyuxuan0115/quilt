@@ -59,7 +59,7 @@ function setup {
 }
 
 function kill_k8s {
-  $ALL_ENGINE_NODES=$(./helper.py load_machine_info $MACHINE_INFO)
+  ALL_ENGINE_NODES=$(./helper.py load_machine_info $MACHINE_INFO)
   for host in $ALL_ENGINE_NODES; do
     ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-killall.sh
     ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-uninstall.sh
