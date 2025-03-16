@@ -1,47 +1,99 @@
 #!/bin/bash
 
-if [ "$#" -lt 2 ]; then
+ARGS=("$@")
+FUNC_NAME=${ARGS[1]}
+WRK_SCRIPT="lua_files/$FUNC_NAME.lua"
+WRK_BIN=../wrk
+DEATHSTARBENCH=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/DeathStarBench
+SETUP_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/setup
+TEST_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/test
+WORKLOAD=hotel_reservation_rust_lite
+# You only need to change this line
+QPS=1000
+
+if [ "${ARGS[2]}" = "async" ]; then
+  WORKLOAD="${WORKLOAD}_async"
+fi
+
+if [ "$#" -lt 3 ]; then
   echo "Error: Missing command line argument."
-  echo 'example: `./test_qps.sh compose-post 2 async`'
+  echo 'example: `./test_qps.sh perf compose-post async`'
+  echo 'example: `./test_qps.sh init - -`'
   exit 1
 fi
 
-WRK_BIN=../wrk
-WRK_SCRIPT="lua_files/$1.lua"
-DEATHSTARBENCH=/proj/zyuxuanssf-PG0/faas-test/DeathStarBench
-WORKLOAD=hotel_reservation_rust_lite
-ENTRY_HOST=http://130.127.133.207:32001
-QPS=1000
+function measure_perf {
+#  CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 70 90 110 130 160 190 230 270)
+  CON=(30)
+  # Iterate over each element in the array
+  rm -rf *.log
+  for con in "${CON[@]}"; do
+    echo $con
+    cd $SETUP_DIR/redis_memcached \
+      && ./build.sh kill \
+      && ./build.sh setup
+    sleep 30
+#    init
+    redeploy
+    sleep 10
+    cd $TEST_DIR/wrk2_fission/hotel_reservation
+    IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
+    ENTRY_HOST=http://$IP:$PORT
+    $WRK_BIN -t 1 -c $con -d 600 -L -U \
+	   -s $WRK_SCRIPT \
+	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
+    echo "===== Connections: $con ====="
+    echo "connections: $con done"
+    echo "============================"
+    cd $SETUP_DIR/fission \
+      && ./build.sh kill \
+      && ./build.sh setup
+    cd $TEST_DIR/wrk2_fission/hotel_reservation
+  done
+}
 
-OPENFAAS_TEST_DIR=/proj/zyuxuanssf-PG0/faas-test/openfaas-test
+function run_wrk {
+  sleep 10
+  IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
+  ENTRY_HOST=http://$IP:$PORT
+  WRK_SCRIPT_0="lua_files/$1.lua"
+  $WRK_BIN -t 1 -c 1 -d $2 -L -U \
+	   -s $WRK_SCRIPT_0 \
+	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
+}
 
-#CON=(20 40 60 80 100 140 180 240 300 400 500 750)
-CON=(1)
 
-# Iterate over each element in the array
-for con in "${CON[@]}"; do
-  cd $OPENFAAS_TEST_DIR/setup/redis_memcached \
-    && ./build.sh kill \
-    && ./build.sh setup
-  sleep 30
-  cd $OPENFAAS_TEST_DIR/wrk2_wsk/hotel_reservation
-  ./initialize.sh
-  cd $OPENFAAS_TEST_DIR/setup/openwhisk \
+function redeploy {
+  cd $SETUP_DIR/fission \
     && ./build.sh kill \
     && ./build.sh setup
   sleep 60
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_openwhisk
-  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_openwhisk
-  FUNC_NAME=$1
-  sleep 10
-  cd $OPENFAAS_TEST_DIR/wrk2_wsk/hotel_reservation
-  $WRK_BIN -t 1 -c 1 -d 900 -L -U \
-	 -s $WRK_SCRIPT \
-	 $ENTRY_HOST -R $QPS 2>/dev/null > output_$1-$2_$con.log
-  echo "===== Connections: $con ====="
-  ./get5099tput.py output_$1-$2_$con.log
-  echo "===================="
-  cd $OPENFAAS_TEST_DIR/setup/openwhisk && ./build.sh kill && ./build.sh setup
-  cd $OPENFAAS_TEST_DIR/wrk2_wsk/hotel_reservation
-done
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
+  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
+  cd $TEST_DIR/wrk2_fission/hotel_reservation
+}
+
+
+function init {
+  redeploy 
+  run_wrk set-hotel-point 60
+#  run_wrk register-user 60
+  run_wrk set-cinema 60
+#  run_wrk set-capacity 60
+#  run_wrk set-profile 60
+#  run_wrk set-rate 60
+}
+
+
+case "$1" in
+perf)
+    measure_perf
+    ;;
+init)
+    init
+    ;;
+esac
+

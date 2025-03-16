@@ -47,6 +47,7 @@ function measure_perf {
     $WRK_BIN -t 1 -c $con -d 600 -L -U \
 	   -s $WRK_SCRIPT \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
+    echo "$WRK_BIN -t 1 -c $con -d 600 -L -U -s $WRK_SCRIPT $ENTRY_HOST -R $QPS > output_${ARGS[1]}-${ARGS[2]}_$con.log"
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
@@ -91,7 +92,7 @@ function init {
   run_wrk register-user 60
   run_wrk register-user-with-id 60
 #  run_wrk compose-review-merged 300
-#  run_wrk compose-review-user-id-merged 300
+  run_wrk compose-review-user-id-merged 300
 }
 
 
