@@ -9,7 +9,7 @@ function setup_k8s {
   ### a particular set of nodes
   sudo mkdir /etc/rancher/k3s
   sudo touch /etc/rancher/k3s/config.yaml
-  sudo echo -e "kube-apiserver-arg:\n  - \"enable-admission-plugins=PodNodeSelector\"" | sudo tee -a /etc/rancher/k3s/config.yaml
+  sudo echo -e "kube-apiserver-arg:\n  - \"enable-admission-plugins=PodNodeSelector\"" | sudo tee /etc/rancher/k3s/config.yaml
   ### setup the kubernetes cluster
   k3sup plan $MACHINE_INFO \
     --user $USER \
@@ -23,10 +23,10 @@ function setup_k8s {
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
-  while [[ $(kubectl get nodes nucstar --no-headers | awk '{print $2}') != "Ready" ]]; do 
+  while [[ $(kubectl get nodes fastar --no-headers | awk '{print $2}') != "Ready" ]]; do 
     sleep 1; 
   done
-  echo "nucstar is Ready!"
+  echo "fastar is Ready!"
   while [[ $(kubectl get nodes slamdunk --no-headers | awk '{print $2}') != "Ready" ]]; do 
     sleep 1; 
   done

@@ -1,0 +1,100 @@
+Running 1m test @ http://158.130.4.152:30265
+  1 threads and 1 connections
+  Thread calibration: mean lat.: 9223372036854776.000ms, rate sampling interval: 10ms
+------------------------------
+Response with status: 200
+------------------------------
+[response] Body:
+{"msg":"","err":""}
+------------------------------
+Response with status: 200
+------------------------------
+[response] Body:
+{"msg":"","err":""}
+------------------------------
+Response with status: 200
+------------------------------
+[response] Body:
+{"msg":"","err":""}
+------------------------------
+Response with status: 200
+------------------------------
+[response] Body:
+{"msg":"","err":""}
+------------------------------
+Response with status: 200
+------------------------------
+[response] Body:
+{"msg":"","err":""}
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    32.62s    12.11s    0.90m    80.00%
+    Req/Sec     0.10      3.25   111.00     99.90%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%   23.61s 
+ 75.000%   38.73s 
+ 90.000%    0.90m 
+ 99.000%    0.90m 
+ 99.900%    0.90m 
+ 99.990%    0.90m 
+ 99.999%    0.90m 
+100.000%    0.90m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   23461.887     0.000000            1         1.00
+   23461.887     0.100000            1         1.11
+   23461.887     0.200000            1         1.25
+   23543.807     0.300000            2         1.43
+   23543.807     0.400000            2         1.67
+   23609.343     0.500000            3         2.00
+   23609.343     0.550000            3         2.22
+   23609.343     0.600000            3         2.50
+   38731.775     0.650000            4         2.86
+   38731.775     0.700000            4         3.33
+   38731.775     0.750000            4         4.00
+   38731.775     0.775000            4         4.44
+   38731.775     0.800000            4         5.00
+   53805.055     0.825000            5         5.71
+   53805.055     1.000000            5          inf
+#[Mean    =    32618.906, StdDeviation   =    12109.114]
+#[Max     =    53772.288, Total count    =            5]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%   15.10s 
+ 75.000%   15.11s 
+ 90.000%   23.46s 
+ 99.000%   23.46s 
+ 99.900%   23.46s 
+ 99.990%   23.46s 
+ 99.999%   23.46s 
+100.000%   23.46s 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+      69.631     0.000000            1         1.00
+      69.631     0.100000            1         1.11
+      69.631     0.200000            1         1.25
+      78.527     0.300000            2         1.43
+      78.527     0.400000            2         1.67
+   15097.855     0.500000            3         2.00
+   15097.855     0.550000            3         2.22
+   15097.855     0.600000            3         2.50
+   15114.239     0.650000            4         2.86
+   15114.239     0.700000            4         3.33
+   15114.239     0.750000            4         4.00
+   15114.239     0.775000            4         4.44
+   15114.239     0.800000            4         5.00
+   23461.887     0.825000            5         5.71
+   23461.887     1.000000            5          inf
+#[Mean    =    10761.139, StdDeviation   =     9243.531]
+#[Max     =    23445.504, Total count    =            5]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  5 requests in 1.00m, 680.00B read
+  Socket errors: connect 0, read 0, write 0, timeout 27
+Requests/sec:      0.08
+Transfer/sec:      11.33B
