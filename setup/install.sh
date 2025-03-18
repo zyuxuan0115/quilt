@@ -23,10 +23,10 @@ function setup_k8s {
   export KUBECONFIG=`pwd`/kubeconfig
   kubectl config use-context default
   kubectl get node -o wide
-  while [[ $(kubectl get nodes fastar --no-headers | awk '{print $2}') != "Ready" ]]; do 
+  while [[ $(kubectl get nodes nucstar --no-headers | awk '{print $2}') != "Ready" ]]; do 
     sleep 1; 
   done
-  echo "fastar is Ready!"
+  echo "nucstar is Ready!"
   while [[ $(kubectl get nodes slamdunk --no-headers | awk '{print $2}') != "Ready" ]]; do 
     sleep 1; 
   done
@@ -43,7 +43,6 @@ function setup_k8s {
     sleep 1; 
   done
   echo "hilbit2 is Ready!"
-
 }
 
 
@@ -55,7 +54,7 @@ function setup {
 #  cd openfaas && ./build.sh setup && cd ..
 #  cd openwhisk && ./build.sh setup && cd ..
   cd fission && ./install.sh setup && cd ..
-  cd redis_memcached && ./install.sh setup && cd ..
+#  cd redis_memcached && ./install.sh setup && cd ..
 }
 
 function kill_k8s {
