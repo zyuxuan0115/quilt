@@ -19,6 +19,7 @@ fn main() {
  
   let user_id_str:String = make_rpc("get-user-id", get_user_id_arg1_str);
   let followee_id_str:String = make_rpc("get-user-id", get_user_id_arg2_str);
+/*
 //  let time_2 = Instant::now();
   let user_id: i64 = user_id_str.parse::<i64>().unwrap();  
   let followee_id: i64 = followee_id_str.parse::<i64>().unwrap();  
@@ -31,6 +32,7 @@ fn main() {
 //  println!("{:?}", time_1.duration_since(time_0));
 //  println!("{:?}", time_3.duration_since(time_2));
   let result = make_rpc("social-graph-follow", serialized); 
+*/
   send_return_value_to_caller("".to_string());
 }
 

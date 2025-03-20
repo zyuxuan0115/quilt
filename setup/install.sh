@@ -9,7 +9,7 @@ function setup_k8s {
   ### a particular set of nodes
   sudo mkdir /etc/rancher/k3s
   sudo touch /etc/rancher/k3s/config.yaml
-  sudo echo -e "kube-apiserver-arg:\n  - \"enable-admission-plugins=PodNodeSelector\"" | sudo tee -a /etc/rancher/k3s/config.yaml
+  sudo echo -e "kube-apiserver-arg:\n  - \"enable-admission-plugins=PodNodeSelector\"" | sudo tee /etc/rancher/k3s/config.yaml
   ### setup the kubernetes cluster
   k3sup plan $MACHINE_INFO \
     --user $USER \
@@ -43,7 +43,6 @@ function setup_k8s {
     sleep 1; 
   done
   echo "hilbit2 is Ready!"
-
 }
 
 
@@ -55,7 +54,7 @@ function setup {
 #  cd openfaas && ./build.sh setup && cd ..
 #  cd openwhisk && ./build.sh setup && cd ..
   cd fission && ./install.sh setup && cd ..
-  cd redis_memcached && ./install.sh setup && cd ..
+#  cd redis_memcached && ./install.sh setup && cd ..
 }
 
 function kill_k8s {
