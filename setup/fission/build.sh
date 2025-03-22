@@ -28,7 +28,7 @@ function setup {
     --minmemory 64 --maxmemory 128 \
     --poolsize 4 \
     --namespace=fission-function
-  kubectl -n fission-function create secret generic tracing --from-literal=ingress-enable="true"
+  kubectl -n fission-function create secret generic tracing --from-literal=ingress-enable="false"
 
   kubectl -n fission apply -f - <<EOF
 apiVersion: networking.k8s.io/v1
@@ -48,9 +48,6 @@ spec:
             port:
               number: 80
 EOF
-
-
-
 }
 
 function killa {
