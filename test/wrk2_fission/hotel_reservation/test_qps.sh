@@ -28,7 +28,7 @@ function measure_perf {
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
-    echo $con
+#    echo $con
     cd $SETUP_DIR/redis_memcached \
       && ./build.sh kill \
       && ./build.sh setup

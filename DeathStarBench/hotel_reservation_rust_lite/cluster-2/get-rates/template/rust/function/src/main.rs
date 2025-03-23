@@ -65,7 +65,8 @@ fn main() {
         },
         Err(_) => {
           let err_msg = format!("error in loading rating info, with id: {}", item);
-          send_return_value_and_err_msg("".to_string(), err_msg);
+          let serialized = serde_json::to_string(&hotel_rates).unwrap();
+          send_return_value_and_err_msg(serialized, err_msg);
           process::exit(0);
         }
       }

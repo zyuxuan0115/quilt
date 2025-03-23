@@ -12,6 +12,7 @@ fn main() {
     latitude: args.latitude,
     longitude: args.longitude,
   };
+
   let nearby_hotel_arg_str = serde_json::to_string(&nearby_hotel_arg).unwrap();
   let nearby_hotel_str: String = make_rpc("nearby-hotel", nearby_hotel_arg_str);
   let nearby_hotels = serde_json::from_str(&nearby_hotel_str).unwrap();
@@ -33,5 +34,13 @@ fn main() {
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(serialized);
+/*
+  let a: Vec<String> = Vec::new();
+  let a_str = serde_json::to_string(&a).unwrap();
+  send_return_value_to_caller(a_str);
+ */
+//  send_return_value_and_err_msg(serialized, get_rates_str);
+
 }
+
 

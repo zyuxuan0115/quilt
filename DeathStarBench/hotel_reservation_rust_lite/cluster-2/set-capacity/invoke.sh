@@ -20,7 +20,8 @@ function invoke_wsk {
 }
 
 function invoke_fission {
-  curl -XPOST http://localhost:8888/$FUNC \
+#  curl -XPOST http://localhost:8888/$FUNC \
+  curl -XPOST http://130.127.133.63:32507/$FUNC \
   -d '{"hotel_id":"h1347234","capacity":150}'
   curl -XPOST http://localhost:8888/$FUNC \
   -d '{"hotel_id":"h1347233","capacity":200}'

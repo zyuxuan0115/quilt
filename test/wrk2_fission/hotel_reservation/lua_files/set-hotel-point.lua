@@ -36,8 +36,8 @@ request = function(req_id)
   counter = counter + 1
   local lat = random_float(32,35)
   local long = random_float(116,119)
---  local hotel_id = 'hotel_' .. tostring(counter%100)
-  local hotel_id = 'hotel_' .. tostring(counter%500)
+  local hotel_id = 'hotel_' .. tostring(counter%100)
+--  local hotel_id = 'hotel_' .. tostring(counter%500)
 
   local method = "POST"
   local path = "/set-hotel-point"

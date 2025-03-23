@@ -33,12 +33,12 @@ end
 request = function(req_id)
   local lat = random_float(32,35)
   local long = random_float(116,119)
-  local start_time = os.time{year=2024, month=11, day=1}
-  local end_time = os.time{year=2024, month=11, day=30}
+  local start_time = os.time{year=2024, month=11, day=5}
+  local end_time = os.time{year=2024, month=11, day=10}
   local random_in_time = math.random(start_time, end_time)
   local indate = os.date("%Y-%m-%d", random_in_time)
-  start_time = os.time{year=2024, month=12, day=1}
-  end_time = os.time{year=2024, month=12, day=31}
+  start_time = os.time{year=2024, month=11, day=11}
+  end_time = os.time{year=2024, month=11, day=15}
   local random_out_time = math.random(start_time, end_time)
   local outdate = os.date("%Y-%m-%d", random_out_time)
 
@@ -64,13 +64,13 @@ request = function(req_id)
 end
 
 response = function(status, headers, body)
-  if status ~= 200 then
+--  if status ~= 200 then
       io.write("------------------------------\n")
       io.write("Response with status: ".. status .."\n")
       io.write("------------------------------\n")
       io.write("[response] Body:\n")
       io.write(body .. "\n")
-  end
+--  end
 end
 
 function init(rand_seed)
