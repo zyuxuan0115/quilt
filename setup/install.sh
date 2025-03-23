@@ -54,7 +54,7 @@ function setup {
 #  cd openfaas && ./build.sh setup && cd ..
 #  cd openwhisk && ./build.sh setup && cd ..
   cd fission && ./install.sh setup && cd ..
-#  cd redis_memcached && ./install.sh setup && cd ..
+  cd redis_memcached && ./install.sh setup && cd ..
 }
 
 function kill_k8s {

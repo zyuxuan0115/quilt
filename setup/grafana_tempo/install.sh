@@ -19,7 +19,9 @@ metadata:
 spec: {}
 status: {}
 EOF
-  helm -n sn-tempo install grafana grafana/grafana --set grafana.ingress.enabled=true --values - <<EOF
+  helm -n sn-tempo install grafana grafana/grafana --set grafana.ingress.enabled=true \
+  --set nodeSelector.exec=storage \
+  --values - <<EOF
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -47,6 +49,12 @@ function setup_tempo {
 #    --values - << EOF
 
   helm -n sn-tempo install tempo grafana/tempo-distributed --version 1.23.0 \
+    --set distributor.nodeSelector.exec=storage \
+    --set compactor.nodeSelector.exec=storage \
+    --set gateway.nodeSelector.exec=storage \
+    --set ingester.nodeSelector.exec=storage \
+    --set querier.nodeSelector.exec=storage \
+    --set queryFrontend.nodeSelector.exec=storage \
     --set traces.otlp.grpc.enabled=true \
     --set traces.otlp.http.enabled=true \
     --set ingester.zoneAwareReplication.enabled=true \

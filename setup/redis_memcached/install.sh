@@ -33,6 +33,7 @@ function setup_mongodb {
 function setup_memcached {
   helm install sn-memcache bitnami/memcached --namespace openfaas-db \
      --set architecture="high-availability" \
+     --set nodeSelector.exec=storage \
      --set autoscaling.enabled=true --set replicaCount=3 \
      --set autoscaling.minReplicas=1 \
      --set autoscaling.maxReplicas=15 \
@@ -43,6 +44,8 @@ function setup_keydb {
   helm install sn-redis oci://registry-1.docker.io/bitnamicharts/keydb \
     --namespace openfaas-db \
     --set auth.password="keydb" \
+    --set master.nodeSelector.exec=storage \
+    --set replica.nodeSelector.exec=storage \
     --set master.persistence.enabled=true \
     --set master.autoscaling.vpa.enabled=true \
     --set replica.autoscaling.vpa.enabled=true
