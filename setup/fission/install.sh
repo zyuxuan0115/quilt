@@ -28,11 +28,17 @@ metadata:
 spec: {}
 status: {}
 EOF
-  kubectl create -k "github.com/fission/fission/crds/v1?ref=v1.20.5"
+  kubectl create -k "github.com/fission/fission/crds/v1?ref=v1.21.0"
   helm repo add fission-charts https://fission.github.io/fission-charts/
   helm repo update
-  helm install --version v1.20.5 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
-    --set defaultNamespace="fission-function" 
+#  helm install --version v1.20.5 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
+#    --set defaultNamespace="fission-function" 
+  helm template --version v1.21.0 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
+    --set defaultNamespace="fission-function" > fission2.yaml
+  cat fission2.yaml | python3 ../gen_yaml.py fission 
+  kubectl config set-context --current --namespace=$FISSION_NAMESPACE
+  kubectl apply -f fission.yaml
+  kubectl config set-context --current --namespace=default
   kubectl rollout status deployment/router \
     --namespace=fission \
     --timeout=600s

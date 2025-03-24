@@ -11,6 +11,8 @@ def main():
     nginx()
   elif sys.argv[1] == 'tempo':
     tempo()
+  elif sys.argv[1] == 'fission':
+    fission()
 
 def openfaas():
   if os.path.exists("openfaas2.yml"):
@@ -168,5 +170,18 @@ def tempo():
       outfile.write('---\n')
       outfile.write(doc_yaml)
        
+def fission():
+  docs = yaml.safe_load_all(sys.stdin)
+  if os.path.exists("fission.yaml"):
+    os.remove("fission.yaml")
+  with open('fission.yaml', 'a') as outfile:
+    for doc in docs:
+      if doc and doc['kind'] == 'Deployment':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'fission'
+      doc_yaml = yaml.dump(doc)
+      outfile.write('---\n')
+      outfile.write(doc_yaml)
+
 if __name__=="__main__": 
   main() 
