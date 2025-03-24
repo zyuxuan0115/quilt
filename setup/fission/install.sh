@@ -50,14 +50,7 @@ EOF
     --timeout=600s
   kubectl port-forward service/router -n fission 8888:80 &
   sleep 30
-  fission env create --name fission-bin-env \
-    --image docker.io/zyuxuan0115/fission-bin-env \
-    --mincpu 40 --maxcpu 80 \
-    --minmemory 64 --maxmemory 128 \
-    --poolsize 4 \
-    --namespace=fission-function
   kubectl -n fission-function create secret generic tracing --from-literal=ingress-enable="true"
-
   kubectl -n fission apply -f - <<EOF
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -77,7 +70,13 @@ spec:
               number: 80
 EOF
 
-
+   fission-webhook/install.sh kill
+#  fission env create --name fission-bin-env \
+#    --image docker.io/zyuxuan0115/fission-bin-env \
+#    --mincpu 40 --maxcpu 80 \
+#    --minmemory 64 --maxmemory 128 \
+#    --poolsize 4 \
+#    --namespace=fission-function
 
 }
 
@@ -91,6 +90,7 @@ function killa {
   kubectl delete secret tracing -n fission-function
   rm -rf *.txt *.yaml *.yml
   ../helper.py kill_port_fwd 8888:80
+  fission-webhook/install.sh kill
 }
 
 case "$1" in
