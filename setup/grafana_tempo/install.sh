@@ -48,7 +48,8 @@ function setup_tempo {
 #    --set ingester.config.max_block_duration="24h" \
 #    --values - << EOF
 
-  helm -n sn-tempo install tempo grafana/tempo-distributed --version 1.23.0 \
+  helm template tempo grafana/tempo-distributed --version 1.23.0 \
+    -n sn-tempo \
     --set distributor.nodeSelector.exec=storage \
     --set compactor.nodeSelector.exec=storage \
     --set gateway.nodeSelector.exec=storage \
@@ -60,8 +61,7 @@ function setup_tempo {
     --set ingester.zoneAwareReplication.enabled=true \
     --set ingester.config.complete_block_timeout="180s" \
     --set ingester.config.max_block_duration="180s" \
-    --values - << EOF
-
+    --values - << EOF > tempo.yaml
 tempo:
   structuredConfig:
     query_frontend:
@@ -74,6 +74,8 @@ tempo:
             grpc:
             http: 
 EOF
+  cat tempo.yaml | python3 ../gen_yaml.py tempo
+  kubectl create -f tempo-distributed.yaml -n sn-tempo
 
   kubectl wait --for=condition=Ready -n sn-tempo pod -l "app.kubernetes.io/instance=tempo" --timeout=3600s
   kubectl port-forward -n sn-tempo svc/tempo-query-frontend 8082:3100 &

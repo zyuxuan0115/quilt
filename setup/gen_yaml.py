@@ -9,6 +9,8 @@ def main():
     openfaas_set_replica() 
   elif sys.argv[1] == 'nginx':
     nginx()
+  elif sys.argv[1] == 'tempo':
+    tempo()
 
 def openfaas():
   if os.path.exists("openfaas2.yml"):
@@ -31,7 +33,6 @@ def openfaas_set_replica():
   docs = yaml.safe_load_all(sys.stdin)
   with open('openfaas2_.yaml', 'a') as outfile:
     for doc in docs:
-      print(doc)
       if doc['kind'] == 'Deployment' and doc['metadata']['name'] == 'queue-worker':
         doc['spec']['replicas'] = 5
       doc_yml = yaml.dump(doc)
@@ -60,7 +61,6 @@ def nginx():
       elif doc['kind'] == 'Deployment' and doc['metadata']['name'] == 'ingress-nginx-controller':
         if 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-controller':
           doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
-          print(doc['spec'])
         doc_yaml = yaml.dump(doc)
         outfile.write('---\n')
         outfile.write(doc_yaml)
@@ -77,7 +77,6 @@ def nginx():
       elif doc['kind'] == 'Deployment':
         if 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-controller':
           doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
-          print(doc['spec'])
       elif doc['kind'] == 'Job':
         if 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-admission-create':
           doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
@@ -147,6 +146,27 @@ def nginx():
         outfile3.write(doc_yaml)
   outfile3.close()
 
-
+def tempo():
+  docs = yaml.safe_load_all(sys.stdin)
+  if os.path.exists("tempo-distributed.yaml"):
+    os.remove("tempo-distributed.yaml")
+  with open('tempo-distributed.yaml', 'a') as outfile:
+    for doc in docs:
+      if doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-ingester-zone-a':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      elif doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-ingester-zone-b':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      elif doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-ingester-zone-c':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      elif doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-memcached':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      doc_yaml = yaml.dump(doc)
+      outfile.write('---\n')
+      outfile.write(doc_yaml)
+       
 if __name__=="__main__": 
   main() 

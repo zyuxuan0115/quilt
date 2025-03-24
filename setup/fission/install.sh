@@ -32,9 +32,7 @@ EOF
   helm repo add fission-charts https://fission.github.io/fission-charts/
   helm repo update
   helm install --version v1.20.5 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
-    --set defaultNamespace="fission-function" \
-    --set controller.nodeSelector.exec=fission \
-    --set executor.nodeSelector.exec=fission
+    --set defaultNamespace="fission-function" 
   kubectl rollout status deployment/router \
     --namespace=fission \
     --timeout=600s
