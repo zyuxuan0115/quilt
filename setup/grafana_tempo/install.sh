@@ -93,7 +93,7 @@ function kill_grafana {
 }
 
 function kill_tempo {
-  helm -n sn-tempo uninstall tempo
+  kubectl delete -f tempo-distributed.yaml
 }
 
 function killa {

@@ -179,6 +179,9 @@ def fission():
       if doc and doc['kind'] == 'Deployment':
         doc['spec']['template']['spec']['nodeSelector'] = {}
         doc['spec']['template']['spec']['nodeSelector']['exec'] = 'fission'
+      if doc and doc['kind'] == 'Job':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'fission'
       doc_yaml = yaml.dump(doc)
       outfile.write('---\n')
       outfile.write(doc_yaml)

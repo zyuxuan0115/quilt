@@ -82,7 +82,7 @@ EOF
 }
 
 function killa {
-  helm uninstall fission -n fission
+  kubectl delete -f fission.yaml
   kubectl delete crds -l app.kubernetes.io/instance=fission
   kubectl delete all --all -n $FISSION_NAMESPACE
   kubectl delete all --all -n fission-function
