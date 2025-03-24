@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: fission-webhook
-          image: zyuxuan0115/fis-webhook:latest
+          image: zyuxuan0115/fission-func-webhook:latest
           ports:
             - containerPort: 443
           volumeMounts:

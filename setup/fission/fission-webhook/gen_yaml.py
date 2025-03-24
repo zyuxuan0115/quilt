@@ -31,7 +31,7 @@ def generate_webhook_yaml(ca_bundle):
                         "operations": ["CREATE", "UPDATE"]
                     }
                 ],
-                "failurePolicy": "Ignore",
+                "failurePolicy": "Fail",
                 "sideEffects": "None",
                 "timeoutSeconds": 5
             }
