@@ -35,6 +35,7 @@ function setup_tempo {
 #    --set ingester.config.max_block_duration="24h" \
 #    --values - << EOF
 
+
   helm -n sn-tempo install tempo grafana/tempo-distributed --version 1.23.0 \
     --set traces.otlp.grpc.enabled=true \
     --set traces.otlp.http.enabled=true \

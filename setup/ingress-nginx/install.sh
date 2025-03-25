@@ -96,6 +96,7 @@ function setup {
 
 
 function kill_nginx {
+  kubectl delete -f ingress-nginx-values.yaml
   kubectl delete all --all -n ingress-nginx
   kubectl delete namespace ingress-nginx
 }

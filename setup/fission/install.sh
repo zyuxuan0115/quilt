@@ -28,11 +28,17 @@ metadata:
 spec: {}
 status: {}
 EOF
-  kubectl create -k "github.com/fission/fission/crds/v1?ref=v1.20.5"
+  kubectl create -k "github.com/fission/fission/crds/v1?ref=v1.21.0"
   helm repo add fission-charts https://fission.github.io/fission-charts/
   helm repo update
-  helm install --version v1.20.5 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
-    --set defaultNamespace="fission-function"
+#  helm install --version v1.20.5 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
+#    --set defaultNamespace="fission-function" 
+  helm template --version v1.21.0 --namespace $FISSION_NAMESPACE fission fission-charts/fission-all \
+    --set defaultNamespace="fission-function" > fission2.yaml
+  cat fission2.yaml | python3 ../gen_yaml.py fission 
+  kubectl config set-context --current --namespace=$FISSION_NAMESPACE
+  kubectl apply -f fission.yaml
+  kubectl config set-context --current --namespace=default
   kubectl rollout status deployment/router \
     --namespace=fission \
     --timeout=600s
@@ -44,14 +50,7 @@ EOF
     --timeout=600s
   kubectl port-forward service/router -n fission 8888:80 &
   sleep 30
-  fission env create --name fission-bin-env \
-    --image docker.io/zyuxuan0115/fission-bin-env \
-    --mincpu 40 --maxcpu 80 \
-    --minmemory 64 --maxmemory 128 \
-    --poolsize 4 \
-    --namespace=fission-function
   kubectl -n fission-function create secret generic tracing --from-literal=ingress-enable="true"
-
   kubectl -n fission apply -f - <<EOF
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -71,12 +70,18 @@ spec:
               number: 80
 EOF
 
-
+   fission-webhook/install.sh kill
+#  fission env create --name fission-bin-env \
+#    --image docker.io/zyuxuan0115/fission-bin-env \
+#    --mincpu 40 --maxcpu 80 \
+#    --minmemory 64 --maxmemory 128 \
+#    --poolsize 4 \
+#    --namespace=fission-function
 
 }
 
 function killa {
-  helm uninstall fission -n fission
+  kubectl delete -f fission.yaml
   kubectl delete crds -l app.kubernetes.io/instance=fission
   kubectl delete all --all -n $FISSION_NAMESPACE
   kubectl delete all --all -n fission-function
@@ -85,6 +90,7 @@ function killa {
   kubectl delete secret tracing -n fission-function
   rm -rf *.txt *.yaml *.yml
   ../helper.py kill_port_fwd 8888:80
+  fission-webhook/install.sh kill
 }
 
 case "$1" in

@@ -21,6 +21,7 @@ status: {}
 EOF
  
   helm -n sn-otel install otel-collector open-telemetry/opentelemetry-collector \
+      --set nodeSelector.exec=fission \
       --values - <<EOF
 mode: deployment
 image:

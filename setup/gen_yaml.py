@@ -9,6 +9,10 @@ def main():
     openfaas_set_replica() 
   elif sys.argv[1] == 'nginx':
     nginx()
+  elif sys.argv[1] == 'tempo':
+    tempo()
+  elif sys.argv[1] == 'fission':
+    fission()
 
 def openfaas():
   if os.path.exists("openfaas2.yml"):
@@ -31,7 +35,6 @@ def openfaas_set_replica():
   docs = yaml.safe_load_all(sys.stdin)
   with open('openfaas2_.yaml', 'a') as outfile:
     for doc in docs:
-      print(doc)
       if doc['kind'] == 'Deployment' and doc['metadata']['name'] == 'queue-worker':
         doc['spec']['replicas'] = 5
       doc_yml = yaml.dump(doc)
@@ -44,11 +47,9 @@ def nginx():
   # generate the yaml file for reloading the controller
   if os.path.exists("ingress-nginx-values.yaml"):
     os.remove("ingress-nginx-values.yaml")
-  docs2 = []
   docs0 = []
   with open('ingress-nginx-values.yaml', 'a') as outfile:
     for doc in docs:
-      docs2.append(doc)
       docs0.append(doc)
       if doc['kind'] == 'Service' and doc['metadata']['name'] == 'ingress-nginx-controller':
         for item in doc['spec']['ports']:
@@ -60,18 +61,30 @@ def nginx():
         outfile.write('---\n')
         outfile.write(doc_yaml)
       elif doc['kind'] == 'Deployment' and doc['metadata']['name'] == 'ingress-nginx-controller':
+        if 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-controller':
+          doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
         doc_yaml = yaml.dump(doc)
         outfile.write('---\n')
         outfile.write(doc_yaml)
   outfile.close()
+
   if os.path.exists("ingress-nginx.yaml"):
     os.remove("ingress-nginx.yaml")
+  docs2 = []
   with open('ingress-nginx.yaml', 'a') as outfile:
     for doc in docs0:
       if doc['kind'] == 'Namespace':
-        print(doc['metadata']['labels'])
         doc['metadata']['annotations'] = {}
         doc['metadata']['annotations']['scheduler.alpha.kubernetes.io/node-selector'] = 'exec=fission' 
+      elif doc['kind'] == 'Deployment':
+        if 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-controller':
+          doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
+      elif doc['kind'] == 'Job':
+        if 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-admission-create':
+          doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
+        elif 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-admission-patch':
+          doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
+      docs2.append(doc) 
       doc_yaml = yaml.dump(doc)
       outfile.write('---\n')
       outfile.write(doc_yaml)
@@ -93,7 +106,6 @@ def nginx():
             for item in doc['spec']['template']['spec']['containers']:
               new_args = []
               for arg in item['args']:
-                print(arg)
                 if arg == '--controller-class=k8s.io/ingress-nginx':
                   new_args.append('--controller-class=k8s.io/ingress-nginx2')
                 elif arg == '--ingress-class=nginx':
@@ -136,6 +148,43 @@ def nginx():
         outfile3.write(doc_yaml)
   outfile3.close()
 
+def tempo():
+  docs = yaml.safe_load_all(sys.stdin)
+  if os.path.exists("tempo-distributed.yaml"):
+    os.remove("tempo-distributed.yaml")
+  with open('tempo-distributed.yaml', 'a') as outfile:
+    for doc in docs:
+      if doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-ingester-zone-a':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      elif doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-ingester-zone-b':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      elif doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-ingester-zone-c':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      elif doc['kind'] == 'StatefulSet' and doc['metadata']['name'] == 'tempo-memcached':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'storage'
+      doc_yaml = yaml.dump(doc)
+      outfile.write('---\n')
+      outfile.write(doc_yaml)
+       
+def fission():
+  docs = yaml.safe_load_all(sys.stdin)
+  if os.path.exists("fission.yaml"):
+    os.remove("fission.yaml")
+  with open('fission.yaml', 'a') as outfile:
+    for doc in docs:
+      if doc and doc['kind'] == 'Deployment':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'fission'
+      if doc and doc['kind'] == 'Job':
+        doc['spec']['template']['spec']['nodeSelector'] = {}
+        doc['spec']['template']['spec']['nodeSelector']['exec'] = 'fission'
+      doc_yaml = yaml.dump(doc)
+      outfile.write('---\n')
+      outfile.write(doc_yaml)
 
 if __name__=="__main__": 
   main() 
