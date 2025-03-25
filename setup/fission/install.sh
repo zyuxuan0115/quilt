@@ -81,12 +81,18 @@ EOF
 }
 
 function killa {
-  kubectl delete -f fission.yaml
-  kubectl delete crds -l app.kubernetes.io/instance=fission
-  kubectl delete all --all -n $FISSION_NAMESPACE
+  kubectl delete all --all -n fission
   kubectl delete all --all -n fission-function
-  kubectl delete namespace $FISSION_NAMESPACE
+  kubectl get crds | grep fission | awk '{print $1}' | xargs kubectl delete crd
+  kubectl delete namespace fission
   kubectl delete namespace fission-function
+  kubectl delete mutatingwebhookconfiguration fission-webhook
+  kubectl delete validatingwebhookconfiguration fission-validator
+  kubectl delete clusterrole fission-controller
+  kubectl delete clusterrolebinding fission-controller
+  kubectl get clusterrolebindings | grep fission | awk '{print $1}' | xargs kubectl delete clusterrolebinding
+  kubectl get clusterroles | grep fission | awk '{print $1}' | xargs kubectl delete clusterrole
+
   kubectl delete secret tracing -n fission-function
   rm -rf *.txt *.yaml *.yml
   ../helper.py kill_port_fwd 8888:80
