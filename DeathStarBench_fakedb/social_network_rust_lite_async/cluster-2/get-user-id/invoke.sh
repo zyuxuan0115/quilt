@@ -10,12 +10,12 @@ function invoke_wsk {
   #wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC-async
   curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
   -X POST -H "Content-Type: application/json" \
-  -d '{"username":"username_888"}'
+  -d '{"username":"todda"}'
 }
 
 function invoke_fission {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"username":"username_888"}'
+  -d '{"username":"todda"}'
 }
 
 case "$1" in

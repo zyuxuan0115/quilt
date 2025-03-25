@@ -7,6 +7,7 @@ fn main() {
   let time_0 = Instant::now();
 
   let input: String = get_arg_from_caller();
+  println!("@@@: {}", input);
   let input_args: TextServiceArgs = serde_json::from_str(&input).unwrap();
   let mut text = input_args.text;
 
