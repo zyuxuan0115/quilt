@@ -7,9 +7,9 @@ WRK_BIN=../wrk
 DEATHSTARBENCH=/home/zyuxuan/faas-test/DeathStarBench
 SETUP_DIR=/home/zyuxuan/faas-test/setup
 TEST_DIR=/home/zyuxuan/faas-test/test
-WORKLOAD=social_network_rust_lite
-# You only need to change this line
-QPS=1000
+WORKLOAD=media_microservice_rust_lite
+
+QPS=200
 
 if [ "${ARGS[2]}" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
@@ -21,6 +21,7 @@ if [ "$#" -lt 3 ]; then
   echo 'example: `./test_qps.sh init - -`'
   exit 1
 fi
+
 
 
 
@@ -39,20 +40,21 @@ function measure_perf {
     init
     redeploy
     sleep 10
-    cd $TEST_DIR/wrk2_fission/social_network
+    cd $TEST_DIR/wrk2_fission/media_microservice
     IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
     ENTRY_HOST=http://$IP:$PORT
     $WRK_BIN -t 1 -c $con -d 600 -L -U \
 	   -s $WRK_SCRIPT \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
+    echo "$WRK_BIN -t 1 -c $con -d 600 -L -U -s $WRK_SCRIPT $ENTRY_HOST -R $QPS > output_${ARGS[1]}-${ARGS[2]}_$con.log"
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
 #    cd $SETUP_DIR/fission \
 #      && ./install.sh kill \
 #      && ./install.sh setup
-#    cd $TEST_DIR/wrk2_fission/social_network
+    cd $TEST_DIR/wrk2_fission/media_microservice
   done
 }
 
@@ -75,16 +77,22 @@ function redeploy {
   sleep 60
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
+  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3 && ./build.sh deploy_fission_c
   cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
-  cd $TEST_DIR/wrk2_fission/social_network
+  cd $TEST_DIR/wrk2_fission/media_microservice
 }
 
 
 function init {
   redeploy 
+  run_wrk register-movie-id 60
+  run_wrk write-movie-info 60
+  run_wrk write-cast-info 60
+  run_wrk write-plot 60
+  run_wrk register-user 60
   run_wrk register-user-with-id 60
-  run_wrk social-graph-follow-with-username 60
-  run_wrk compose-post 300
+#  run_wrk compose-review-merged 300
+  run_wrk compose-review-user-id-merged 300
 }
 
 
