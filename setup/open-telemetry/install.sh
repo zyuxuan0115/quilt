@@ -8,7 +8,6 @@ function add_repo_to_helm {
 function setup_otel {  
   ### install open-telemetry for distributed tracing
   kubectl create namespace sn-otel
-  kubectl label nodes slamdunk exec=fission 
   kubectl apply -f - << EOF
 apiVersion: v1
 kind: Namespace

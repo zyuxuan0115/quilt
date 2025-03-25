@@ -8,7 +8,6 @@ function setup_grafana {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace sn-tempo
-  kubectl label nodes fastar exec=storage
   kubectl apply -f - << EOF
 apiVersion: v1
 kind: Namespace

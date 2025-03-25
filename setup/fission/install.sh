@@ -6,9 +6,6 @@ FISSION_NAMESPACE="fission"
 function setup {
   kubectl create namespace $FISSION_NAMESPACE
   kubectl create namespace fission-function
-  kubectl label nodes hilbit0 exec=fission-function
-  kubectl label nodes hilbit1 exec=fission-function
-  kubectl label nodes hilbit2 exec=fission-function
   kubectl apply -f - << EOF
 apiVersion: v1
 kind: Namespace

@@ -43,6 +43,11 @@ function setup_k8s {
     sleep 1; 
   done
   echo "hilbit2 is Ready!"
+  kubectl label nodes slamdunk exec=fission 
+  kubectl label nodes fastar exec=storage
+  kubectl label nodes hilbit0 exec=fission-function
+  kubectl label nodes hilbit1 exec=fission-function
+  kubectl label nodes hilbit2 exec=fission-function
 }
 
 
