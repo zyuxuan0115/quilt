@@ -10,9 +10,9 @@ fn main() {
   let user_info: UploadUserWithUsernameArgs = serde_json::from_str(&input).unwrap();
   //let now = Instant::now();
   let mut username_uid = user_info.username.clone();
+/*
   username_uid.push_str(":user_id");
 
-/*
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
   let result: Option<String> = memcache_client.get(&username_uid[..]).unwrap();
@@ -46,13 +46,12 @@ fn main() {
  */
   let mut rng = rand::thread_rng();
   let user_id: i64 = rng.gen_range(1..=1000);
-  let user_id_str = format!("user_{}", user_id);
 
   thread::sleep(Duration::from_millis(3));
 
   let callee_args = ComposeReviewUploadUserIdArgs {
     req_id: user_info.req_id,
-    user_id: user_id_str.parse::<i64>().unwrap(),
+    user_id: user_id,
   };
 
   let serialized = serde_json::to_string(&callee_args).unwrap();
