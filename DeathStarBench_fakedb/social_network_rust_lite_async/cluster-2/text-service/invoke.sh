@@ -10,17 +10,17 @@ function invoke_wsk {
   #wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC-async
   curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
   -X POST -H "Content-Type: application/json" \
-  -d '{"text":"Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"}'
+  -d '{"text":"Hey, this is @username_888! Nice to meet you and welcome to my personal web: https://kate0115.net @username_999"}'
 }
 
 function invoke_fission {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"text":"Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"}'
+  -d '{"text":"Hey, this is @username_888! Nice to meet you and welcome to my personal web: https://kate0115.net @username_999"}'
 }
 
 function invoke_fission_merged {
   curl -XPOST http://localhost:8888/$FUNC-merged \
-  -d '{"text":"Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"}'
+  -d '{"text":"Hey, this is @username_888! Nice to meet you and welcome to my personal web: https://kate0115.net @username_999"}'
 }
 
 
