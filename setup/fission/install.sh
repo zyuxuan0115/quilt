@@ -70,7 +70,7 @@ spec:
               number: 80
 EOF
 
-   fission-webhook/install.sh kill
+   cd fission-webhook && ./install.sh setup && cd ..
 #  fission env create --name fission-bin-env \
 #    --image docker.io/zyuxuan0115/fission-bin-env \
 #    --mincpu 40 --maxcpu 80 \
@@ -90,7 +90,7 @@ function killa {
   kubectl delete secret tracing -n fission-function
   rm -rf *.txt *.yaml *.yml
   ../helper.py kill_port_fwd 8888:80
-  fission-webhook/install.sh kill
+  cd fission-webhook && ./install.sh kill && cd ..
 }
 
 case "$1" in
