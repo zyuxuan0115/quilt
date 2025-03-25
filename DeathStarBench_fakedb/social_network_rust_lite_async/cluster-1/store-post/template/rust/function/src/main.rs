@@ -9,11 +9,11 @@ fn main() {
   let input: String = get_arg_from_caller();
   //let time_0 = Instant::now();
   let new_post: Post = serde_json::from_str(&input).unwrap();
-
+/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
-
+ */
   let mut real_post_name = "post:".to_string();
   real_post_name.push_str(&(new_post.post_id.to_string()));
 
