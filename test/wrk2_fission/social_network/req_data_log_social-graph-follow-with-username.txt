@@ -1,7 +1,0 @@
-{"user_name":"username_608","followee_name":"username_134"}
-{"user_name":"username_986","followee_name":"username_970"}
-{"user_name":"username_231","followee_name":"username_615"}
-{"user_name":"username_481","followee_name":"username_308"}
-{"user_name":"username_47","followee_name":"username_168"}
-{"user_name":"username_491","followee_name":"username_999"}
-{"user_name":"username_187","followee_name":"username_586"}
