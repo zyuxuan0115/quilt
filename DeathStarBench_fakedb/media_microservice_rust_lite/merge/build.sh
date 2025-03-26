@@ -68,7 +68,7 @@ function merge_fission {
 
 
 function deploy_openwhisk {
-  FUNCS=("compose-review" "page-service")
+  FUNCS=("compose-review" "page-service" "read-user-review")
   for FUNC in "${FUNCS[@]}"; do
     wsk action create text-service-merged --docker zyuxuan0115/mm-$FUNC-merged
   done
@@ -76,7 +76,7 @@ function deploy_openwhisk {
 
 
 function deploy_fission_c {
-  FUNCS=("compose-review" "page-service")
+  FUNCS=("compose-review" "page-service" "read-user-review")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
