@@ -71,6 +71,8 @@ fn main() {
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+
   send_return_value_to_caller("".to_string());
+
 }
 
