@@ -133,6 +133,7 @@ fn main() {
 */
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
+  let movie_info = serde_json::to_string(&real_movie_info).unwrap();
   send_return_value_to_caller(movie_info);
 }
 

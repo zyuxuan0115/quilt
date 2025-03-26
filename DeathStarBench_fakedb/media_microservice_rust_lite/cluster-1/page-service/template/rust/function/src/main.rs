@@ -4,12 +4,15 @@ use std::time::{SystemTime,Duration, Instant};
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
+
   let args: PageServiceArgs = serde_json::from_str(&input).unwrap();
   let read_movie_info_args = ReadMovieInfoArgs {
     movie_id: args.movie_id.clone(),
   };
   let read_movie_info_args_str = serde_json::to_string(&read_movie_info_args).unwrap();
+
   let read_movie_info_ret = make_rpc("read-movie-info", read_movie_info_args_str);
+
   let movie_info: MovieInfoEntry = serde_json::from_str(&read_movie_info_ret).unwrap();
   let read_movie_reviews_args = ReadMovieReviewArgs {
     movie_id: args.movie_id.clone(),
@@ -17,6 +20,7 @@ fn main() {
     stop: args.review_stop,
   };
   let read_movie_reviews_input = serde_json::to_string(&read_movie_reviews_args).unwrap();
+//
   let read_movie_review_ret = make_rpc("read-movie-reviews", read_movie_reviews_input);
   let reviews: Vec<ReviewEntry> = serde_json::from_str(&read_movie_review_ret).unwrap();
 
