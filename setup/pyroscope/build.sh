@@ -9,7 +9,6 @@ function setup_pyroscope {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace pyroscope-test
-  helm -n pyroscope-test install pyroscope grafana/pyroscope
   helm upgrade -n pyroscope-test --install grafana grafana/grafana \
   --set image.repository=grafana/grafana \
   --set image.tag=main \
@@ -24,10 +23,25 @@ function setup_pyroscope {
   --set-string 'podAnnotations.profiles\.grafana\.com/memory\.scrape=true' \
   --set-string 'podAnnotations.profiles\.grafana\.com/memory\.port=9094' \
   --set-string 'podAnnotations.profiles\.grafana\.com/goroutine\.scrape=true' \
-  --set-string 'podAnnotations.profiles\.grafana\.com/goroutine\.port=9094'
+  --set-string 'podAnnotations.profiles\.grafana\.com/goroutine\.port=9094' \
+  --set grafana.ingress.enabled=true --values - <<EOF
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Pyroscope
+        type: grafana-pyroscope-datasource
+        uid: pyroscope-test
+        url: http://pyroscope-querier.pyroscope-test.svc.cluster.local.:4040/
+EOF
 
+  while ! kubectl get pods -n pyroscope-test 2>/dev/null | grep grafana; do
+    echo "Waiting for Grafana pod to be created..."
+    sleep 2
+  done
+#  kubectl get pods -n pyroscope-test -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana"
+  kubectl wait --for=condition=Ready -n pyroscope-test pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" --timeout=3600s
   kubectl port-forward -n pyroscope-test service/grafana 4000:80 &
-
   kubectl get secret --namespace pyroscope-test grafana -o jsonpath="{.data.admin-password}" | base64 --decode > g_password.txt
   kubectl -n pyroscope-test expose deployment grafana --type=LoadBalancer --port=32100 --target-port=3000 --name=grafana-external 
 }

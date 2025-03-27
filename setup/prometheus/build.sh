@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function add_repo_to_helm {
-  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm repo add grafana https://grafana.github.io/helm-charts
   helm repo update
 }
 
@@ -9,6 +9,9 @@ function setup_prometheus {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace monitoring
+  helm -n pyroscope-test install pyroscope grafana/pyroscope
+
+
   helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring
   helm upgrade fission fission-charts/fission-all --namespace fission --values - << EOF
 serviceMonitor:
