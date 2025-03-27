@@ -2,6 +2,20 @@ use curl::easy::{Easy};
 use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
 use std::env;
+use once_cell::sync::Lazy;
+use pyroscope_pprofrs::{PprofConfig, pprof_backend}; 
+use pyroscope::{PyroscopeAgent};
+use pyroscope::pyroscope::PyroscopeAgentReady;
+use std::sync::Mutex;
+
+/*
+static AGENT: Lazy<PyroscopeAgent<PyroscopeAgentReady>> = Lazy::new(|| {
+    PyroscopeAgent::builder("http://localhost:4040", "myapp-profile")
+        .backend(pprof_backend(PprofConfig::new().sample_rate(100)))
+        .build()
+        .unwrap() // Ensure proper error handling in real-world applications
+});
+*/
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MemcachedUserLoginInfo {
