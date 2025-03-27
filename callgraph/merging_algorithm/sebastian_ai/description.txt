@@ -1,0 +1,314 @@
+Overall Approach: Two-Phase Optimization
+
+Because finding the absolute best way to partition the graph involves
+simultaneously choosing the number of subgraphs, their roots, and assigning all
+other nodes (which is extremely complex), we break the problem into two related
+phases:
+
+Phase 1: Root Selection 
+
+Goal: To propose promising candidate sets of nodes R = {r_1, r_2, ..., r_k} that
+will serve as the roots for the k subgraphs.
+
+Why it's hard: We don't know the best number k beforehand, and any node could
+potentially be a root. Trying all possibilities is computationally infeasible
+for non-trivial graphs.
+
+Our Strategy (Simple Heuristic):
+
+We always include the original graph's root node (r_G) in any candidate set R,
+because by definition it has to be a root.
+
+We start by testing the simplest case: k=1, where R = {r_G}.
+
+Then, we iteratively try larger sets R. For k=2, we try {r_G, node_A}, {r_G,
+node_B}, etc., for all other nodes A, B, .... For k=3, we try {r_G, node_A,
+node_B}, etc.
+
+We limit how high k can go (using max_k) to keep the search practical.
+
+For each candidate set R generated, we proceed to Phase 2 to see how good that
+choice of roots actually is.
+
+Output of Phase 1: The best set of roots R found across all tested k values,
+based on the results from Phase 2.
+
+Phase 2: Subgraph Construction (The Precise Assignment via ILP)
+
+Goal: Given a specific set of candidate roots R = {r_1, ..., r_k} proposed by
+Phase 1, determine the exact assignment of all graph nodes to these k potential
+subgraphs (G_1, ..., G_k) such that all rules are followed and the cross-edge
+cost is minimized for this specific R.
+
+Tool: We formulate this assignment problem as an Integer Linear Program (ILP).
+An ILP is a mathematical optimization model that uses:
+
+Decision Variables: Representing the choices we need to make (here, which nodes
+go into which subgraph).
+
+Objective Function: A mathematical formula representing the quantity we want to
+minimize (here, the total weight of crossing edges).
+
+Constraints: Mathematical inequalities or equalities representing the rules that
+must be obeyed.
+
+We then use a specialized ILP solver (like Gurobi) to find the optimal yes/no
+decisions for the variables that satisfy all constraints and give the best
+objective value.
+
+Output of Phase 2: For the given R, either:
+
+The minimum possible cross-edge cost and the corresponding node assignments.
+
+A declaration that it's impossible to satisfy the rules with this R
+(infeasible).
+
+The Integer Linear Program (ILP) Formulation (Phase 2)
+
+Given a fixed set of potential roots R = {r_1, ..., r_k}:
+
+Decision Variables:
+
+We create a binary (0 or 1) variable y[i, r] for each node i and each root r in
+R, provided that node i is reachable from root r in the original graph.
+
+y[i, r] = 1 means: "Yes, assign node i to the sub-network G_r whose designated
+root is r."
+
+y[i, r] = 0 means: "No, do not assign node i to the sub-network G_r." (Note: A
+node i can be assigned to multiple sub-networks if needed).
+
+Objective Function (Minimize Total Weight of Cross-Edges):
+
+Minimize: (Sum of weights w_ij for all edges (i,j) where j is in R)
+- (Sum of (w_ij * y[i, j]) for all edges (i,j) where j is in R and y[i,j]
+  exists)
+
+Explanation:
+
+The first part calculates the maximum potential cost, assuming every edge
+pointing to a chosen root j is a cross-edge.
+
+The second part calculates the "savings". If an edge (i, j) points to a root j,
+and we decide to include i in the subgraph G_j (making y[i, j] = 1), then that
+edge is internalized and its weight w_ij is subtracted from the potential cost.
+
+Minimizing this difference forces the solver to internalize high-weight edges
+pointing to roots whenever possible (respecting other constraints), leaving only
+the unavoidable or lower-weight cross-edges contributing to the final minimized
+cost.
+
+Constraints (The Rules in Math Form):
+
+Constraint 1: Root Inclusion: Every chosen root r must belong to its own
+subgraph.
+
+y[r, r] = 1 for all r in R.
+
+Constraint 2: Node Coverage: Every node i in the entire graph must be assigned
+to at least one subgraph.
+
+Sum(y[i, r] for all r in R such that y[i,r] exists) >= 1 for every node i.
+
+Constraint 3: Memory Capacity (M): For each subgraph G_r, the sum of memory
+requirements m_i for all nodes i assigned to it must not exceed M.
+
+Sum(m_i * y[i, r] for all i such that y[i,r] exists) <= M for each root r in R.
+
+Constraint 4: Compute Capacity (C): Similar to memory, the total compute c_i for
+nodes assigned to G_r must not exceed C.
+
+Sum(c_i * y[i, r] for all i such that y[i,r] exists) <= C for each root r in R.
+
+Constraint 5: Connectivity: If a node i (that is not the root r) is in subgraph
+G_r, it must have at least one parent j that is also in G_r.
+
+y[i, r] <= Sum(y[j, r] for all predecessors j of i such that y[j,r] exists) for
+each r in R and each node i != r.
+
+Constraint 6: Cross-Edge Structure Rule: If an edge (i, j) exists, and the
+target node j is not one of the chosen roots in R, then i and j must be treated
+as a unit for any given subgraph G_r. If i is included in G_r, j must also be
+included.
+
+y[i, r] <= y[j, r] for every edge (i, j) where j is NOT in R, and for every root
+r in R (where variables exist).
+
+This ILP formulation, when solved for a specific R, finds the best way to assign
+nodes to satisfy all capacity, connectivity, coverage, and structural rules
+while minimizing the cost of edges crossing between the subgraphs rooted at R.
+  
+The two-phase approach uses this ILP repeatedly to evaluate different choices
+of R.
+
+
+
+
+Bottleneck of this approach: The core slowness comes from two places:
+
+Phase 1: Trying many combinations of roots R. The number of combinations grows
+rapidly (O(N^(k-1))).
+
+Phase 2: Solving the ILP for each R. ILP solving is NP-hard in general, and
+complexity increases with graph size and the number of variables/constraints
+(which depend on |R| and graph density).
+
+
+
+
+The key is to trade off optimality (finding the absolute minimum cost) for
+speed, while strictly maintaining feasibility (satisfying all rules 1-5).
+
+Here are several strategies, ranging from simpler parameter tuning to replacing
+parts of the algorithm:
+
+1. Tuning the ILP Solver (Phase 2 Speedup)
+
+This is often the easiest first step. Instead of demanding the absolute optimal
+solution for each ILP in Phase 2, we can tell the solver (Gurobi) to stop
+earlier once it finds a good enough feasible solution.
+
+Increase the MIP Gap: Set a non-zero MIPGap parameter (e.g., 0.05 for 5%, 0.10
+for 10%). Gurobi will stop when it finds a feasible solution whose objective
+  value is guaranteed to be within this percentage of the true optimal objective
+  value for that specific R. This significantly speeds up the solve time,
+  especially towards the end when it's struggling to close the final gap.
+
+Code: model.setParam(GRB.Param.MIPGap, 0.05)
+
+Stricter Time Limits: Reduce the ilp_time_limit per ILP solve. Combined with a
+MIP Gap, this encourages finding any feasible solution quickly.
+
+Solver Focus: Tell Gurobi to prioritize finding feasible solutions over proving
+optimality.
+
+Code: model.setParam(GRB.Param.MIPFocus, 1) (focus on feasibility) or
+model.setParam(GRB.Param.MIPFocus, 3) (focus heavily on improving the best
+bound, which often finds good solutions faster if feasibility isn't extremely
+hard).
+
+Pros: Relatively easy to implement; still leverages the power of the ILP solver
+to handle complex constraints correctly; feasibility is guaranteed by the solver
+(if it finds a solution).  Cons: Solution quality directly depends on the
+gap/time limit; might still be slow if finding even one feasible solution is
+hard for certain R.
+
+2. Smarter Root Selection (Phase 1 Speedup)
+
+Reduce the number of ILP calls by being more selective about which root sets R
+to evaluate.
+
+Limit max_k Further: A simple, blunt approach.
+
+Heuristic Root Candidate Selection: Don't consider all nodes (other than r_G) as
+potential roots. Identify a smaller set of promising candidates based on graph
+properties:
+
+High "Cross-Potential": Nodes j that have many incoming edges (i, j) with high
+weights w_ij, especially if i is "far" from j. If j isn't a root, these edges
+might force i and j into the same subgraph (Constraint 7), potentially violating
+capacity. Making j a root allows these edges to cross.
+
+Branching Points: Nodes with high out-degree, potentially starting large,
+distinct branches of the DAG.
+
+Centrality Measures: Nodes with high betweenness centrality might lie on paths
+connecting different dense regions.
+
+Only generate combinations of roots using these pre-selected candidates.
+
+Random Sampling of Root Sets: For each k, instead of trying all combinations,
+randomly sample a fixed number (e.g., 100) of valid root sets R (always
+including r_G). Hope to hit a good one by chance.
+
+Pros: Can drastically reduce the number of expensive ILP solves. Candidate
+selection can guide the search effectively.  Cons: Heuristics for candidate
+selection might miss the truly optimal roots. Random sampling is highly
+dependent on luck. Feasibility of the final solution depends on Phase 2 finding
+a feasible assignment for the chosen R.
+
+3. Greedy Subgraph Construction Heuristic (Replace Phase 2 ILP)
+
+Given a fixed R from Phase 1, construct the subgraphs G_r directly using a
+greedy algorithm instead of solving the ILP. This is much faster but harder to
+guarantee feasibility and quality.
+
+Algorithm Idea (BFS-like Expansion):
+
+Initialize AssignedNodes = set(). For each r in R, initialize G_r = {r},
+current_m[r] = graph.nodes[r]['m'], current_c[r] = graph.nodes[r]['c']. Add all
+r in R to AssignedNodes.
+
+Create a pool FrontierNodes of unassigned nodes i that have at least one parent
+already in AssignedNodes. Initially, this contains children of the roots in R.
+
+While FrontierNodes is not empty: a. Select a node i from FrontierNodes (e.g.,
+based on priority: topological order, needed for connectivity, low resource
+usage?).  b. Identify potential subgraphs G_r that i could be added to:
+* r must be in R.  i must be reachable from r (precomputed).  At least one
+* parent j of i must already be assigned to G_r.  Adding i must not violate
+* capacity: current_m[r] + graph.nodes[i]['m'] <= M and current_c[r] +
+* graph.nodes[i]['c'] <= C.
+c. If no such G_r exists, this greedy path failed (or i needs assignment later).
+Mark i as problematic or defer.  d. If potential G_r exist, choose one (or
+more?) based on a greedy criterion:
+* Minimize immediate cost increase (e.g., if (i, j) is an edge and j is a root
+* in R but not r, adding i to G_r creates cost w_ij). Prefer adding i to G_j if
+* possible.  Smallest current size? Balance load?  Subgraph G_r where the
+* required parent j exists?
+e. Assign i to the chosen G_r(s), update current_m/c[r], add i to AssignedNodes,
+remove i from FrontierNodes.  f. Add newly reachable unassigned neighbours of i
+to FrontierNodes.
+
+Post-Processing/Feasibility Check: After the loop, check if all nodes are in
+AssignedNodes. Handle any problematic/deferred nodes (maybe assign them to any
+valid subgraph if possible?). Verify all constraints rigorously. If infeasible,
+this R fails for the greedy heuristic. Calculate the cost based on the final
+assignment.
+
+Pros: Potentially much faster than ILP.  Cons: Complex to implement correctly.
+Greedy choices can easily lead to dead ends where constraints (especially
+coverage or later connectivity) cannot be satisfied. Solution quality can be
+poor. Guaranteeing feasibility requires careful design and validation.
+
+Recommended Strategy for Approximation:
+
+Start with ILP Tuning (Strategy 1): This is the most robust starting point.
+
+Set a reasonable ilp_time_limit (e.g., 30-60 seconds per ILP).
+
+Set a non-zero MIPGap (e.g., 5-10%).
+
+Consider setting MIPFocus=1 or 3.
+
+Keep the simple_root_selection_strategy (Phase 1) as is initially, perhaps
+reducing max_k slightly if needed.
+
+If Still Too Slow, Add Smarter Root Selection (Strategy 2):
+
+Implement a heuristic to identify a smaller set of candidate roots (e.g., based
+on degree, weights of incoming edges).
+
+Modify Phase 1 to only generate combinations using these candidates. This
+drastically cuts down the number of ILP calls.
+
+Consider Greedy Construction (Strategy 3) as a Last Resort:
+
+Only attempt this if strategies 1 & 2 are insufficient and speed is paramount.
+Be prepared for significant implementation effort and potentially
+lower-quality/harder-to-make-feasible solutions.
+
+By combining ILP tuning with smarter root selection, you can often achieve a
+good balance between speed and solution quality while retaining the
+constraint-handling power of the ILP solver for feasibility.
+
+
+
+
+For strategy 2, we implement this:
+Reasonable starting heuristic is Weighted Incoming Degree: nodes that are
+targets of many edges, especially high-weight edges, might be good candidates to
+become roots to manage potential cross-edge costs.
+
+
+
