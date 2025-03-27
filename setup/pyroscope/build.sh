@@ -6,9 +6,13 @@ function add_repo_to_helm {
 }
 
 function setup_pyroscope {
+  kubectl create namespace pyroscope-test
+  helm -n pyroscope-test install pyroscope grafana/pyroscope
+}
+
+function setup_grafana {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
-  kubectl create namespace pyroscope-test
   helm upgrade -n pyroscope-test --install grafana grafana/grafana \
   --set image.repository=grafana/grafana \
   --set image.tag=main \
@@ -32,7 +36,7 @@ function setup_pyroscope {
       - name: Pyroscope
         type: grafana-pyroscope-datasource
         uid: pyroscope-test
-        url: http://pyroscope-querier.pyroscope-test.svc.cluster.local.:4040/
+        url: http://pyroscope.pyroscope-test.svc.cluster.local.:4040/
 EOF
 
   while ! kubectl get pods -n pyroscope-test 2>/dev/null | grep grafana; do
@@ -51,6 +55,7 @@ function setup {
   add_repo_to_helm # only need to run for the first time
   helm repo update
   setup_pyroscope
+  setup_grafana
 }
 
 function kill_pyroscope {

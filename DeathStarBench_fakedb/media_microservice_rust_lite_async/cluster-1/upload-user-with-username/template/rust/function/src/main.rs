@@ -52,7 +52,7 @@ fn main() {
 
   let callee_args = ComposeReviewUploadUserIdArgs {
     req_id: user_info.req_id,
-    user_id: user_id_str.parse::<i64>().unwrap(),
+    user_id: user_id,
   };
 
   let serialized = serde_json::to_string(&callee_args).unwrap();
