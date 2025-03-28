@@ -10,10 +10,10 @@ use std::sync::Mutex;
 
 /*
 static AGENT: Lazy<PyroscopeAgent<PyroscopeAgentReady>> = Lazy::new(|| {
-    PyroscopeAgent::builder("http://localhost:4040", "myapp-profile")
-        .backend(pprof_backend(PprofConfig::new().sample_rate(100)))
-        .build()
-        .unwrap() // Ensure proper error handling in real-world applications
+  PyroscopeAgent::builder("http://pyroscope.pyroscope-test.svc.cluster.local.:4040", "fission-function")
+    .backend(pprof_backend(PprofConfig::new().sample_rate(100)))
+    .build()
+    .unwrap() // Ensure proper error handling in real-world applications
 });
 */
 
@@ -339,6 +339,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 }
 
 pub fn get_arg_from_caller() -> String{
+  //AGENT.as_ref().start().unwrap();
   let mut buffer = String::new();
   let _ = io::stdin().read_line(&mut buffer);
   buffer
@@ -350,6 +351,7 @@ pub fn send_return_value_to_caller(output: String) -> (){
     err: "".to_string(),
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
+  //AGENT.as_ref().stop().unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
 }
 
