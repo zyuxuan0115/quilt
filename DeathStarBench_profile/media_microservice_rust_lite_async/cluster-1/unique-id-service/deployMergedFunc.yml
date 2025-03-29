@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  unique-id-service-merged:
+    lang: rust
+    handler: ./unique-id-service-merged
+    image: zyuxuan0115/mm-unique-id-service-async-merged:latest
+    secrets:
+    - ingress-enable

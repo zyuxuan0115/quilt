@@ -1,0 +1,13 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  nearby-rest:
+    lang: rust
+    handler: ./nearby-rest
+    image: zyuxuan0115/hr-nearby-rest:latest
+    secrets:
+    - redis-password
+    - mongodb-password
+    - ingress-enable

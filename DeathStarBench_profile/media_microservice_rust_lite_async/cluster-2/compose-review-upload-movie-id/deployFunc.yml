@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  compose-review-upload-movie-id:
+    lang: rust
+    handler: ./compose-review-upload-movie-id
+    image: zyuxuan0115/mm-compose-review-upload-movie-id-async:latest
+    secrets:
+    - ingress-enable
+    - redis-password

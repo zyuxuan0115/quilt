@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  register-user:
+    lang: rust
+    handler: ./register-user
+    image: zyuxuan0115/sn-register-user:latest
+    secrets:
+    - mongodb-password
