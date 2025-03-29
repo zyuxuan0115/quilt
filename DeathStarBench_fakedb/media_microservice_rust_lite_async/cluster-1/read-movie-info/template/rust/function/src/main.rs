@@ -30,8 +30,6 @@ fn main() {
 
   let mut rng = rand::thread_rng();
 
-  let mut movie_info = String::new();
-
   let mut real_casts: Vec<Cast> = Vec::new(); 
   let num_casts: i32 = rng.gen_range(0..20);
   for i in 0..num_casts {
@@ -75,7 +73,7 @@ fn main() {
     photo_ids: real_photos,
     video_ids: real_videos,
   };
-
+  let movie_info = serde_json::to_string(&real_movie_info).unwrap();
   thread::sleep(Duration::from_millis(4));
  
 
