@@ -42,15 +42,16 @@ def openfaas_set_replica():
       outfile.write(doc_yml)
   outfile.close()
 
+
 def nginx():
   docs = yaml.safe_load_all(sys.stdin)
   # generate the yaml file for reloading the controller
   if os.path.exists("ingress-nginx-values.yaml"):
     os.remove("ingress-nginx-values.yaml")
-  docs0 = []
+  docs2 = []
   with open('ingress-nginx-values.yaml', 'a') as outfile:
     for doc in docs:
-      docs0.append(doc)
+      docs2.append(doc)
       if doc['kind'] == 'Service' and doc['metadata']['name'] == 'ingress-nginx-controller':
         for item in doc['spec']['ports']:
           if item['appProtocol'] == 'http':
@@ -61,22 +62,9 @@ def nginx():
         outfile.write('---\n')
         outfile.write(doc_yaml)
       elif doc['kind'] == 'Deployment' and doc['metadata']['name'] == 'ingress-nginx-controller':
-        if 'metadata' in doc and doc['metadata']['name'] == 'ingress-nginx-controller':
-          doc['spec']['template']['spec']['nodeSelector']['exec']='fission'
         doc_yaml = yaml.dump(doc)
         outfile.write('---\n')
         outfile.write(doc_yaml)
-  outfile.close()
-
-  if os.path.exists("ingress-nginx.yaml"):
-    os.remove("ingress-nginx.yaml")
-  docs2 = []
-  with open('ingress-nginx.yaml', 'a') as outfile:
-    for doc in docs0:
-      docs2.append(doc) 
-      doc_yaml = yaml.dump(doc)
-      outfile.write('---\n')
-      outfile.write(doc_yaml)
   outfile.close()
   # generate the yaml file for nginx-ingress-controller2
   if os.path.exists("ingress-nginx2.yaml"): 
@@ -95,6 +83,7 @@ def nginx():
             for item in doc['spec']['template']['spec']['containers']:
               new_args = []
               for arg in item['args']:
+                print(arg)
                 if arg == '--controller-class=k8s.io/ingress-nginx':
                   new_args.append('--controller-class=k8s.io/ingress-nginx2')
                 elif arg == '--ingress-class=nginx':
@@ -136,6 +125,7 @@ def nginx():
         outfile3.write('---\n')
         outfile3.write(doc_yaml)
   outfile3.close()
+
 
 def tempo():
   docs = yaml.safe_load_all(sys.stdin)

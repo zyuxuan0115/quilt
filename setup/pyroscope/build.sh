@@ -55,7 +55,7 @@ function setup {
   add_repo_to_helm # only need to run for the first time
   helm repo update
   setup_pyroscope
-  setup_grafana
+#  setup_grafana
 }
 
 function kill_pyroscope {
@@ -74,12 +74,6 @@ setup)
     ;;
 kill)
     killa
-    ;;
-setup_pyroscope)
-    setup_pyroscope
-    ;;
-kill_prometheus)
-    kill_pyroscope
     ;;
 esac
 
