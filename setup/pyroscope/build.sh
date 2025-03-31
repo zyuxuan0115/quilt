@@ -8,6 +8,8 @@ function add_repo_to_helm {
 function setup_pyroscope {
   kubectl create namespace pyroscope-test
   helm -n pyroscope-test install pyroscope grafana/pyroscope
+  kubectl wait --for=condition=Ready pod -n pyroscope-test -l "app.kubernetes.io/instance=pyroscope" --timeout=3600s
+  kubectl port-forward -n pyroscope-test service/pyroscope 4040:4040 &
 }
 
 function setup_grafana {

@@ -8,7 +8,7 @@ function setup_grafana {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace sn-tempo
-  helm upgrade -n pyroscope-test --install grafana grafana/grafana \
+  helm upgrade -n sn-tempo --install grafana grafana/grafana \
   --set image.repository=grafana/grafana \
   --set image.tag=main \
   --set env.GF_INSTALL_PLUGINS=grafana-pyroscope-app \
@@ -46,15 +46,6 @@ EOF
 function setup_tempo {
   ### install Tempo, which collect the trace from open-telemetry
   ### and expose the IP to external, port 3100 
-#  helm -n sn-tempo install tempo grafana/tempo-distributed \
-#    --set traces.otlp.grpc.enabled=true \
-#    --set traces.otlp.http.enabled=true \
-#    --set ingester.zoneAwareReplication.enabled=true \
-#    --set ingester.config.complete_block_timeout="24h" \
-#    --set ingester.config.max_block_duration="24h" \
-#    --values - << EOF
-
-
   helm -n sn-tempo install tempo grafana/tempo-distributed --version 1.23.0 \
     --set traces.otlp.grpc.enabled=true \
     --set traces.otlp.http.enabled=true \
