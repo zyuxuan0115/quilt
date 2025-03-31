@@ -26,15 +26,20 @@ fi
 
 
 function measure_perf {
-  CON=(1 2 3 4 5 7 9 11 13 15 18 21 24 27 30 26 30)
+  CON=(1 3 5 7 9 11 13 15 18 21 24 27 30 35 40 50 60 70 80 90 100 110)
+#  CON=(120 130 140 150 160 170 180 200)
+#   CON=(220 240 260 280 300 320 340 360 380 400)
+#  CON=(382 384 386 388 390 392 394 396 398 400)
+#  CON=(101 102 103 104 105 106 107 108 109 110)
+#  CON=(120 122 124 126 128 130 132)
 #  CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
     echo $con
-    cd $SETUP_DIR/redis_memcached \
-      && ./install.sh kill \
-      && ./install.sh setup
+#    cd $SETUP_DIR/redis_memcached \
+#      && ./install.sh kill \
+#      && ./install.sh setup
     redeploy
     sleep 10
     cd $TEST_DIR/wrk2_fission/social_network
@@ -71,8 +76,8 @@ function redeploy {
     && ./install.sh kill \
     && ./install.sh setup
   sleep 60
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
+#  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
+#  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
   cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
   cd $TEST_DIR/wrk2_fission/social_network
 }
