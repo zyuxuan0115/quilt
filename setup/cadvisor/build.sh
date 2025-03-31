@@ -9,7 +9,21 @@ function setup_cadvisor {
   kubectl port-forward daemonset/cadvisor 8080:8080 -n cadvisor &
 #  kubectl wait --for=condition=Ready -n cadvisor pod -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance=grafana" --timeout=3600s
 #  kubectl -n cadvisor expose deployment grafana --type=LoadBalancer --port=3000 --target-port=3000 --name=grafana-external
-  kubectl apply -f cadvisor-loadbalancer.yaml  
+  kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Service
+metadata:
+  name: cadvisor
+  namespace: cadvisor
+spec:
+  selector:
+    name: cadvisor
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+EOF
 }
 
 case "$1" in
