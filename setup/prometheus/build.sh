@@ -9,30 +9,19 @@ function setup_prometheus {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace monitoring
-  helm -n pyroscope-test install pyroscope grafana/pyroscope
-
-
-  helm install prometheus prometheus-community/kube-prometheus-stack -n monitoring
-  helm upgrade fission fission-charts/fission-all --namespace fission --values - << EOF
-serviceMonitor:
-  enabled: true
-  namespace: "monitoring"
-  additionalServiceMonitorLabels:
-    release: "prometheus"
-podMonitor:
-  enabled: true
-  namespace: "monitoring"
-  additionalPodMonitorLabels:
-    release: "prometheus"
-grafana:
-  namespace: "monitoring"
-  dashboards:
-    enable: true
+  helm show values prometheus-community/prometheus > values.yaml
+  cat <<EOF >> values.yaml
+additionalScrapeConfigs:
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets:
+        - cadvisor.monitoring.svc.cluster.local:8080  # Change if using a different namespace
+    scrape_interval: 5s  # Adjust scrape frequency
+    metrics_path: '/metrics'
 EOF
-
-  kubectl --namespace monitoring port-forward svc/prometheus-grafana 4000:80 &
-  kubectl get secret --namespace monitoring prometheus-grafana -o jsonpath="{.data.admin-password}" | base64 --decode > g_password.txt
-  kubectl -n monitoring expose deployment prometheus-grafana --type=LoadBalancer --port=32100 --target-port=3000 --name=grafana-external 
+  helm install prometheus prometheus-community/prometheus -f values.yaml --namespace monitoring
+  kubectl wait --for=condition=Ready pod -l app=prometheus --timeout=3600s -n monitoring
+  kubectl -n monitoring expose service prometheus-server --type=LoadBalancer --port=9090 --target-port=9090 --name=prometheus-external
 }
 
 
@@ -44,6 +33,8 @@ function setup {
 
 function kill_prometheus {
   helm -n monitoring uninstall prometheus
+  kubectl delete all --all -n monitoring  
+  kubectl delete namespace monitoring
 }
 
 function killa {

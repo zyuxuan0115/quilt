@@ -2,7 +2,7 @@
 
 function setup_ingress_nginx {
   NGINX_YAML=https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/baremetal/deploy.yaml 
-  curl $NGINX_YAML | python3 ../gen_yaml.py nginx
+  curl $NGINX_YAML | python3 ../gen_yaml_old.py nginx
 
   kubectl apply -f $NGINX_YAML
   while ! kubectl get secret ingress-nginx-admission --namespace ingress-nginx; 

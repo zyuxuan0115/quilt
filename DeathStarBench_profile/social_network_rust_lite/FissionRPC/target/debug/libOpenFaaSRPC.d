@@ -1,1 +1,0 @@
-/proj/zyuxuanssf-PG0/zyuxuan/faas-test/DeathStarBench_profile/social_network_rust_lite/FissionRPC/target/debug/libOpenFaaSRPC.rlib: /proj/zyuxuanssf-PG0/zyuxuan/faas-test/DeathStarBench_profile/social_network_rust_lite/FissionRPC/src/lib.rs

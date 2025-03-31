@@ -355,8 +355,10 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
 }
 
 pub fn get_arg_from_caller() -> String{
-  //let running_agent = once_cell::sync::Lazy::<PyroscopeAgent<PyroscopeAgentReady>>::get(&AGENT).unwrap().start().unwrap();
-  //RUNNING_AGENT.set(running_agent).unwrap();
+  let ingress_enable = get_env("ingress-enable".to_string()); 
+  if ingress_enable == "true" {
+    start_profiling_agent();
+  }
   let mut buffer = String::new();
   let _ = io::stdin().read_line(&mut buffer);
   buffer
@@ -368,7 +370,10 @@ pub fn send_return_value_to_caller(output: String) -> (){
     err: "".to_string(),
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
-//  once_cell::sync::Lazy::<PyroscopeAgent<PyroscopeAgentRunning>>::get(&RUNNING_AGENT).unwrap().stop().unwrap();
+  let ingress_enable = get_env("ingress-enable".to_string()); 
+  if ingress_enable == "true" {
+    stop_profiling_agent();
+  }
   let _ = io::stdout().write(&msg_str[..].as_bytes());
 }
 
