@@ -8,21 +8,8 @@ function setup_grafana {
   ### install Grafana, the GUI of Tempo.
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace sn-tempo
-  helm upgrade -n sn-tempo --install grafana grafana/grafana \
-  --set image.repository=grafana/grafana \
-  --set image.tag=main \
-  --set env.GF_INSTALL_PLUGINS=grafana-pyroscope-app \
-  --set env.GF_AUTH_ANONYMOUS_ENABLED=true \
-  --set env.GF_AUTH_ANONYMOUS_ORG_ROLE=Admin \
-  --set env.GF_DIAGNOSTICS_PROFILING_ENABLED=true \
-  --set env.GF_DIAGNOSTICS_PROFILING_ADDR=0.0.0.0 \
-  --set env.GF_DIAGNOSTICS_PROFILING_PORT=9094 \
-  --set-string 'podAnnotations.profiles\.grafana\.com/cpu\.scrape=true' \
-  --set-string 'podAnnotations.profiles\.grafana\.com/cpu\.port=9094' \
-  --set-string 'podAnnotations.profiles\.grafana\.com/memory\.scrape=true' \
-  --set-string 'podAnnotations.profiles\.grafana\.com/memory\.port=9094' \
-  --set-string 'podAnnotations.profiles\.grafana\.com/goroutine\.scrape=true' \
-  --set-string 'podAnnotations.profiles\.grafana\.com/goroutine\.port=9094' \
+  helm -n sn-tempo install grafana grafana/grafana --set grafana.ingress.enabled=true \
+  --set nodeSelector.exec=storage \
   --values - <<EOF
   datasources:
     datasources.yaml:
@@ -31,10 +18,6 @@ function setup_grafana {
       - name: Tempo
         type: tempo
         url: http://tempo-query-frontend.sn-tempo.svc.cluster.local:3100
-      - name: Pyroscope
-        type: grafana-pyroscope-datasource
-        uid: pyroscope-test
-        url: http://pyroscope.pyroscope-test.svc.cluster.local.:4040/
 EOF
 
   GRAFANA_PASSWORD=$(kubectl get secret --namespace sn-tempo grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo)
