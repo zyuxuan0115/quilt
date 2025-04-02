@@ -8,10 +8,16 @@ function add_repo_to_helm {
 function setup_influxdb {
   kubectl create namespace influxdb
   helm upgrade --install influxdb influxdata/influxdb -n influxdb
-    
-  echo $(kubectl get secret influxdb-influxdb2-auth -o "jsonpath={.data['admin-password']}" --namespace influxdb | base64 --decode) > influxdb_pw.txt
-#  kubectl port-forward -n influxdb svc/influxdb 8086:8086 &
-  kubectl patch svc influxdb -n influxdb -p '{"spec": {"type": "NodePort"}}'
+  while [[ $(kubectl get pod influxdb-0 -n influxdb -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
+    echo "Waiting for InfluxDB pod to be ready..."
+    sleep 2
+  done
+  echo "InfluxDB pod is ready!"    
+  kubectl port-forward -n influxdb svc/influxdb 8086:8086 &
+  sleep 15
+  curl -X POST 'http://localhost:8086/query' \
+     --data-urlencode "q=CREATE DATABASE cadvisor"
+  #kubectl patch svc influxdb -n influxdb -p '{"spec": {"type": "NodePort"}}'
 }
 
 

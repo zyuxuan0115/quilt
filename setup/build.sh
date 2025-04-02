@@ -26,6 +26,7 @@ function setup {
   cd grafana_tempo && ./build.sh setup && cd ..
   cd open-telemetry && ./build.sh setup && cd ..
   cd ingress-nginx && ./build.sh setup && cd ..
+  cd influxdb && ./build.sh setup && cd ..
   cd cadvisor && ./build.sh setup && cd ..
   cd prometheus && ./build.sh setup && cd ..
 #  cd openfaas && ./build.sh setup && cd ..

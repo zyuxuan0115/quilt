@@ -20,11 +20,12 @@ def generate_yaml():
                     "containers": [
                         {
                             "name": "cadvisor",
-                            "image": "gcr.io/cadvisor/cadvisor:latest",
+                            "image": "gcr.io/cadvisor/cadvisor:v0.35.1",
                             "args": [
                                 "--storage_driver=influxdb",
                                 "--storage_driver_db=cadvisor",
-                                "--storage_driver_host=http://influxdb.influxdb.svc.cluster.local:8086",
+                                "--storage_driver_host=influxdb.influxdb.svc.cluster.local:8086",
+                                "--docker_only=false",
                                 "--housekeeping_interval=100ms"
                             ],
                             "ports": [{"containerPort": 8080}]

@@ -9,7 +9,6 @@ function setup_grafana {
   ### export the IP of Grafana to external, port 3000
   kubectl create namespace sn-tempo
   helm -n sn-tempo install grafana grafana/grafana --set grafana.ingress.enabled=true \
-  --set nodeSelector.exec=storage \
   --values - <<EOF
   datasources:
     datasources.yaml:
