@@ -21,7 +21,7 @@ spec:
       targetPort: 8080
   type: LoadBalancer
 EOF
-  python3 influxdb.py  
+  python3 influxdb_2.py  
   kubectl apply -f cadvisor-influxdb.yaml
 }
 
