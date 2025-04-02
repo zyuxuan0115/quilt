@@ -7,7 +7,13 @@ function add_repo_to_helm {
 
 function setup_influxdb {
   kubectl create namespace influxdb
-  helm upgrade --install influxdb influxdata/influxdb -n influxdb
+  helm upgrade --install influxdb influxdata/influxdb -n influxdb -f -<<EOF
+USER-SUPPLIED VALUES:
+env:
+- name: INFLUXDB_HTTP_MAX_BODY_SIZE
+  value: "0"
+EOF
+
   while [[ $(kubectl get pod influxdb-0 -n influxdb -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do
     echo "Waiting for InfluxDB pod to be ready..."
     sleep 2
