@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  upload-user-with-userid:
+    lang: rust
+    handler: ./upload-user-with-userid
+    image: zyuxuan0115/mm-upload-user-with-userid-async:latest
+    secrets:
+    - ingress-enable

@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  login:
+    lang: rust
+    handler: ./login
+    image: zyuxuan0115/mm-login:latest
+    secrets:
+    - redis-password
+    - ingress-enable
