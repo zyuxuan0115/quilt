@@ -1,5 +1,0 @@
-text-service compose-review-upload-text
-compose-review-upload-text compose-and-upload
-compose-and-upload store-review
-compose-and-upload upload-user-review
-compose-and-upload upload-movie-review
