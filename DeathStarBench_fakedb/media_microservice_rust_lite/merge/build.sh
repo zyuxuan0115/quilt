@@ -81,8 +81,8 @@ function deploy_fission_c {
     echo $FUNC
     fission function run-container --name $FUNC-merged \
       --image docker.io/zyuxuan0115/mm-$FUNC-merged \
-      --minscale=1 --maxscale=30 \
-      --minmemory=1 --maxmemory=64 \
+      --minscale=110 --maxscale=110 \
+      --minmemory=1 --maxmemory=128 \
       --mincpu=1  --maxcpu=2000 \
       --port 8888 \
       --namespace fission-function

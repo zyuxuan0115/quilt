@@ -3,7 +3,6 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use std::process;
-use redis::Commands;
 use rand::Rng;
 use rand::distributions::Alphanumeric;
 use std::thread;

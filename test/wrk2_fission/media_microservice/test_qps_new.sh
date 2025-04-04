@@ -27,8 +27,8 @@ fi
 
 
 function measure_perf {
-#  CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 70 90 110 130 160 190 230 270)
-  CON=(1)
+#  CON=(1 2 3 4 5 7 9 11 13 15 18 21 24 27 30)
+#  CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
@@ -92,7 +92,7 @@ function init {
   run_wrk register-user 60
   run_wrk register-user-with-id 60
 #  run_wrk compose-review-merged 300
-  run_wrk compose-review-user-id-merged 300
+#  run_wrk compose-review-user-id 300
 }
 
 
