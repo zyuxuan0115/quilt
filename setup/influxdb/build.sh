@@ -23,7 +23,6 @@ EOF
   sleep 15
   curl -X POST 'http://localhost:8086/query' \
      --data-urlencode "q=CREATE DATABASE cadvisor"
-  #kubectl patch svc influxdb -n influxdb -p '{"spec": {"type": "NodePort"}}'
 }
 
 
