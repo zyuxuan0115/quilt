@@ -9,12 +9,12 @@ def execute_function(function_name):
     try:
         # Parse JSON request body
         data = request.get_json()
-        if not isinstance(data, dict) or 'msg' not in data or 'err' not in data:
+        if not isinstance(data, dict):
             return jsonify({"error": "Invalid JSON format"}), 400
         
         # Start the subprocess
         process = subprocess.Popen(
-            [f"./{function_name}"],  # Assumes function_name is an executable in the current directory
+            [f"./func_bin/{function_name}"],  # Assumes function_name is an executable in the current directory
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -22,13 +22,8 @@ def execute_function(function_name):
         )
         
         # Pass JSON data as input
-        stdout, stderr = process.communicate(json.dumps(data))
-        
-        return jsonify({
-            "stdout": stdout,
-            "stderr": stderr,
-            "returncode": process.returncode
-        })
+        stdout, stderr = process.communicate(json.dumps(data)) 
+        return stdout
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
