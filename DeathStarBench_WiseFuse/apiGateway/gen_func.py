@@ -29,7 +29,7 @@ def main(dir_name, file_path):
           sub_dir = real_dirname + "/cluster-"+str(func_info[func_name]) + "/" + func_name
           cmd = sub_dir + "/build.sh fission_b"
           os.system(cmd) 
-          cmd = "mv "+func_name+"func_bin/"
+          cmd = "mv "+func_name+" func_bin/"
           os.system(cmd)
    
   except FileNotFoundError:

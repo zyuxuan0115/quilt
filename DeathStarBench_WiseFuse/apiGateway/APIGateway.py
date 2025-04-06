@@ -1,31 +1,65 @@
 from flask import Flask, request, jsonify
 import subprocess
 import json
+import threading
 
-app = Flask(__name__)
+# -------- Main App (port 8080) --------
+app1 = Flask(__name__)
 
-@app.route('/<function_name>', methods=['POST'])
+@app1.route('/<function_name>', methods=['POST'])
 def execute_function(function_name):
     try:
-        # Parse JSON request body
         data = request.get_json()
         if not isinstance(data, dict):
             return jsonify({"error": "Invalid JSON format"}), 400
-        
-        # Start the subprocess
+
         process = subprocess.Popen(
-            [f"./func_bin/{function_name}"],  # Assumes function_name is an executable in the current directory
+            [f"./func_bin/{function_name}"],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True
         )
-        
-        # Pass JSON data as input
-        stdout, stderr = process.communicate(json.dumps(data)) 
+
+        stdout, stderr = process.communicate(json.dumps(data))
         return stdout
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+# -------- Secondary App (port 8888) --------
+app2 = Flask(__name__)
+
+@app2.route('/', methods=['POST'])
+def run_function():
+    try:
+        data = request.get_data(as_text=True)  # raw body (not JSON-validated)
+        
+        process = subprocess.Popen(
+            ["./func_bin/function"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = process.communicate(data)
+        return jsonify({
+            "stdout": stdout,
+            "stderr": stderr,
+            "returncode": process.returncode
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# -------- Run both apps --------
+def run_app2():
+    app2.run(host='127.0.0.1', port=8888)
+
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080)
+    # Start app2 in a separate thread
+    threading.Thread(target=run_app2, daemon=True).start()
+
+    # Start app1 as the main thread (your original app)
+    app1.run(host='127.0.0.1', port=8080)
