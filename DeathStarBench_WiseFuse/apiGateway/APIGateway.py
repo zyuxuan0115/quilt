@@ -30,11 +30,12 @@ def execute_function(function_name):
 # -------- Secondary App (port 8888) --------
 app2 = Flask(__name__)
 
-@app2.route('/', methods=['POST'])
-def run_function():
+@app2.route('/', defaults={'path': ''}, methods=['POST'])
+@app2.route('/<path:path>', methods=['POST'])
+def run_function(path):
     try:
         data = request.get_data(as_text=True)  # raw body (not JSON-validated)
-        
+        app2.logger.error("data received: %s", data, exc_info=True)
         process = subprocess.Popen(
             ["./func_bin/function"],
             stdin=subprocess.PIPE,
