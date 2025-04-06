@@ -26,7 +26,6 @@ def execute_function(function_name):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # -------- Secondary App (port 8888) --------
 app2 = Flask(__name__)
 
@@ -43,24 +42,20 @@ def run_function(path):
             stderr=subprocess.PIPE,
             text=True
         )
-
         stdout, stderr = process.communicate(data)
-        return jsonify({
-            "stdout": stdout,
-            "stderr": stderr,
-            "returncode": process.returncode
-        })
+        return stdout
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 # -------- Run both apps --------
 def run_app2():
-    app2.run(host='127.0.0.1', port=8888)
+    app2.run(host='0.0.0.0', port=8888)
+    # app2.run(host='127.0.0.1', port=8888)
 
 if __name__ == '__main__':
     # Start app2 in a separate thread
     threading.Thread(target=run_app2, daemon=True).start()
 
     # Start app1 as the main thread (your original app)
-    app1.run(host='127.0.0.1', port=8080)
+    # app1.run(host='127.0.0.1', port=8080)
+    app1.run(host='0.0.0.0', port=8080)
