@@ -41,7 +41,7 @@ function kill_influxdb {
 function killa {
   kill_influxdb
   rm -rf *.txt *.yaml *.yml
-  ../helper.py kill_port_fwd 4000:80
+  ../helper.py kill_port_fwd 8086:8086
 }
 
 case "$1" in

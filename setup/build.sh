@@ -8,7 +8,7 @@ function setup_k8s {
   k3sup plan machine_clab.json \
     --user $USER \
     --servers 1 \
-    --server-k3s-extra-args "--disable traefik" \
+    --server-k3s-extra-args "--disable traefik --docker" \
     --background > bootstrap.sh
   ./helper.py rewrite_bootstrap bootstrap.sh
   chmod +x bootstrap.sh
@@ -23,16 +23,16 @@ function setup_k8s {
 
 function setup {
   setup_k8s
-  cd grafana_tempo && ./build.sh setup && cd ..
-  cd open-telemetry && ./build.sh setup && cd ..
-  cd ingress-nginx && ./build.sh setup && cd ..
-  cd influxdb && ./build.sh setup && cd ..
-  cd cadvisor && ./build.sh setup && cd ..
-  cd prometheus && ./build.sh setup && cd ..
+#  cd grafana_tempo && ./build.sh setup && cd ..
+#  cd open-telemetry && ./build.sh setup && cd ..
+#  cd ingress-nginx && ./build.sh setup && cd ..
+#  cd influxdb && ./build.sh setup && cd ..
+#  cd cadvisor && ./build.sh setup && cd ..
+#  cd prometheus && ./build.sh setup && cd ..
 #  cd openfaas && ./build.sh setup && cd ..
 #  cd openwhisk && ./build.sh setup && cd ..
   cd fission && ./build.sh setup && cd ..
-  cd redis_memcached && ./build.sh setup && cd ..
+#  cd redis_memcached && ./build.sh setup && cd ..
 }
 
 function kill_k8s {
@@ -41,7 +41,7 @@ function kill_k8s {
     ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-killall.sh
     ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-uninstall.sh
     ssh -q $USER@$host -- sudo sh /usr/local/bin/k3s-agent-uninstall.sh
-    ssh -q $USER@$host -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442 31112 31113 8080 6443
+    ssh -q $USER@$host -- npx kill-port 30080 6379 27017 11211 30081 3000 30443 30442 31112 31113 8080 6443 8086 9090
   done
   for entry in "$(pwd)"/*
   do

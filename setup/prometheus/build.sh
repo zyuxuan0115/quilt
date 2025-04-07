@@ -11,14 +11,14 @@ function setup_prometheus {
   kubectl create namespace monitoring
   helm show values prometheus-community/prometheus > values.yaml
   cat <<EOF >> values.yaml
-additionalScrapeConfigs:
-  - job_name: 'cadvisor'
-    static_configs:
-      - targets:
-        - cadvisor.monitoring.svc.cluster.local:8080  # Change if using a different namespace
-    scrape_interval: 5s  # Adjust scrape frequency
-    metrics_path: '/metrics'
+remote_write:
+  - url: "http://influxdb.influxdb.svc.cluster.local:8086/write"
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: "container.*"
+        action: keep
 EOF
+
   helm install prometheus prometheus-community/prometheus -f values.yaml --namespace monitoring
   kubectl wait --for=condition=Ready pod -l app=prometheus --timeout=3600s -n monitoring
   kubectl -n monitoring expose service prometheus-server --type=LoadBalancer --port=9090 --target-port=9090 --name=prometheus-external

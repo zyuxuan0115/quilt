@@ -2,8 +2,8 @@
 
 function setup_cadvisor {
   curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-  VERSION=v0.49.1
-  ./kustomize build "https://github.com/google/cadvisor/deploy/kubernetes/base?ref=${VERSION}" | kubectl apply -f -
+#  VERSION=v0.49.1
+#  ./kustomize build "https://github.com/google/cadvisor/deploy/kubernetes/base?ref=${VERSION}" | kubectl apply -f -
   kubectl kustomize deploy/kubernetes/base | kubectl apply -f -
   kubectl port-forward daemonset/cadvisor 8080:8080 -n cadvisor &
   kubectl apply -f - <<EOF
