@@ -1,0 +1,177 @@
+Running 10m test @ http://158.130.4.152:31723
+  1 threads and 1 connections
+  Thread calibration: mean lat.: 9223372036854776.000ms, rate sampling interval: 10ms
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+failed to wait for subprocess: exit status 101
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     5.31m     2.48m    9.10m    58.82%
+    Req/Sec     0.03      1.77   111.00     99.97%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    5.07m 
+ 75.000%    7.09m 
+ 90.000%    8.10m 
+ 99.000%    9.11m 
+ 99.900%    9.11m 
+ 99.990%    9.11m 
+ 99.999%    9.11m 
+100.000%    9.11m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   63143.935     0.000000            1         1.00
+  123142.143     0.100000            2         1.11
+  183500.799     0.200000            4         1.25
+  243793.919     0.300000            6         1.43
+  244056.063     0.400000            7         1.67
+  304349.183     0.500000            9         2.00
+  364380.159     0.550000           10         2.22
+  364904.447     0.600000           11         2.50
+  424935.423     0.650000           12         2.86
+  424935.423     0.700000           12         3.33
+  425459.711     0.750000           13         4.00
+  485490.687     0.775000           14         4.44
+  485490.687     0.800000           14         5.00
+  485752.831     0.825000           15         5.71
+  485752.831     0.850000           15         6.67
+  485752.831     0.875000           15         8.00
+  545783.807     0.887500           16         8.89
+  545783.807     0.900000           16        10.00
+  545783.807     0.912500           16        11.43
+  545783.807     0.925000           16        13.33
+  545783.807     0.937500           16        16.00
+  546308.095     0.943750           17        17.78
+  546308.095     1.000000           17          inf
+#[Mean    =   318494.359, StdDeviation   =   148611.080]
+#[Max     =   545783.808, Total count    =           17]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%    1.00m 
+ 75.000%    1.00m 
+ 90.000%    1.00m 
+ 99.000%    1.05m 
+ 99.900%    1.05m 
+ 99.990%    1.05m 
+ 99.999%    1.05m 
+100.000%    1.05m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+     274.431     0.000000            1         1.00
+     288.255     0.100000            2         1.11
+     318.975     0.200000            4         1.25
+     470.527     0.300000            6         1.43
+     474.623     0.400000            7         1.67
+   60030.975     0.500000           16         2.00
+   60030.975     0.550000           16         2.22
+   60030.975     0.600000           16         2.50
+   60030.975     0.650000           16         2.86
+   60030.975     0.700000           16         3.33
+   60030.975     0.750000           16         4.00
+   60030.975     0.775000           16         4.44
+   60030.975     0.800000           16         5.00
+   60030.975     0.825000           16         5.71
+   60030.975     0.850000           16         6.67
+   60030.975     0.875000           16         8.00
+   60030.975     0.887500           16         8.89
+   60030.975     0.900000           16        10.00
+   60030.975     0.912500           16        11.43
+   60030.975     0.925000           16        13.33
+   60030.975     0.937500           16        16.00
+   63143.935     0.943750           17        17.78
+   63143.935     1.000000           17          inf
+#[Mean    =    32135.379, StdDeviation   =    29945.760]
+#[Max     =    63111.168, Total count    =           17]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  17 requests in 10.00m, 2.91KB read
+  Socket errors: connect 0, read 0, write 0, timeout 289
+  Non-2xx or 3xx responses: 17
+Requests/sec:      0.03
+Transfer/sec:       4.96B
