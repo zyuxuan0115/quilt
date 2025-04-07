@@ -4,12 +4,12 @@ ARGS=("$@")
 FUNC_NAME=${ARGS[1]}
 WRK_SCRIPT="lua_files/$FUNC_NAME.lua"
 WRK_BIN=../wrk
-DEATHSTARBENCH=/home/zyuxuan/faas-test/DeathStarBench_fake
+DEATHSTARBENCH=/home/zyuxuan/faas-test/DeathStarBench_fakedb
 SETUP_DIR=/home/zyuxuan/faas-test/setup
 TEST_DIR=/home/zyuxuan/faas-test/test
 WORKLOAD=media_microservice_rust_lite
 
-QPS=200
+QPS=5000
 
 if [ "${ARGS[2]}" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
@@ -28,8 +28,9 @@ fi
 
 function measure_perf {
 #  CON=(1 2 3 4 5 7 9 11 13 15 18 21 24 27 30)
-  CON=(35 40 45 50 60 70 80 90 100 110 120)
-#  CON=(1)
+#  CON=(35 40 45 50 55 60)
+#  CON=(70 80 90 100 110)
+  CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
@@ -47,22 +48,8 @@ function measure_perf {
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
-#    cd $SETUP_DIR/fission \
-#      && ./install.sh kill \
-#      && ./install.sh setup
     cd $TEST_DIR/wrk2_fission/media_microservice
   done
-}
-
-function run_wrk {
-  sleep 10
-  IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-  PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
-  ENTRY_HOST=http://$IP:$PORT
-  WRK_SCRIPT_0="lua_files/$1.lua"
-  $WRK_BIN -t 1 -c 1 -d $2 -L -U \
-	   -s $WRK_SCRIPT_0 \
-	   $ENTRY_HOST -R $QPS 2>/dev/null > output_$1.log
 }
 
 
