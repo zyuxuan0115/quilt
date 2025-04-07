@@ -1,0 +1,141 @@
+Running 10m test @ http://158.130.4.152:31968
+  1 threads and 80 connections
+  Thread calibration: mean lat.: 9223372036854776.000ms, rate sampling interval: 10ms
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+------------------------------
+Response with status: 500
+------------------------------
+[response] Body:
+error sending request to function
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.36m    27.93s    2.00m    54.55%
+    Req/Sec     0.09      4.74   333.00     99.95%
+  Latency Distribution (HdrHistogram - Recorded Latency)
+ 50.000%    1.50m 
+ 75.000%    1.83m 
+ 90.000%    1.84m 
+ 99.000%    2.00m 
+ 99.900%    2.00m 
+ 99.990%    2.00m 
+ 99.999%    2.00m 
+100.000%    2.00m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+   30015.487     0.000000            1         1.00
+   59736.063     0.100000            2         1.11
+   59998.207     0.200000            3         1.25
+   60030.975     0.300000            5         1.43
+   60030.975     0.400000            5         1.67
+   89784.319     0.500000            6         2.00
+   90046.463     0.550000            7         2.22
+   90046.463     0.600000            7         2.50
+  109969.407     0.650000            8         2.86
+  109969.407     0.700000            8         3.33
+  110100.479     0.750000            9         4.00
+  110100.479     0.775000            9         4.44
+  110100.479     0.800000            9         5.00
+  110231.551     0.825000           10         5.71
+  110231.551     0.850000           10         6.67
+  110231.551     0.875000           10         8.00
+  110231.551     0.887500           10         8.89
+  110231.551     0.900000           10        10.00
+  119996.415     0.912500           11        11.43
+  119996.415     1.000000           11          inf
+#[Mean    =    81788.183, StdDeviation   =    27927.902]
+#[Max     =   119930.880, Total count    =           11]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+
+  Latency Distribution (HdrHistogram - Uncorrected Latency (measured without taking delayed starts into account))
+ 50.000%   30.02s 
+ 75.000%    1.00m 
+ 90.000%    1.00m 
+ 99.000%    1.84m 
+ 99.900%    1.84m 
+ 99.990%    1.84m 
+ 99.999%    1.84m 
+100.000%    1.84m 
+
+  Detailed Percentile spectrum:
+       Value   Percentile   TotalCount 1/(1-Percentile)
+
+      11.991     0.000000            1         1.00
+   20250.623     0.100000            3         1.11
+   20250.623     0.200000            3         1.25
+   30015.487     0.300000            7         1.43
+   30015.487     0.400000            7         1.67
+   30015.487     0.500000            7         2.00
+   30015.487     0.550000            7         2.22
+   30015.487     0.600000            7         2.50
+   59736.063     0.650000            8         2.86
+   59736.063     0.700000            8         3.33
+   60030.975     0.750000           10         4.00
+   60030.975     0.775000           10         4.44
+   60030.975     0.800000           10         5.00
+   60030.975     0.825000           10         5.71
+   60030.975     0.850000           10         6.67
+   60030.975     0.875000           10         8.00
+   60030.975     0.887500           10         8.89
+   60030.975     0.900000           10        10.00
+  110100.479     0.912500           11        11.43
+  110100.479     1.000000           11          inf
+#[Mean    =    40940.237, StdDeviation   =    28394.900]
+#[Max     =   110034.944, Total count    =           11]
+#[Buckets =           27, SubBuckets     =         2048]
+----------------------------------------------------------
+  11 requests in 2.31m, 1.82KB read
+  Socket errors: connect 0, read 0, write 0, timeout 5510
+  Non-2xx or 3xx responses: 11
+Requests/sec:      0.08
+Transfer/sec:      13.43B
