@@ -33,7 +33,7 @@ app2 = Flask(__name__)
 @app2.route('/<path:path>', methods=['POST'])
 def run_function(path):
     try:
-        data = request.get_data(as_text=True)  # raw body (not JSON-validated)
+        data = request.get_data(as_text=True) 
         app2.logger.error("data received: %s", data, exc_info=True)
         process = subprocess.Popen(
             ["./func_bin/function"],
@@ -50,12 +50,8 @@ def run_function(path):
 # -------- Run both apps --------
 def run_app2():
     app2.run(host='0.0.0.0', port=8888)
-    # app2.run(host='127.0.0.1', port=8888)
 
 if __name__ == '__main__':
     # Start app2 in a separate thread
     threading.Thread(target=run_app2, daemon=True).start()
-
-    # Start app1 as the main thread (your original app)
-    # app1.run(host='127.0.0.1', port=8080)
     app1.run(host='0.0.0.0', port=8080)
