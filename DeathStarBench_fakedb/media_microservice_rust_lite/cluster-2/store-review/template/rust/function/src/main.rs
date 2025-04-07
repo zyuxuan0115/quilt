@@ -1,6 +1,5 @@
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use redis::Commands;
 use std::time::{Duration, Instant};
 use std::thread;
 
