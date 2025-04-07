@@ -23,9 +23,6 @@ if [ "$#" -lt 3 ]; then
 fi
 
 
-
-
-
 function measure_perf {
 #  CON=(1 2 3 4 5 7 9 11 13 15 18 21 24 27 30)
   CON=(35 40 45 50 60 70 80 90 100 110 120)
@@ -71,10 +68,7 @@ function redeploy {
     && ./install.sh kill \
     && ./install.sh setup
   sleep 60
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-3 && ./build.sh deploy_fission_c
-  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
+  cd $DEATHSTARBENCH/apiGateway && ./build.sh deploy $FUNC_NAME
   cd $TEST_DIR/wrk2_fission/media_microservice
 }
 
