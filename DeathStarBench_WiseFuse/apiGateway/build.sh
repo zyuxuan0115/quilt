@@ -10,7 +10,7 @@ function build {
 function deploy {
   fission function run-container --name wisefuse-$FUNC \
     --image docker.io/zyuxuan0115/wisefuse-$FUNC --port 8888 \
-    --minscale=1 --maxscale=1 \
+    --minscale=110 --maxscale=110 \
     --minmemory=1 --maxmemory=128 \
     --mincpu=1  --maxcpu=2000 \
     --secret tracing \
