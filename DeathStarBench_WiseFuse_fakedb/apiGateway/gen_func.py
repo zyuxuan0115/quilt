@@ -23,19 +23,14 @@ def main(dir_name, file_path):
       func_info[item['function_name']] = item['cluster_id']
   try:
     with open(file_path, 'r') as file:
-      entry_func=""
       for line in file:
         func_name = line.strip()
-        if entry_func == "":
-          entry_func = func_name
         if func_name in func_info:
           sub_dir = real_dirname + "/cluster-"+str(func_info[func_name]) + "/" + func_name
           cmd = sub_dir + "/build.sh fission_b"
           os.system(cmd) 
           cmd = "mv "+func_name+" func_bin/"
           os.system(cmd)
-      cmd = "cp func_bin/"+entry_func+" func_bin/userfunc"
-      os.system(cmd)
    
   except FileNotFoundError:
     print(f"Error: The file {file_path} was not found.")
