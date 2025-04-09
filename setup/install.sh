@@ -27,10 +27,10 @@ function setup_k8s {
     sleep 1; 
   done
   echo "fastar is Ready!"
-  while [[ $(kubectl get nodes dellta --no-headers | awk '{print $2}') != "Ready" ]]; do 
+  while [[ $(kubectl get nodes phast-tg --no-headers | awk '{print $2}') != "Ready" ]]; do 
     sleep 1; 
   done
-  echo "dellta is Ready!"
+  echo "phast-tg is Ready!"
   while [[ $(kubectl get nodes hilbit0 --no-headers | awk '{print $2}') != "Ready" ]]; do 
     sleep 1; 
   done
@@ -43,7 +43,7 @@ function setup_k8s {
     sleep 1; 
   done
   echo "hilbit2 is Ready!"
-  kubectl label nodes dellta exec=fission 
+  kubectl label nodes phast-tg exec=fission 
   kubectl label nodes fastar exec=storage
   kubectl label nodes hilbit0 exec=fission-function
   kubectl label nodes hilbit1 exec=fission-function
