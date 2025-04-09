@@ -26,14 +26,9 @@ fi
 
 
 function measure_perf {
-  CON=(2 3 4 5 6 7 8 9)
-#  CON=(1 3 5 7 9 11 13 15 18 21 24 27 30 35 40 50 60 70 80 90 100 110)
-#  CON=(11 13 15 18 21 24 27 30 35 40 50 60 70 80 90 100 110)
-#  CON=(120 130 140 150 160 170 180 200)
-#   CON=(220 240 260 280 300 320 340 360 380 400 420 440 460 480 500)
-#  CON=(382 384 386 388 390 392 394 396 398 400)
-#  CON=(101 102 103 104 105 106 107 108 109 110)
-#  CON=(120 122 124 126 128 130 132)
+#  CON=(30 60 90 150 200 250 300 350 400 450 500 550 600 650 700 750 800)
+#  CON=(200 230 260 290 320 350 380 420)
+#  CON=(700 800 900)
 #  CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
@@ -48,7 +43,7 @@ function measure_perf {
     IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
     ENTRY_HOST=http://$IP:$PORT
-    $WRK_BIN -t 1 -c $con -d 600 -L -U \
+    $WRK_BIN -t 1 -c $con -d 480 -L -U \
 	   -s $WRK_SCRIPT \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
     echo "===== Connections: $con ====="
@@ -78,8 +73,8 @@ function redeploy {
     && ./install.sh kill \
     && ./install.sh setup
   sleep 60
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
-  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
+#  cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
+#  cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
   cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
   cd $TEST_DIR/wrk2_fission/social_network
 }
