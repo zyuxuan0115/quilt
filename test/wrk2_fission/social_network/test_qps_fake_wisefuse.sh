@@ -2,7 +2,7 @@
 
 ARGS=("$@")
 FUNC_NAME=${ARGS[1]}
-WRK_SCRIPT="lua_files/$FUNC_NAME.lua"
+WRK_SCRIPT="lua_files/wisefuse-$FUNC_NAME.lua"
 WRK_BIN=../wrk
 DEATHSTARBENCH=/home/zyuxuan/faas-test/DeathStarBench_WiseFuse
 SETUP_DIR=/home/zyuxuan/faas-test/setup
@@ -27,8 +27,6 @@ fi
 
 function measure_perf {
 #  CON=(1 3 5 7 9 11 13 15 18 21 24 27 30 35 40 50 60 70 80 90 100 110)
-#  CON=(120 130 140 150 160 170 180 200)
-#   CON=(220 240 260 280 300 320 340 360 380 400)
   CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
@@ -49,10 +47,6 @@ function measure_perf {
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
-#    cd $SETUP_DIR/fission \
-#      && ./install.sh kill \
-#      && ./install.sh setup
-#    cd $TEST_DIR/wrk2_fission/social_network
   done
 }
 
@@ -73,7 +67,7 @@ function redeploy {
     && ./install.sh kill \
     && ./install.sh setup
   sleep 30
-  cd $DEATHSTARBENCH/apiGateway && ./build.sh deploy
+  cd $DEATHSTARBENCH/apiGateway && ./build.sh deploy $FUNC_NAME
   cd $TEST_DIR/wrk2_fission/social_network
 }
 
