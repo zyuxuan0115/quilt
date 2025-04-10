@@ -4,38 +4,12 @@ use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use std::process;
 use redis::Commands;
-use rand::Rng;
-use rand::distributions::Alphanumeric;
-use std::thread;
-
-fn gen_rand_str(len: usize) -> String {
-  let s: String = rand::thread_rng()
-    .sample_iter(&Alphanumeric)
-    .take(len)
-    .map(char::from)
-    .collect();
-  s
-}
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let input_args: ReadCastInfoArgs = serde_json::from_str(&input).unwrap();
   let cast_ids: Vec<i64> = input_args.cast_ids;
-
-  let mut cast_infos: Vec<CastInfoEntry> = Vec::new();
-  for cast_id in &cast_ids {
-    let cast_info = CastInfoEntry {
-      cast_info_id: *cast_id,
-      name: gen_rand_str(10),
-      gender: true, 
-      intro: gen_rand_str(20),
-    };
-    cast_infos.push(cast_info);
-    thread::sleep(Duration::from_millis(2));
-  }
-
-/*
   let cast_id_strs: Vec<String> = cast_ids.iter().map(|x| x.to_string()).collect();
 
   let mut cast_info_ids_not_cached: HashMap<String, bool> = HashMap::new();
@@ -53,6 +27,7 @@ fn main() {
   let result: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
   let mut cast_infos: Vec<CastInfoEntry> = Vec::new();
+
   for (key, value) in result {
     cast_info_ids_not_cached.remove(&key); 
     let cast: CastInfoEntry = serde_json::from_str(&value).unwrap();
@@ -95,7 +70,7 @@ fn main() {
       }
     }
   }
-*/
+
   let serialized = serde_json::to_string(&cast_infos).unwrap();
 
   //let new_now =  Instant::now();

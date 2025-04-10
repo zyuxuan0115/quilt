@@ -42,7 +42,6 @@ fn main() {
     make_rpc("social-graph-follow", serialized)
   });
   let result = handle2.join().unwrap();
- 
   send_return_value_to_caller(result);
 }
 

@@ -2,6 +2,20 @@ use curl::easy::{Easy};
 use std::{io::{self, Read, Write, BufReader}, error::Error, fs::{File, read_to_string}, path::Path, collections::HashMap};
 use serde::{Deserialize, Serialize};
 use std::env;
+use once_cell::sync::Lazy;
+use pyroscope_pprofrs::{PprofConfig, pprof_backend}; 
+use pyroscope::{PyroscopeAgent};
+use pyroscope::pyroscope::PyroscopeAgentReady;
+use std::sync::Mutex;
+
+/*
+static AGENT: Lazy<PyroscopeAgent<PyroscopeAgentReady>> = Lazy::new(|| {
+  PyroscopeAgent::builder("http://pyroscope.pyroscope-test.svc.cluster.local.:4040", "fission-function")
+    .backend(pprof_backend(PprofConfig::new().sample_rate(100)))
+    .build()
+    .unwrap() // Ensure proper error handling in real-world applications
+});
+*/
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MemcachedUserLoginInfo {
@@ -257,6 +271,7 @@ pub struct RetMsg {
   pub err: String,
 }
 
+
 pub fn read_lines(filename: &str) -> Vec<String> {
   read_to_string(filename)
                  .unwrap()  // panic on possible file-reading errors
@@ -323,8 +338,8 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   msg.msg
 }
 
-
 pub fn get_arg_from_caller() -> String{
+  //AGENT.as_ref().start().unwrap();
   let mut buffer = String::new();
   let _ = io::stdin().read_line(&mut buffer);
   buffer
@@ -336,6 +351,7 @@ pub fn send_return_value_to_caller(output: String) -> (){
     err: "".to_string(),
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
+  //AGENT.as_ref().stop().unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
 }
 

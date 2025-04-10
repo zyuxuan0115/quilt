@@ -21,7 +21,7 @@ function compile_to_ir {
     RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" \
        cargo +nightly-2024-12-19 build --release \
        -Z build-std=std,panic_abort \
-       --target x86_64-unknown-linux-gnu 
+       --target x86_64-unknown-linux-gnu
 }
 
 

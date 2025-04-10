@@ -2,8 +2,7 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
-use std::{process, thread};
-use rand::Rng;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -13,7 +12,6 @@ fn main() {
 
   let mut movie_id: String = String::new(); 
 
-/*
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
   let result: Option<String> = memcache_client.get(&movie_info.title[..]).unwrap();
@@ -45,12 +43,7 @@ fn main() {
       }
     },
   }; 
-*/
-  let mut rng = rand::thread_rng();
-  let idx: i32 = 5999000 + rng.gen_range(0..1000);
-  let movie_id: String = format!("tt{}", idx);
-  thread::sleep(Duration::from_millis(2));
-  	
+
   let args = ComposeReviewUploadMovieIdArgs {
     req_id : movie_info.req_id,
     movie_id : movie_id.clone(),
@@ -71,8 +64,6 @@ fn main() {
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-
-  send_return_value_to_caller("".to_string());
-
+  send_return_value_to_caller("upload-movie-id".to_string());
 }
 

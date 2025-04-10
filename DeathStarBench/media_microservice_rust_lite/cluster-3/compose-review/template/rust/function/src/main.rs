@@ -28,6 +28,7 @@ fn main() {
     username: new_review_info.username,
   };
   let upload_user_arg_str = serde_json::to_string(&upload_user_arg).unwrap();
+
   let _ = make_rpc("upload-user-with-username", upload_user_arg_str);
 
   let upload_movie_arg = UploadMovieIdArgs {
@@ -35,6 +36,7 @@ fn main() {
     title: new_review_info.title,
     rating: new_review_info.rating,
   };
+
   let upload_movie_arg_str = serde_json::to_string(&upload_movie_arg).unwrap();
   let _ = make_rpc("upload-movie-id", upload_movie_arg_str.clone());
 

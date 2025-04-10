@@ -399,6 +399,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   msg.msg
 }
 
+
 pub fn get_arg_from_caller() -> String{
   let mut buffer = String::new();
   let _ = io::stdin().read_line(&mut buffer);

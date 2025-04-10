@@ -20,7 +20,7 @@ function invoke_fission {
 
 function invoke_fission_merged {
   curl -XPOST http://localhost:8888/$FUNC-merged \
-  -d '{"req_id":8039,"username":"zyuxuan","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
+  -d '{"req_id":8039,"username":"username_999","password":"123456","title":"Barbie","rating":5,"text":"This is a good movie"}'
 }
 
 case "$1" in

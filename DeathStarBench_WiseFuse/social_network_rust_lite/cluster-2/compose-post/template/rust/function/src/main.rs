@@ -65,8 +65,8 @@ fn main() {
   // call StorePost
   let post_str: String = serde_json::to_string(&post).unwrap(); 
   let time_7 = Instant::now();
-
   make_rpc("store-post", post_str);
+
 
   let time_8 = Instant::now();
   // call WriteUserTimeline
@@ -92,7 +92,7 @@ fn main() {
 
   let time_11 = Instant::now();
 
-  let result = make_rpc("write-home-timeline", write_h_tl_arg_str); 
+  make_rpc("write-home-timeline", write_h_tl_arg_str); 
 
 //  println!("{:?}, ", time_1.duration_since(time_0));
 //  println!("{:?}, ", time_3.duration_since(time_2));
@@ -103,5 +103,7 @@ fn main() {
   let millis = duration.as_secs() * 1000 + u64::from(duration.subsec_millis());
   let fina = format!("{} ms", millis);
   send_return_value_to_caller(fina);
+//  send_return_value_to_caller("".to_string());
+
 }
 

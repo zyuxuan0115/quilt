@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  social-graph-follow:
+    lang: rust
+    handler: ./social-graph-follow
+    image: zyuxuan0115/sn-social-graph-follow-async:latest
+    secrets:
+    - redis-password
+    - ingress-enable

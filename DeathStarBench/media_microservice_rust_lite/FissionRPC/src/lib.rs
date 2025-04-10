@@ -408,7 +408,7 @@ pub fn get_arg_from_caller() -> String{
 pub fn send_return_value_to_caller(output: String) -> (){
   let msg = RetMsg {
     msg: output,
-    err: "".to_string(),
+    err: "### ".to_string(),
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
@@ -425,7 +425,7 @@ pub fn send_err_msg(msg: String) -> () {
 
 pub fn send_return_value_and_err_msg (msg: String, err: String) -> () {
   let new_msg = RetMsg {
-    msg: msg,
+    msg: format!("@@@ {}", msg),
     err: err,
   };
   let msg_str = serde_json::to_string(&new_msg).unwrap();

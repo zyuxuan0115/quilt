@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  rating-service:
+    lang: rust
+    handler: ./rating-service
+    image: zyuxuan0115/mm-rating-service:latest
+    secrets:
+    - redis-password
+    - ingress-enable

@@ -23,8 +23,10 @@ function compile_to_ir {
   cp -r ../$PLATFORM . \
   && mv $PLATFORM OpenFaaSRPC \
   && cp -r ../DbInterface . 
-  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build --release \
-    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu 
+  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" \
+    cargo +nightly-2024-12-19 build --release \
+    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" \
+    --target x86_64-unknown-linux-gnu 
 }
 
 
@@ -116,7 +118,7 @@ function link {
   $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.bc -o function.o
   wrap_shared_lib
   #gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS
-  clang -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
+  gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed *.o -o function $LINKER_FLAGS
 }
 
 

@@ -21,5 +21,5 @@ fn main() {
   make_rpc("compose-review-upload-unique-id", args_str);
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("unique-id-service".to_string());
 }

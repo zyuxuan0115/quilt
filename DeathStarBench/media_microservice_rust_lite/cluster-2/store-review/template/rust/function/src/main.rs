@@ -24,5 +24,5 @@ fn main() {
 
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("store-review".to_string());
 }

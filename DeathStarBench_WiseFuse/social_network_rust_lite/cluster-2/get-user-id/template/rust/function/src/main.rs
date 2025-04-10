@@ -1,10 +1,10 @@
+use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{Duration, Instant}, process};
 use memcache::Client as memcached_client;
 use redis::{Commands, RedisResult};
 use std::path::Path;
-use std::thread;
 
 fn remove_suffix<'a>(s: &'a str, suffix: &str) -> &'a str {
     match s.strip_suffix(suffix) {
@@ -18,11 +18,6 @@ fn main() {
   //let now = Instant::now();
   let input_args: GetUserIdArgs = serde_json::from_str(&input).unwrap();
   let mut username = String::from(&input_args.username[..]);
-
-  let user_id_str = &username[9..];
-  let user_id: i64 = user_id_str.parse().unwrap();
-
-/*
   username.push_str(":user_id");
 
   let memcache_uri = get_memcached_uri();
@@ -66,8 +61,6 @@ fn main() {
     username.push_str(":user_id");
     memcache_client.set(&username[..], user_id, 0).unwrap();
   }
-*/
-  thread::sleep(Duration::from_millis(4));
   let serialized = serde_json::to_string(&user_id).unwrap();
   //let new_now =  Instant::now();
   //println!("{:?}", new_now.duration_since(now));

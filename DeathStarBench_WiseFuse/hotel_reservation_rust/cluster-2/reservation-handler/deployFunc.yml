@@ -1,0 +1,13 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  reservation-handler:
+    lang: rust
+    handler: ./reservation-handler
+    image: zyuxuan0115/hr-reservation-handler:latest
+    secrets:
+    - redis-password
+    - mongodb-password
+    - ingress-enable

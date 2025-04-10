@@ -265,32 +265,12 @@ pub fn read_lines(filename: &str) -> Vec<String> {
                  .collect()  // gather them together into a vector
 }
 
-pub fn get_env(env_var: String) -> String {
-  let mut env_value: String = String::new();
-  match env::var(&env_var[..]) {
-    Ok(value) => env_value = value,
-    Err(e) => {
-      println!("Couldn't read ingress-enable: {}", e);
-      // print all env var for the program
-      //for (key, value) in env::vars() {
-      //  println!("{}: {}", key, value);
-      //}
-    },
-  }
-  env_value
-}
 
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::new();
 
-  let ingress_enable = get_env("ingress-enable".to_string()); 
-  if ingress_enable == "true" {
-    url = String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/");
-  }
-  else {
-    url = String::from("http://router.fission.svc.cluster.local.:80/");
-  }
+  url = String::from("http://router.fission.svc.cluster.local.:80/");
   url.push_str(func_name);
 
   let mut input_to_be_sent = (&input).as_bytes();
@@ -322,6 +302,7 @@ pub fn make_rpc(func_name: &str, input: String) -> String {
   let msg: RetMsg = serde_json::from_str(&html_data).unwrap();
   msg.msg
 }
+
 
 pub fn get_arg_from_caller() -> String{
   let mut buffer = String::new();

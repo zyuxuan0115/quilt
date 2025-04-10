@@ -3,18 +3,6 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
 use std::process;
-use rand::Rng;
-use rand::distributions::Alphanumeric;
-use std::thread;
-
-fn gen_rand_str(len: usize) -> String {
-  let s: String = rand::thread_rng()
-    .sample_iter(&Alphanumeric)
-    .take(len)
-    .map(char::from)
-    .collect();
-  s
-}
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -22,10 +10,6 @@ fn main() {
   let input_args: ReadPlotArgs = serde_json::from_str(&input).unwrap();
   let plot_id = input_args.plot_id.to_string();
 
-  let plot = gen_rand_str(50);
-  thread::sleep(Duration::from_millis(2));
-
-/*
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
   let plot_id_mmd = format!("plot:{}", plot_id);
@@ -60,8 +44,7 @@ fn main() {
       }
     },
   }
- */
-  
+
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(plot);

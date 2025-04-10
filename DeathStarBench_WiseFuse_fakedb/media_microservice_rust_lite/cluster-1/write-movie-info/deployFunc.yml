@@ -1,0 +1,12 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  write-movie-info:
+    lang: rust
+    handler: ./write-movie-info
+    image: zyuxuan0115/mm-write-movie-info:latest
+    secrets:
+    - redis-password
+    - ingress-enable

@@ -5,6 +5,7 @@ use std::time::{Duration, Instant};
 fn main() {
   let input: String = get_arg_from_caller();
 //  let now = Instant::now();
+
   let args: ComposeReviewUploadRatingArgs = serde_json::from_str(&input).unwrap();
   let mut key_counter:String = args.req_id.to_string();
   key_counter.push_str(":counter"); 
@@ -23,10 +24,12 @@ fn main() {
     req_id: args.req_id,
   };
   let compose_and_upload_args_str = serde_json::to_string(&compose_and_upload_args).unwrap();
+
   if counter_value == NUM_COMPONENTS {
     make_rpc("compose-and-upload", compose_and_upload_args_str);
   }
+
 //  let new_now =  Instant::now();
 //  println!("{:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("compose-review-upload-rating".to_string());
 }

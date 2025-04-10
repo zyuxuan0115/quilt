@@ -4,32 +4,12 @@ use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use redis::Commands;
 use std::process;
-use rand::Rng;
-use rand::distributions::Alphanumeric;
-use std::thread;
-
-fn gen_rand_str(len: usize) -> String {
-  let s: String = rand::thread_rng()
-    .sample_iter(&Alphanumeric)
-    .take(len)
-    .map(char::from)
-    .collect();
-  s
-}
-
-fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
-  let mut rng = rand::thread_rng();
-  let x: f64 = rng.gen_range(lower_bound..upper_bound);
-  x
-}
 
 fn main() {
   let input: String = get_arg_from_caller();
   //let now = Instant::now();
   let args: GetRatesArgs = serde_json::from_str(&input).unwrap();
   let hotel_ids: Vec<String> = args.hotel_ids;
-
-/*
   let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut new_x = x.clone(); new_x.push_str(":rate"); new_x}).collect();
   let mut hotel_id_not_cached: HashMap<String, String> = HashMap::new();
  
@@ -85,33 +65,12 @@ fn main() {
         },
         Err(_) => {
           let err_msg = format!("error in loading rating info, with id: {}", item);
-          send_return_value_and_err_msg("".to_string(), err_msg);
+          let serialized = serde_json::to_string(&hotel_rates).unwrap();
+          send_return_value_and_err_msg(serialized, err_msg);
           process::exit(0);
         }
       }
     }
-  }
-*/
-
-  let mut hotel_rates: Vec<RatePlan> = Vec::new();
-  for hotel_id in hotel_ids {
-    let roomtype = RoomType {
-      bookable_rate: gen_rand_num(80.0, 500.0),
-      total_rate: gen_rand_num(80.0, 500.0),
-      total_rate_inclusive: gen_rand_num(80.0, 500.0),
-      code: gen_rand_str(6),
-      currency:gen_rand_str(3),
-      room_description: gen_rand_str(25), 
-    };
-
-    let rate = RatePlan {
-      hotel_id: hotel_id,
-      code: gen_rand_str(6),
-      in_date: gen_rand_str(10),
-      out_date: gen_rand_str(10),
-      room_type: roomtype,
-    };
-    hotel_rates.push(rate);
   }
 
   let serialized = serde_json::to_string(&hotel_rates).unwrap();

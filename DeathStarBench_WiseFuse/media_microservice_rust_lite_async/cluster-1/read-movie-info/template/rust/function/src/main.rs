@@ -3,24 +3,6 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use redis::Commands;
 use std::process;
-use rand::Rng;
-use rand::distributions::Alphanumeric;
-use std::thread;
-
-fn gen_rand_str(len: usize) -> String {
-  let s: String = rand::thread_rng()
-    .sample_iter(&Alphanumeric)
-    .take(len)
-    .map(char::from)
-    .collect();
-  s
-}
-
-fn gen_rand_num(lower_bound: f64, upper_bound: f64) -> f64 {
-  let mut rng = rand::thread_rng();
-  let x: f64 = rng.gen_range(lower_bound..upper_bound);
-  x
-}
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -28,56 +10,6 @@ fn main() {
   let input_args: ReadMovieInfoArgs = serde_json::from_str(&input).unwrap();
   let movie_id = input_args.movie_id;
 
-  let mut rng = rand::thread_rng();
-
-  let mut real_casts: Vec<Cast> = Vec::new(); 
-  let num_casts: i32 = rng.gen_range(0..20);
-  for i in 0..num_casts {
-    let real_cast = Cast {
-      cast_id: rng.gen(),
-      character: gen_rand_str(15),
-      cast_info_id: rng.gen(),
-    };
-    real_casts.push(real_cast);
-  }
-
-  let mut real_thumbnail: Vec<String> = Vec::new();
-  let num_thumbnails: i32 = rng.gen_range(0..20);
-  for i in 0..num_thumbnails {
-    let thumbnail = gen_rand_str(15);
-    real_thumbnail.push(thumbnail);
-  }
-
-  let mut real_photos: Vec<String> = Vec::new();
-  let num_photos: i32 = rng.gen_range(0..20);
-  for i in 0..num_photos {
-    let photo = gen_rand_str(15);
-    real_photos.push(photo);
-  }
-
-  let mut real_videos: Vec<String> = Vec::new();
-  let num_videos: i32 = rng.gen_range(0..20);
-  for i in 0..num_videos {
-    let video = gen_rand_str(15);
-    real_videos.push(video);
-  }
-
-  let real_movie_info = MovieInfoEntry {
-    movie_id: movie_id,
-    title: gen_rand_str(8),
-    plot_id: rng.gen(),
-    avg_rating: gen_rand_num(0.0, 5.0),
-    num_rating: rng.gen(),
-    casts: real_casts,
-    thumbnail_ids: real_thumbnail,
-    photo_ids: real_photos,
-    video_ids: real_videos,
-  };
-  let movie_info = serde_json::to_string(&real_movie_info).unwrap();
-  thread::sleep(Duration::from_millis(4));
- 
-
-/*
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
 
@@ -131,7 +63,7 @@ fn main() {
       }
     },
   }
-*/
+
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller(movie_info);

@@ -16,6 +16,7 @@ fn main() {
     start: args.review_start,
     stop: args.review_stop,
   };
+  
   let read_movie_reviews_input = serde_json::to_string(&read_movie_reviews_args).unwrap();
   let read_movie_review_ret = make_rpc("read-movie-reviews", read_movie_reviews_input);
   let reviews: Vec<ReviewEntry> = serde_json::from_str(&read_movie_review_ret).unwrap();
@@ -28,7 +29,7 @@ fn main() {
   let cast_info_id_str: String = serde_json::to_string(&cast_info_args).unwrap();
   let cast_info_str = make_rpc("read-cast-info", cast_info_id_str);
   let cast_info: Vec<CastInfoEntry> = serde_json::from_str(&cast_info_str).unwrap();
-
+//
   let read_plot_args = ReadPlotArgs {
     plot_id: movie_info.plot_id,
   };

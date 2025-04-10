@@ -15,15 +15,8 @@ function invoke_wsk {
 
 function invoke_fission {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"text":"Hey, this is @username_999! Nice to meet you and welcome to my personal web: https://kate0115.net @username_888"}'
+  -d '{"text":"Hey, this is @Yuxuan! Nice to meet you and welcome to my personal web: https://kate0115.net @twenisch"}'
 }
-
-function invoke_fission_merged {
-  curl -XPOST http://localhost:8888/$FUNC-merged \
-  -d '{"text":"Hey, this is @username_888! Nice to meet you and welcome to my personal web: https://kate0115.net @username_999"}'
-}
-
-
 
 case "$1" in
 wsk)
@@ -31,8 +24,5 @@ wsk)
     ;;
 fission)
     invoke_fission
-    ;;
-fission_merged)
-    invoke_fission_merged
     ;;
 esac

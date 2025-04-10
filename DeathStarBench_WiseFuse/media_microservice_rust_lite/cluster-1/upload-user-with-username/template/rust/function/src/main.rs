@@ -2,15 +2,13 @@ use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
 use std::{collections::HashMap, time::{SystemTime,Duration, Instant}};
 use redis::Commands;
-use std::{process, thread};
-use rand::Rng;
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
   let user_info: UploadUserWithUsernameArgs = serde_json::from_str(&input).unwrap();
   //let now = Instant::now();
   let mut username_uid = user_info.username.clone();
-/*
   username_uid.push_str(":user_id");
 
   let memcache_uri = get_memcached_uri();
@@ -43,15 +41,10 @@ fn main() {
       }
     },
   }; 
- */
-  let mut rng = rand::thread_rng();
-  let user_id: i64 = rng.gen_range(1..=1000);
-
-  thread::sleep(Duration::from_millis(3));
 
   let callee_args = ComposeReviewUploadUserIdArgs {
     req_id: user_info.req_id,
-    user_id: user_id,
+    user_id: user_id_str.parse::<i64>().unwrap(),
   };
 
   let serialized = serde_json::to_string(&callee_args).unwrap();
@@ -60,6 +53,6 @@ fn main() {
 
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("upload-user-with-username".to_string());
 }
 

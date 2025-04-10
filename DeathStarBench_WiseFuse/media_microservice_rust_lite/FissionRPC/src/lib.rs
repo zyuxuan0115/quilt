@@ -341,11 +341,32 @@ pub fn read_lines(filename: &str) -> Vec<String> {
                  .collect()  // gather them together into a vector
 }
 
+pub fn get_env(env_var: String) -> String {
+  let mut env_value: String = String::new();
+  match env::var(&env_var[..]) {
+    Ok(value) => env_value = value,
+    Err(e) => {
+      println!("Couldn't read ingress-enable: {}", e);
+      // print all env var for the program
+      //for (key, value) in env::vars() {
+      //  println!("{}: {}", key, value);
+      //}
+    },
+  }
+  env_value
+}
+
 pub fn make_rpc(func_name: &str, input: String) -> String {
   let mut easy = Easy::new();
   let mut url = String::new();
 
-  url = String::from("http://router.fission.svc.cluster.local.:80/");
+  let ingress_enable = get_env("ingress-enable".to_string()); 
+  if ingress_enable == "true" {
+    url = String::from("http://ingress-nginx-controller.ingress-nginx.svc.cluster.local.:80/");
+  }
+  else {
+    url = String::from("http://router.fission.svc.cluster.local.:80/");
+  }
   url.push_str(func_name);
 
   let mut input_to_be_sent = (&input).as_bytes();
@@ -387,7 +408,7 @@ pub fn get_arg_from_caller() -> String{
 pub fn send_return_value_to_caller(output: String) -> (){
   let msg = RetMsg {
     msg: output,
-    err: "".to_string(),
+    err: "### ".to_string(),
   };
   let msg_str = serde_json::to_string(&msg).unwrap();
   let _ = io::stdout().write(&msg_str[..].as_bytes());
@@ -404,7 +425,7 @@ pub fn send_err_msg(msg: String) -> () {
 
 pub fn send_return_value_and_err_msg (msg: String, err: String) -> () {
   let new_msg = RetMsg {
-    msg: msg,
+    msg: format!("@@@ {}", msg),
     err: err,
   };
   let msg_str = serde_json::to_string(&new_msg).unwrap();

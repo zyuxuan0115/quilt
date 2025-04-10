@@ -27,6 +27,7 @@ fn main() {
   let result: std::collections::HashMap<String, String> = memcache_client.gets(keys).unwrap();
 
   let mut cast_infos: Vec<CastInfoEntry> = Vec::new();
+
   for (key, value) in result {
     cast_info_ids_not_cached.remove(&key); 
     let cast: CastInfoEntry = serde_json::from_str(&value).unwrap();
@@ -69,6 +70,7 @@ fn main() {
       }
     }
   }
+
   let serialized = serde_json::to_string(&cast_infos).unwrap();
 
   //let new_now =  Instant::now();

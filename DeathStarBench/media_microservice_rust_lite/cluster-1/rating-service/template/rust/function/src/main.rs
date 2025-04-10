@@ -29,6 +29,6 @@ fn main() {
   let _: isize = con.incr(&movie_id2[..], 1).unwrap();
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
-  send_return_value_to_caller("".to_string());
+  send_return_value_to_caller("rating-service".to_string());
 }
 

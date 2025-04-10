@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8081
+functions:
+  media-service:
+    lang: rust
+    handler: ./media-service
+    image: zyuxuan0115/sn-media-service-async:latest
+    secrets:
+    - ingress-enable

@@ -3,9 +3,8 @@ use DbInterface::*;
 use std::time::{SystemTime,Duration, Instant};
 use std::collections::HashMap;
 use chrono::{DateTime, NaiveDate};
-use redis::{Iter, Commands};
-use std::{process, thread};
-use rand::Rng;
+use redis::{Iter,Commands};
+use std::process;
 
 fn main() {
   let input: String = get_arg_from_caller();
@@ -13,21 +12,6 @@ fn main() {
   let args: CheckAvailabilityArgs = serde_json::from_str(&input).unwrap();
 
   let hotel_ids: Vec<String> = args.hotel_id;
-  let mut capacity_info: Vec<HotelCapacity> = Vec::new();
-  for hotel_id in &hotel_ids {
-    let hotel_cap = HotelCapacity {
-      hotel_id : hotel_id.clone(),
-      capacity: 400,
-    };
-    capacity_info.push(hotel_cap);
-  }
-  thread::sleep(Duration::from_millis(4));
-  let mut capacity_info_hash: HashMap<String, HotelCapacity> 
-                                = capacity_info.iter().
-                                  map(|x| (x.hotel_id.clone(), x.to_owned() )).
-                                  collect::<HashMap<_, _>>();
-
-/*
   let hotel_id_mmc: Vec<String> = hotel_ids.iter().map(|x| {let mut y = x.clone(); y.push_str("_cap"); y}).collect();
   let hotel_id_strslice: Vec<&str> = hotel_id_mmc.iter().map(|x| &**x).collect();
   let keys: &[&str] = &hotel_id_strslice;
@@ -98,50 +82,7 @@ fn main() {
   }
 
   let mut capacity_info_hash: HashMap<String, HotelCapacity> = capacity_info.iter().map(|x| (x.hotel_id.clone(), x.to_owned() )).collect::<HashMap<_, _>>();
-*/
 
-  let mut hotel_ids_return: Vec<String> = Vec::new();
-  for hotel_id in &hotel_ids {
-    // get reservation info and then check if the hotel is available
-    let mut in_date = NaiveDate::parse_from_str(&args.in_date[..], "%Y-%m-%d").unwrap();
-    let out_date = NaiveDate::parse_from_str(&args.out_date[..], "%Y-%m-%d").unwrap();
-    let mut next_day = in_date.succ_opt().unwrap();
-
-    let mut reservation_info: Vec<HotelReservation> = Vec::new();
-    let mut rng = rand::thread_rng();
-    while next_day <= out_date {
-      let indate = in_date.format("%Y-%m-%d").to_string();
-      let next = next_day.format("%Y-%m-%d").to_string();
-      // let hotel_id_mmc: String = format!("{}_{}_{}", hotel_id, indate, next);
-      // hotel_ids_mmc.push(hotel_id_mmc);
-      let hotel_resv = HotelReservation {
-        hotel_id : hotel_id.clone(),
-        in_date: indate,
-        out_date: next,
-        number: rng.gen_range(50..395),
-      };
-      reservation_info.push(hotel_resv);
-      thread::sleep(Duration::from_millis(2));
-      in_date = next_day;
-      next_day = next_day.succ_opt().unwrap();
-    }
-   
-    thread::sleep(Duration::from_millis(2));
-
-    let mut make_resv_successful = true;
-    for item in &reservation_info {
-      let hotel_capacity = capacity_info_hash.get(&item.hotel_id[..]).unwrap();
-      if item.number + args.room_number > hotel_capacity.capacity {
-        make_resv_successful = false;
-      }
-    }
-    if make_resv_successful == true {
-      hotel_ids_return.push(hotel_id.to_string());
-    }
-  }
-
-
-/*
   let mut hotel_ids_return: Vec<String> = Vec::new();
   for hotel_id in &hotel_ids {
     // get reservation info and then check if the hotel is available
@@ -239,8 +180,6 @@ fn main() {
       hotel_ids_return.push(hotel_id.to_owned());
     }
   }
-*/
-
   //let new_now =  Instant::now();
   //println!("check-availability: {:?}", new_now.duration_since(now));
   let serialized = serde_json::to_string(&hotel_ids_return).unwrap();

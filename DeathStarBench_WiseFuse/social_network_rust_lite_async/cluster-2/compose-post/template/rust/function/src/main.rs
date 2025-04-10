@@ -5,7 +5,6 @@ use std::time::{Duration, Instant};
 use std::thread;
 
 fn main() {
-  let time_0 = Instant::now();
   let input: String = get_arg_from_caller();
   let input_info: ComposePostArgs = serde_json::from_str(&input).unwrap();
   // call UniqueIdService
@@ -48,12 +47,14 @@ fn main() {
     make_rpc("media-service", media_arg_str)
   });
 
+  let time_0 = Instant::now();
 
   let uuid = handle_uuid.join().unwrap();
   let creator_str = handle_compose_creator.join().unwrap();
   let text_str = handle_text.join().unwrap();
   let media_return = handle_media.join().unwrap();
 
+  let time_1 = Instant::now();
 
   let pid: i64 = uuid[..].parse::<i64>().unwrap();
   let text_return_info: TextServiceReturn = serde_json::from_str(&text_str).unwrap();
@@ -105,13 +106,12 @@ fn main() {
   let _ = handle_write_h_tl.join().unwrap();
 
   let time_3 = Instant::now();
-  let time_1 = Instant::now();
 
   let result = format!("{}μs", time_1.duration_since(time_0).subsec_nanos()/1000);
   let result2 = format!("{}μs", time_3.duration_since(time_2).subsec_nanos()/1000);
 
 //  println!("{}", result);
 //  println!("{}", result2);
-  send_return_value_to_caller(result);
+  send_return_value_to_caller("".to_string());
 }
 

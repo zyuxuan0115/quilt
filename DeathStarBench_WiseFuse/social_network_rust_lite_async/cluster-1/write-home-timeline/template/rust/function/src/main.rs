@@ -30,20 +30,16 @@ fn main() {
   followers = followers_set.into_iter().map(|(k, _)| k).collect();
 
   // update redis
-/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
-*/
-
 
   for follower_id in &followers {
     let mut follower_id_str:String = "user-timeline:".to_string();
     follower_id_str.push_str(&(follower_id.to_string()));
 
     let post_id_str: String = timeline_info.post_id.to_string();
-//    let _: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
-    thread::sleep(Duration::from_millis(1));
+    let _: isize = con.zadd(&follower_id_str[..], &post_id_str[..], timeline_info.timestamp).unwrap();
   }
   let time_1 = Instant::now();
   //println!("{:?}", time_1.duration_since(time_0));

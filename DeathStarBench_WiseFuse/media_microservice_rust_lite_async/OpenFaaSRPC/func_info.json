@@ -133,7 +133,7 @@
     },
     {
       "function_name":"compose-review-user-id",
-      "cluster_id":2
+      "cluster_id":3
     },
     {
       "function_name":"compose-review",

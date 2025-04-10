@@ -23,10 +23,10 @@ function compile_to_ir {
   cp -r ../$PLATFORM . \
   && mv $PLATFORM OpenFaaSRPC \
   && cp -r ../DbInterface . 
-  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" cargo +nightly build --release \
-    -Z build-std=std,panic_abort --target x86_64-unknown-linux-gnu
-#    -z build-std=std,panic_abort -z build-std-features="optimize_for_size" --target x86_64-unknown-linux-gnu 
-
+  RUSTFLAGS="-C save-temps -Zlocation-detail=none -Zfmt-debug=none --emit=llvm-bc" \
+    cargo +nightly-2024-12-19 build --release \
+    -Z build-std=std,panic_abort -Z build-std-features="optimize_for_size" \
+    --target x86_64-unknown-linux-gnu 
 }
 
 
@@ -103,9 +103,7 @@ function wrap_shared_lib {
   && ./implib-gen.py $C_LIB/libcrypto.so.1.1 2>/dev/null \
   && gcc -c *.S && gcc -c *.c && rm *.S *.c \
   && ./implib-gen.py $C_LIB/libssl.so.1.1 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c \
-  && ./implib-gen.py $C_LIB/libcurl.so.4.6.0 2>/dev/null \
-  && gcc -c *.S && gcc -c *.c && rm *.S *.c
+  && gcc -c *.S && gcc -c *.c && rm *.S *.c 
 
   cd .. && cp Implib.so/*.o .  && rm -rf Implib.so
 }
@@ -116,8 +114,7 @@ function link {
   $LLVM_DIR/llvm-link $WORK_DIR/*.bc -o lib_with_debug_info.bc
   $LLVM_DIR/opt lib_with_debug_info.bc -strip-debug -o lib.bc
   $LLVM_DIR/opt lib.bc -passes=strip-dead-prototypes -o func.bc
-  $LLVM_DIR/opt func.bc -passes=remove-redundant -o function0.bc
-  $LLVM_DIR/opt -passes='default<O3>' function0.bc -o function.bc
+  $LLVM_DIR/opt func.bc -passes=remove-redundant -o function.bc
   $LLVM_DIR/llc -filetype=obj -O3 --function-sections --data-sections function.bc -o function.o
   wrap_shared_lib
   #gcc -no-pie -flto -Wl,--strip-debug -Wl,--gc-sections -Wl,--as-needed -L$RUST_LIB *.o -o function $LINKER_FLAGS

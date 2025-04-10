@@ -7,6 +7,7 @@ fn main() {
   let time_0 = Instant::now();
 
   let input: String = get_arg_from_caller();
+
   let search_info: SearchHandlerArgs = serde_json::from_str(&input).unwrap();
 
   let search_nearby_args = SearchNearbyArgs {
@@ -18,6 +19,7 @@ fn main() {
   let search_nearby_args_str = serde_json::to_string(&search_nearby_args).unwrap(); 
   let search_nearby_ret_str = make_rpc("search-nearby", search_nearby_args_str);
   let search_nearby_ret: Vec<String> = serde_json::from_str(&search_nearby_ret_str).unwrap();
+
 
   let check_availability_args = CheckAvailabilityArgs {
     customer_name: "".to_string(),

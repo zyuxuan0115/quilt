@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use OpenFaaSRPC::{make_rpc, get_arg_from_caller, send_return_value_to_caller,*};
 use DbInterface::*;
-use std::{collections::HashMap, time::{SystemTime,Duration, Instant}, process, thread};
+use std::{collections::HashMap, time::{SystemTime,Duration, Instant}, process};
 use redis::{Commands};
 use memcache::Client as memcached_client;
 
@@ -12,20 +12,18 @@ fn main() {
 
   let time_stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_secs();
 
-/*
   let redis_uri = get_redis_rw_uri();
   let redis_client = redis::Client::open(&redis_uri[..]).unwrap();
   let mut con = redis_client.get_connection().unwrap();
- 
+
   // update memcache
   let memcache_uri = get_memcached_uri();
   let memcache_client = memcache::connect(&memcache_uri[..]).unwrap(); 
- */
+
 
   let mut real_name = "social-graph:".to_string();
   real_name.push_str(&(follow_info.user_id.to_string()));
  
-/*
   // Update follower->followee edges
   let followees_str_redis_result: redis::RedisResult<String> = con.hget(&real_name[..],"followees");
   match followees_str_redis_result {
@@ -86,8 +84,6 @@ fn main() {
       process::exit(0);
     },
   }
-*/
-  thread::sleep(Duration::from_millis(6));
   //let new_now =  Instant::now();
   //println!("SocialGraphFollow: {:?}", new_now.duration_since(now));
   send_return_value_to_caller("".to_string());

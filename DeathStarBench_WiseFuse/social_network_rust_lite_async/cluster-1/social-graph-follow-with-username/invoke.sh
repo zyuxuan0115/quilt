@@ -10,17 +10,12 @@ function invoke_wsk {
   #wsk action create $FUNC --docker zyuxuan0115/sn-$FUNC-async
   curl -u $AUTH "http://$APIHOST/api/v1/namespaces/_/actions/$FUNC?blocking=true&result=true" \
   -X POST -H "Content-Type: application/json" \
-  -d '{"user_name":"username_999","followee_name":"username_888"}'
+  -d '{"user_name":"twenisch","followee_name":"todda"}'
 }
 
 function invoke_fission {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"user_name":"username_999","followee_name":"username_888"}'
-}
-
-function invoke_fission_merged {
-  curl -XPOST http://localhost:8888/$FUNC-merged \
-  -d '{"user_name":"username_999","followee_name":"username_888"}'
+  -d '{"user_name":"twenisch","followee_name":"todda"}'
 }
 
 case "$1" in
@@ -29,8 +24,5 @@ wsk)
     ;;
 fission)
     invoke_fission
-    ;;
-fission_merged)
-    invoke_fission_merged
     ;;
 esac
