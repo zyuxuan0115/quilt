@@ -36,6 +36,8 @@ def main(dir_name, file_path):
           os.system(cmd)
       cmd = "cp func_bin/"+entry_func+" func_bin/userfunc"
       os.system(cmd)
+      cmd = "sudo chown root:root func_bin/userfunc"
+      os.system(cmd)
    
   except FileNotFoundError:
     print(f"Error: The file {file_path} was not found.")

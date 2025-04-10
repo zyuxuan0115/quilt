@@ -294,21 +294,67 @@ func (bs *BinaryServer) DynamicEntryHandler(w http.ResponseWriter, r *http.Reque
         return
     }
 
+    var wg sync.WaitGroup
+    var stdoutBuf, stderrBuf []byte
+    var stdoutErr, stderrErr error
+
+    // Copy request body to stdin
+    wg.Add(1)
     go func() {
-        defer stdinPipe.Close()
-        io.Copy(stdinPipe, r.Body)
+	defer wg.Done()
+	defer stdinPipe.Close()
+	io.Copy(stdinPipe, r.Body)
     }()
 
-    stderr, _ := io.ReadAll(stderrPipe)
-    stdout, err := io.ReadAll(stdoutPipe)
+    // Read stdout
+    wg.Add(1)
+    go func() {
+	defer wg.Done()
+	stdoutBuf, stdoutErr = io.ReadAll(stdoutPipe)
+    }()
 
+    // Read stderr
+    wg.Add(1)
+    go func() {
+	defer wg.Done()
+	stderrBuf, stderrErr = io.ReadAll(stderrPipe)
+    }()
+
+    // Wait for all I/O to finish
+    wg.Wait()
+
+    // Then wait for the process to finish
     if err := cmd.Wait(); err != nil {
-        HttpResponseWithError(w, http.StatusInternalServerError,
-            fmt.Errorf("execution failed: %w\nstderr: %s", err, stderr))
-        return
+	HttpResponseWithError(w, http.StatusInternalServerError,
+		fmt.Errorf("execution failed: %w\nstderr: %s", err, stderrBuf))
+	return
     }
 
-    HttpResponse(w, http.StatusOK, stdout)
+    if stdoutErr != nil || stderrErr != nil {
+	HttpResponseWithError(w, http.StatusInternalServerError,
+		fmt.Errorf("I/O error — stdout: %v, stderr: %v", stdoutErr, stderrErr))
+	return
+    }
+
+    // Success!
+    HttpResponse(w, http.StatusOK, stdoutBuf)
+
+
+//    go func() {
+//        defer stdinPipe.Close()
+//        io.Copy(stdinPipe, r.Body)
+//    }()
+
+//    stderr, _ := io.ReadAll(stderrPipe)
+//    stdout, err := io.ReadAll(stdoutPipe)
+
+//    if err := cmd.Wait(); err != nil {
+//        HttpResponseWithError(w, http.StatusInternalServerError,
+//            fmt.Errorf("execution failed: %w\nstderr: %s", err, stderr))
+//        return
+//    }
+
+//    HttpResponse(w, http.StatusOK, stdout)
 }
 
 
