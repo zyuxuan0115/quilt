@@ -114,6 +114,9 @@
     {
       "function_name":"callee-rust",
       "cluster_id":2
+    },
+    {
+      "function_name":"compose-post-2",
+      "cluster_id":2
     }
-
   ]
