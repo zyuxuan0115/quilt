@@ -85,35 +85,62 @@ function deploy_openwhisk {
 
 
 function deploy_fission_c {
-  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username" "text-service" "text-service-modified")
+  FUNCS=("compose-post" "read-home-timeline" "social-graph-follow-with-username") 
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
       --image docker.io/zyuxuan0115/sn-$FUNC-async-merged \
-      --minscale=1 --maxscale=30 \
+      --minscale=1 --maxscale=1 \
       --minmemory=1 --maxmemory=128 \
-      --mincpu=1  --maxcpu=2000 \
+      --mincpu=1  --maxcpu=700 \
       --port 8888 \
       --namespace fission-function
     fission httptrigger create --method POST \
       --url /$FUNC-merged --function $FUNC-merged \
       --namespace fission-function
   done
-  FUNCS=("compose-post" "write-home-timeline" "text-service")
+  FUNCS=("compose-post")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-2 \
       --image docker.io/zyuxuan0115/sn-$FUNC-async-merged \
-      --minscale=1 --maxscale=30 \
+      --minscale=1 --maxscale=72 \
       --minmemory=1 --maxmemory=128 \
-      --mincpu=1  --maxcpu=2000 \
+      --mincpu=1  --maxcpu=200 \
       --port 8888 \
       --namespace fission-function
     fission httptrigger create --method POST \
       --url /$FUNC-2 --function $FUNC-2 \
       --namespace fission-function
   done
-
+  FUNCS=("write-home-timeline") 
+  for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
+    fission function run-container --name $FUNC-2 \
+      --image docker.io/zyuxuan0115/sn-$FUNC-async-merged \
+      --minscale=1 --maxscale=15 \
+      --minmemory=1 --maxmemory=128 \
+      --mincpu=1  --maxcpu=200 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-2 --function $FUNC-2 \
+      --namespace fission-function
+  done
+  FUNCS=("text-service")
+  for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
+    fission function run-container --name $FUNC-2 \
+      --image docker.io/zyuxuan0115/sn-$FUNC-async-merged \
+      --minscale=1 --maxscale=23 \
+      --minmemory=1 --maxmemory=128 \
+      --mincpu=1  --maxcpu=200 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-2 --function $FUNC-2 \
+      --namespace fission-function
+  done
 }
 
 
