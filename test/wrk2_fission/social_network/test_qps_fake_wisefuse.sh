@@ -4,7 +4,7 @@ ARGS=("$@")
 FUNC_NAME=${ARGS[1]}
 WRK_SCRIPT="lua_files/wisefuse-$FUNC_NAME.lua"
 WRK_BIN=../wrk
-DEATHSTARBENCH=/home/zyuxuan/faas-test/DeathStarBench_WiseFuse
+DEATHSTARBENCH=/home/zyuxuan/faas-test/DeathStarBench_WiseFuse_fakedb
 SETUP_DIR=/home/zyuxuan/faas-test/setup
 TEST_DIR=/home/zyuxuan/faas-test/test
 WORKLOAD=social_network_rust_lite
@@ -26,7 +26,7 @@ fi
 
 
 function measure_perf {
-  CON=(40 80 120)
+  CON=(1 40 80 120 160 200 250 300 400 500)
 #  CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
@@ -43,7 +43,7 @@ function measure_perf {
     ENTRY_HOST=http://$IP:$PORT
     $WRK_BIN -t 1 -c $con -d 480 -L -U \
 	   -s $WRK_SCRIPT \
-	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
+	   $ENTRY_HOST -R $QPS 2>/dev/null > output_wisefuse-${ARGS[1]}-${ARGS[2]}_$con.log
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
@@ -67,7 +67,7 @@ function redeploy {
     && ./install.sh kill \
     && ./install.sh setup
   sleep 30
-  cd $DEATHSTARBENCH/apiGateway && ./build.sh deploy $FUNC_NAME
+  cd $DEATHSTARBENCH/apiGateway_go && ./build.sh deploy $FUNC_NAME
   cd $TEST_DIR/wrk2_fission/social_network
 }
 
