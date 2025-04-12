@@ -9,7 +9,7 @@ SETUP_DIR=/home/zyuxuan/faas-test/setup
 TEST_DIR=/home/zyuxuan/faas-test/test
 WORKLOAD=social_network_rust_lite
 # You only need to change this line
-QPS=1000
+QPS=10000
 
 if [ "${ARGS[2]}" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
@@ -26,8 +26,7 @@ fi
 
 
 function measure_perf {
-  CON=(1 40 80 120 160 200 250 300 400 500)
-#  CON=(1)
+  CON=(60 70 80 100 120 150 180 210 250 300 350 400)
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
