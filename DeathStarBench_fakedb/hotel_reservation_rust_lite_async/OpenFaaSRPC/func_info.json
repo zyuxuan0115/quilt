@@ -28,6 +28,10 @@
       "cluster_id":1
     },
     {
+      "function_name":"nearby-cinema-top-2",
+      "cluster_id":1
+    },
+    {
       "function_name":"nearby-cinema-parallel-1",
       "cluster_id":1
     },

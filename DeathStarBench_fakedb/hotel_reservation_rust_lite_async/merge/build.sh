@@ -90,15 +90,44 @@ function deploy_fission_c {
     echo $FUNC
     fission function run-container --name $FUNC-merged \
       --image docker.io/zyuxuan0115/hr-$FUNC-async-merged \
-      --minscale=1 --maxscale=30 \
+      --minscale=1 --maxscale=90 \
       --minmemory=1 --maxmemory=128 \
-      --mincpu=1  --maxcpu=2000 \
+      --mincpu=1  --maxcpu=1600 \
       --port 8888 \
       --namespace fission-function
     fission httptrigger create --method POST \
       --url /$FUNC-merged --function $FUNC-merged \
       --namespace fission-function
   done
+  FUNCS=("nearby-cinema-top-2")
+  for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
+    fission function run-container --name $FUNC-merged \
+      --image docker.io/zyuxuan0115/hr-$FUNC-async-merged \
+      --minscale=1 --maxscale=60 \
+      --minmemory=1 --maxmemory=128 \
+      --mincpu=1  --maxcpu=1600 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC-merged --function $FUNC-merged \
+      --namespace fission-function
+  done
+  FUNCS=("nearby-cinema-parallel-2-2")
+  for FUNC in "${FUNCS[@]}"; do
+    echo $FUNC
+    fission function run-container --name $FUNC \
+      --image docker.io/zyuxuan0115/hr-$FUNC-async-merged \
+      --minscale=1 --maxscale=30 \
+      --minmemory=1 --maxmemory=128 \
+      --mincpu=1  --maxcpu=1600 \
+      --port 8888 \
+      --namespace fission-function
+    fission httptrigger create --method POST \
+      --url /$FUNC --function $FUNC \
+      --namespace fission-function
+  done
+
 }
 
 
