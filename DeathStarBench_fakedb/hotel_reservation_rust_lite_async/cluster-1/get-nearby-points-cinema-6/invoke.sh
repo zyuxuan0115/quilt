@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-FUNC=get-nearby-points-cinema-1
+FUNC=get-nearby-points-cinema-6
 
 function invoke_wsk {
   AUTH=23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP

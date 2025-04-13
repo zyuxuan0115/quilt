@@ -48,11 +48,6 @@ def merge(f_name):
  
   func_visited = {}
   entry_func = ""
-  # get the entry function
-  if len(Lines) > 0:
-    words = Lines[0].split();
-    if len(words) > 0:
-      entry_func = words[0]
   for line in Lines:
     words = line.split()
     func_str = ""
@@ -60,6 +55,11 @@ def merge(f_name):
       new_func=word
       if new_func not in func_visited:
         func_visited[new_func] = 1
+  # get the entry function
+  if len(Lines) > 0:
+    words = Lines[0].split();
+    if len(words) > 0:
+      entry_func = words[0]
   # rename caller
   cmd = "./merge.sh rename_caller "+entry_func
   print(cmd)
