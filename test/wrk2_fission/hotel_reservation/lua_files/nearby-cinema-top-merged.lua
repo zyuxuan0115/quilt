@@ -35,13 +35,13 @@ request = function(req_id)
   local hotel_id = 'hotel_' .. tostring(math.random(0,499))
 
   local method = "POST"
-  local path = "/nearby-cinema-top"
+  local path = "/nearby-cinema-top-merged"
   local headers = {}
   local body = '{"num":300000}'
   headers["Content-Type"] = "application/json"
 
   local body_write = body .. '\n'
-  file = io.open('req_data_log_nearby-cinema-top.txt', 'a')
+  file = io.open('req_data_log_nearby-cinema-top-merged.txt', 'a')
   file:write(body_write)
   file:close()
 
