@@ -102,7 +102,7 @@ function deploy_fission_c {
   FUNCS=("nearby-cinema-top-2")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
-    fission function run-container --name $FUNC-merged \
+    fission function run-container --name $FUNC \
       --image docker.io/zyuxuan0115/hr-$FUNC-async-merged \
       --minscale=1 --maxscale=60 \
       --minmemory=1 --maxmemory=128 \
@@ -110,7 +110,7 @@ function deploy_fission_c {
       --port 8888 \
       --namespace fission-function
     fission httptrigger create --method POST \
-      --url /$FUNC-merged --function $FUNC-merged \
+      --url /$FUNC --function $FUNC \
       --namespace fission-function
   done
   FUNCS=("nearby-cinema-parallel-2-2")
