@@ -38,25 +38,25 @@ fn main() {
 
   let mut cinemas: Vec<Cinema> = Vec::new(); 
   let mut sum: f64 = 0.0;
-  for i in 0..num {
-    let idx: f64 = i.into();
-    let idx_square = idx * idx;
-    sum = sum + 1.0/idx_square;
-/*
-    let cid: String = format!("c{}", i);
-    let cinema_info = Cinema {
-      cinema_id: cid,
-//      latitude: 32.0+0.0001*idx,
-//      longitude: 32.0+0.0001*idx,
-      latitude: 32.0,
-      longitude: 32.0,
-      cinema_name: "ABC".to_string(),
-      cinema_type: "romance".to_string(),
-    };
-    cinemas.push(cinema_info);
-*/
+
+  let mut rng = rand::thread_rng();
+  let mut cinema_p: Vec<[f64; 2]> = Vec::new();
+
+  for _ in 0..num {
+    let x = rng.gen_range(32.0..40.0);
+    let y = rng.gen_range(116.0..122.0);
+    cinema_p.push([x, y]);
   }
-  let ret = sum.to_string();
+
+  let compute_dist = |p: &[f64;2], q: &[f64;2]| -> f64 { ((p[0]-q[0])*(p[0]-q[0])+(p[1]-q[1])*(p[1]-q[1])).sqrt() as f64};
+  let mut pc = PointCloud::new(compute_dist);
+  for i in 0..cinema_p.len() {
+    pc.add_point(&cinema_p[i]); 
+  }
+  let center: [f64;2] = [36.0, 119.0];
+  let results = pc.get_nearest_k(&center, maxSearchResults);
+
+  let ret = serde_json::to_string(&results).unwrap();
 /*
   let cinema_hashmap: HashMap<String, String> = cinemas.iter().map(|x| {
     let new_p: (f64,f64) = (x.latitude, x.longitude); 
