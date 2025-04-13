@@ -76,14 +76,14 @@ function deploy_openwhisk {
 
 
 function deploy_fission_c {
-  FUNCS=("search-handler" "reservation-handler" "nearby-cinema")
+  FUNCS=("search-handler" "reservation-handler" "nearby-cinema" "nearby-cinema-top")
   for FUNC in "${FUNCS[@]}"; do
     echo $FUNC
     fission function run-container --name $FUNC-merged \
       --image docker.io/zyuxuan0115/hr-$FUNC-merged \
-      --minscale=1 --maxscale=30 \
-      --minmemory=1 --maxmemory=64 \
-      --mincpu=1  --maxcpu=2000 \
+      --minscale=1 --maxscale=90 \
+      --minmemory=1 --maxmemory=126 \
+      --mincpu=1  --maxcpu=1600 \
       --port 8888 \
       --namespace fission-function
     fission httptrigger create --method POST \
