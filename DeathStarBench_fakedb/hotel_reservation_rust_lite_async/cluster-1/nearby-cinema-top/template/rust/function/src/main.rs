@@ -34,39 +34,32 @@ fn main() {
   let time_0 = Instant::now();
 
   let input1 = input.clone();
-  let cinema_points_str_future = thread::spawn(move || {
+  let result_future = thread::spawn(move || {
 //    let core_id = get_core_id();
 //    print!("Thread 1 is running on core {}, ", core_id);
-    make_rpc("get-nearby-points-cinema-1", input1)
+    make_rpc("nearby-cinema-parallel-1", input1)
   });
 
   let input2 = input.clone();
-  let cinema_points_str2_future = thread::spawn(move || {
+  let result2_future = thread::spawn(move || {
 //    let core_id = get_core_id();
 //    print!("Thread 2 is running on core {}, ", core_id);
-    make_rpc("get-nearby-points-cinema-2", input2)
+    make_rpc("nearby-cinema-parallel-2", input2)
   });
 
-  let input3 = input.clone();
-  let cinema_points_str3_future = thread::spawn(move || {
-//    let core_id = get_core_id();
-//    print!("Thread 3 is running on core {}, ", core_id);
-    make_rpc("get-nearby-points-cinema-3", input3)
-  });
+  let result_str = result_future.join().unwrap();
+  let result_str2 = result2_future.join().unwrap();
 
-  let cinema_points_str = cinema_points_str_future.join().unwrap();
-  let cinema_points_str2 = cinema_points_str2_future.join().unwrap();
-  let cinema_points_str3 = cinema_points_str3_future.join().unwrap();
-
+  println!("{}\n{}",result_str, result_str2);
+  
+/*
   let time_1 =  Instant::now();
   let mut result = format!("Time spend on waiting for callee to return: {}μs\n", time_1.duration_since(time_0).subsec_nanos()/1000);
-  result.push_str(&cinema_points_str);
+  result.push_str(&result_str);
   result.push_str("\n");
-  result.push_str(&cinema_points_str2);
-  result.push_str("\n");
-  result.push_str(&cinema_points_str3);
+  result.push_str(&result_str2);
   print!("{}", result); 
-
+ */
 /*
   let cinema_points: Vec<Point> = serde_json::from_str(&cinema_points_str).unwrap();
   cinema_pids = cinema_points.iter().map(|x| x.id.clone()).collect();

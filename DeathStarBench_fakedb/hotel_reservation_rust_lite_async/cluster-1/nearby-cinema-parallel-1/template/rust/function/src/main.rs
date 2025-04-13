@@ -65,8 +65,7 @@ fn main() {
   result.push_str(&cinema_points_str2);
   result.push_str("\n");
   result.push_str(&cinema_points_str3);
-  print!("{}", result); 
-
+  send_return_value_to_caller(result);
 /*
   let cinema_points: Vec<Point> = serde_json::from_str(&cinema_points_str).unwrap();
   cinema_pids = cinema_points.iter().map(|x| x.id.clone()).collect();

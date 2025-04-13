@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-FUNC=nearby-cinema-parallel
+FUNC=nearby-cinema-top
 
 function invoke_wsk {
   AUTH=23bc46b1-71f6-4ed5-8c54-816aa4f8c502:123zO3xZCLrMN6v2BKK1dXYFpXlPkccOFqm12CdAsMgRU4VrNZ9lyGVCGuMDGIwP
@@ -15,12 +15,12 @@ function invoke_wsk {
 
 function invoke_fission {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"num":900000}'
+  -d '{"num":1500000}'
 }
 
 function invoke_fission_merged {
   curl -XPOST http://localhost:8888/$FUNC-merged \
-  -d '{"num":900000}'
+  -d '{"num":1500000}'
 }
 
 case "$1" in
