@@ -4,12 +4,12 @@ ARGS=("$@")
 FUNC_NAME=${ARGS[1]}
 WRK_SCRIPT="lua_files/$FUNC_NAME.lua"
 WRK_BIN=../wrk
-DEATHSTARBENCH=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/DeathStarBench_fakedb
-SETUP_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/setup
-TEST_DIR=/proj/zyuxuanssf-PG0/zyuxuan/faas-test/test
-WORKLOAD=hotel_reservation_rust_lite
+DEATHSTARBENCH=/home/zyuxuan/faas-test/DeathStarBench
+SETUP_DIR=/home/zyuxuan/faas-test/setup
+TEST_DIR=/home/zyuxuan/faas-test/test
+WORKLOAD=social_network_rust_lite
 # You only need to change this line
-QPS=1000
+QPS=100000
 
 if [ "${ARGS[2]}" = "async" ]; then
   WORKLOAD="${WORKLOAD}_async"
@@ -22,34 +22,30 @@ if [ "$#" -lt 3 ]; then
   exit 1
 fi
 
+
+
+
 function measure_perf {
-#  CON=(1 2 3 4 5 7 9 12 15 18 22 26 30 40 50 70 90 110 130 160 190 230 270)
-  CON=(30)
+  CON=(1)
   # Iterate over each element in the array
   rm -rf *.log
   for con in "${CON[@]}"; do
     echo $con
     cd $SETUP_DIR/redis_memcached \
-      && ./build.sh kill \
-      && ./build.sh setup
-    sleep 30
-#    init
-    redeploy
+      && ./install.sh kill \
+      && ./install.sh setup
+    init
     sleep 10
-    cd $TEST_DIR/wrk2_fission/hotel_reservation
+    cd $TEST_DIR/wrk2_fission/social_network
     IP=$(kubectl get svc router -n fission -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
     PORT=$(kubectl get svc router -n fission -o jsonpath='{.spec.ports[0].nodePort}')
     ENTRY_HOST=http://$IP:$PORT
-    $WRK_BIN -t 1 -c $con -d 600 -L -U \
+    $WRK_BIN -t 1 -c $con -d 240 -L -U \
 	   -s $WRK_SCRIPT \
 	   $ENTRY_HOST -R $QPS 2>/dev/null > output_${ARGS[1]}-${ARGS[2]}_$con.log
     echo "===== Connections: $con ====="
     echo "connections: $con done"
     echo "============================"
-    cd $SETUP_DIR/fission \
-      && ./build.sh kill \
-      && ./build.sh setup
-    cd $TEST_DIR/wrk2_fission/hotel_reservation
   done
 }
 
@@ -67,24 +63,21 @@ function run_wrk {
 
 function redeploy {
   cd $SETUP_DIR/fission \
-    && ./build.sh kill \
-    && ./build.sh setup
-  sleep 60
+    && ./install.sh kill \
+    && ./install.sh setup
+  sleep 20
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-1 && ./build.sh deploy_fission_c
   cd $DEATHSTARBENCH/$WORKLOAD/cluster-2 && ./build.sh deploy_fission_c
-  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
-  cd $TEST_DIR/wrk2_fission/hotel_reservation
+#  cd $DEATHSTARBENCH/$WORKLOAD/merge && ./build.sh deploy_fission_c
+  cd $TEST_DIR/wrk2_fission/social_network
 }
 
 
 function init {
   redeploy 
-  run_wrk set-hotel-point 60
-  run_wrk register-user 60
-  run_wrk set-cinema 60
-  run_wrk set-capacity 60
-  run_wrk set-profile 60
-  run_wrk set-rate 60
+  run_wrk register-user-with-id 60
+  run_wrk social-graph-follow-with-username 60
+  run_wrk compose-post 300
 }
 
 
@@ -96,4 +89,3 @@ init)
     init
     ;;
 esac
-
