@@ -106,7 +106,7 @@ int main(void){
 
   char* output;	
   // so this is the RPC interface LLVM is going to change
-  make_rpc("callee-rust", message, &output);
+  make_rpc("c-callee", message, &output);
   send_return_value_to_caller(output);
   return 0;
 }
