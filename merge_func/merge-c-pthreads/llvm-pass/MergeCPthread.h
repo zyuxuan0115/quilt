@@ -1,4 +1,4 @@
-//===-- HelloWorld.h - Example Transformations ------------------*- C++ -*-===//
+//===-- MergeCPthread.h - Example Transformations ------------------*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
 // See https://llvm.org/LICENSE.txt for license information.
@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#ifndef LLVM_TRANSFORMS_UTILS_MERGECRUSTFUNC_H
-#define LLVM_TRANSFORMS_UTILS_MERGECRUSTFUNC_H
+#ifndef LLVM_TRANSFORMS_UTILS_MERGECPTHREAD_H
+#define LLVM_TRANSFORMS_UTILS_MERGECPTHREAD_H
 
 #include "llvm/IR/PassManager.h"
 #include "llvm/ADT/Statistic.h"
@@ -34,11 +34,11 @@
 
 namespace llvm {
 
-class MergeCRustFuncPass : public PassInfoMixin<MergeCRustFuncPass> {
+class MergeCPthreadPass : public PassInfoMixin<MergeCPthreadPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
 };
 
 } // namespace llvm
 
-#endif // LLVM_TRANSFORMS_UTILS_HELLOWORLD_H
+#endif // LLVM_TRANSFORMS_UTILS_MERGECPTHREAD_H

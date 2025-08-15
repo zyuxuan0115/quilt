@@ -11,8 +11,8 @@
 using namespace llvm;
 
 static cl::opt<bool> MergeWrapperRust(
-        "merge-wrapper-rust", cl::init(false),
-        cl::desc("merge wrapper function and callee function written in rust"));
+        "merge-c-pthread", cl::init(false),
+        cl::desc("merge c caller and callee function"));
 
 PreservedAnalyses MergeCPthreadPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
