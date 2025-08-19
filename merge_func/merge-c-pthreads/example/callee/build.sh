@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FUNC=c-callee
+FUNC=c-callee-2
 
 function build {
   sudo docker build --no-cache -t zyuxuan0115/$FUNC:latest \
@@ -22,7 +22,7 @@ function deploy {
 
 function invoke {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d ''
+  -d '{"msg":""}'
 }
 
 case "$1" in

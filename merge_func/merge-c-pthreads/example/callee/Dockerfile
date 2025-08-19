@@ -1,14 +1,11 @@
-FROM zyuxuan0115/fission-env:latest as builder
+FROM zyuxuan0115/c-env as builder
+# Copy all the sources
+COPY function.c ./function.c
+COPY Makefile ./Makefile
 
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
-    && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y build-essential
-
-
-WORKDIR /func
-COPY function.c /func/function.c
-COPY Makefile /func/Makefile
+WORKDIR /function
 RUN make
-#COPY echo.sh /bin/userfunc
-RUN mv /func/function /bin/userfunc
-#RUN cp /bin/userfunc /userfunc/user/userfunc
-WORKDIR /app
+
+FROM zyuxuan0115/fission-env:latest as final
+
+COPY --from=builder /function/function /bin/userfunc
