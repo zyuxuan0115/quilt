@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FUNC=c-callee-2
+FUNC=c-callee-100
 
 function build {
   sudo docker build --no-cache -t zyuxuan0115/$FUNC:latest \

@@ -1,13 +1,10 @@
 #!/bin/bash
 
-FUNC=c-caller
+FUNC=c-caller-98
 
 function build {
-  sudo docker build --no-cache -t zyuxuan0115/$FUNC:latest \
-       -f Dockerfile \
-       .
+  sudo docker build --no-cache -t zyuxuan0115/$FUNC:latest -f Dockerfile . 
   sudo docker push zyuxuan0115/$FUNC:latest
-#  sudo docker system prune -f
 }
 
 function deploy {
