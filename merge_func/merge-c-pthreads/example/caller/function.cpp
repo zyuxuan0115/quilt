@@ -7,8 +7,11 @@
 #include <nlohmann/json.hpp>
 #include <curl/curl.h>
 #include <iostream>
+#include <pthread.h>
+#include <vector>
 
-#define LENGTH 16  
+#define LENGTH 16
+#define THREAD_COUNT 5
 
 struct jsonMsg {
   std::string msg;
@@ -16,94 +19,90 @@ struct jsonMsg {
 };
 
 void to_json(nlohmann::json& j, const jsonMsg& s) {
-    j = nlohmann::json{{"msg", s.msg}, {"err", s.err}};
+  j = nlohmann::json{{"msg", s.msg}, {"err", s.err}};
 }
 
-void send_return_value_to_caller(char* output){
-  std::string message = std::string(output);
+void send_return_value_to_caller(const char* output){
+  curl_global_cleanup();
+  std::string message(output ? output : "");
   jsonMsg new_ojb = {message, ""};
   nlohmann::json j = new_ojb;
-  std::string json_string = j.dump(); 
-  printf("%s", json_string.c_str());
+  std::string json_string = j.dump();
+  printf("%s\n", json_string.c_str());
 }
 
 char* get_arg_from_caller(){
-  char* buf;
-  buf = (char*)malloc(sizeof(char)*1000);
+  // Initialize libcurl once for the whole process (thread-safe usage pattern)
+  if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
+    fprintf(stderr, "curl_global_init failed\n");
+    return NULL;
+  }
+  char* buf = (char*)malloc(1000);
   memset(buf, 0, 1000);
-  ssize_t read_len = read(STDIN_FILENO, (void*)buf, 1000*sizeof(char));
-  buf[read_len-1] = '\0';
-  return buf; 
+  ssize_t read_len = read(STDIN_FILENO, (void*)buf, 1000);
+  if (read_len <= 0) {
+    buf[0] = '\0';
+    return buf;
+  }
+  // Trim trailing newline if present
+  if (buf[read_len-1] == '\n') {
+    buf[read_len-1] = '\0';
+  } else {
+    buf[read_len] = '\0';
+  }
+  return buf;
 }
 
 struct Output {
-  char* buf;
+  std::string buf;  // accumulate all chunks
 };
 
 static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) {
-  struct Output *out = (struct Output *)stream;
-  void* buf = malloc(nmemb+1);
-  memset(buf, '\0', nmemb+1);
-  memcpy(buf, buffer, nmemb);
-  char* buf_char = (char*) buf;
-  out->buf = buf_char;
-  return nmemb;
+  Output *out = (Output *)stream;
+  size_t bytes = size * nmemb;
+  out->buf.append((const char*)buffer, bytes);
+  return bytes;
 }
 
-char* make_rpc(const char* func_name, char* input){
-  CURL *curl;
-  CURLcode res;
-  /* In windows, this will init the winsock stuff */ 
-  curl_global_init(CURL_GLOBAL_ALL);
-  /* get a curl handle */ 
-  curl = curl_easy_init();
+// NOTE: curl_global_init/cleanup are handled in main(), not here (thread safety).
+char* make_rpc(const char* func_name, const char* input){
+  CURL *curl = curl_easy_init();
+  if (!curl) return nullptr;
 
-  char* buf;
-  struct Output out = {
-    buf
-  };
+  const char* prefix = "http://router.fission.svc.cluster.local:80/";
+  size_t url_len = strlen(prefix) + strlen(func_name) + 1;
+  char* url = (char*)malloc(url_len);
+  strcpy(url, prefix);
+  strcat(url, func_name);
 
-  char* output;
-  if(curl) {
-    // First set the URL that is about to receive our POST. This URL can
-    const char* prefix = "http://router.fission.svc.cluster.local:80/";
-//    char* prefix = "http://localhost:8888/";
-    char* url = (char*)malloc(sizeof(char)*(strlen(prefix)+strlen(func_name)));
-    strcpy(url, prefix);
-    strcpy(url+strlen(prefix), func_name);
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    /* Now specify the POST data */ 
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, input);
-    /* Define our callback to get called when there is data to be written */
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, get_output);
-    /* Set a pointer to our struct to pass to the callback */
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
-    /* Perform the request, res will get the return code */ 
-    res = curl_easy_perform(curl);
-    /* Check for errors */ 
-    if(res != CURLE_OK)
-      fprintf(stderr, "curl_easy_perform() failed: %s\n",
-    curl_easy_strerror(res));
-    /* always cleanup */ 
-    curl_easy_cleanup(curl);
-    free(url);
-    char* output_buf = (char*)malloc(sizeof(char)*(strlen(out.buf)+1));
-    memset(output_buf, '\0', sizeof(char) * (strlen(output_buf) + 1));
-    strcpy(output_buf, out.buf);
-    output = output_buf;
+  Output out;
+  curl_easy_setopt(curl, CURLOPT_URL, url);
+  curl_easy_setopt(curl, CURLOPT_POSTFIELDS, input);
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, get_output);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
+
+  CURLcode res = curl_easy_perform(curl);
+  if(res != CURLE_OK) {
+    fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
   }
-  curl_global_cleanup();
-  return output;
-}
 
+  curl_easy_cleanup(curl);
+  free(url);
+
+  // Return malloc'ed C string for compatibility with existing code
+  char* ret = (char*)malloc(out.buf.size() + 1);
+  memcpy(ret, out.buf.c_str(), out.buf.size() + 1);
+  return ret;
+}
 
 void generate_random_string(char *str, size_t length) {
   const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   size_t charset_size = sizeof(charset) - 1;
 
-  unsigned char random_bytes[length];
+  unsigned char *random_bytes = (unsigned char*)malloc(length);
   if (RAND_bytes(random_bytes, length) != 1) {
     fprintf(stderr, "Error generating random bytes\n");
+    free(random_bytes);
     exit(1);
   }
 
@@ -112,14 +111,62 @@ void generate_random_string(char *str, size_t length) {
     str[i] = charset[random_index];
   }
   str[length] = '\0';
+  free(random_bytes);
 }
 
+/*********** New: threading support ***********/
+struct ThreadArg {
+  std::string input;     // per-thread copy (safe, immutable)
+  std::string result;    // thread writes result here
+};
+
+void* make_rpc_async(void* arg) {
+  ThreadArg* t = (ThreadArg*)arg;
+  char* res = make_rpc("c-callee", t->input.c_str());
+  if (res) {
+    t->result.assign(res);
+    free(res);
+  } else {
+    t->result.clear();
+  }
+  return nullptr;
+}
+/*********************************************/
+
 int main() {
+  // Read caller input, append a random suffix once
   char* input = get_arg_from_caller();
-  char* random_string = (char*)malloc((LENGTH+1) * sizeof(char));
+  char* random_string = (char*)malloc((LENGTH+1));
   generate_random_string(random_string, LENGTH);
-  strcat(input, random_string);
-  char* output = make_rpc("c-callee-100", input);
-  send_return_value_to_caller(output);
+
+  // Ensure input has enough space; if unsure, build a std::string
+  std::string base_input = std::string(input) + random_string;
+
+  free(random_string);
+  free(input);
+
+  pthread_t threads[THREAD_COUNT];
+  std::vector<ThreadArg> args(THREAD_COUNT);
+  for (int i = 0; i < THREAD_COUNT; ++i) {
+    args[i].input = base_input; // same input for all; customize if needed
+    if (pthread_create(&threads[i], nullptr, make_rpc_async, &args[i]) != 0) {
+      perror("Failed to create thread");
+      return 1;
+    }
+  }
+
+  for (int i = 0; i < THREAD_COUNT; ++i) {
+    pthread_join(threads[i], nullptr);
+  }
+
+  // Concatenate all results
+  std::string combined;
+  combined.reserve(1024 * THREAD_COUNT); // heuristic reserve
+  for (int i = 0; i < THREAD_COUNT; ++i) {
+    combined += args[i].result;
+  }
+
+  send_return_value_to_caller(combined.c_str());
+
   return 0;
 }
