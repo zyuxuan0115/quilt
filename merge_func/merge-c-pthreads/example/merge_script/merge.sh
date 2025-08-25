@@ -1,10 +1,10 @@
 #!/usr/bin/bash
 
-LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-17/build/bin
+LLVM_DIR=/proj/zyuxuanssf-PG0/zyuxuan/llvm-project-pthread/build/bin
 
 function compile {
-  $LLVM_DIR/clang -emit-llvm -S -o caller.ll ../caller/caller.c
-  $LLVM_DIR/clang -emit-llvm -S -o callee.ll ../callee/callee.c -std=c++17
+  $LLVM_DIR/clang -emit-llvm -S -o caller.ll ../caller/function.cpp
+  $LLVM_DIR/clang -emit-llvm -S -o callee.ll ../callee/function.c
 }
 
 function merge {
@@ -20,8 +20,8 @@ function link {
 
 function build {
   compile
-  merge
-  link
+#  merge
+#  link
 }
 
 function clean {
