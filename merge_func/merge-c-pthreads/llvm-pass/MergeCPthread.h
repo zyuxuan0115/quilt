@@ -37,6 +37,12 @@ namespace llvm {
 class MergeCPthreadPass : public PassInfoMixin<MergeCPthreadPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
+  void RenameCallee(Module*);
+  void MergeCallerCallee(Module*);
+  void ChangeCalleeToLocal(Function*);
+  CallInst* getCallinstByCalleeName(Function*, std::string);
+  Function* getFunctionByName(Module*, std::string);
+  Function* cloneAndReplaceFuncWithDiffSignature(CallInst* call, Function* targetFunc, std::string newFuncName);
 };
 
 } // namespace llvm

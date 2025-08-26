@@ -8,9 +8,9 @@ function compile {
 }
 
 function merge {
-  $LLVM_DIR/opt -passes=merge-c-pthread -rename-callee-cp -S callee.ll -o callee_rename.ll
+  $LLVM_DIR/opt -passes=merge-c-pthread -rename-callee-c-pthread -S callee.ll -o callee_rename.ll
   $LLVM_DIR/llvm-link caller.ll callee_rename.ll -S -o caller_callee.ll
-  $LLVM_DIR/opt -passes=merge-c-pthread -merge-callee-cp -S caller_callee.ll -o merged.ll 
+  $LLVM_DIR/opt -passes=merge-c-pthread -merge-c-pthread -S caller_callee.ll -o merged.ll 
 }
 
 function link {
@@ -20,7 +20,7 @@ function link {
 
 function build {
   compile
-#  merge
+  merge
 #  link
 }
 
