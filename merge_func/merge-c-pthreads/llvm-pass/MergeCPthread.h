@@ -43,6 +43,8 @@ public:
   CallInst* getCallinstByCalleeName(Function*, std::string);
   Function* getFunctionByName(Module*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst* call, Function* targetFunc, std::string newFuncName);
+  Function* cloneFunc(Function*, std::string);
+  void replaceMakeRpcCallwithLocalCall(Function*, Function*, Function*);
 };
 
 } // namespace llvm
