@@ -50,28 +50,43 @@ void MergeCPthreadPass::MergeCallerCallee(Module* M, FunctionAnalysisManager* FA
   Loop* L = getLoop(mainFunc, FAM);
   //get loop induction variable
   PHINode* pn = L->getCanonicalInductionVariable();
+  Value* loopInductionVar = dyn_cast<Value>(pn);
+
+  // find pthread_create() function call
+  // and create another one for local invocation
   CallInst* pthreadCreate = getCallinstByCalleeName(mainFunc, "pthread_create");
-  for (unsigned i=0; i<pthreadCreate->getNumOperands(); i++) {
-    llvm::errs()<<"i="<<i<<": "<<*pthreadCreate->getOperand(i)<<"\n";
-  }
-  SmallVector<Value*, 8> Args;
-  for (unsigned i = 0; i < pthreadCreate->arg_size(); i++) {
-    Args.push_back(pthreadCreate->getArgOperand(i));
-  }
+  // Split the block around the old call
+  BasicBlock *CurBB   = pthreadCreate->getParent();
+  BasicBlock *ContBB  = CurBB->splitBasicBlock(pthreadCreate, "cont");
+  BasicBlock *ThenBB  = BasicBlock::Create(M->getContext(), "then", mainFunc, ContBB); 
+ 
+ 
+  // Remove the unconditional branch that splitBasicBlock inserted
+  CurBB->getTerminator()->eraseFromParent();
 
-  // Replace the 3rd argument (index 2) with the new function
-  // Be sure to cast to a pointer-to-function type
-  LLVMContext &Ctx = newMakeRpcAsyncFunc->getContext();
-  Type *FTy = newMakeRpcAsyncFunc->getFunctionType();
-  PointerType *FPtrTy = PointerType::getUnqual(FTy);
-  Args[2] = ConstantExpr::getPointerCast(newMakeRpcAsyncFunc, FPtrTy);
+  // Make the constant match the IV's type (assumes it's an integer type).
+  auto *IVTy = cast<IntegerType>(loopInductionVar->getType());
+  auto *threshold = ConstantInt::get(IVTy, 10);
 
-  // Create the new call
-  CallInst *NewCall = CallInst::Create(
-    pthreadCreate->getCalledFunction()->getFunctionType(),
-    pthreadCreate->getCalledFunction(), Args,
-    pthreadCreate->getName() + ".repl",
-    pthreadCreate /* insert before old call */);
+  // Insert at end of CurBB:
+  ICmpInst *Cmp = cast<ICmpInst>(CmpInst::Create(
+    Instruction::ICmp, ICmpInst::ICMP_SLT, loopInductionVar, threshold, "cmp", CurBB
+  ));
+
+  BranchInst::Create(ThenBB, ContBB, Cmp, CurBB);
+
+  CallInst* newPthreadCreate = createNewPthreadCall(pthreadCreate, newMakeRpcAsyncFunc, ThenBB);
+  BranchInst::Create(ContBB, ThenBB);
+
+/*
+  llvm::errs()<<"CurBB:\n";
+  llvm::errs()<<*CurBB<<"\n";
+  llvm::errs()<<"ContBB:\n";
+  llvm::errs()<<*ContBB<<"\n";
+  llvm::errs()<<"ThenBB:\n";
+  llvm::errs()<<*ThenBB<<"\n";
+ */
+
 }
 
 void MergeCPthreadPass::ChangeCalleeToLocal(Function* callee) {
@@ -273,3 +288,27 @@ Loop* MergeCPthreadPass::getLoop(Function* caller, FunctionAnalysisManager* FAM)
   return NULL;
 }
 
+
+CallInst* MergeCPthreadPass::createNewPthreadCall(CallInst* pthreadCreateCall, Function* targetFunc, BasicBlock* BB){
+  SmallVector<Value*, 8> Args;
+
+  for (unsigned i = 0; i < pthreadCreateCall->arg_size(); i++) {
+    Args.push_back(pthreadCreateCall->getArgOperand(i));
+    llvm::errs()<<"### "<<*pthreadCreateCall->getArgOperand(i)<<"\n";
+  }
+
+  // Replace the 3rd argument (index 2) with the new function
+  // Be sure to cast to a pointer-to-function type
+  LLVMContext &Ctx = targetFunc->getContext();
+  Type *FTy = targetFunc->getFunctionType();
+  PointerType *FPtrTy = PointerType::getUnqual(FTy);
+  Args[2] = ConstantExpr::getPointerCast(targetFunc, FPtrTy);
+
+  // Create the new call
+  CallInst *NewCall = CallInst::Create(
+    pthreadCreateCall->getCalledFunction()->getFunctionType(),
+    pthreadCreateCall->getCalledFunction(), Args,
+    pthreadCreateCall->getName() + ".repl",
+    BB);
+  return NewCall;
+}

@@ -48,6 +48,7 @@ public:
   Function* cloneFunc(Function*, std::string);
   void replaceMakeRpcCallwithLocalCall(Function*, Function*, Function*);
   Loop* getLoop(Function*, FunctionAnalysisManager*);
+  CallInst* createNewPthreadCall(CallInst*, Function*, BasicBlock*);
 };
 
 } // namespace llvm
