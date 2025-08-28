@@ -3,10 +3,12 @@
 #include <unistd.h>
 #include <string.h>
 
+__attribute__((noinline))
 void send_return_value_to_caller(char* output){
   printf("%s\n", output);
 }
 
+__attribute__((noinline))
 char* get_arg_from_caller(){
   char* buf;
   buf = (char*)malloc(sizeof(char)*1000);

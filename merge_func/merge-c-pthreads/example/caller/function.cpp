@@ -22,6 +22,7 @@ void to_json(nlohmann::json& j, const jsonMsg& s) {
   j = nlohmann::json{{"msg", s.msg}, {"err", s.err}};
 }
 
+__attribute__((noinline)) 
 void send_return_value_to_caller(const char* output){
   curl_global_cleanup();
   std::string message(output ? output : "");
@@ -31,6 +32,7 @@ void send_return_value_to_caller(const char* output){
   printf("%s\n", json_string.c_str());
 }
 
+__attribute__((noinline)) 
 char* get_arg_from_caller(){
   // Initialize libcurl once for the whole process (thread-safe usage pattern)
   if (curl_global_init(CURL_GLOBAL_ALL) != 0) {
@@ -65,6 +67,7 @@ static size_t get_output(void *buffer, size_t size, size_t nmemb, void *stream) 
 }
 
 // NOTE: curl_global_init/cleanup are handled in main(), not here (thread safety).
+__attribute__((noinline)) 
 char* make_rpc(const char* func_name, const char* input){
   CURL *curl = curl_easy_init();
   if (!curl) return nullptr;
@@ -120,6 +123,7 @@ struct ThreadArg {
   std::string result;    // thread writes result here
 };
 
+__attribute__((noinline)) 
 void* make_rpc_async(void* arg) {
   ThreadArg* t = (ThreadArg*)arg;
   char* res = make_rpc("c-callee", t->input.c_str());
@@ -147,12 +151,9 @@ int main() {
 
   pthread_t threads[THREAD_COUNT];
   std::vector<ThreadArg> args(THREAD_COUNT);
-  for (int i = 0; i < THREAD_COUNT; ++i) {
+  for (int i = 0; i < 5; i++) {
     args[i].input = base_input; // same input for all; customize if needed
-    if (pthread_create(&threads[i], nullptr, make_rpc_async, &args[i]) != 0) {
-      perror("Failed to create thread");
-      return 1;
-    }
+    pthread_create(&threads[i], nullptr, make_rpc_async, &args[i]);
   }
 
   for (int i = 0; i < THREAD_COUNT; ++i) {
