@@ -18,6 +18,8 @@
 #include "llvm/Analysis/Passes.h"
 #include "llvm/Analysis/LoopPass.h"
 #include "llvm/Analysis/LoopInfo.h"
+#include "llvm/Analysis/ScalarEvolution.h"
+#include "llvm/Analysis/ScalarEvolutionExpressions.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/BasicBlock.h"
@@ -38,13 +40,14 @@ class MergeCPthreadPass : public PassInfoMixin<MergeCPthreadPass> {
 public:
   PreservedAnalyses run(Module &F, ModuleAnalysisManager &AM);
   void RenameCallee(Module*);
-  void MergeCallerCallee(Module*);
+  void MergeCallerCallee(Module*, FunctionAnalysisManager*);
   void ChangeCalleeToLocal(Function*);
   CallInst* getCallinstByCalleeName(Function*, std::string);
   Function* getFunctionByName(Module*, std::string);
   Function* cloneAndReplaceFuncWithDiffSignature(CallInst* call, Function* targetFunc, std::string newFuncName);
   Function* cloneFunc(Function*, std::string);
   void replaceMakeRpcCallwithLocalCall(Function*, Function*, Function*);
+  Loop* getLoop(Function*, FunctionAnalysisManager*);
 };
 
 } // namespace llvm

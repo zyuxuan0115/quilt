@@ -22,11 +22,13 @@ static cl::opt<bool> RenameCallee_cpthread(
 
 PreservedAnalyses MergeCPthreadPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
+  auto &FAMProxy = AM.getResult<FunctionAnalysisManagerModuleProxy>(M);
+  FunctionAnalysisManager &FAM = FAMProxy.getManager();
   if (RenameCallee_cpthread) {
     RenameCallee(&M);
   }
   else if (MergeCPthread) {
-    MergeCallerCallee(&M);
+    MergeCallerCallee(&M, &FAM);
   }
 
   return PreservedAnalyses::all();
@@ -37,13 +39,39 @@ void MergeCPthreadPass::RenameCallee(Module* M) {
   mainFunc->setName("Callee_main");
 }
 
-void MergeCPthreadPass::MergeCallerCallee(Module* M) {
+void MergeCPthreadPass::MergeCallerCallee(Module* M, FunctionAnalysisManager* FAM) {
   Function* origCalleeFunc = M->getFunction("Callee_main");
   Function* makeRpcAsyncFunc = getFunctionByName(M, "make_rpc_async(void*)");
   CallInst* makeRpcCall = getCallinstByCalleeName(makeRpcAsyncFunc, "make_rpc(char const*, char const*)");
   Function* newCalleeFunc = cloneAndReplaceFuncWithDiffSignature(makeRpcCall, origCalleeFunc, "new_callee");
   Function* newMakeRpcAsyncFunc = cloneFunc(makeRpcAsyncFunc, "make_rpc_async_2");
   replaceMakeRpcCallwithLocalCall(newMakeRpcAsyncFunc, makeRpcCall->getCalledFunction(), newCalleeFunc);
+  Function* mainFunc = M->getFunction("main");
+  Loop* L = getLoop(mainFunc, FAM);
+  //get loop induction variable
+  PHINode* pn = L->getCanonicalInductionVariable();
+  CallInst* pthreadCreate = getCallinstByCalleeName(mainFunc, "pthread_create");
+  for (unsigned i=0; i<pthreadCreate->getNumOperands(); i++) {
+    llvm::errs()<<"i="<<i<<": "<<*pthreadCreate->getOperand(i)<<"\n";
+  }
+  SmallVector<Value*, 8> Args;
+  for (unsigned i = 0; i < pthreadCreate->arg_size(); i++) {
+    Args.push_back(pthreadCreate->getArgOperand(i));
+  }
+
+  // Replace the 3rd argument (index 2) with the new function
+  // Be sure to cast to a pointer-to-function type
+  LLVMContext &Ctx = newMakeRpcAsyncFunc->getContext();
+  Type *FTy = newMakeRpcAsyncFunc->getFunctionType();
+  PointerType *FPtrTy = PointerType::getUnqual(FTy);
+  Args[2] = ConstantExpr::getPointerCast(newMakeRpcAsyncFunc, FPtrTy);
+
+  // Create the new call
+  CallInst *NewCall = CallInst::Create(
+    pthreadCreate->getCalledFunction()->getFunctionType(),
+    pthreadCreate->getCalledFunction(), Args,
+    pthreadCreate->getName() + ".repl",
+    pthreadCreate /* insert before old call */);
 }
 
 void MergeCPthreadPass::ChangeCalleeToLocal(Function* callee) {
@@ -57,6 +85,7 @@ CallInst* MergeCPthreadPass::getCallinstByCalleeName(Function* f, std::string fn
         CallInst* ci = dyn_cast<CallInst>(IB);
         Function* func = ci->getCalledFunction();
         std::string calledFuncName = demangle(func->getName());
+        errs()<<calledFuncName<<"\n";
         if (calledFuncName == fname) {
           return ci;
         }
@@ -136,7 +165,6 @@ Function* MergeCPthreadPass::cloneAndReplaceFuncWithDiffSignature(CallInst* call
     }
   }
   getArgCall->eraseFromParent();
- 
   return newCalleeFunc;
 }
 
@@ -210,3 +238,38 @@ void MergeCPthreadPass::replaceMakeRpcCallwithLocalCall(Function* caller, Functi
 
   callinst->eraseFromParent();
 }
+
+
+Loop* MergeCPthreadPass::getLoop(Function* caller, FunctionAnalysisManager* FAM) {
+  // Request LoopInfo (DT is pulled in automatically by the analysis dep.)
+  LoopInfo &LI = FAM->getResult<LoopAnalysis>(*caller);
+
+  for (BasicBlock &BB : *caller) {
+    for (Instruction &I : BB) {
+      auto *CB = dyn_cast<CallBase>(&I);
+      if (!CB) continue;
+
+      // Handle both direct and bitcasted calls
+      Value *CalleeOp = CB->getCalledOperand();
+      CalleeOp = CalleeOp ? CalleeOp->stripPointerCasts() : nullptr;
+      const Function *Callee = dyn_cast_or_null<Function>(CalleeOp);
+      if (!Callee || Callee->isIntrinsic()) continue;
+
+      if (Callee->getName() == "pthread_create") {
+        if (Loop *L = LI.getLoopFor(I.getParent())) {
+          errs() << "[module] pthread_create in function " << caller->getName()
+                 << " inside loop with header " << L->getHeader()->getName()
+                 << "\n";
+          // (Optional) climb to outermost loop:
+          // while (L->getParentLoop()) L = L->getParentLoop();
+          return L;
+        } else {
+          errs() << "[module] pthread_create in function " << caller->getName()
+                 << " but not in a loop\n";
+        }
+      }
+    }
+  }
+  return NULL;
+}
+
