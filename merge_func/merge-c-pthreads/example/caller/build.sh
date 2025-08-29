@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FUNC=c-caller
+FUNC=c-caller-0
 
 function build {
   sudo docker build --no-cache -t zyuxuan0115/$FUNC:latest -f Dockerfile . 
@@ -19,7 +19,7 @@ function deploy {
 
 function invoke {
   curl -XPOST http://localhost:8888/$FUNC \
-  -d '{"iter_count":10}'
+  -d '{"iter_count":5}'
 }
 
 case "$1" in
