@@ -18,7 +18,11 @@ static cl::opt<bool> RenameCallee_cpthread(
         "rename-callee-c-pthread", cl::init(false),
         cl::desc("rename callee function name"));
 
-
+// Integer option with default = 10
+static cl::opt<unsigned> FanoutThreshold(
+    "fanout-threshold",
+    cl::desc("Loop induction variable threshold for spawning threads"),
+    cl::init(10));
 
 PreservedAnalyses MergeCPthreadPass::run(Module &M,
                                       ModuleAnalysisManager &AM) {
@@ -50,42 +54,46 @@ void MergeCPthreadPass::MergeCallerCallee(Module* M, FunctionAnalysisManager* FA
   Loop* L = getLoop(mainFunc, FAM);
   //get loop induction variable
   PHINode* pn = L->getCanonicalInductionVariable();
-  Value* loopInductionVar = dyn_cast<Value>(pn);
+  Value* loopInductionVar = pn;
 
-  // find pthread_create() function call
-  // and create another one for local invocation
   CallInst* pthreadCreate = getCallinstByCalleeName(mainFunc, "pthread_create");
-  // Split the block around the old call
-  BasicBlock *CurBB   = pthreadCreate->getParent();
-  BasicBlock *ContBB  = CurBB->splitBasicBlock(pthreadCreate, "cont");
-  BasicBlock *ThenBB  = BasicBlock::Create(M->getContext(), "then", mainFunc, ContBB); 
- 
- 
-  // Remove the unconditional branch that splitBasicBlock inserted
+
+  // --- Split blocks ---
+  BasicBlock *CurBB  = pthreadCreate->getParent();
+
+  // 1) Make 'cont' that begins with the original call
+  BasicBlock *ContBB = CurBB->splitBasicBlock(pthreadCreate, "cont");
+
+  // 2) Make 'new' that begins right AFTER the original call
+  Instruction *AfterCall = pthreadCreate->getNextNode();
+  BasicBlock *NewBB = ContBB->splitBasicBlock(AfterCall, "new");
+
+  // 3) Create an empty 'then' block (inserted before NewBB for nicer layout)
+  BasicBlock *ThenBB = BasicBlock::Create(M->getContext(), "then", mainFunc, NewBB);
+
+  // Remove the unconditional branch that splitBasicBlock inserted at end of CurBB
   CurBB->getTerminator()->eraseFromParent();
 
-  // Make the constant match the IV's type (assumes it's an integer type).
+  // --- Build the compare in CurBB ---
   auto *IVTy = cast<IntegerType>(loopInductionVar->getType());
-  auto *threshold = ConstantInt::get(IVTy, 10);
+  Value *Threshold = ConstantInt::get(IVTy, FanoutThreshold);
 
-  // Insert at end of CurBB:
-  ICmpInst *Cmp = cast<ICmpInst>(CmpInst::Create(
-    Instruction::ICmp, ICmpInst::ICMP_SLT, loopInductionVar, threshold, "cmp", CurBB
-  ));
+  ICmpInst *Cmp = cast<ICmpInst>(
+      CmpInst::Create(Instruction::ICmp, ICmpInst::ICMP_SLT,
+                    loopInductionVar, Threshold, "cmp", CurBB));
 
+  // Cond branch: CurBB -> (Cmp? ThenBB : ContBB)
   BranchInst::Create(ThenBB, ContBB, Cmp, CurBB);
 
-  CallInst* newPthreadCreate = createNewPthreadCall(pthreadCreate, newMakeRpcAsyncFunc, ThenBB);
-  BranchInst::Create(ContBB, ThenBB);
+  // --- THEN path: create replacement call, then jump to NEW ---
+  CallInst *NewCall = createNewPthreadCall(pthreadCreate, newMakeRpcAsyncFunc, ThenBB);
+  // (Your helper should insert into ThenBB; if not, do: ThenBB->getInstList().push_back(NewCall);)
+  BranchInst::Create(NewBB, ThenBB);
 
-/*
-  llvm::errs()<<"CurBB:\n";
   llvm::errs()<<*CurBB<<"\n";
-  llvm::errs()<<"ContBB:\n";
   llvm::errs()<<*ContBB<<"\n";
-  llvm::errs()<<"ThenBB:\n";
-  llvm::errs()<<*ThenBB<<"\n";
- */
+  llvm::errs()<<*ThenBB<<"\n"; 
+  llvm::errs()<<*NewBB<<"\n";
 
 }
 
@@ -294,7 +302,6 @@ CallInst* MergeCPthreadPass::createNewPthreadCall(CallInst* pthreadCreateCall, F
 
   for (unsigned i = 0; i < pthreadCreateCall->arg_size(); i++) {
     Args.push_back(pthreadCreateCall->getArgOperand(i));
-    llvm::errs()<<"### "<<*pthreadCreateCall->getArgOperand(i)<<"\n";
   }
 
   // Replace the 3rd argument (index 2) with the new function
