@@ -28,7 +28,7 @@ function deploy {
       --image docker.io/zyuxuan0115/$FUNC \
       --minscale=1 --maxscale=30 \
       --minmemory=1 --maxmemory=64 \
-      --mincpu=1  --maxcpu=2000 \
+      --mincpu=1  --maxcpu=1000 \
       --port 8888 \
       --namespace fission-function
   fission httptrigger create --method POST \
