@@ -7,7 +7,7 @@ DOCKERFILE_DIR=$ROOT_DIR/../../../dockerfiles/LLVM
 ARGS=("$@")
 
 CALLER=${ARGS[1]}
-FUNC=c-pthread-merged-1
+FUNC=c-pthread-merged
 
 function merge {
   rm -rf temp && mkdir temp
