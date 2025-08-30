@@ -31,15 +31,15 @@ counter = 0
 request = function(req_id)
 
   local method = "POST"
-  local path = "/c-pthread-merged"
+  local path = "/c-caller"
   local headers = {}
   local body
   headers["Content-Type"] = "application/json"
 
-  body = '{"iter_count":3}'
+  body = '{"iter_count":10}'
 
   local body_write = body .. '\n'
-  file = io.open('req_data_log_c-pthread.txt', 'a')
+  file = io.open('req_data_log_c-caller.txt', 'a')
   file:write(body_write)
   file:close()
 
