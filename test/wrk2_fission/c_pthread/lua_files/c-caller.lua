@@ -31,12 +31,12 @@ counter = 0
 request = function(req_id)
 
   local method = "POST"
-  local path = "/c-caller"
+  local path = "/c-caller-34"
   local headers = {}
   local body
   headers["Content-Type"] = "application/json"
 
-  body = '{"iter_count":10}'
+  body = '{"iter_count":5}'
 
   local body_write = body .. '\n'
   file = io.open('req_data_log_c-caller.txt', 'a')
